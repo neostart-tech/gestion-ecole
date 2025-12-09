@@ -29,14 +29,28 @@
 
 			<!-- Right section -->
 			<div class="flex items-center space-x-4">
-				<!-- Theme toggle -->
+				<!-- Theme toggle - version améliorée -->
 				<button
 					@click="toggleTheme"
-					class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+					class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
 				>
 					<svg
-						v-if="themeStore.themeSettings.mode === 'dark'"
-						class="w-6 h-6"
+						v-if="currentMode === 'dark'"
+						class="w-5 h-5"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+						/>
+					</svg>
+					<svg
+						v-else-if="currentMode === 'light'"
+						class="w-5 h-5"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
@@ -50,7 +64,7 @@
 					</svg>
 					<svg
 						v-else
-						class="w-6 h-6"
+						class="w-5 h-5"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
@@ -59,9 +73,16 @@
 							stroke-linecap="round"
 							stroke-linejoin="round"
 							stroke-width="2"
-							d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+							d="M9.663 17h4.673M12 3v1m8.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
 						/>
 					</svg>
+					<span class="text-sm hidden md:inline">{{
+						currentMode === "auto"
+							? "Auto"
+							: currentMode === "dark"
+							? "Sombre"
+							: "Clair"
+					}}</span>
 				</button>
 
 				<!-- Settings -->
@@ -109,7 +130,7 @@
 						/>
 					</svg>
 					<span
-						v-if="notifications.length > 0"
+						v-if="unreadNotifications > 0"
 						class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"
 					></span>
 				</button>
@@ -187,8 +208,22 @@
 
 	const themeStore = useThemeStore();
 	const isProfileDropdownOpen = ref(false);
-	const notifications = ref([1, 2, 3]); // Exemple de notifications
 	const windowWidth = ref(0);
+
+	// Définir les notifications
+	const notifications = ref([
+		{ id: 1, read: false },
+		{ id: 2, read: true },
+		{ id: 3, read: false },
+	]);
+
+	const unreadNotifications = computed(() => {
+		return notifications.value.filter((n) => !n.read).length;
+	});
+
+	const currentMode = computed(() => {
+		return themeStore.themeSettings.mode;
+	});
 
 	const sidebarOpen = computed(() => {
 		return windowWidth.value >= 1024 ? themeStore.isSidebarOpen : false;
@@ -203,14 +238,10 @@
 	};
 
 	const toggleTheme = () => {
-		const currentMode = themeStore.themeSettings.mode;
-		const nextMode =
-			currentMode === "light"
-				? "dark"
-				: currentMode === "dark"
-				? "auto"
-				: "light";
-		themeStore.updateThemeSettings({ mode: nextMode });
+		const current = themeStore.themeSettings.mode;
+		const next =
+			current === "light" ? "dark" : current === "dark" ? "auto" : "light";
+		themeStore.updateThemeSettings({ mode: next });
 	};
 
 	const toggleSettings = () => {
@@ -218,7 +249,6 @@
 	};
 
 	const toggleNotifications = () => {
-		// Implémenter la logique des notifications
 		console.log("Toggle notifications");
 	};
 
@@ -226,24 +256,17 @@
 		isProfileDropdownOpen.value = !isProfileDropdownOpen.value;
 	};
 
-	const closeProfileDropdown = () => {
-		isProfileDropdownOpen.value = false;
-	};
-
 	const logout = () => {
 		console.log("Déconnexion");
-		// Implémenter la logique de déconnexion
 	};
 
-	// Fermer le dropdown si on clique ailleurs
 	const handleClickOutside = (event: MouseEvent) => {
 		const target = event.target as HTMLElement;
 		if (!target.closest(".relative")) {
-			closeProfileDropdown();
+			isProfileDropdownOpen.value = false;
 		}
 	};
 
-	// Mettre à jour la largeur de la fenêtre
 	const updateWindowWidth = () => {
 		if (typeof window !== "undefined") {
 			windowWidth.value = window.innerWidth;
@@ -251,14 +274,12 @@
 	};
 
 	onMounted(() => {
-		// Initialiser la largeur de la fenêtre
 		updateWindowWidth();
-
-		// Écouter les changements de taille
 		window.addEventListener("resize", updateWindowWidth);
-
-		// Gérer les clics pour fermer le dropdown
 		document.addEventListener("click", handleClickOutside);
+
+		// Appliquer le thème au chargement
+		themeStore.applyTheme();
 	});
 
 	onUnmounted(() => {

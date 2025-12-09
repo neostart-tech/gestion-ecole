@@ -1,5 +1,8 @@
+<!-- layouts/default.vue -->
 <template>
-	<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+	<div
+		class="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+	>
 		<SidebarApp />
 		<HeaderApp />
 		<SettingsPanel />
@@ -26,24 +29,43 @@
 </template>
 
 <script setup lang="ts">
+	import type HeaderAppVue from "~/components/HeaderApp.vue";
 	import { useThemeStore } from "../../stores/theme";
 
 	const themeStore = useThemeStore();
 
-	// Appliquer le thème au chargement
+	// Charger et appliquer le thème au chargement
 	onMounted(() => {
-		themeStore.applyTheme();
-	});
+		themeStore.loadState();
 
-	// Gérer le redimensionnement de la fenêtre
-	const handleResize = () => {
-		if (window.innerWidth >= 1024) {
-			themeStore.isMobileSidebarOpen = false;
+		// Observer les changements de thème système (mode auto)
+		if (typeof window !== "undefined") {
+			const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+			const handleSystemThemeChange = () => {
+				if (themeStore.themeSettings.mode === "auto") {
+					console.log("🔄 Thème système changé, mise à jour...");
+					themeStore.applyTheme();
+				}
+			};
+
+			// Ajouter l'écouteur
+			mediaQuery.addEventListener("change", handleSystemThemeChange);
+
+			// Nettoyer
+			onUnmounted(() => {
+				mediaQuery.removeEventListener("change", handleSystemThemeChange);
+			});
 		}
-	};
-
-	onMounted(() => {
-		window.addEventListener("resize", handleResize);
-		return () => window.removeEventListener("resize", handleResize);
 	});
+
+	// Observer les changements de mode pour réappliquer le thème
+	watch(
+		() => themeStore.themeSettings.mode,
+		(newMode) => {
+			console.log(`🎨 Mode changé en: ${newMode}`);
+			themeStore.applyTheme();
+		},
+		{ immediate: false },
+	);
 </script>
