@@ -6,6 +6,8 @@ export interface MenuItem {
 	children?: MenuItem[];
 	badge?: number;
 	open?: boolean;
+	// Nouveaux champs pour les sous-menus spécifiques
+	subMenus?: Record<string, MenuItem[]>;
 }
 
 export interface ThemeSettings {
