@@ -10,7 +10,7 @@
 	<aside
 		:class="[
 			'fixed top-0 left-0 z-40 h-screen transition-all duration-300 bg-white dark:bg-gray-800 shadow-lg',
-			themeStore.isSidebarOpen ? 'w-64' : 'w-20',
+			themeStore.isSidebarOpen ? 'w-80' : 'w-20',
 			themeStore.isMobileSidebarOpen
 				? 'translate-x-0'
 				: '-translate-x-full lg:translate-x-0',

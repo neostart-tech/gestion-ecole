@@ -1,7 +1,7 @@
 <template>
 	<header
 		class="fixed top-0 right-0 z-40 bg-white dark:bg-gray-800 shadow-sm transition-all duration-300"
-		:class="[sidebarOpen ? 'lg:left-64' : 'lg:left-20', 'left-0']"
+		:class="[sidebarOpen ? 'lg:left-80' : 'lg:left-20', 'left-0']"
 	>
 		<div class="flex items-center justify-between px-4 py-3">
 			<!-- Left section -->
