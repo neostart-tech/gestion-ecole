@@ -50,22 +50,6 @@
 								<span class="hidden sm:inline">Nouvel événement</span>
 								<span class="sm:hidden">Nouveau</span>
 							</button>
-
-							<div class="flex bg-gray-50 rounded-lg p-1">
-								<button
-									v-for="view in viewTypes"
-									:key="view.value"
-									@click="changeView(view.value)"
-									:class="[
-										'px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 whitespace-nowrap',
-										calendarView === view.value
-											? 'bg-white text-blue-600 shadow-sm'
-											: 'text-gray-600 hover:text-gray-900 hover:bg-gray-100',
-									]"
-								>
-									{{ view.label }}
-								</button>
-							</div>
 						</div>
 					</div>
 				</div>
@@ -97,71 +81,6 @@
 							</div>
 						</div>
 					</ClientOnly>
-				</div>
-			</div>
-
-			<!-- Upcoming Events -->
-			<div
-				class="mt-6 sm:mt-8 bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100"
-			>
-				<h3 class="text-lg font-semibold text-gray-800 mb-4">
-					Événements à venir
-				</h3>
-				<div class="space-y-3 sm:space-y-4">
-					<div
-						v-for="event in upcomingEvents"
-						:key="event.id"
-						class="flex items-center p-3 sm:p-4 rounded-lg border border-gray-100 hover:bg-blue-50 transition-colors duration-200"
-					>
-						<div :class="['w-2 h-10 sm:h-12 rounded-full', event.color]"></div>
-						<div class="ml-3 sm:ml-4 flex-1 min-w-0">
-							<h4 class="font-medium text-gray-800 truncate">
-								{{ event.title }}
-							</h4>
-							<div
-								class="flex flex-col sm:flex-row sm:items-center text-sm text-gray-500 mt-1 space-y-1 sm:space-y-0"
-							>
-								<div class="flex items-center">
-									<svg
-										class="w-4 h-4 mr-1 flex-shrink-0"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-										/>
-									</svg>
-									<span class="truncate">{{ event.date }}</span>
-								</div>
-								<span class="hidden sm:inline mx-2">•</span>
-								<div class="flex items-center">
-									<svg
-										class="w-4 h-4 mr-1 flex-shrink-0"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-										/>
-									</svg>
-									<span>{{ event.time }}</span>
-								</div>
-							</div>
-						</div>
-						<div
-							class="px-2 sm:px-3 py-1 bg-gray-100 rounded-full text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap ml-2"
-						>
-							{{ event.type }}
-						</div>
-					</div>
 				</div>
 			</div>
 		</div>
