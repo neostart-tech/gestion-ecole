@@ -1,188 +1,235 @@
 <template>
-	<div
-		class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 md:p-8"
-	>
-		<div class="max-w-7xl mx-auto pl-0 lg:pl-16">
-			<!-- Header -->
+	<div class="min-h-screen bg-gray-50 py-8">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<!-- Breadcrumb -->
+			<div class="flex items-center space-x-2 mb-6">
+				<span
+					class="text-sm text-gray-500 hover:text-indigo-600 cursor-pointer transition-colors"
+				>
+					Accueil
+				</span>
+				<span class="text-sm text-gray-300">/</span>
+				<span
+					class="text-sm text-gray-500 hover:text-indigo-600 cursor-pointer transition-colors"
+				>
+					Validation
+				</span>
+				<span class="text-sm text-gray-300">/</span>
+				<span class="text-sm text-gray-900 font-medium"> Absences </span>
+			</div>
+
+			<!-- Titre -->
 			<div class="mb-8">
-				<h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+				<h1 class="text-3xl font-bold text-gray-900 mb-2">
 					Validation des Absences
 				</h1>
 				<p class="text-gray-600">Gérer et valider les absences des étudiants</p>
 			</div>
 
-			<!-- Main Container -->
-			<div
-				class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transition-all duration-300"
-			>
-				<!-- Toolbar -->
-				<div
-					class="px-4 sm:px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white"
-				>
+			<!-- Zone recherche, filtres et actions -->
+			<div class="space-y-6 mb-8">
+				<!-- Recherche -->
+				<div class="relative max-w-md">
 					<div
-						class="flex flex-col sm:flex-row sm:items-center justify-between"
+						class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
 					>
-						<div class="mb-4 sm:mb-0">
-							<h2 class="text-xl font-semibold text-gray-800">
-								Absences à valider
-							</h2>
-							<p class="text-sm text-gray-500">
-								{{ absencesCount }} absences en attente
-							</p>
-						</div>
-
-						<div class="flex flex-wrap gap-3">
-							<div class="relative">
-								<div
-									class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
-								>
-									<svg
-										class="w-5 h-5 text-gray-400"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-										/>
-									</svg>
-								</div>
-								<input
-									type="text"
-									v-model="searchQuery"
-									placeholder="Nom/Prénom/Commentaire"
-									class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-64"
-								/>
-							</div>
-
-							<button
-								@click="validateSelected"
-								:disabled="selectedAbsences.length === 0"
-								:class="[
-									'px-4 py-2 rounded-lg transition-colors flex items-center shadow-sm whitespace-nowrap',
-									selectedAbsences.length > 0
-										? 'bg-green-600 text-white hover:bg-green-700'
-										: 'bg-gray-200 text-gray-500 cursor-not-allowed',
-								]"
-							>
-								<svg
-									class="w-5 h-5 mr-2"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M5 13l4 4L19 7"
-									/>
-								</svg>
-								Valider ({{ selectedAbsences.length }})
-							</button>
-						</div>
+						<svg
+							class="h-5 w-5 text-gray-400"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+							/>
+						</svg>
 					</div>
+					<input
+						v-model="searchQuery"
+						type="search"
+						class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+						placeholder="Nom/Prénom/Commentaire..."
+					/>
 				</div>
 
-				<!-- Filters -->
-				<div class="px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
-					<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-						<!-- Groupe -->
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-2"
-								>Groupe</label
-							>
-							<select
-								v-model="selectedGroup"
-								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-							>
-								<option value="">Tous</option>
-								<option v-for="group in groups" :key="group" :value="group">
-									{{ group }}
-								</option>
-							</select>
-						</div>
+				<!-- Filtres avancés -->
+				<div class="flex flex-col sm:flex-row sm:items-center gap-4">
+					<select
+						v-model="selectedGroup"
+						class="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-colors"
+					>
+						<option value="">Groupe: Tous</option>
+						<option v-for="group in groups" :key="group" :value="group">
+							{{ group }}
+						</option>
+					</select>
 
-						<!-- Date cours -->
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-2"
-								>Date cours</label
+					<div class="flex-1">
+						<input
+							type="date"
+							v-model="selectedDate"
+							class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+							placeholder="Date cours"
+						/>
+					</div>
+
+					<select
+						v-model="selectedSubject"
+						class="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-colors"
+					>
+						<option value="">Matière: Toutes</option>
+						<option v-for="subject in subjects" :key="subject" :value="subject">
+							{{ subject }}
+						</option>
+					</select>
+				</div>
+
+				<!-- Actions -->
+				<div class="flex flex-col sm:flex-row gap-4">
+					<!-- Sélecteur de colonnes -->
+					<div class="relative">
+						<button
+							@click="toggleColumnSelector"
+							class="flex items-center justify-between px-4 py-2.5 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors min-w-[180px]"
+						>
+							<span class="text-sm font-medium text-gray-700"
+								>Toutes les colonnes</span
 							>
-							<div class="relative">
-								<input
-									type="date"
-									v-model="selectedDate"
-									class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							<svg
+								class="h-4 w-4 text-gray-500 transition-transform duration-200"
+								:class="{ 'rotate-180': showColumnSelector }"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M19 9l-7 7-7-7"
 								/>
+							</svg>
+						</button>
+
+						<!-- Dropdown -->
+						<div
+							v-if="showColumnSelector"
+							class="absolute top-full left-0 mt-1 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden"
+						>
+							<div class="p-3 space-y-2 max-h-60 overflow-y-auto">
 								<div
-									class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"
+									v-for="col in availableColumns"
+									:key="col.field"
+									class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded"
 								>
-									<svg
-										class="w-5 h-5 text-gray-400"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
+									<input
+										type="checkbox"
+										:id="'col-' + col.field"
+										v-model="selectedColumns"
+										:value="col.field"
+										class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+									/>
+									<label
+										:for="'col-' + col.field"
+										class="text-sm text-gray-700 cursor-pointer select-none"
 									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-										/>
-									</svg>
+										{{ col.title }}
+									</label>
 								</div>
 							</div>
 						</div>
-
-						<!-- Matière -->
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-2"
-								>Matière</label
-							>
-							<select
-								v-model="selectedSubject"
-								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-							>
-								<option value="">Toutes</option>
-								<option
-									v-for="subject in subjects"
-									:key="subject"
-									:value="subject"
-								>
-									{{ subject }}
-								</option>
-							</select>
-						</div>
 					</div>
+
+					<!-- Bouton Valider -->
+					<button
+						@click="validateSelected"
+						:disabled="selectedAbsences.length === 0"
+						:class="[
+							'flex items-center justify-center space-x-2 px-4 py-2.5 rounded-lg font-medium transition-colors',
+							selectedAbsences.length > 0
+								? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+								: 'bg-gray-200 text-gray-500 cursor-not-allowed',
+						]"
+					>
+						<svg
+							class="h-5 w-5"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M5 13l4 4L19 7"
+							/>
+						</svg>
+						<span>Valider ({{ selectedAbsences.length }})</span>
+					</button>
+
+					<!-- Bouton Ajouter absence -->
+					<button
+						@click="addAbsence"
+						class="flex items-center justify-center space-x-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
+					>
+						<svg
+							class="h-5 w-5"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M12 4v16m8-8H4"
+							/>
+						</svg>
+						<span>Ajouter absence</span>
+					</button>
+				</div>
+			</div>
+
+			<!-- Tableau -->
+			<div
+				class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+			>
+				<!-- En-tête du tableau -->
+				<div class="px-6 py-4 border-b border-gray-200">
+					<h2 class="text-lg font-semibold text-gray-900">
+						Absences à valider
+					</h2>
+					<p class="text-sm text-gray-500">
+						{{ absencesCount }} absences en attente
+					</p>
 				</div>
 
 				<!-- Table -->
 				<div class="overflow-x-auto">
-					<table class="min-w-full divide-y divide-gray-200">
+					<table class="w-full">
 						<thead class="bg-gray-50">
 							<tr>
-								<th
-									scope="col"
-									class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12"
-								>
+								<th class="py-3 px-6 text-left">
 									<input
 										type="checkbox"
 										v-model="selectAll"
-										class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+										class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
 									/>
 								</th>
-								<th
-									scope="col"
-									class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-								>
-									<div class="flex items-center">
-										Étudiant
-										<button @click="sortBy('student')" class="ml-1">
+								<template v-for="col in visibleColumns" :key="col.field">
+									<th
+										v-if="col.field !== 'actions'"
+										@click="sortBy(col.field)"
+										class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+									>
+										<div class="flex items-center space-x-1">
+											<span>{{ col.title }}</span>
 											<svg
-												class="w-4 h-4 text-gray-400"
+												class="h-3 w-3"
+												:class="{ 'text-indigo-500': sortField === col.field }"
 												fill="none"
 												stroke="currentColor"
 												viewBox="0 0 24 24"
@@ -194,236 +241,264 @@
 													d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
 												/>
 											</svg>
-										</button>
-									</div>
-								</th>
+										</div>
+									</th>
+								</template>
 								<th
-									scope="col"
-									class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
+									v-if="visibleColumns.some((c) => c.field === 'actions')"
+									class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
 								>
-									<div class="flex items-center">
-										Cours
-										<button @click="sortBy('course')" class="ml-1">
-											<svg
-												class="w-4 h-4 text-gray-400"
-												fill="none"
-												stroke="currentColor"
-												viewBox="0 0 24 24"
-											>
-												<path
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													stroke-width="2"
-													d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
-												/>
-											</svg>
-										</button>
-									</div>
-								</th>
-								<th
-									scope="col"
-									class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell"
-								>
-									Commentaire
-								</th>
-								<th
-									scope="col"
-									class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-								>
-									<div class="flex items-center">
-										Créé le
-										<button @click="sortBy('createdAt')" class="ml-1">
-											<svg
-												class="w-4 h-4 text-gray-400"
-												fill="none"
-												stroke="currentColor"
-												viewBox="0 0 24 24"
-											>
-												<path
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													stroke-width="2"
-													d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
-												/>
-											</svg>
-										</button>
-									</div>
-								</th>
-								<th
-									scope="col"
-									class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-								>
-									Action
+									Actions
 								</th>
 							</tr>
 						</thead>
-						<tbody class="bg-white divide-y divide-gray-200">
+						<tbody class="divide-y divide-gray-200">
 							<template v-if="filteredAbsences.length > 0">
 								<tr
-									v-for="absence in filteredAbsences"
+									v-for="absence in paginatedAbsences"
 									:key="absence.id"
-									class="hover:bg-gray-50 transition-colors duration-150"
+									class="hover:bg-gray-50 transition-colors"
 								>
-									<td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+									<td class="py-4 px-6">
 										<input
 											type="checkbox"
 											:value="absence.id"
 											v-model="selectedAbsences"
-											class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+											class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
 										/>
 									</td>
-									<td class="px-4 sm:px-6 py-4">
-										<div class="flex items-center">
-											<div class="flex-shrink-0 h-10 w-10">
+									<template v-for="col in visibleColumns" :key="col.field">
+										<td v-if="col.field === 'student'" class="py-4 px-6">
+											<div class="flex items-center space-x-3">
 												<div
-													class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center"
+													class="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center"
 												>
-													<span class="text-blue-600 font-semibold">{{
-														getInitials(absence.student)
-													}}</span>
+													<span class="text-indigo-600 font-semibold">
+														{{ getInitials(absence.student) }}
+													</span>
+												</div>
+												<div>
+													<div class="font-medium text-gray-900">
+														{{ absence.student }}
+													</div>
+													<div class="text-sm text-gray-500">
+														{{ absence.group }}
+													</div>
 												</div>
 											</div>
-											<div class="ml-4">
-												<div class="text-sm font-medium text-gray-900">
-													{{ absence.student }}
+										</td>
+										<td v-else-if="col.field === 'course'" class="py-4 px-6">
+											<div>
+												<div class="font-medium text-gray-900">
+													{{ absence.course }}
+												</div>
+												<div
+													class="text-sm text-gray-500 flex items-center space-x-2"
+												>
+													<span>{{ formatDate(absence.courseDate) }}</span>
+													<span class="text-gray-300">•</span>
+													<span>{{ absence.subject }}</span>
+												</div>
+											</div>
+										</td>
+										<td v-else-if="col.field === 'comment'" class="py-4 px-6">
+											<div class="max-w-xs truncate text-gray-600">
+												{{ absence.comment || "Aucun commentaire" }}
+											</div>
+										</td>
+										<td v-else-if="col.field === 'createdAt'" class="py-4 px-6">
+											<div>
+												<div class="text-gray-900">
+													{{ formatDateTime(absence.createdAt) }}
 												</div>
 												<div class="text-sm text-gray-500">
-													{{ absence.group }}
+													Il y a {{ getTimeAgo(absence.createdAt) }}
 												</div>
 											</div>
-										</div>
-									</td>
-									<td class="px-4 sm:px-6 py-4 hidden md:table-cell">
-										<div>
-											<div class="text-sm font-medium text-gray-900">
-												{{ absence.course }}
-											</div>
-											<div class="text-sm text-gray-500">
-												{{ formatDate(absence.courseDate) }}
-												<span class="mx-1">•</span>
-												{{ absence.subject }}
-											</div>
-										</div>
-									</td>
-									<td class="px-4 sm:px-6 py-4 hidden lg:table-cell">
-										<div class="max-w-xs">
-											<p
-												class="text-sm text-gray-900 truncate"
-												:title="absence.comment"
+										</td>
+										<td v-else-if="col.field === 'status'" class="py-4 px-6">
+											<span
+												:class="[
+													'px-2 py-1 text-xs font-medium rounded-full',
+													absence.status === 'pending'
+														? 'bg-amber-100 text-amber-800'
+														: absence.status === 'validated'
+														? 'bg-emerald-100 text-emerald-800'
+														: 'bg-red-100 text-red-800',
+												]"
 											>
-												{{ absence.comment || "Aucun commentaire" }}
-											</p>
-										</div>
-									</td>
-									<td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-										<div class="text-sm text-gray-900">
-											{{ formatDateTime(absence.createdAt) }}
-										</div>
-										<div class="text-xs text-gray-500">
-											Il y a {{ getTimeAgo(absence.createdAt) }}
-										</div>
-									</td>
+												{{ getStatusText(absence.status) }}
+											</span>
+										</td>
+									</template>
 									<td
-										class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium"
+										v-if="visibleColumns.some((c) => c.field === 'actions')"
+										class="py-4 px-6"
 									>
 										<div class="flex space-x-2">
 											<button
-												@click="validateAbsence(absence.id)"
-												class="text-green-600 hover:text-green-900 px-2 py-1 rounded hover:bg-green-50 transition-colors"
+												@click.stop="validateAbsence(absence.id)"
+												class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+												title="Valider"
 											>
-												Valider
+												<svg
+													class="h-5 w-5"
+													fill="none"
+													stroke="currentColor"
+													viewBox="0 0 24 24"
+												>
+													<path
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														stroke-width="2"
+														d="M5 13l4 4L19 7"
+													/>
+												</svg>
 											</button>
 											<button
-												@click="rejectAbsence(absence.id)"
-												class="text-red-600 hover:text-red-900 px-2 py-1 rounded hover:bg-red-50 transition-colors"
+												@click.stop="rejectAbsence(absence.id)"
+												class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+												title="Rejeter"
 											>
-												Rejeter
+												<svg
+													class="h-5 w-5"
+													fill="none"
+													stroke="currentColor"
+													viewBox="0 0 24 24"
+												>
+													<path
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														stroke-width="2"
+														d="M6 18L18 6M6 6l12 12"
+													/>
+												</svg>
 											</button>
 											<button
-												@click="viewDetails(absence)"
-												class="text-blue-600 hover:text-blue-900 px-2 py-1 rounded hover:bg-blue-50 transition-colors"
+												@click.stop="viewDetails(absence)"
+												class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+												title="Détails"
 											>
-												Détails
+												<svg
+													class="h-5 w-5"
+													fill="none"
+													stroke="currentColor"
+													viewBox="0 0 24 24"
+												>
+													<path
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														stroke-width="2"
+														d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+													/>
+												</svg>
 											</button>
 										</div>
 									</td>
 								</tr>
 							</template>
-							<template v-else>
-								<tr>
-									<td colspan="6" class="px-4 sm:px-6 py-8 text-center">
-										<div
-											class="flex flex-col items-center justify-center text-gray-500"
+							<tr v-else>
+								<td
+									:colspan="visibleColumns.length + 1"
+									class="py-12 text-center"
+								>
+									<div class="flex flex-col items-center justify-center">
+										<svg
+											class="h-16 w-16 text-gray-300 mb-4"
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
 										>
-											<svg
-												class="w-16 h-16 mb-4 text-gray-300"
-												fill="none"
-												stroke="currentColor"
-												viewBox="0 0 24 24"
-											>
-												<path
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													stroke-width="2"
-													d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-												/>
-											</svg>
-											<p class="text-lg font-medium mb-2">
-												Aucune absence en attente
-											</p>
-											<p class="text-sm">
-												Toutes les absences ont été traitées
-											</p>
-										</div>
-									</td>
-								</tr>
-							</template>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+											/>
+										</svg>
+										<h3 class="text-lg font-medium text-gray-900 mb-2">
+											Aucune absence en attente
+										</h3>
+										<p class="text-gray-500">
+											Toutes les absences ont été traitées
+										</p>
+									</div>
+								</td>
+							</tr>
 						</tbody>
 					</table>
 				</div>
 
 				<!-- Pagination -->
-				<div class="px-4 sm:px-6 py-4 bg-gray-50 border-t border-gray-200">
+				<div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
 					<div
-						class="flex flex-col sm:flex-row sm:items-center sm:justify-between"
+						class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0"
 					>
-						<div class="mb-4 sm:mb-0">
-							<p class="text-sm text-gray-700">
-								Affichage de
-								<span class="font-medium">{{ filteredAbsences.length }}</span>
-								sur
-								<span class="font-medium">{{ absences.length }}</span>
-								résultats
-							</p>
+						<div class="text-sm text-gray-700">
+							Affichage de
+							<span class="font-medium">{{ paginatedAbsences.length }}</span>
+							sur
+							<span class="font-medium">{{ filteredAbsences.length }}</span>
+							résultats
 						</div>
+
 						<div class="flex items-center space-x-2">
 							<button
 								@click="previousPage"
 								:disabled="currentPage === 1"
 								:class="[
-									'px-3 py-1 border border-gray-300 rounded text-sm',
+									'px-3 py-1.5 text-sm border border-gray-300 rounded-md transition-colors',
 									currentPage === 1
 										? 'text-gray-400 cursor-not-allowed'
-										: 'text-gray-700 hover:bg-gray-50',
+										: 'text-gray-700 hover:bg-gray-100',
 								]"
 							>
 								Précédent
 							</button>
-							<span class="text-sm text-gray-700">
-								Page {{ currentPage }} sur {{ totalPages }}
-							</span>
+
+							<div class="flex items-center space-x-1">
+								<button
+									v-for="page in visiblePages"
+									:key="page"
+									@click="goToPage(page)"
+									:class="[
+										'px-3 py-1.5 text-sm border rounded-md transition-colors',
+										page === currentPage
+											? 'bg-indigo-600 border-indigo-600 text-white'
+											: 'border-gray-300 text-gray-700 hover:bg-gray-100',
+									]"
+								>
+									{{ page }}
+								</button>
+								<span v-if="showEllipsis" class="px-2 text-gray-500">...</span>
+							</div>
+
 							<button
 								@click="nextPage"
 								:disabled="currentPage === totalPages"
 								:class="[
-									'px-3 py-1 border border-gray-300 rounded text-sm',
+									'px-3 py-1.5 text-sm border border-gray-300 rounded-md transition-colors',
 									currentPage === totalPages
 										? 'text-gray-400 cursor-not-allowed'
-										: 'text-gray-700 hover:bg-gray-50',
+										: 'text-gray-700 hover:bg-gray-100',
 								]"
 							>
 								Suivant
 							</button>
+						</div>
+
+						<div class="flex items-center space-x-2 text-sm text-gray-700">
+							<span>Afficher</span>
+							<select
+								v-model="itemsPerPage"
+								class="px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+							>
+								<option value="10">10</option>
+								<option value="25">25</option>
+								<option value="50">50</option>
+								<option value="100">100</option>
+							</select>
+							<span>par page</span>
 						</div>
 					</div>
 				</div>
@@ -433,7 +508,7 @@
 </template>
 
 <script setup lang="ts">
-	import { ref, computed, onMounted } from "vue";
+	import { ref, computed, watch } from "vue";
 
 	interface Absence {
 		id: number;
@@ -522,7 +597,17 @@
 		"Mathématiques",
 	];
 
-	// Filtres
+	// Colonnes disponibles
+	const availableColumns = ref([
+		{ field: "student", title: "Étudiant" },
+		{ field: "course", title: "Cours" },
+		{ field: "comment", title: "Commentaire" },
+		{ field: "createdAt", title: "Créé le" },
+		{ field: "status", title: "Statut" },
+		{ field: "actions", title: "Actions" },
+	]);
+
+	// Filtres et sélections
 	const searchQuery = ref("");
 	const selectedGroup = ref("");
 	const selectedDate = ref("");
@@ -530,12 +615,22 @@
 	const selectedAbsences = ref<number[]>([]);
 	const selectAll = ref(false);
 	const currentPage = ref(1);
-	const itemsPerPage = 10;
-	const sortField = ref<"student" | "course" | "createdAt">("createdAt");
+	const itemsPerPage = ref(10);
+	const sortField = ref("createdAt");
 	const sortDirection = ref<"asc" | "desc">("desc");
+	const showColumnSelector = ref(false);
+	const selectedColumns = ref<string[]>([
+		"student",
+		"course",
+		"createdAt",
+		"actions",
+	]);
 
-	// Computed
-	const absencesCount = computed(() => filteredAbsences.value.length);
+	// Computed properties
+	const absencesCount = computed(() => {
+		return absences.value.filter((absence) => absence.status === "pending")
+			.length;
+	});
 
 	const filteredAbsences = computed(() => {
 		let filtered = absences.value.filter(
@@ -548,7 +643,8 @@
 			filtered = filtered.filter(
 				(absence) =>
 					absence.student.toLowerCase().includes(query) ||
-					absence.comment.toLowerCase().includes(query),
+					absence.comment.toLowerCase().includes(query) ||
+					absence.course.toLowerCase().includes(query),
 			);
 		}
 
@@ -575,12 +671,18 @@
 
 		// Tri
 		filtered.sort((a, b) => {
-			let aValue = a[sortField.value];
-			let bValue = b[sortField.value];
+			let aValue: any = a[sortField.value as keyof Absence];
+			let bValue: any = b[sortField.value as keyof Absence];
 
-			if (sortField.value === "createdAt") {
-				aValue = new Date(a.createdAt).getTime();
-				bValue = new Date(b.createdAt).getTime();
+			if (sortField.value === "createdAt" || sortField.value === "courseDate") {
+				aValue = new Date(aValue).getTime();
+				bValue = new Date(bValue).getTime();
+			}
+
+			if (typeof aValue === "string" && typeof bValue === "string") {
+				return sortDirection.value === "asc"
+					? aValue.localeCompare(bValue)
+					: bValue.localeCompare(aValue);
 			}
 
 			if (aValue < bValue) return sortDirection.value === "asc" ? -1 : 1;
@@ -588,32 +690,54 @@
 			return 0;
 		});
 
-		// Pagination
-		const start = (currentPage.value - 1) * itemsPerPage;
-		const end = start + itemsPerPage;
-		return filtered.slice(start, end);
+		return filtered;
 	});
 
-	const totalPages = computed(() =>
-		Math.ceil(
-			absences.value.filter((a) => a.status === "pending").length /
-				itemsPerPage,
-		),
-	);
+	const totalPages = computed(() => {
+		return Math.ceil(filteredAbsences.value.length / itemsPerPage.value);
+	});
 
-	// Watch pour selectAll
-	const watchSelectAll = computed({
-		get: () => selectAll.value,
-		set: (value: boolean) => {
-			selectAll.value = value;
-			if (value) {
-				selectedAbsences.value = filteredAbsences.value.map(
-					(absence) => absence.id,
-				);
-			} else {
-				selectedAbsences.value = [];
+	const paginatedAbsences = computed(() => {
+		const start = (currentPage.value - 1) * itemsPerPage.value;
+		const end = start + itemsPerPage.value;
+		return filteredAbsences.value.slice(start, end);
+	});
+
+	const visibleColumns = computed(() => {
+		return availableColumns.value.filter((col) =>
+			selectedColumns.value.includes(col.field),
+		);
+	});
+
+	const visiblePages = computed(() => {
+		const pages = [];
+		const maxVisible = 5;
+
+		if (totalPages.value <= maxVisible) {
+			for (let i = 1; i <= totalPages.value; i++) {
+				pages.push(i);
 			}
-		},
+		} else {
+			let start = Math.max(1, currentPage.value - 2);
+			let end = Math.min(totalPages.value, start + maxVisible - 1);
+
+			if (end - start + 1 < maxVisible) {
+				start = Math.max(1, end - maxVisible + 1);
+			}
+
+			for (let i = start; i <= end; i++) {
+				pages.push(i);
+			}
+		}
+
+		return pages;
+	});
+
+	const showEllipsis = computed(() => {
+		return (
+			totalPages.value > 5 &&
+			(currentPage.value < totalPages.value - 2 || currentPage.value > 3)
+		);
 	});
 
 	// Méthodes
@@ -656,13 +780,30 @@
 		}
 	}
 
-	function sortBy(field: "student" | "course" | "createdAt") {
+	function getStatusText(status: string) {
+		switch (status) {
+			case "pending":
+				return "En attente";
+			case "validated":
+				return "Validée";
+			case "rejected":
+				return "Rejetée";
+			default:
+				return status;
+		}
+	}
+
+	function sortBy(field: string) {
 		if (sortField.value === field) {
 			sortDirection.value = sortDirection.value === "asc" ? "desc" : "asc";
 		} else {
 			sortField.value = field;
 			sortDirection.value = "desc";
 		}
+	}
+
+	function toggleColumnSelector() {
+		showColumnSelector.value = !showColumnSelector.value;
 	}
 
 	function validateSelected() {
@@ -712,6 +853,23 @@
 		);
 	}
 
+	function addAbsence() {
+		const newAbsence: Absence = {
+			id: absences.value.length + 1,
+			student: `Nouvel Étudiant ${absences.value.length + 1}`,
+			group: groups[Math.floor(Math.random() * groups.length)],
+			course: `Cours ${absences.value.length + 1}`,
+			subject: subjects[Math.floor(Math.random() * subjects.length)],
+			courseDate: new Date().toISOString().split("T")[0],
+			comment: "Nouvelle absence ajoutée",
+			createdAt: new Date().toISOString(),
+			status: "pending",
+		};
+
+		absences.value.push(newAbsence);
+		alert(`Absence ajoutée pour ${newAbsence.student}`);
+	}
+
 	function previousPage() {
 		if (currentPage.value > 1) {
 			currentPage.value--;
@@ -724,47 +882,29 @@
 		}
 	}
 
-	// Reset pagination quand les filtres changent
-	function resetPagination() {
-		currentPage.value = 1;
+	function goToPage(page: number) {
+		currentPage.value = page;
 	}
 
-	// Watch les filtres pour reset la pagination
-	watch(
-		() => [
-			searchQuery.value,
-			selectedGroup.value,
-			selectedDate.value,
-			selectedSubject.value,
-		],
-		resetPagination,
-	);
-</script>
-
-<style scoped>
-	/* Styles spécifiques pour la table responsive */
-	@media (max-width: 768px) {
-		.hidden-mobile {
-			display: none;
+	// Watchers
+	watch(selectAll, (newValue) => {
+		if (newValue) {
+			selectedAbsences.value = paginatedAbsences.value.map(
+				(absence) => absence.id,
+			);
+		} else {
+			selectedAbsences.value = [];
 		}
-	}
+	});
 
-	/* Animation pour les lignes du tableau */
-	tr {
-		transition: background-color 0.15s ease-in-out;
-	}
+	watch([searchQuery, selectedGroup, selectedDate, selectedSubject], () => {
+		currentPage.value = 1;
+	});
 
-	/* Style pour les boutons d'action */
-	button:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
+	watch(itemsPerPage, () => {
+		currentPage.value = 1;
+	});
 
-	/* Style pour le champ de recherche */
-	input[type="text"]:focus,
-	input[type="date"]:focus,
-	select:focus {
-		outline: none;
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-	}
-</style>
+	// Initialiser les colonnes sélectionnées
+	selectedColumns.value = availableColumns.value.map((col) => col.field);
+</script>
