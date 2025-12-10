@@ -2,7 +2,7 @@
 	<div
 		class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 md:p-8"
 	>
-		<div class="max-w-7xl mx-auto pl-0 lg:pl-16">
+		<div class="max-w-7xl mx-auto">
 			<!-- Header -->
 			<div class="mb-8">
 				<h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
