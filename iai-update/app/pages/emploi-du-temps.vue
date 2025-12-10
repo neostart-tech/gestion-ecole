@@ -73,13 +73,12 @@
 				<!-- Calendar -->
 				<div class="p-2 sm:p-4 md:p-6">
 					<ClientOnly>
-						<div v-if="showCalendar">
-							<FullCalendar
-								ref="calendarRef"
-								:options="calendarOptions"
-								class="custom-calendar"
-							/>
-						</div>
+						<FullCalendar
+							v-if="showCalendar"
+							ref="calendarRef"
+							:options="calendarOptions"
+							class="custom-calendar"
+						/>
 						<div v-else class="space-y-4 animate-pulse">
 							<div class="h-8 bg-gray-200 rounded w-1/4"></div>
 							<div class="grid grid-cols-7 gap-1 sm:gap-2">
@@ -171,8 +170,9 @@
 
 <script setup lang="ts">
 	import { ref, onMounted, computed } from "vue";
+	import type { CalendarOptions } from "@fullcalendar/core";
 
-	// VERSION SIMPLIFIÉE - Import direct des plugins
+	// Déclarer les types pour les imports dynamiques
 	let FullCalendar: any = null;
 	let dayGridPlugin: any = null;
 	let timeGridPlugin: any = null;
@@ -225,12 +225,12 @@
 
 	// Charger FullCalendar côté client seulement
 	onMounted(async () => {
-		// Dans Nuxt 3, on utilise import.meta.client au lieu de process.client
-		if (import.meta.client) {
+		// Vérifier si on est côté client
+		if (typeof window !== "undefined") {
 			try {
 				// Importer FullCalendar et ses plugins
 				const fullCalendarModule = await import("@fullcalendar/vue3");
-				FullCalendar = fullCalendarModule.FullCalendar;
+				FullCalendar = fullCalendarModule.default;
 
 				const dayGridModule = await import("@fullcalendar/daygrid");
 				dayGridPlugin = dayGridModule.default;
@@ -255,7 +255,7 @@
 	});
 
 	// Configuration du calendrier
-	const calendarOptions = computed(() => {
+	const calendarOptions = computed<CalendarOptions>(() => {
 		if (!showCalendar.value) return {};
 
 		return {
