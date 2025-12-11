@@ -11,7 +11,7 @@
 		<main
 			:class="[
 				'pt-16 transition-all duration-300',
-				themeStore.isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20',
+				themeStore.isSidebarOpen ? 'lg:ml-80' : 'lg:ml-20',
 				'ml-0',
 			]"
 		>
