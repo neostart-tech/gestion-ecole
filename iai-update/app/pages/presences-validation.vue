@@ -2,29 +2,24 @@
 	<div class="min-h-screen bg-gray-50 py-8">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 			<!-- Breadcrumb -->
-			<div class="flex items-center space-x-2 mb-6">
-				<span
-					class="text-sm text-gray-500 hover:text-indigo-600 cursor-pointer transition-colors"
-				>
-					Accueil
-				</span>
-				<span class="text-sm text-gray-300">/</span>
-				<span
-					class="text-sm text-gray-500 hover:text-indigo-600 cursor-pointer transition-colors"
-				>
-					Validation
-				</span>
-				<span class="text-sm text-gray-300">/</span>
-				<span class="text-sm text-gray-900 font-medium"> Absences </span>
-			</div>
+			<Breadcrumb
+				:items="[
+					{ label: 'Presences', to: '/' },
+					{ label: 'Validation', to: null },
+				]"
+				title="Absences à valider"
+				:title-class="'text-xl md:text-2xl text-gray-800'"
+				:spacing="'mb-2'"
+				:link-color="'text-blue-600 hover:text-blue-800'"
+				:active-color="'text-gray-900 font-medium'"
+				:text-size="'text-base'"
+				align="left"
+			/>
 
-			<!-- Titre -->
-			<div class="mb-8">
-				<h1 class="text-3xl font-bold text-gray-900 mb-2">
-					Validation des Absences
-				</h1>
-				<p class="text-gray-600">Gérer et valider les absences des étudiants</p>
-			</div>
+			<!-- Sous-titre -->
+			<p class="text-gray-600 mb-8">
+				Gérez et validez les absences des étudiants
+			</p>
 
 			<!-- Zone recherche, filtres et actions -->
 			<div class="space-y-6 mb-8">
