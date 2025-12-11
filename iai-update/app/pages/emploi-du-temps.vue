@@ -3,15 +3,25 @@
 		class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 md:p-8"
 	>
 		<div class="max-w-7xl mx-auto">
-			<!-- Header -->
-			<div class="mb-8">
-				<h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
-					Calendrier Professionnel
-				</h1>
-				<p class="text-gray-600">
-					Gérez vos événements et réunions en toute simplicité
-				</p>
-			</div>
+			<!-- Breadcrumb -->
+			<Breadcrumb
+				:items="[
+					{ label: 'Accueil', to: '/' },
+					{ label: 'Emploi du temps', to: null },
+				]"
+				title="Mon emploi du temps"
+				:title-class="'text-xl md:text-2xl text-gray-800'"
+				:spacing="'mb-2'"
+				:link-color="'text-blue-600 hover:text-blue-800'"
+				:active-color="'text-gray-900 font-medium'"
+				:text-size="'text-base'"
+				align="left"
+			/>
+
+			<!-- Sous-titre -->
+			<p class="text-gray-600 mb-8">
+				Gérez vos événements et réunions en toute simplicité
+			</p>
 
 			<!-- Calendar Container -->
 			<div
@@ -90,6 +100,9 @@
 <script setup lang="ts">
 	import { ref, onMounted, computed } from "vue";
 	import type { CalendarOptions } from "@fullcalendar/core";
+
+	// Import du composant Breadcrumb
+	import Breadcrumb from "~/components/Breadcrumb.vue";
 
 	// Déclarer les types pour les imports dynamiques
 	let FullCalendar: any = null;
