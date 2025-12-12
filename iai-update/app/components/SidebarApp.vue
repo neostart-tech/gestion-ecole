@@ -16,6 +16,43 @@
 				: '-translate-x-full lg:translate-x-0',
 		]"
 	>
+		<!-- Zone Logo -->
+		<div
+			class="h-19 flex items-center justify-center border-b border-gray-200 dark:border-gray-700"
+		>
+			<div v-if="themeStore.isSidebarOpen" class="flex items-center space-x-3">
+				<!-- Logo -->
+				<div
+					class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center"
+				>
+					<svg
+						class="w-6 h-6 text-white"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+					>
+						<path
+							d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"
+						></path>
+					</svg>
+				</div>
+				<!-- Texte du logo -->
+				<h1 class="text-xl font-bold text-gray-800 dark:text-white">
+					EduManager
+				</h1>
+			</div>
+			<!-- Logo réduit -->
+			<div
+				v-else
+				class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center"
+			>
+				<svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+					<path
+						d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"
+					></path>
+				</svg>
+			</div>
+		</div>
+
 		<!-- Menu -->
 		<div class="h-[calc(100vh)] overflow-y-auto py-4">
 			<nav class="px-2">
@@ -65,7 +102,6 @@
 	</aside>
 </template>
 
-<!-- Dans Sidebar.vue - mettre à jour la section menuSections -->
 <script setup lang="ts">
 	import { useThemeStore } from "../../stores/theme";
 	import SidebarItem from "./SidebarItem.vue";
@@ -144,7 +180,6 @@
 					icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4",
 
 					path: "/salles",
-
 				},
 				{
 					id: "8",
@@ -252,13 +287,12 @@
 					icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z",
 					badge: 1,
 					path: "/Messages",
-					
 				},
 				{
 					id: "15",
 					title: "Réclamations",
 					icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.732 0L4.346 16.5c-.77.833.192 2.5 1.732 2.5z",
-					path: "/reclamations"
+					path: "/reclamations",
 				},
 				{
 					id: "16",
@@ -319,3 +353,19 @@
 		themeStore.isMobileSidebarOpen = false;
 	};
 </script>
+
+<style scoped>
+	.animate-slide {
+		animation: slide 25s linear infinite;
+		width: max-content;
+	}
+
+	@keyframes slide {
+		0% {
+			transform: translateX(0);
+		}
+		100% {
+			transform: translateX(-50%);
+		}
+	}
+</style>

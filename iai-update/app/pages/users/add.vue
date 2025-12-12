@@ -288,7 +288,6 @@
 							</p>
 						</div>
 
-<<<<<<< HEAD
 						<!-- Rôle utilisateur (optionnel) -->
 						<div>
 							<label class="block text-sm font-medium text-gray-700 mb-3">
@@ -314,67 +313,17 @@
 						<label class="block text-sm font-medium text-gray-700 mb-3">
 							Description détaillée
 						</label>
-						<EditorTinyMCE v-model="newUser.notes" :disabled="isSubmitting" />
-						<div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-							<div class="flex items-start gap-3">
-								<svg
-									class="w-5 h-5 text-blue-600 mt-0.5"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-									/>
-								</svg>
-								<div class="text-sm text-blue-700">
-									<p class="font-medium mb-1">
-										🚀 Configuration requise pour TinyMCE
-									</p>
-									<ol class="list-decimal pl-4 space-y-1">
-										<li>
-											Ajoutez votre clé API dans le composant EditorTinyMCE
-										</li>
-										<li>
-											Configurez votre domaine dans le tableau de bord TinyMCE
-										</li>
-										<li>
-											Profitez de l'éditeur de texte riche avec toutes les
-											fonctionnalités
-										</li>
-									</ol>
-									<div class="mt-3">
-										<a
-											href="https://www.tiny.cloud/docs/tinymce/6/react-cloud/#create-an-api-key"
-											target="_blank"
-											class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium text-sm"
-										>
-											Voir la documentation
-											<svg
-												class="w-4 h-4"
-												fill="none"
-												stroke="currentColor"
-												viewBox="0 0 24 24"
-											>
-												<path
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													stroke-width="2"
-													d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-												/>
-											</svg>
-										</a>
-									</div>
-								</div>
-							</div>
-						</div>
+						<textarea
+							id="notes"
+							v-model="newUser.notes"
+							rows="6"
+							placeholder="Informations supplémentaires sur l'utilisateur..."
+							class="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-y"
+						></textarea>
 					</div>
 				</div>
 
-				<!-- Boutons d'action -->
+				<!-- Boutons d'action - VERSION SIMPLIFIEE -->
 				<div class="flex justify-end gap-4 pt-8 border-t border-gray-200">
 					<NuxtLink
 						to="/"
@@ -428,51 +377,6 @@
 			</form>
 		</div>
 	</div>
-=======
-        <!-- Notes supplémentaires avec TinyMCE -->
-        <div class="mb-10">
-          <h2 class="text-xl font-semibold text-gray-900 mb-6">Notes supplémentaires</h2>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-3">
-              Description détaillée
-            </label>
-            <textarea
-              id="notes"
-              v-model="newUser.notes"
-              rows="6"
-              placeholder="Informations supplémentaires sur l'utilisateur..."
-              class="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-y"
-            ></textarea>
-          </div>
-        </div>
-
-        <!-- Boutons d'action - VERSION SIMPLIFIEE -->
-        <div class="flex justify-end gap-4 pt-8 border-t border-gray-200">
-          <NuxtLink
-            to="/"
-            class="px-8 py-3 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-base"
-          >
-            Annuler
-          </NuxtLink>
-          <button
-            type="submit"
-            :disabled="isSubmitting"
-            class="flex items-center gap-2 px-8 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-base"
-          >
-            <svg v-if="isSubmitting" class="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-            </svg>
-            {{ isSubmitting ? 'Création en cours...' : 'Créer l\'utilisateur' }}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
->>>>>>> a7b6dfdc565b348218ea7de001cb27d873621abb
 </template>
 
 <script setup>
@@ -481,16 +385,8 @@
 	const router = useRouter();
 	import Multiselect from "@vueform/multiselect";
 
-<<<<<<< HEAD
-	// Vérifiez que ce composant existe bien à cet emplacement
-	import EditorTinyMCE from "~/components/EditorTinyMCE.vue";
-
 	// Import du CSS pour Multiselect
 	import "@vueform/multiselect/themes/default.css";
-=======
-// Import du CSS pour Multiselect
-import '@vueform/multiselect/themes/default.css'
->>>>>>> a7b6dfdc565b348218ea7de001cb27d873621abb
 
 	const fileInput = ref(null);
 	const isSubmitting = ref(false);
@@ -726,29 +622,9 @@ import '@vueform/multiselect/themes/default.css'
 		}
 	}
 
-<<<<<<< HEAD
 	@media (min-width: 1280px) {
 		.mx-auto {
 			max-width: 1200px;
 		}
 	}
-
-	/* Styles pour l'éditeur TinyMCE */
-	:deep(.tox-tinymce) {
-		border-radius: 0.5rem !important;
-		border: 1px solid #d1d5db !important;
-	}
-
-	:deep(.tox-tinymce:focus-within) {
-		border-color: #10b981 !important;
-		box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
-	}
 </style>
-=======
-@media (min-width: 1280px) {
-  .mx-auto {
-    max-width: 1200px;
-  }
-}
-</style>
->>>>>>> a7b6dfdc565b348218ea7de001cb27d873621abb
