@@ -57,7 +57,7 @@
 		<div class="h-[calc(100vh)] overflow-y-auto py-4">
 			<nav class="px-2">
 				<!-- Section Admin -->
-				<div class="mb-6">
+				<div class="mb-6 mt-6">
 					<div v-if="themeStore.isSidebarOpen" class="px-4 mb-2">
 						<p
 							class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
