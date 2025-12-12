@@ -248,6 +248,7 @@
         :totalRows="filteredRows.length"
         skin="bh-table-striped bh-table-hover"
       >
+        <!-- Slot pour le nom enseignant - CORRECTION ICI -->
         <!-- Slot pour le nom enseignant -->
         <template #enseignant="data">
           <div class="flex items-center">
@@ -825,6 +826,11 @@ const formatDateTime = (dateString) => {
   return date.toLocaleString('fr-FR');
 };
 
+// CORRECTION ICI : Fonction améliorée pour obtenir les initiales
+const getInitials = (nomComplet) => {
+  if (!nomComplet) return '';
+  if (typeof nomComplet !== 'string') return '';
+  
 // Obtenir les initiales
 const getInitials = (nomComplet) => {
   if (!nomComplet) return '';
