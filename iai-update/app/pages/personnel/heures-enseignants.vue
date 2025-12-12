@@ -249,7 +249,6 @@
         skin="bh-table-striped bh-table-hover"
       >
         <!-- Slot pour le nom enseignant - CORRECTION ICI -->
-        <!-- Slot pour le nom enseignant -->
         <template #enseignant="data">
           <div class="flex items-center">
             <div class="flex-shrink-0 h-8 w-8">
@@ -831,9 +830,6 @@ const getInitials = (nomComplet) => {
   if (!nomComplet) return '';
   if (typeof nomComplet !== 'string') return '';
   
-// Obtenir les initiales
-const getInitials = (nomComplet) => {
-  if (!nomComplet) return '';
   const parts = nomComplet.split(' ');
   const first = parts[0] ? parts[0].charAt(0).toUpperCase() : '';
   const last = parts[1] ? parts[1].charAt(0).toUpperCase() : '';
