@@ -2,10 +2,7 @@
   <div class="min-h-screen bg-gray-50 p-4 md:p-6">
     <!-- Breadcrumb -->
     <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
-      <span class="cursor-pointer hover:text-indigo-600 transition-colors">Accueil</span>
-      <span>/</span>
-      <span class="cursor-pointer hover:text-indigo-600 transition-colors">Administration</span>
-      <span>/</span>
+      
       <span class="cursor-pointer hover:text-indigo-600 transition-colors">Réclamations</span>
       <span>/</span>
       <span class="text-gray-900 font-medium cursor-default">Liste</span>
