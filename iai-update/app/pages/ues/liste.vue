@@ -1,312 +1,229 @@
-<template>
+ <template>
   <div class="page-wrapper">
-
     <!-- Breadcrumb -->
-            <Breadcrumb
-                :items="[
-                    { label: 'UEs', to: '/' },
-                    { label: 'Liste', to: null },
-                ]"
-                title="Liste des ues"
-                :title-class="'text-xl md:text-2xl text-gray-800'"
-                :spacing="'mb-2'"
-                :link-color="'text-blue-600 hover:text-blue-800'"
-                :active-color="'text-gray-900 font-medium'"
-                :text-size="'text-base'"
-                align="left"
-            />
-
+    <div class="breadcrumb">
+      <span class="breadcrumb-item">Administration</span>
+      <span class="breadcrumb-separator">/</span>
+      <span class="breadcrumb-item">Rôles</span>
+      <span class="breadcrumb-separator">/</span>
+      <span class="breadcrumb-item active">Liste</span>
+    </div>
+    <!-- Titre -->
+    <h1 class="page-title">Liste des rôles</h1>
+    <!-- Zone de recherche -->
     <div class="search-filter-area">
-
-      <!-- 1️⃣ Recherche -->
-      <input
-        v-model="searchQuery"
-        type="search"
-        class="search-input compact"
-        placeholder="Rechercher une UE..."
-      />
-
-      <!-- 2️⃣ Sélecteur de colonnes -->
-      <div class="column-selector-wrapper">
-        <button class="toggle-btn" @click="toggleSelector">
+      <!-- Recherche -->
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </div>
+        <input
+          v-model="searchQuery"
+          type="search"
+          class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+          placeholder="Rechercher un rôle..."
+        />
+      </div>
+      <!-- Sélecteur de colonnes -->
+      <div class="relative">
+        <button
+          class="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          @click="toggleSelector"
+        >
           <span>Colonnes visibles</span>
-          <svg class="chevron-icon" :class="{ 'rotated': showSelector }" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <svg
+            class="w-5 h-5 transition-transform duration-200"
+            :class="{ 'rotate-180': showSelector }"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
           </svg>
         </button>
-        
-        <div v-if="showSelector" class="checkbox-dropdown">
-          <div class="checkbox-group-vertical">
-            <div v-for="col in availableColumns" :key="col.field" class="checkbox-item">
+        <div
+          v-if="showSelector"
+          class="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 min-w-[200px]"
+        >
+          <div class="p-3 space-y-2 max-h-60 overflow-y-auto">
+            <div
+              v-for="col in availableColumns"
+              :key="col.field"
+              class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded"
+            >
               <input
                 type="checkbox"
                 :id="col.field"
                 v-model="selectedColumns"
                 :value="col.field"
+                class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
               />
-              <label :for="col.field">{{ col.title }}</label>
+              <label
+                :for="col.field"
+                class="text-sm text-gray-700 cursor-pointer select-none"
+              >{{ col.title }}</label>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- 3️⃣ Ajouter une UE -->
-      <button class="add-user-btn" @click="showAddModal = true">
-        <svg class="add-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <!-- Bouton Ajouter un rôle -->
+      <button
+        class="flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+        @click="addRole"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
-        Ajouter une UE
+        Ajouter un rôle
       </button>
-
     </div>
-
     <!-- Tableau -->
     <div class="table-card">
-      <div v-if="ues.length > 0">
-        <Vue3Datatable
-          :columns="filteredCols"
-          :rows="filteredUes"
-          :per-page="10"
-          :search="searchQuery"
-          :searchable="true"
-          :sortable="true"
-          :filterable="true"
-          :pagination-options="{ 
-            dropdown: true, 
-            edge: true,
-            perPage: 10
-          }"
-          skin="bh-table-compact"
-          class="custom-datatable"
-        >
-          <!-- Template personnalisé pour la colonne Actions -->
-          <template #actions="data">
-            <div class="flex space-x-2">
-              <!-- Bouton Modifier -->
+      <Vue3Datatable
+        :columns="filteredCols"
+        :rows="filteredRoles"
+        :per-page="10"
+        :search="searchQuery"
+        :pagination-options="{ dropdown: true, edge: true }"
+        :searchable="true"
+        :sortable="true"
+        :filterable="true"
+        :skin="'bh-table-hover bh-table-striped'"
+        class="role-datatable"
+      >
+        <!-- Template pour les actions -->
+        <template #actions="data">
+          <div class="flex space-x-3">
+            <button
+              @click="showRoleDetails(data.value)"
+              class="text-blue-600 hover:text-blue-900 transition-colors"
+              title="Voir les permissions"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </button>
+          </div>
+        </template>
+      </Vue3Datatable>
+    </div>
+    <!-- Modal pour afficher les permissions -->
+    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">
+            <h5 id="role-nom">{{ selectedRole ? `Rôle: ${selectedRole.nom}` : '' }}</h5>
+          </div>
+          <button @click="closeModal" class="modal-close">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h5 class="text-center mb-6 text-lg font-semibold text-gray-700">Liste des permissions</h5>
+          <div class="table-responsive">
+            <table class="permissions-table">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="text-left p-3 text-sm font-medium text-gray-500 uppercase">Permissions</th>
+                  <th class="text-left p-3 text-sm font-medium text-gray-500 uppercase">Description</th>
+                </tr>
+              </thead>
+              <tbody id="permissions-table">
+                <tr v-for="permission in selectedRole?.permissions" :key="permission.id">
+                  <td class="p-3 border-b border-gray-200">
+                    <div class="flex items-center">
+                      <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                      </svg>
+                      <span class="text-sm text-gray-700">{{ permission.nom }}</span>
+                    </div>
+                  </td>
+                  <td class="p-3 border-b border-gray-200 text-sm text-gray-500">
+                    {{ getPermissionDescription(permission.nom) }}
+                  </td>
+                </tr>
+                <tr v-if="!selectedRole?.permissions || selectedRole.permissions.length === 0">
+                  <td colspan="2" class="text-center text-gray-500 py-4">
+                    Aucune permission attribuée
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div v-if="selectedRole?.description" class="mt-6 p-4 bg-blue-50 rounded-lg">
+            <h6 class="text-sm font-medium text-blue-800 mb-2">Description du rôle:</h6>
+            <p class="text-sm text-blue-700">{{ selectedRole.description }}</p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-gray-200">
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-500">
+                Total: <strong>{{ selectedRole?.permissions?.length || 0 }}</strong> permissions
+              </span>
               <button 
-                @click="editUe(data.value)" 
-                class="text-green-600 hover:text-green-800"
-                title="Modifier"
+                @click="closeModal" 
+                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
               >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                </svg>
-              </button>
-
-              <!-- Bouton Voir -->
-              <button 
-                @click="showUeDetails(data.value)" 
-                class="text-blue-600 hover:text-blue-800"
-                title="Planifications"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                </svg>
-              </button>
-
-              <!-- Bouton Supprimer -->
-              <button 
-                @click="deleteUe(data.value)" 
-                class="text-red-600 hover:text-red-800"
-                title="Supprimer"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                </svg>
+                Fermer
               </button>
             </div>
-          </template>
-
-          <!-- Template pour le statut actif/inactif -->
-          <template #status="data">
-            <span :class="data.value ? 'status-active' : 'status-inactive'">
-              {{ data.value ? 'Actif' : 'Inactif' }}
-            </span>
-          </template>
-        </Vue3Datatable>
-      </div>
-      <div v-else class="no-data-message">
-        <div class="flex items-center p-4">
-          <svg class="w-6 h-6 text-yellow-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-          </svg>
-          <span>Aucune donnée à afficher</span>
+          </div>
         </div>
       </div>
     </div>
-
-    <!-- Modal d'ajout d'UE -->
-    <div v-if="showAddModal" class="modal-overlay" @click.self="closeModal">
-      <div class="modal-content">
+    <!-- Modal d'ajout de rôle -->
+    <div v-if="showAddModal" class="modal-overlay" @click.self="closeAddModal">
+      <div class="modal add-modal">
         <div class="modal-header">
-          <h2>Ajouter une nouvelle UE</h2>
-          <button class="close-btn" @click="closeModal">&times;</button>
+          <h3>Ajouter un nouveau rôle</h3>
+          <button @click="closeAddModal" class="modal-close">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
         </div>
-
         <div class="modal-body">
-          <form @submit.prevent="submitUeForm">
-            <!-- Informations de l'UE -->
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="nom">Nom de l'UE *</label>
-                <input
-                  type="text"
-                  id="nom"
-                  v-model="newUe.nom"
-                  required
-                  placeholder="Ex: Mathématiques Appliquées"
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="code">Code *</label>
-                <input
-                  type="text"
-                  id="code"
-                  v-model="newUe.code"
-                  required
-                  placeholder="Ex: MAT201"
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="credit">Crédits *</label>
-                <input
-                  type="number"
-                  id="credit"
-                  v-model="newUe.credit"
-                  required
-                  min="1"
-                  max="10"
-                  placeholder="Ex: 6"
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="filiere_id">Filière *</label>
-                <select
-                  id="filiere_id"
-                  v-model="newUe.filiere_id"
-                  required
-                  class="select-input"
-                >
-                  <option value="">Sélectionner une filière</option>
-                  <option v-for="filiere in filieres" :key="filiere.id" :value="filiere.id">
-                    {{ filiere.code }} - {{ filiere.nom }}
-                  </option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label for="periode_id">Période</label>
-                <select
-                  id="periode_id"
-                  v-model="newUe.periode_id"
-                  class="select-input"
-                >
-                  <option value="">Sélectionner une période</option>
-                  <option v-for="periode in periodes" :key="periode.id" :value="periode.id">
-                    {{ periode.nom }}
-                  </option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label for="description">Description</label>
-                <textarea
-                  id="description"
-                  v-model="newUe.description"
-                  rows="3"
-                  placeholder="Description de l'UE..."
-                ></textarea>
-              </div>
+          <form @submit.prevent="submitRoleForm">
+            <div class="form-group">
+              <label for="role-nom-input" class="form-label">
+                Nom du rôle *
+              </label>
+              <input
+                type="text"
+                id="role-nom-input"
+                v-model="newRole.nom"
+                class="form-input"
+                placeholder="Ex: Administrateur"
+                required
+              />
             </div>
-
-            <div class="modal-footer">
-              <button type="button" class="btn-cancel" @click="closeModal">
+            <div class="form-group">
+              <label for="role-description" class="form-label">
+                Description
+              </label>
+              <textarea
+                id="role-description"
+                v-model="newRole.description"
+                class="form-input"
+                rows="3"
+                placeholder="Description du rôle..."
+              ></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" @click="closeAddModal">
                 Annuler
               </button>
               <button type="submit" class="btn-submit">
-                <svg class="submit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-                Créer l'UE
+                Créer le rôle
               </button>
             </div>
           </form>
         </div>
       </div>
     </div>
-
-    <!-- Modal de détails de l'UE -->
-    <div v-if="showDetailModal" class="modal-overlay" @click.self="closeDetailModal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Détails de l'UE</h2>
-          <button class="close-btn" @click="closeDetailModal">&times;</button>
-        </div>
-
-        <div class="modal-body">
-          <div class="details-grid">
-            <div class="detail-item">
-              <label>Nom:</label>
-              <span>{{ selectedUe?.nom }}</span>
-            </div>
-            <div class="detail-item">
-              <label>Code:</label>
-              <span>{{ selectedUe?.code }}</span>
-            </div>
-            <div class="detail-item">
-              <label>Crédits:</label>
-              <span>{{ selectedUe?.credit }}</span>
-            </div>
-            <div class="detail-item">
-              <label>Filière:</label>
-              <span>{{ selectedUe?.filiere?.code }} - {{ selectedUe?.filiere?.nom }}</span>
-            </div>
-            <div class="detail-item">
-              <label>Période:</label>
-              <span>{{ selectedUe?.periode?.nom || 'Non spécifiée' }}</span>
-            </div>
-            <div v-if="selectedUe?.description" class="detail-item full-width">
-              <label>Description:</label>
-              <p class="description-text">{{ selectedUe.description }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal de confirmation de suppression -->
-    <div v-if="showDeleteModal" class="modal-overlay" @click.self="closeDeleteModal">
-      <div class="modal-content delete-modal">
-        <div class="modal-header">
-          <h2>Confirmer la suppression</h2>
-          <button class="close-btn" @click="closeDeleteModal">&times;</button>
-        </div>
-
-        <div class="modal-body">
-          <div class="warning-message">
-            <svg class="warning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.732 0L4.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-            </svg>
-            <p>Êtes-vous sûr de vouloir supprimer l'UE <strong>"{{ ueToDelete?.nom }}"</strong> ?</p>
-            <p class="text-sm text-gray-600 mt-2">Cette action est irréversible.</p>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn-cancel" @click="closeDeleteModal">
-            Annuler
-          </button>
-          <button type="button" class="btn-delete" @click="confirmDelete">
-            Supprimer
-          </button>
-        </div>
-      </div>
-    </div>
-
   </div>
 </template>
 
@@ -317,105 +234,181 @@ import "@bhplugin/vue3-datatable/dist/style.css";
 
 const searchQuery = ref("");
 const showSelector = ref(false);
+const showModal = ref(false);
 const showAddModal = ref(false);
-const showDetailModal = ref(false);
-const showDeleteModal = ref(false);
-const selectedColumns = ref([]);
-const selectedUe = ref(null);
-const ueToDelete = ref(null);
+const selectedRole = ref(null);
 
-// Données de l'UE à ajouter
-const newUe = ref({
-  nom: "",
-  code: "",
-  credit: "",
-  filiere_id: "",
-  periode_id: "",
-  description: ""
+// Configuration des colonnes
+const availableColumns = ref([
+  { field: "id", title: "#", width: "70px", isUnique: true },
+  { field: "nom", title: "Nom", width: "300px" },
+  { field: "permissionsCount", title: "Permissions", width: "120px" },
+  { field: "actions", title: "Actions", width: "100px", sort: false },
+]);
+
+const selectedColumns = ref([]);
+
+// Initialiser avec toutes les colonnes sélectionnées
+onMounted(() => {
+  selectedColumns.value = availableColumns.value.map(col => col.field);
 });
 
-// Données de test
-const ues = ref([
+// Données des rôles avec permissions détaillées
+const roles = ref([
   {
     id: 1,
-    nom: "Mathématiques Appliquées",
-    code: "MAT201",
-    credit: 6,
-    filiere: { id: 1, code: "INFO", nom: "Informatique" },
-    periode: { id: 1, nom: "Semestre 1" },
-    description: "Cours de mathématiques appliquées à l'informatique"
+    nom: "Administrateur",
+    description: "Accès complet à toutes les fonctionnalités du système",
+    permissions: [
+      { id: 1, nom: "Gérer les utilisateurs" },
+      { id: 2, nom: "Gérer les rôles" },
+      { id: 3, nom: "Gérer les permissions" },
+      { id: 4, nom: "Voir les statistiques" },
+      { id: 5, nom: "Gérer les paramètres système" },
+      { id: 6, nom: "Exporter les rapports" },
+      { id: 7, nom: "Gérer les cours" },
+      { id: 8, nom: "Gérer les inscriptions" },
+      { id: 9, nom: "Gérer les paiements" },
+      { id: 10, nom: "Gérer les emplois du temps" }
+    ]
   },
   {
     id: 2,
-    nom: "Algorithmique",
-    code: "ALG101",
-    credit: 5,
-    filiere: { id: 1, code: "INFO", nom: "Informatique" },
-    periode: { id: 1, nom: "Semestre 1" },
-    description: "Introduction aux algorithmes"
+    nom: "Enseignant",
+    description: "Gestion des cours, évaluations et suivi des étudiants",
+    permissions: [
+      { id: 11, nom: "Gérer ses cours" },
+      { id: 12, nom: "Noter les étudiants" },
+      { id: 13, nom: "Voir les emplois du temps" },
+      { id: 14, nom: "Gérer les ressources pédagogiques" },
+      { id: 15, nom: "Communiquer avec les étudiants" },
+      { id: 16, nom: "Voir les présences" },
+      { id: 17, nom: "Publier des annonces" },
+      { id: 18, nom: "Créer des évaluations" }
+    ]
   },
   {
     id: 3,
-    nom: "Base de données",
-    code: "BD201",
-    credit: 4,
-    filiere: { id: 2, code: "MATH", nom: "Mathématiques" },
-    periode: { id: 2, nom: "Semestre 2" },
-    description: "Gestion des bases de données relationnelles"
+    nom: "Étudiant",
+    description: "Accès aux informations académiques et personnelles",
+    permissions: [
+      { id: 19, nom: "Voir les emploi du temps de sa salle" },
+      { id: 20, nom: "Voir un emploi du temps" },
+      { id: 21, nom: "Voir une note d'un étudiant" },
+      { id: 22, nom: "Voir les évènements de sa salle" },
+      { id: 23, nom: "Voir un évènement" },
+      { id: 24, nom: "Voir ses enregistrements de payement de frais de scolarité" },
+      { id: 25, nom: "Voir ses notes" },
+      { id: 26, nom: "Consulter les ressources" },
+      { id: 27, nom: "S'inscrire aux cours" },
+      { id: 28, nom: "Consulter les résultats" }
+    ]
+  },
+  {
+    id: 4,
+    nom: "Secrétaire",
+    description: "Gestion administrative des inscriptions et documents",
+    permissions: [
+      { id: 29, nom: "Gérer les inscriptions" },
+      { id: 30, nom: "Éditer les documents" },
+      { id: 31, nom: "Gérer les plannings" },
+      { id: 32, nom: "Imprimer les attestations" },
+      { id: 33, nom: "Gérer les dossiers étudiants" },
+      { id: 34, nom: "Enregistrer les paiements" },
+      { id: 35, nom: "Gérer les demandes" },
+      { id: 36, nom: "Mettre à jour les informations" }
+    ]
+  },
+  {
+    id: 5,
+    nom: "Directeur d'études",
+    description: "Supervision des programmes et validation académique",
+    permissions: [
+      { id: 37, nom: "Valider les plannings" },
+      { id: 38, nom: "Superviser les enseignants" },
+      { id: 39, nom: "Approuver les programmes" },
+      { id: 40, nom: "Gérer les départements" },
+      { id: 41, nom: "Voir les rapports académiques" },
+      { id: 42, nom: "Valider les diplômes" },
+      { id: 43, nom: "Gérer les commissions" },
+      { id: 44, nom: "Approuver les budgets" }
+    ]
   }
 ]);
 
-const filieres = ref([
-  { id: 1, code: "INFO", nom: "Informatique" },
-  { id: 2, code: "MATH", nom: "Mathématiques" },
-  { id: 3, code: "PHYS", nom: "Physique" }
-]);
+// Données du nouveau rôle
+const newRole = ref({
+  nom: "",
+  description: ""
+});
 
-const periodes = ref([
-  { id: 1, nom: "Semestre 1" },
-  { id: 2, nom: "Semestre 2" },
-  { id: 3, nom: "Semestre 3" },
-  { id: 4, nom: "Semestre 4" }
-]);
+// Fonction pour obtenir la description d'une permission
+const getPermissionDescription = (permissionName) => {
+  const descriptions = {
+    "Voir les emploi du temps de sa salle": "Permet de consulter l'emploi du temps de sa classe/section",
+    "Voir un emploi du temps": "Accès à la visualisation des emplois du temps",
+    "Voir une note d'un étudiant": "Consulter les notes académiques",
+    "Voir les évènements de sa salle": "Voir les événements spécifiques à sa classe",
+    "Voir un évènement": "Visualiser les détails d'un événement",
+    "Voir ses enregistrements de payement de frais de scolarité": "Accès à l'historique des paiements de scolarité",
+    "Gérer les utilisateurs": "Créer, modifier et supprimer des comptes utilisateurs",
+    "Gérer les rôles": "Définir et attribuer les rôles du système",
+    "Gérer les permissions": "Configurer les autorisations d'accès",
+    "Gérer les cours": "Administrer les cours et programmes",
+    "Noter les étudiants": "Saisir et modifier les notes des étudiants",
+    "Gérer les inscriptions": "Traiter les inscriptions et réinscriptions",
+    "Valider les plannings": "Approuver les emplois du temps",
+    "Superviser les enseignants": "Suivre et évaluer les enseignants",
+    "Gérer ses cours": "Gérer le contenu et les activités de ses cours",
+    "Gérer les ressources pédagogiques": "Ajouter et organiser les ressources d'apprentissage",
+    "Communiquer avec les étudiants": "Envoyer des messages et notifications aux étudiants",
+    "Voir les présences": "Consulter les registres de présence",
+    "Publier des annonces": "Diffuser des informations aux étudiants",
+    "Créer des évaluations": "Créer des examens et travaux",
+    "Voir ses notes": "Consulter ses propres résultats académiques",
+    "Consulter les ressources": "Accéder aux documents pédagogiques",
+    "S'inscrire aux cours": "Sélectionner les cours à suivre",
+    "Consulter les résultats": "Voir les résultats d'évaluations",
+    "Éditer les documents": "Créer et modifier des documents administratifs",
+    "Imprimer les attestations": "Générer des attestations officielles",
+    "Enregistrer les paiements": "Saisir les paiements des étudiants",
+    "Gérer les demandes": "Traiter les requêtes administratives",
+    "Approuver les programmes": "Valider les programmes académiques",
+    "Voir les rapports académiques": "Consulter les statistiques et rapports",
+    "Valider les diplômes": "Approuver l'attribution des diplômes",
+    "Gérer les commissions": "Organiser les commissions pédagogiques",
+    "Approuver les budgets": "Valider les budgets départementaux"
+  };
+  
+  return descriptions[permissionName] || "Permission d'accès système";
+};
 
-const availableColumns = ref([
-  { field: "id", title: "ID", width: "80px", isUnique: true },
-  { field: "nom", title: "Nom", width: "250px" },
-  { field: "code", title: "Code", width: "100px" },
-  { field: "credit", title: "Crédits", width: "100px" },
-  { field: "filiere", title: "Filière", width: "150px", type: "object", fieldKey: "code" },
-  { field: "periode", title: "Période", width: "150px", type: "object", fieldKey: "nom" },
-  { field: "actions", title: "Actions", width: "120px", sort: false }
-]);
-
-// Initialiser avec toutes les colonnes sélectionnées sauf ID
-onMounted(() => {
-  selectedColumns.value = availableColumns.value
-    .filter(col => col.field !== 'id')
-    .map(col => col.field);
+// Rôles avec compteur de permissions
+const rolesWithCount = computed(() => {
+  return roles.value.map(role => ({
+    ...role,
+    permissionsCount: role.permissions.length
+  }));
 });
 
 // Colonnes filtrées selon la sélection
 const filteredCols = computed(() => {
-  return availableColumns.value.filter(col => 
+  return availableColumns.value.filter(col =>
     selectedColumns.value.includes(col.field) || col.isUnique
   ).map(col => ({
     ...col,
-    cellRenderer: col.field === 'actions' ? 'actions' : 
-                  col.field === 'status' ? 'status' : null
+    cellRenderer: col.field === 'actions' ? 'actions' : null
   }));
 });
 
-// UEs filtrées avec recherche
-const filteredUes = computed(() => {
-  if (!searchQuery.value) return ues.value;
-  
+// Rôles filtrés avec recherche
+const filteredRoles = computed(() => {
+  if (!searchQuery.value) return rolesWithCount.value;
+ 
   const query = searchQuery.value.toLowerCase();
-  return ues.value.filter(ue => 
-    ue.nom.toLowerCase().includes(query) ||
-    ue.code.toLowerCase().includes(query) ||
-    ue.filiere.code.toLowerCase().includes(query) ||
-    ue.credit.toString().includes(query)
+  return rolesWithCount.value.filter(role =>
+    role.nom.toLowerCase().includes(query) ||
+    (role.description && role.description.toLowerCase().includes(query))
   );
 });
 
@@ -423,101 +416,66 @@ const toggleSelector = () => {
   showSelector.value = !showSelector.value;
 };
 
-// Fonctions pour les actions
-const editUe = (ue) => {
-  // Redirection vers la page d'édition
-  console.log('Éditer UE:', ue);
-  // À remplacer par : navigateTo(`/admin/ues/edit/${ue.id}`)
-};
-
-const showUeDetails = (ue) => {
-  selectedUe.value = ue;
-  showDetailModal.value = true;
-};
-
-const deleteUe = (ue) => {
-  ueToDelete.value = ue;
-  showDeleteModal.value = true;
-};
-
-const confirmDelete = () => {
-  if (ueToDelete.value) {
-    ues.value = ues.value.filter(ue => ue.id !== ueToDelete.value.id);
-    showDeleteModal.value = false;
-    ueToDelete.value = null;
-    
-    // Message de succès
-    alert('UE supprimée avec succès!');
+// Afficher les détails d'un rôle
+const showRoleDetails = (roleId) => {
+  const role = roles.value.find(r => r.id === roleId);
+  if (role) {
+    selectedRole.value = role;
+    showModal.value = true;
   }
 };
 
-// Fermer les modales
+// Fermer le modal de détails
 const closeModal = () => {
+  showModal.value = false;
+  selectedRole.value = null;
+};
+
+// Ouvrir le modal d'ajout
+const addRole = () => {
+  showAddModal.value = true;
+};
+
+// Fermer le modal d'ajout
+const closeAddModal = () => {
   showAddModal.value = false;
-  resetForm();
-};
-
-const closeDetailModal = () => {
-  showDetailModal.value = false;
-  selectedUe.value = null;
-};
-
-const closeDeleteModal = () => {
-  showDeleteModal.value = false;
-  ueToDelete.value = null;
+  resetRoleForm();
 };
 
 // Réinitialiser le formulaire
-const resetForm = () => {
-  newUe.value = {
+const resetRoleForm = () => {
+  newRole.value = {
     nom: "",
-    code: "",
-    credit: "",
-    filiere_id: "",
-    periode_id: "",
     description: ""
   };
 };
 
-// Soumettre le formulaire
-const submitUeForm = () => {
-  // Validation
-  if (!newUe.value.nom || !newUe.value.code || !newUe.value.credit || !newUe.value.filiere_id) {
-    alert("Veuillez remplir les champs obligatoires (*)");
+// Soumettre le formulaire d'ajout
+const submitRoleForm = () => {
+  if (!newRole.value.nom.trim()) {
+    alert("Veuillez saisir un nom de rôle");
     return;
   }
-
-  // Trouver la filière sélectionnée
-  const filiere = filieres.value.find(f => f.id == newUe.value.filiere_id);
-  const periode = periodes.value.find(p => p.id == newUe.value.periode_id);
-
-  // Créer la nouvelle UE
-  const newUeId = ues.value.length > 0 ? Math.max(...ues.value.map(u => u.id)) + 1 : 1;
-  const ueToAdd = {
-    id: newUeId,
-    nom: newUe.value.nom,
-    code: newUe.value.code,
-    credit: parseInt(newUe.value.credit),
-    filiere: filiere,
-    periode: periode || null,
-    description: newUe.value.description
-  };
-
-  ues.value.push(ueToAdd);
   
-  alert(`UE "${newUe.value.nom}" ajoutée avec succès!`);
-  closeModal();
+  const newId = roles.value.length > 0 ? Math.max(...roles.value.map(r => r.id)) + 1 : 1;
+  roles.value.push({
+    id: newId,
+    nom: newRole.value.nom,
+    description: newRole.value.description,
+    permissions: []
+  });
+  
+  alert(`Rôle "${newRole.value.nom}" ajouté avec succès!`);
+  closeAddModal();
 };
 </script>
 
 <style scoped>
-/* Page structurée et centrée */
 .page-wrapper {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 30px auto;
   padding: 20px;
 }
-
 /* Breadcrumb */
 .breadcrumb {
   display: flex;
@@ -527,30 +485,21 @@ const submitUeForm = () => {
   font-size: 14px;
   color: #6b7280;
 }
-
 .breadcrumb-item {
   cursor: pointer;
   transition: color 0.2s;
 }
-
 .breadcrumb-item:hover {
   color: #4f46e5;
 }
-
 .breadcrumb-item.active {
   color: #111827;
   font-weight: 500;
   cursor: default;
 }
-
-.breadcrumb-item.active:hover {
-  color: #111827;
-}
-
 .breadcrumb-separator {
   color: #9ca3af;
 }
-
 /* Titre */
 .page-title {
   font-size: 28px;
@@ -558,8 +507,7 @@ const submitUeForm = () => {
   color: #1f2937;
   margin-bottom: 24px;
 }
-
-/* Zone recherche et boutons d'action */
+/* Zone de recherche et boutons */
 .search-filter-area {
   display: flex;
   gap: 16px;
@@ -567,216 +515,49 @@ const submitUeForm = () => {
   align-items: center;
   flex-wrap: wrap;
 }
-
-.search-input {
-  padding: 10px 16px;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  font-size: 14px;
-  transition: 0.2s;
-  background: #fff;
-  flex: 1;
-  min-width: 250px;
-}
-
-.search-input.compact {
-  width: 300px;
-  flex: 0 0 auto;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-}
-
-/* Bouton Ajouter UE */
-.add-user-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.add-user-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-.add-icon {
-  width: 18px;
-  height: 18px;
-}
-
-/* Sélecteur de colonnes */
-.column-selector-wrapper {
-  position: relative;
-}
-
-.toggle-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 16px;
-  background: white;
-  color: #4b5563;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.toggle-btn:hover {
-  background: #f9fafb;
-  border-color: #9ca3af;
-}
-
-.chevron-icon {
-  width: 16px;
-  height: 16px;
-  transition: transform 0.2s;
-}
-
-.chevron-icon.rotated {
-  transform: rotate(180deg);
-}
-
-/* Dropdown des colonnes */
-.checkbox-dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: 8px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  z-index: 100;
-  min-width: 220px;
-  overflow: hidden;
-  border: 1px solid #e5e7eb;
-}
-
-.checkbox-group-vertical {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px;
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  transition: background-color 0.2s;
-}
-
-.checkbox-item:hover {
-  background-color: #f3f4f6;
-}
-
-.checkbox-item input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  accent-color: #4f46e5;
-}
-
-.checkbox-item label {
-  font-size: 14px;
-  color: #374151;
-  cursor: pointer;
-  user-select: none;
-  flex: 1;
-}
-
 /* Carte contenant le tableau */
 .table-card {
   background: white;
-  padding: 24px;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
+  padding: 22px;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
-
 /* Personnalisation du datatable */
-:deep(.bh-table-striped) {
-  border-radius: 8px;
-  overflow: hidden;
+.role-datatable {
+  --bh-table-border-color: #e5e7eb;
+  --bh-table-head-bg: #f9fafb;
+  --bh-table-head-color: #374151;
+  --bh-table-row-hover-bg: #f9fafb;
 }
-
-:deep(.bh-table-head) {
-  background: #4f46e5;
+:deep(.bh-pagination-dropdown) {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+}
+:deep(.bh-pagination-btn) {
+  border: 1px solid #d1d5db;
+  color: #374151;
+  transition: all 0.2s;
+}
+:deep(.bh-pagination-btn:hover) {
+  background-color: #f3f4f6;
+}
+:deep(.bh-pagination-btn.active) {
+  background-color: #4f46e5;
   color: white;
+  border-color: #4f46e5;
 }
-
-:deep(.bh-table-head th) {
+:deep(.bh-table thead th) {
   font-weight: 600;
-  padding: 16px 12px;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
 }
-
-:deep(.bh-table-body tr) {
-  transition: background-color 0.2s;
+:deep(.bh-table tbody tr) {
+  border-bottom: 1px solid #e5e7eb;
 }
-
-:deep(.bh-table-body tr:hover) {
+:deep(.bh-table tbody tr:hover) {
   background-color: #f9fafb;
 }
-
-:deep(.bh-table-body td) {
-  padding: 14px 12px;
-  border-color: #e5e7eb;
-}
-
-/* Statuts */
-.status-active {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 12px;
-  background: #dcfce7;
-  color: #166534;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.status-inactive {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 12px;
-  background: #fee2e2;
-  color: #991b1b;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-/* Message pas de données */
-.no-data-message {
-  padding: 48px;
-  text-align: center;
-  color: #6b7280;
-  font-size: 16px;
-  background: #f9fafb;
-  border-radius: 8px;
-}
-
 /* Modals */
 .modal-overlay {
   position: fixed;
@@ -784,30 +565,27 @@ const submitUeForm = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   z-index: 1000;
   padding: 20px;
   backdrop-filter: blur(4px);
 }
-
-.modal-content {
+.modal {
   background: white;
   border-radius: 16px;
   width: 100%;
   max-width: 600px;
-  max-height: 90vh;
+  max-height: 80vh;
   overflow-y: auto;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   animation: modalSlideIn 0.3s ease-out;
 }
-
-.delete-modal {
+.add-modal {
   max-width: 500px;
 }
-
 @keyframes modalSlideIn {
   from {
     opacity: 0;
@@ -818,185 +596,144 @@ const submitUeForm = () => {
     transform: translateY(0);
   }
 }
-
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 24px;
   border-bottom: 1px solid #e5e7eb;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
   border-radius: 16px 16px 0 0;
 }
-
-.modal-header h2 {
+.modal-header h3 {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
 }
-
-.close-btn {
+.modal-title h5 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+.modal-close {
   background: rgba(255, 255, 255, 0.1);
   border: none;
-  font-size: 28px;
   color: white;
   cursor: pointer;
-  line-height: 1;
-  padding: 0;
-  width: 32px;
-  height: 32px;
+  padding: 8px;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
   transition: background-color 0.2s;
 }
-
-.close-btn:hover {
+.modal-close:hover {
   background: rgba(255, 255, 255, 0.2);
 }
-
 .modal-body {
   padding: 24px;
 }
-
-/* Formulaire */
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  margin-bottom: 24px;
+.text-center {
+  text-align: center;
+}
+.mb-4 {
+  margin-bottom: 16px;
+}
+/* Améliorations pour le modal des permissions */
+.permissions-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.permissions-table thead {
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+}
+
+.permissions-table th {
+  padding: 12px 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.permissions-table tbody tr {
+  transition: background-color 0.2s;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.permissions-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.permissions-table td {
+  padding: 12px 16px;
+  vertical-align: middle;
+}
+/* Table des permissions */
+.table-responsive {
+  overflow-x: auto;
+}
+.permissions-table tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+}
+.permissions-table td {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 14px;
+  color: #374151;
+}
+.permissions-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+/* Formulaire dans modal */
 .form-group {
-  display: flex;
-  flex-direction: column;
+  margin-bottom: 20px;
 }
-
-.form-group.full-width {
-  grid-column: span 2;
-}
-
-.form-group label {
+.form-label {
+  display: block;
   margin-bottom: 8px;
   font-size: 14px;
   font-weight: 500;
   color: #374151;
 }
-
-.form-group label::after {
-  content: " *";
-  color: #ef4444;
-  visibility: hidden;
-}
-
-.form-group input[required] + label::after,
-.form-group select[required] + label::after,
-.form-group textarea[required] + label::after {
-  visibility: visible;
-}
-
-.form-group input:not([type="radio"]),
-.form-group textarea,
-.select-input {
-  padding: 12px;
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 14px;
+  color: #374151;
+  background-color: white;
   transition: all 0.2s;
-  background: white;
 }
-
-.select-input {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 0.5rem center;
-  background-repeat: no-repeat;
-  background-size: 1.5em 1.5em;
-  padding-right: 2.5rem;
-}
-
-.form-group input:focus,
-.form-group textarea:focus,
-.select-input:focus {
+.form-input:focus {
   outline: none;
   border-color: #4f46e5;
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
-
-.form-group textarea {
+.form-input::placeholder {
+  color: #9ca3af;
+}
+textarea.form-input {
   resize: vertical;
   min-height: 100px;
 }
-
-/* Grille de détails */
-.details-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.detail-item.full-width {
-  grid-column: span 2;
-}
-
-.detail-item label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.detail-item span {
-  font-size: 16px;
-  color: #1f2937;
-  font-weight: 500;
-}
-
-.description-text {
-  background: #f9fafb;
-  padding: 12px;
-  border-radius: 8px;
-  margin-top: 8px;
-  line-height: 1.6;
-  color: #4b5563;
-}
-
-/* Message d'avertissement */
-.warning-message {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 24px;
-}
-
-.warning-icon {
-  width: 64px;
-  height: 64px;
-  color: #ef4444;
-  margin-bottom: 20px;
-}
-
-/* Footer modal */
-.modal-footer {
+/* Actions du formulaire */
+.form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  padding: 24px;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
   border-top: 1px solid #e5e7eb;
-  background: #f9fafb;
-  border-radius: 0 0 16px 16px;
 }
-
 .btn-cancel {
   padding: 12px 24px;
   background: white;
@@ -1008,16 +745,11 @@ const submitUeForm = () => {
   cursor: pointer;
   transition: all 0.2s;
 }
-
 .btn-cancel:hover {
-  background: #f3f4f6;
+  background: #f9fafb;
   border-color: #9ca3af;
 }
-
 .btn-submit {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   padding: 12px 24px;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
@@ -1028,106 +760,63 @@ const submitUeForm = () => {
   cursor: pointer;
   transition: all 0.3s ease;
 }
-
 .btn-submit:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
-
-.btn-delete {
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-delete:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
-.submit-icon {
-  width: 18px;
-  height: 18px;
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
+/* Responsive pour les permissions */
+@media (max-width: 768px) {
   .page-wrapper {
     padding: 15px;
   }
-  
+ 
   .search-filter-area {
     flex-direction: column;
     align-items: stretch;
   }
-  
-  .search-input.compact {
-    width: 100%;
-  }
-  
-  .column-selector-wrapper {
-    align-self: flex-start;
-  }
-}
-
-@media (max-width: 768px) {
-  .page-title {
-    font-size: 24px;
-  }
-  
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .form-group.full-width {
-    grid-column: span 1;
-  }
-  
-  .details-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .detail-item.full-width {
-    grid-column: span 1;
-  }
-  
-  .modal-content {
-    max-height: 95vh;
-    margin: 10px;
-  }
-  
-  .modal-footer {
+ 
+  .form-actions {
     flex-direction: column;
   }
-  
+ 
   .btn-cancel,
-  .btn-submit,
-  .btn-delete {
+  .btn-submit {
     width: 100%;
   }
-}
-
-@media (max-width: 480px) {
-  .table-card {
-    padding: 16px;
+ 
+  .modal {
+    margin: 10px;
+    max-height: 90vh;
   }
-  
+ 
   .modal-header {
     padding: 16px;
   }
-  
+ 
   .modal-body {
     padding: 16px;
   }
   
-  .modal-footer {
+  .permissions-table {
+    display: block;
+    overflow-x: auto;
+  }
+  
+  .permissions-table th,
+  .permissions-table td {
+    white-space: nowrap;
+    min-width: 150px;
+  }
+}
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 24px;
+  }
+ 
+  .table-card {
     padding: 16px;
   }
 }
 </style>
+
+
