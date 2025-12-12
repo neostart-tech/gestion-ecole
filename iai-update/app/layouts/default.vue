@@ -10,7 +10,7 @@
 		<!-- Main content -->
 		<main
 			:class="[
-				'pt-16 transition-all duration-300',
+				'pt-16 transition-all duration-300 mt-14',
 				themeStore.isSidebarOpen ? 'lg:ml-80' : 'lg:ml-20',
 				'ml-0',
 			]"
