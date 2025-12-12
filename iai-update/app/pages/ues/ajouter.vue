@@ -1,6 +1,5 @@
 <template>
   <div class="page-wrapper">
-
     <!-- Breadcrumb -->
             <Breadcrumb
                 :items="[
