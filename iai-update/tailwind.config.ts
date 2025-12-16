@@ -1,10 +1,7 @@
 import type { Config } from 'tailwindcss'
 
-
-
-
-/** @type {import('tailwindcss').Config} */
-export default {
+const config: Config = {
+  darkMode: 'class', // IMPORTANT: doit être 'class' et non 'media'
   content: [
     "./components/**/*.{js,vue,ts}",
     "./layouts/**/*.vue",
@@ -14,28 +11,8 @@ export default {
     "./error.vue",
   ],
   theme: {
-    extend: {},
-  },
-  plugins: [],
-}
-
-
-
-
-export default {
-  darkMode: 'class', // IMPORTANT: doit être 'class' et non 'media'
-  content: [
-    './components/**/*.{vue,js,ts}',
-    './layouts/**/*.vue',
-    './pages/**/*.vue',
-    './plugins/**/*.{js,ts}',
-    './app.{js,ts,vue}',
-    './error.{js,ts,vue}',
-  ],
-  theme: {
     extend: {
       colors: {
-        // Définition des couleurs primaires par défaut
         primary: {
           50: 'rgb(var(--color-primary-50) / <alpha-value>)',
           100: 'rgb(var(--color-primary-100) / <alpha-value>)',
@@ -52,4 +29,6 @@ export default {
     },
   },
   plugins: [],
-} satisfies Config
+}
+
+export default config
