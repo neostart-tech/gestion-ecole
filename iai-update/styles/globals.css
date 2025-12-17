@@ -1,0 +1,51 @@
+/* styles/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Couleurs primaires par défaut (bleu Tailwind) pour le mode clair */
+    --color-primary-50: 239 246 255;
+    --color-primary-100: 219 234 254;
+    --color-primary-200: 191 219 254;
+    --color-primary-300: 147 197 253;
+    --color-primary-400: 96 165 250;
+    --color-primary-500: 59 130 246;
+    --color-primary-600: 37 99 235;
+    --color-primary-700: 29 78 216;
+    --color-primary-800: 30 64 175;
+    --color-primary-900: 30 58 138;
+
+    /* Variables pour le mode sombre (seront écrasées par JS) */
+    --color-primary-dark-50: 30 58 138;
+    --color-primary-dark-100: 30 64 175;
+    --color-primary-dark-200: 29 78 216;
+    --color-primary-dark-300: 37 99 235;
+    --color-primary-dark-400: 59 130 246;
+    --color-primary-dark-500: 96 165 250;
+    --color-primary-dark-600: 147 197 253;
+    --color-primary-dark-700: 191 219 254;
+    --color-primary-dark-800: 219 234 254;
+    --color-primary-dark-900: 239 246 255;
+  }
+
+  /* En mode sombre, utiliser les variables sombres */
+  .dark {
+    --color-primary-50: var(--color-primary-dark-50);
+    --color-primary-100: var(--color-primary-dark-100);
+    --color-primary-200: var(--color-primary-dark-200);
+    --color-primary-300: var(--color-primary-dark-300);
+    --color-primary-400: var(--color-primary-dark-400);
+    --color-primary-500: var(--color-primary-dark-500);
+    --color-primary-600: var(--color-primary-dark-600);
+    --color-primary-700: var(--color-primary-dark-700);
+    --color-primary-800: var(--color-primary-dark-800);
+    --color-primary-900: var(--color-primary-dark-900);
+  }
+}
+
+
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}

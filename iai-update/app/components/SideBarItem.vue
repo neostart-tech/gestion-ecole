@@ -1,6 +1,6 @@
 <template>
 	<div class="mb-1">
-		<!-- Item sans enfants -->
+		<!--  -->
 		<div
 			v-if="
 				(!item.children || item.children.length === 0) &&
@@ -45,7 +45,7 @@
 			</a>
 		</div>
 
-		<!-- Item avec enfants ou sous-menus -->
+		
 		<div v-else>
 			<!-- Bouton parent -->
 			<button
