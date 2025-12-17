@@ -54,7 +54,7 @@
 		</div>
 
 		<!-- Menu -->
-		<div class="h-[calc(100vh)] overflow-y-auto py-4">
+		<div class="h-[calc(100vh-5rem)] overflow-y-auto py-4">
 			<nav class="px-2">
 				<!-- Section Admin -->
 				<div class="mb-6 mt-6">
