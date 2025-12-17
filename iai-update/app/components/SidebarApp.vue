@@ -216,8 +216,7 @@
 								title: "Liste des Utilisateurs",
 								path: "/personnel/utilisateurs",
 							},
-							{ title: "Ajouter un Utilisateur", 
-							path: "/personnel/ajouter" },
+							{ title: "Ajouter un Utilisateur", path: "/personnel/ajouter" },
 							{
 								title: "Liste des enseignants",
 								path: "/personnel/enseignants",
