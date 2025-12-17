@@ -12,21 +12,21 @@
 				class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200 group"
 			>
 				<!-- Icon -->
-									<svg
+				<svg
 					v-if="item.icon"
 					class="w-5 h-5 flex-shrink-0"
 					fill="none"
 					stroke="currentColor"
 					viewBox="0 0 24 24"
 					xmlns="http://www.w3.org/2000/svg"
-					>
+				>
 					<path
 						stroke-linecap="round"
 						stroke-linejoin="round"
 						stroke-width="2"
-						v-html="item.icon"
+						:d="item.icon"
 					/>
-					</svg>
+				</svg>
 
 				<!-- Texte -->
 				<span
@@ -60,6 +60,7 @@
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
+						xmlns="http://www.w3.org/2000/svg"
 					>
 						<path
 							stroke-linecap="round"
@@ -85,6 +86,7 @@
 					fill="none"
 					stroke="currentColor"
 					viewBox="0 0 24 24"
+					xmlns="http://www.w3.org/2000/svg"
 				>
 					<path
 						stroke-linecap="round"
