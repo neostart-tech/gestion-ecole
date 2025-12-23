@@ -104,7 +104,8 @@
 </template>
 
 <script setup lang="ts">
-	import { useThemeStore } from "../../stores/theme";
+	import EmploiDuTemps from "~/pages/emploi-du-temps.vue";
+import { useThemeStore } from "../../stores/theme";
 	import SidebarItem from "./SidebarItem.vue";
 
 	const themeStore = useThemeStore();
@@ -343,6 +344,27 @@
 								title: "Ajouter une opportunité",
 								path: "/opportunites/ajouter",
 							},
+						],
+					},
+				},
+
+				{
+					id: "20",
+					title: "Étudiants",
+					icon: "M12 14l9-5-9-5-9 5 9 5zm0 2l-6.16-3.422A12.083 12.083 0 006 15.5C6 17.985 8.686 20 12 20s6-2.015 6-4.5a12.083 12.083 0 00-.84-2.922L12 16z",
+					subMenus: {
+						Etudiants: [
+							{ title: "Emploi du temps", path: "Etudiant/emploi_du_temps" },
+							{ title: "Annonces", path: "Etudiant/annonces" },
+							{ title: "Relevé", path: "Etudiant/releve" },
+							{ title: "Notes", path: "Etudiant/note" },
+						],
+
+						MonDossier: [
+							{ title: "Constitution", path: "Etudiant/constitution" },
+							{ title: "Mes fichiers", path: "Etudiant/mes-fichiers" },
+							{ title: "Mon CV", path: "Etudiant/cv" },
+							{ title: "Mes dépôts", path: "Etudiant/mes-depots" },
 						],
 					},
 				},
