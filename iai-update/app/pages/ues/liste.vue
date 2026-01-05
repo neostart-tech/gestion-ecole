@@ -1,184 +1,278 @@
- <template>
-  <div class="page-wrapper">
-    <!-- Breadcrumb -->
-    <div class="breadcrumb">
-      <span class="breadcrumb-item">Administration</span>
-      <span class="breadcrumb-separator">/</span>
-      <span class="breadcrumb-item">Rôles</span>
-      <span class="breadcrumb-separator">/</span>
-      <span class="breadcrumb-item active">Liste</span>
-    </div>
-    <!-- Titre -->
-    <h1 class="page-title">Liste des rôles</h1>
-    <!-- Zone de recherche -->
-    <div class="search-filter-area">
-      <!-- Recherche -->
-      <div class="relative">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-        </div>
-        <input
-          v-model="searchQuery"
-          type="search"
-          class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-          placeholder="Rechercher un rôle..."
-        />
-      </div>
-      <!-- Sélecteur de colonnes -->
-      <div class="relative">
-        <button
-          class="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-          @click="toggleSelector"
-        >
-          <span>Colonnes visibles</span>
-          <svg
-            class="w-5 h-5 transition-transform duration-200"
-            :class="{ 'rotate-180': showSelector }"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </button>
-        <div
-          v-if="showSelector"
-          class="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 min-w-[200px]"
-        >
-          <div class="p-3 space-y-2 max-h-60 overflow-y-auto">
-            <div
-              v-for="col in availableColumns"
-              :key="col.field"
-              class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded"
+<template>
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <!-- Main content seulement -->
+    <main class="p-4 md:p-6">
+      <!-- Page Header -->
+      <div class="mb-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Mon emploi de temps</h1>
+            <nav class="flex mt-2" aria-label="Breadcrumb">
+              <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                  <span class="inline-flex items-center text-sm font-medium text-gray-700 dark:text-gray-400">
+                    Mon emploi de temps
+                  </span>
+                </li>
+                <li aria-current="page">
+                  <div class="flex items-center">
+                    <svg class="w-3 h-3 mx-1 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                    </svg>
+                    <span class="ml-1 text-sm font-medium text-gray-500 dark:text-gray-400 md:ml-2">Mes cours</span>
+                  </div>
+                </li>
+              </ol>
+            </nav>
+          </div>
+         
+          <!-- Bouton pour retour à l'accueil ou actions -->
+          <div class="mt-4 md:mt-0 flex items-center space-x-3">
+            <button
+              @click="refreshData"
+              class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700"
             >
-              <input
-                type="checkbox"
-                :id="col.field"
-                v-model="selectedColumns"
-                :value="col.field"
-                class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-              />
-              <label
-                :for="col.field"
-                class="text-sm text-gray-700 cursor-pointer select-none"
-              >{{ col.title }}</label>
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Actualiser
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zone de recherche et filtres -->
+      <div class="search-filter-area mb-6">
+        <!-- Recherche -->
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+          <input
+            v-model="searchQuery"
+            type="search"
+            class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+            placeholder="Rechercher un cours..."
+          />
+        </div>
+        
+        <!-- Sélecteur de colonnes -->
+        <div class="relative">
+          <button
+            class="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            @click="toggleColumnSelector"
+          >
+            <span>Colonnes visibles</span>
+            <svg
+              class="w-5 h-5 transition-transform duration-200"
+              :class="{ 'rotate-180': showColumnSelector }"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div
+            v-if="showColumnSelector"
+            class="absolute top-full right-0 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 min-w-[200px]"
+          >
+            <div class="p-3 space-y-2 max-h-60 overflow-y-auto">
+              <div
+                v-for="col in availableColumns"
+                :key="col.field"
+                class="flex items-center gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded"
+              >
+                <input
+                  type="checkbox"
+                  :id="col.field"
+                  v-model="selectedColumns"
+                  :value="col.field"
+                  class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 dark:border-gray-600"
+                />
+                <label
+                  :for="col.field"
+                  class="text-sm text-gray-700 dark:text-gray-300 cursor-pointer select-none"
+                >{{ col.title }}</label>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- Bouton Ajouter un cours -->
+        <button
+          class="flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          @click="addCourse"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Ajouter un cours
+        </button>
       </div>
-      <!-- Bouton Ajouter un rôle -->
-      <button
-        class="flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-        @click="addRole"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Ajouter un rôle
-      </button>
-    </div>
-    <!-- Tableau -->
-    <div class="table-card">
-      <Vue3Datatable
-        :columns="filteredCols"
-        :rows="filteredRoles"
-        :per-page="10"
-        :search="searchQuery"
-        :pagination-options="{ dropdown: true, edge: true }"
-        :searchable="true"
-        :sortable="true"
-        :filterable="true"
-        :skin="'bh-table-hover bh-table-striped'"
-        class="role-datatable"
-      >
-        <!-- Template pour les actions -->
-        <template #actions="data">
-          <div class="flex space-x-3">
-            <button
-              @click="showRoleDetails(data.value)"
-              class="text-blue-600 hover:text-blue-900 transition-colors"
-              title="Voir les permissions"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </button>
+
+      <!-- Card de la liste des cours -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex justify-between items-center">
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Liste de vos cours</h2>
+            <span class="text-sm text-gray-500 dark:text-gray-400">
+              {{ filteredCours.length }} cours affichés
+            </span>
           </div>
-        </template>
-      </Vue3Datatable>
-    </div>
-    <!-- Modal pour afficher les permissions -->
-    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
-      <div class="modal">
-        <div class="modal-header">
-          <div class="modal-title">
-            <h5 id="role-nom">{{ selectedRole ? `Rôle: ${selectedRole.nom}` : '' }}</h5>
-          </div>
-          <button @click="closeModal" class="modal-close">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-          </button>
         </div>
-        <div class="modal-body">
-          <h5 class="text-center mb-6 text-lg font-semibold text-gray-700">Liste des permissions</h5>
-          <div class="table-responsive">
-            <table class="permissions-table">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="text-left p-3 text-sm font-medium text-gray-500 uppercase">Permissions</th>
-                  <th class="text-left p-3 text-sm font-medium text-gray-500 uppercase">Description</th>
+        <div class="p-6">
+          <!-- Tableau -->
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead>
+                <tr class="bg-gray-50 dark:bg-gray-700">
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">#</th>
+                  <th 
+                    v-if="isColumnVisible('matiere')"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                  >
+                    Matière
+                  </th>
+                  <th 
+                    v-if="isColumnVisible('salle')"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                  >
+                    Salle
+                  </th>
+                  <th 
+                    v-if="isColumnVisible('jour')"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                  >
+                    Jour
+                  </th>
+                  <th 
+                    v-if="isColumnVisible('heure')"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                  >
+                    Heure
+                  </th>
+                  <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Action</th>
                 </tr>
               </thead>
-              <tbody id="permissions-table">
-                <tr v-for="permission in selectedRole?.permissions" :key="permission.id">
-                  <td class="p-3 border-b border-gray-200">
-                    <div class="flex items-center">
-                      <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                <tr v-for="(cours, index) in filteredCours" :key="cours.id">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-300">{{ index + 1 }}</td>
+                  <td 
+                    v-if="isColumnVisible('matiere')"
+                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-300"
+                  >
+                    {{ cours.matiere }}
+                  </td>
+                  <td 
+                    v-if="isColumnVisible('salle')"
+                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-300"
+                  >
+                    {{ cours.salle }}
+                  </td>
+                  <td 
+                    v-if="isColumnVisible('jour')"
+                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-300"
+                  >
+                    {{ cours.jour }}
+                  </td>
+                  <td 
+                    v-if="isColumnVisible('heure')"
+                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-300"
+                  >
+                    {{ cours.heure }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                    <button
+                      @click="voirPresence(cours.id)"
+                      class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
+                    >
+                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
-                      <span class="text-sm text-gray-700">{{ permission.nom }}</span>
-                    </div>
-                  </td>
-                  <td class="p-3 border-b border-gray-200 text-sm text-gray-500">
-                    {{ getPermissionDescription(permission.nom) }}
-                  </td>
-                </tr>
-                <tr v-if="!selectedRole?.permissions || selectedRole.permissions.length === 0">
-                  <td colspan="2" class="text-center text-gray-500 py-4">
-                    Aucune permission attribuée
+                      Voir présence
+                    </button>
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <div v-if="selectedRole?.description" class="mt-6 p-4 bg-blue-50 rounded-lg">
-            <h6 class="text-sm font-medium text-blue-800 mb-2">Description du rôle:</h6>
-            <p class="text-sm text-blue-700">{{ selectedRole.description }}</p>
-          </div>
-          <div class="mt-6 pt-4 border-t border-gray-200">
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-gray-500">
-                Total: <strong>{{ selectedRole?.permissions?.length || 0 }}</strong> permissions
-              </span>
-              <button 
-                @click="closeModal" 
-                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+          <!-- Message si pas de cours -->
+          <div v-if="filteredCours.length === 0" class="text-center py-8">
+            <div class="inline-flex flex-col items-center justify-center space-y-3">
+              <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              <p class="text-gray-500 dark:text-gray-400">Aucun cours disponible</p>
+              <button
+                @click="fetchCours"
+                class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30"
               >
-                Fermer
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Actualiser la liste
               </button>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <!-- Modal d'ajout de rôle -->
+
+      <!-- Stats ou informations supplémentaires -->
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Card stat 1 -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3">
+              <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total heures cette semaine</p>
+              <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ totalHeures }}h</p>
+            </div>
+          </div>
+        </div>
+        <!-- Card stat 2 -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 bg-green-100 dark:bg-green-900/30 rounded-lg p-3">
+              <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Cours aujourd'hui</p>
+              <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ coursAujourdhui }}</p>
+            </div>
+          </div>
+        </div>
+        <!-- Card stat 3 -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 bg-purple-100 dark:bg-purple-900/30 rounded-lg p-3">
+              <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Étudiants totaux</p>
+              <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ totalEtudiants }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal d'ajout de cours -->
     <div v-if="showAddModal" class="modal-overlay" @click.self="closeAddModal">
       <div class="modal add-modal">
         <div class="modal-header">
-          <h3>Ajouter un nouveau rôle</h3>
+          <h3>Ajouter un nouveau cours</h3>
           <button @click="closeAddModal" class="modal-close">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -186,38 +280,63 @@
           </button>
         </div>
         <div class="modal-body">
-          <form @submit.prevent="submitRoleForm">
+          <form @submit.prevent="submitCourseForm">
             <div class="form-group">
-              <label for="role-nom-input" class="form-label">
-                Nom du rôle *
+              <label for="course-matiere" class="form-label">
+                Matière *
               </label>
               <input
                 type="text"
-                id="role-nom-input"
-                v-model="newRole.nom"
+                id="course-matiere"
+                v-model="newCourse.matiere"
                 class="form-input"
-                placeholder="Ex: Administrateur"
+                placeholder="Ex: Mathématiques"
                 required
               />
             </div>
             <div class="form-group">
-              <label for="role-description" class="form-label">
-                Description
+              <label for="course-salle" class="form-label">
+                Salle *
               </label>
-              <textarea
-                id="role-description"
-                v-model="newRole.description"
+              <input
+                type="text"
+                id="course-salle"
+                v-model="newCourse.salle"
                 class="form-input"
-                rows="3"
-                placeholder="Description du rôle..."
-              ></textarea>
+                placeholder="Ex: Salle 101"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="course-jour" class="form-label">
+                Jour *
+              </label>
+              <input
+                type="date"
+                id="course-jour"
+                v-model="newCourse.jour"
+                class="form-input"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="course-heure" class="form-label">
+                Heure *
+              </label>
+              <input
+                type="time"
+                id="course-heure"
+                v-model="newCourse.heure"
+                class="form-input"
+                required
+              />
             </div>
             <div class="form-actions">
               <button type="button" class="btn-cancel" @click="closeAddModal">
                 Annuler
               </button>
               <button type="submit" class="btn-submit">
-                Créer le rôle
+                Ajouter le cours
               </button>
             </div>
           </form>
@@ -228,286 +347,218 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import Vue3Datatable from "@bhplugin/vue3-datatable";
-import "@bhplugin/vue3-datatable/dist/style.css";
+import { ref, onMounted, computed } from 'vue'
 
-const searchQuery = ref("");
-const showSelector = ref(false);
-const showModal = ref(false);
-const showAddModal = ref(false);
-const selectedRole = ref(null);
+// Données
+const coursList = ref([])
+const totalHeures = ref(12)
+const coursAujourdhui = ref(2)
+const totalEtudiants = ref(45)
+
+// Recherche et filtres
+const searchQuery = ref('')
+const showColumnSelector = ref(false)
 
 // Configuration des colonnes
 const availableColumns = ref([
-  { field: "id", title: "#", width: "70px", isUnique: true },
-  { field: "nom", title: "Nom", width: "300px" },
-  { field: "permissionsCount", title: "Permissions", width: "120px" },
-  { field: "actions", title: "Actions", width: "100px", sort: false },
-]);
+  { field: 'matiere', title: 'Matière' },
+  { field: 'salle', title: 'Salle' },
+  { field: 'jour', title: 'Jour' },
+  { field: 'heure', title: 'Heure' }
+])
 
-const selectedColumns = ref([]);
+const selectedColumns = ref(['matiere', 'salle', 'jour', 'heure'])
 
-// Initialiser avec toutes les colonnes sélectionnées
-onMounted(() => {
-  selectedColumns.value = availableColumns.value.map(col => col.field);
-});
+// Modal d'ajout
+const showAddModal = ref(false)
+const newCourse = ref({
+  matiere: '',
+  salle: '',
+  jour: '',
+  heure: ''
+})
 
-// Données des rôles avec permissions détaillées
-const roles = ref([
-  {
-    id: 1,
-    nom: "Administrateur",
-    description: "Accès complet à toutes les fonctionnalités du système",
-    permissions: [
-      { id: 1, nom: "Gérer les utilisateurs" },
-      { id: 2, nom: "Gérer les rôles" },
-      { id: 3, nom: "Gérer les permissions" },
-      { id: 4, nom: "Voir les statistiques" },
-      { id: 5, nom: "Gérer les paramètres système" },
-      { id: 6, nom: "Exporter les rapports" },
-      { id: 7, nom: "Gérer les cours" },
-      { id: 8, nom: "Gérer les inscriptions" },
-      { id: 9, nom: "Gérer les paiements" },
-      { id: 10, nom: "Gérer les emplois du temps" }
-    ]
-  },
-  {
-    id: 2,
-    nom: "Enseignant",
-    description: "Gestion des cours, évaluations et suivi des étudiants",
-    permissions: [
-      { id: 11, nom: "Gérer ses cours" },
-      { id: 12, nom: "Noter les étudiants" },
-      { id: 13, nom: "Voir les emplois du temps" },
-      { id: 14, nom: "Gérer les ressources pédagogiques" },
-      { id: 15, nom: "Communiquer avec les étudiants" },
-      { id: 16, nom: "Voir les présences" },
-      { id: 17, nom: "Publier des annonces" },
-      { id: 18, nom: "Créer des évaluations" }
-    ]
-  },
-  {
-    id: 3,
-    nom: "Étudiant",
-    description: "Accès aux informations académiques et personnelles",
-    permissions: [
-      { id: 19, nom: "Voir les emploi du temps de sa salle" },
-      { id: 20, nom: "Voir un emploi du temps" },
-      { id: 21, nom: "Voir une note d'un étudiant" },
-      { id: 22, nom: "Voir les évènements de sa salle" },
-      { id: 23, nom: "Voir un évènement" },
-      { id: 24, nom: "Voir ses enregistrements de payement de frais de scolarité" },
-      { id: 25, nom: "Voir ses notes" },
-      { id: 26, nom: "Consulter les ressources" },
-      { id: 27, nom: "S'inscrire aux cours" },
-      { id: 28, nom: "Consulter les résultats" }
-    ]
-  },
-  {
-    id: 4,
-    nom: "Secrétaire",
-    description: "Gestion administrative des inscriptions et documents",
-    permissions: [
-      { id: 29, nom: "Gérer les inscriptions" },
-      { id: 30, nom: "Éditer les documents" },
-      { id: 31, nom: "Gérer les plannings" },
-      { id: 32, nom: "Imprimer les attestations" },
-      { id: 33, nom: "Gérer les dossiers étudiants" },
-      { id: 34, nom: "Enregistrer les paiements" },
-      { id: 35, nom: "Gérer les demandes" },
-      { id: 36, nom: "Mettre à jour les informations" }
-    ]
-  },
-  {
-    id: 5,
-    nom: "Directeur d'études",
-    description: "Supervision des programmes et validation académique",
-    permissions: [
-      { id: 37, nom: "Valider les plannings" },
-      { id: 38, nom: "Superviser les enseignants" },
-      { id: 39, nom: "Approuver les programmes" },
-      { id: 40, nom: "Gérer les départements" },
-      { id: 41, nom: "Voir les rapports académiques" },
-      { id: 42, nom: "Valider les diplômes" },
-      { id: 43, nom: "Gérer les commissions" },
-      { id: 44, nom: "Approuver les budgets" }
-    ]
-  }
-]);
-
-// Données du nouveau rôle
-const newRole = ref({
-  nom: "",
-  description: ""
-});
-
-// Fonction pour obtenir la description d'une permission
-const getPermissionDescription = (permissionName) => {
-  const descriptions = {
-    "Voir les emploi du temps de sa salle": "Permet de consulter l'emploi du temps de sa classe/section",
-    "Voir un emploi du temps": "Accès à la visualisation des emplois du temps",
-    "Voir une note d'un étudiant": "Consulter les notes académiques",
-    "Voir les évènements de sa salle": "Voir les événements spécifiques à sa classe",
-    "Voir un évènement": "Visualiser les détails d'un événement",
-    "Voir ses enregistrements de payement de frais de scolarité": "Accès à l'historique des paiements de scolarité",
-    "Gérer les utilisateurs": "Créer, modifier et supprimer des comptes utilisateurs",
-    "Gérer les rôles": "Définir et attribuer les rôles du système",
-    "Gérer les permissions": "Configurer les autorisations d'accès",
-    "Gérer les cours": "Administrer les cours et programmes",
-    "Noter les étudiants": "Saisir et modifier les notes des étudiants",
-    "Gérer les inscriptions": "Traiter les inscriptions et réinscriptions",
-    "Valider les plannings": "Approuver les emplois du temps",
-    "Superviser les enseignants": "Suivre et évaluer les enseignants",
-    "Gérer ses cours": "Gérer le contenu et les activités de ses cours",
-    "Gérer les ressources pédagogiques": "Ajouter et organiser les ressources d'apprentissage",
-    "Communiquer avec les étudiants": "Envoyer des messages et notifications aux étudiants",
-    "Voir les présences": "Consulter les registres de présence",
-    "Publier des annonces": "Diffuser des informations aux étudiants",
-    "Créer des évaluations": "Créer des examens et travaux",
-    "Voir ses notes": "Consulter ses propres résultats académiques",
-    "Consulter les ressources": "Accéder aux documents pédagogiques",
-    "S'inscrire aux cours": "Sélectionner les cours à suivre",
-    "Consulter les résultats": "Voir les résultats d'évaluations",
-    "Éditer les documents": "Créer et modifier des documents administratifs",
-    "Imprimer les attestations": "Générer des attestations officielles",
-    "Enregistrer les paiements": "Saisir les paiements des étudiants",
-    "Gérer les demandes": "Traiter les requêtes administratives",
-    "Approuver les programmes": "Valider les programmes académiques",
-    "Voir les rapports académiques": "Consulter les statistiques et rapports",
-    "Valider les diplômes": "Approuver l'attribution des diplômes",
-    "Gérer les commissions": "Organiser les commissions pédagogiques",
-    "Approuver les budgets": "Valider les budgets départementaux"
-  };
-  
-  return descriptions[permissionName] || "Permission d'accès système";
-};
-
-// Rôles avec compteur de permissions
-const rolesWithCount = computed(() => {
-  return roles.value.map(role => ({
-    ...role,
-    permissionsCount: role.permissions.length
-  }));
-});
-
-// Colonnes filtrées selon la sélection
-const filteredCols = computed(() => {
-  return availableColumns.value.filter(col =>
-    selectedColumns.value.includes(col.field) || col.isUnique
-  ).map(col => ({
-    ...col,
-    cellRenderer: col.field === 'actions' ? 'actions' : null
-  }));
-});
-
-// Rôles filtrés avec recherche
-const filteredRoles = computed(() => {
-  if (!searchQuery.value) return rolesWithCount.value;
+// Fonctions
+const fetchCours = async () => {
+  // Simuler une requête API
+  coursList.value = []
  
-  const query = searchQuery.value.toLowerCase();
-  return rolesWithCount.value.filter(role =>
-    role.nom.toLowerCase().includes(query) ||
-    (role.description && role.description.toLowerCase().includes(query))
-  );
-});
+  setTimeout(() => {
+    coursList.value = [
+      {
+        id: 1,
+        matiere: 'Mathématiques',
+        salle: 'Salle 101',
+        jour: '2025-12-29',
+        heure: '08:00'
+      },
+      {
+        id: 2,
+        matiere: 'Physique',
+        salle: 'Salle 102',
+        jour: '2025-12-29',
+        heure: '10:30'
+      },
+      {
+        id: 3,
+        matiere: 'Informatique',
+        salle: 'Salle 103',
+        jour: '2025-12-30',
+        heure: '08:00'
+      },
+      {
+        id: 4,
+        matiere: 'Chimie',
+        salle: 'Salle 104',
+        jour: '2025-12-31',
+        heure: '14:00'
+      },
+      {
+        id: 5,
+        matiere: 'Biologie',
+        salle: 'Salle 105',
+        jour: '2026-01-01',
+        heure: '09:00'
+      }
+    ]
+  }, 500)
+}
 
-const toggleSelector = () => {
-  showSelector.value = !showSelector.value;
-};
+const refreshData = () => {
+  fetchCours()
+  // Simuler un recalcul des stats
+  totalHeures.value = Math.floor(Math.random() * 10) + 8
+  coursAujourdhui.value = Math.floor(Math.random() * 3) + 1
+}
 
-// Afficher les détails d'un rôle
-const showRoleDetails = (roleId) => {
-  const role = roles.value.find(r => r.id === roleId);
-  if (role) {
-    selectedRole.value = role;
-    showModal.value = true;
-  }
-};
+const voirPresence = (coursId) => {
+  alert(`Voir la présence pour le cours ID: ${coursId}`)
+  // Dans une vraie application, rediriger vers la page de présence
+  // window.location.href = `/enseignant/presence/${coursId}`
+}
 
-// Fermer le modal de détails
-const closeModal = () => {
-  showModal.value = false;
-  selectedRole.value = null;
-};
+const toggleColumnSelector = () => {
+  showColumnSelector.value = !showColumnSelector.value
+}
 
-// Ouvrir le modal d'ajout
-const addRole = () => {
-  showAddModal.value = true;
-};
+const isColumnVisible = (field) => {
+  return selectedColumns.value.includes(field)
+}
 
-// Fermer le modal d'ajout
+const addCourse = () => {
+  showAddModal.value = true
+}
+
 const closeAddModal = () => {
-  showAddModal.value = false;
-  resetRoleForm();
-};
+  showAddModal.value = false
+  resetCourseForm()
+}
 
-// Réinitialiser le formulaire
-const resetRoleForm = () => {
-  newRole.value = {
-    nom: "",
-    description: ""
-  };
-};
-
-// Soumettre le formulaire d'ajout
-const submitRoleForm = () => {
-  if (!newRole.value.nom.trim()) {
-    alert("Veuillez saisir un nom de rôle");
-    return;
+const resetCourseForm = () => {
+  newCourse.value = {
+    matiere: '',
+    salle: '',
+    jour: '',
+    heure: ''
   }
+}
+
+const submitCourseForm = () => {
+  if (!newCourse.value.matiere.trim() || 
+      !newCourse.value.salle.trim() || 
+      !newCourse.value.jour || 
+      !newCourse.value.heure) {
+    alert("Veuillez remplir tous les champs obligatoires")
+    return
+  }
+
+  const newId = coursList.value.length > 0 ? Math.max(...coursList.value.map(c => c.id)) + 1 : 1
   
-  const newId = roles.value.length > 0 ? Math.max(...roles.value.map(r => r.id)) + 1 : 1;
-  roles.value.push({
+  // Formater la date pour l'affichage
+  const jourFormate = new Date(newCourse.value.jour).toLocaleDateString('fr-FR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+
+  coursList.value.push({
     id: newId,
-    nom: newRole.value.nom,
-    description: newRole.value.description,
-    permissions: []
-  });
-  
-  alert(`Rôle "${newRole.value.nom}" ajouté avec succès!`);
-  closeAddModal();
-};
+    matiere: newCourse.value.matiere,
+    salle: newCourse.value.salle,
+    jour: jourFormate,
+    heure: `${newCourse.value.heure} - ${addHours(newCourse.value.heure, 2)}`
+  })
+
+  alert(`Cours "${newCourse.value.matiere}" ajouté avec succès!`)
+  closeAddModal()
+}
+
+const addHours = (time, hours) => {
+  const [hour, minute] = time.split(':').map(Number)
+  const newHour = hour + hours
+  return `${newHour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
+}
+
+// Computed properties
+const coursCount = computed(() => coursList.value.length)
+
+const filteredCours = computed(() => {
+  if (!searchQuery.value) return coursList.value
+
+  const query = searchQuery.value.toLowerCase()
+  return coursList.value.filter(cours =>
+    cours.matiere.toLowerCase().includes(query) ||
+    cours.salle.toLowerCase().includes(query) ||
+    cours.jour.toLowerCase().includes(query) ||
+    cours.heure.toLowerCase().includes(query)
+  )
+})
+
+// Cycle de vie
+onMounted(() => {
+  fetchCours()
+})
 </script>
 
 <style scoped>
-.page-wrapper {
-  max-width: 1200px;
-  margin: 30px auto;
-  padding: 20px;
+/* Styles pour la table responsive */
+@media (max-width: 768px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
 }
-/* Breadcrumb */
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-  font-size: 14px;
-  color: #6b7280;
+
+/* Animation pour les transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
 }
-.breadcrumb-item {
-  cursor: pointer;
-  transition: color 0.2s;
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
-.breadcrumb-item:hover {
-  color: #4f46e5;
+
+/* Styles pour les cartes de stats */
+.stat-card {
+  transition: transform 0.2s ease-in-out;
 }
-.breadcrumb-item.active {
-  color: #111827;
-  font-weight: 500;
-  cursor: default;
+.stat-card:hover {
+  transform: translateY(-2px);
 }
-.breadcrumb-separator {
-  color: #9ca3af;
+
+/* Loader animation pour le chargement */
+.loader {
+  animation: spin 1s linear infinite;
 }
-/* Titre */
-.page-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 24px;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
-/* Zone de recherche et boutons */
+
+/* Zone de recherche et filtres */
 .search-filter-area {
   display: flex;
   gap: 16px;
@@ -515,49 +566,14 @@ const submitRoleForm = () => {
   align-items: center;
   flex-wrap: wrap;
 }
-/* Carte contenant le tableau */
-.table-card {
-  background: white;
-  padding: 22px;
-  border-radius: 12px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+
+@media (max-width: 768px) {
+  .search-filter-area {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
-/* Personnalisation du datatable */
-.role-datatable {
-  --bh-table-border-color: #e5e7eb;
-  --bh-table-head-bg: #f9fafb;
-  --bh-table-head-color: #374151;
-  --bh-table-row-hover-bg: #f9fafb;
-}
-:deep(.bh-pagination-dropdown) {
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-}
-:deep(.bh-pagination-btn) {
-  border: 1px solid #d1d5db;
-  color: #374151;
-  transition: all 0.2s;
-}
-:deep(.bh-pagination-btn:hover) {
-  background-color: #f3f4f6;
-}
-:deep(.bh-pagination-btn.active) {
-  background-color: #4f46e5;
-  color: white;
-  border-color: #4f46e5;
-}
-:deep(.bh-table thead th) {
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-}
-:deep(.bh-table tbody tr) {
-  border-bottom: 1px solid #e5e7eb;
-}
-:deep(.bh-table tbody tr:hover) {
-  background-color: #f9fafb;
-}
+
 /* Modals */
 .modal-overlay {
   position: fixed;
@@ -573,6 +589,7 @@ const submitRoleForm = () => {
   padding: 20px;
   backdrop-filter: blur(4px);
 }
+
 .modal {
   background: white;
   border-radius: 16px;
@@ -583,9 +600,11 @@ const submitRoleForm = () => {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   animation: modalSlideIn 0.3s ease-out;
 }
+
 .add-modal {
   max-width: 500px;
 }
+
 @keyframes modalSlideIn {
   from {
     opacity: 0;
@@ -596,6 +615,7 @@ const submitRoleForm = () => {
     transform: translateY(0);
   }
 }
+
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -606,16 +626,13 @@ const submitRoleForm = () => {
   color: white;
   border-radius: 16px 16px 0 0;
 }
+
 .modal-header h3 {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
 }
-.modal-title h5 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-}
+
 .modal-close {
   background: rgba(255, 255, 255, 0.1);
   border: none;
@@ -630,72 +647,20 @@ const submitRoleForm = () => {
   justify-content: center;
   transition: background-color 0.2s;
 }
+
 .modal-close:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+
 .modal-body {
   padding: 24px;
 }
-.text-center {
-  text-align: center;
-}
-.mb-4 {
-  margin-bottom: 16px;
-}
-/* Améliorations pour le modal des permissions */
-.permissions-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
 
-.permissions-table thead {
-  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-}
-
-.permissions-table th {
-  padding: 12px 16px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.permissions-table tbody tr {
-  transition: background-color 0.2s;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.permissions-table tbody tr:hover {
-  background-color: #f8fafc;
-}
-
-.permissions-table td {
-  padding: 12px 16px;
-  vertical-align: middle;
-}
-/* Table des permissions */
-.table-responsive {
-  overflow-x: auto;
-}
-.permissions-table tbody tr {
-  border-bottom: 1px solid #e5e7eb;
-}
-.permissions-table td {
-  padding: 12px 16px;
-  text-align: left;
-  font-size: 14px;
-  color: #374151;
-}
-.permissions-table tbody tr:hover {
-  background-color: #f9fafb;
-}
 /* Formulaire dans modal */
 .form-group {
   margin-bottom: 20px;
 }
+
 .form-label {
   display: block;
   margin-bottom: 8px;
@@ -703,6 +668,7 @@ const submitRoleForm = () => {
   font-weight: 500;
   color: #374151;
 }
+
 .form-input {
   width: 100%;
   padding: 12px 16px;
@@ -713,18 +679,17 @@ const submitRoleForm = () => {
   background-color: white;
   transition: all 0.2s;
 }
+
 .form-input:focus {
   outline: none;
   border-color: #4f46e5;
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
+
 .form-input::placeholder {
   color: #9ca3af;
 }
-textarea.form-input {
-  resize: vertical;
-  min-height: 100px;
-}
+
 /* Actions du formulaire */
 .form-actions {
   display: flex;
@@ -734,6 +699,7 @@ textarea.form-input {
   padding-top: 24px;
   border-top: 1px solid #e5e7eb;
 }
+
 .btn-cancel {
   padding: 12px 24px;
   background: white;
@@ -745,10 +711,12 @@ textarea.form-input {
   cursor: pointer;
   transition: all 0.2s;
 }
+
 .btn-cancel:hover {
   background: #f9fafb;
   border-color: #9ca3af;
 }
+
 .btn-submit {
   padding: 12px 24px;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -760,63 +728,30 @@ textarea.form-input {
   cursor: pointer;
   transition: all 0.3s ease;
 }
+
 .btn-submit:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
-/* Responsive pour les permissions */
-@media (max-width: 768px) {
-  .page-wrapper {
-    padding: 15px;
-  }
- 
-  .search-filter-area {
-    flex-direction: column;
-    align-items: stretch;
-  }
- 
-  .form-actions {
-    flex-direction: column;
-  }
- 
-  .btn-cancel,
-  .btn-submit {
-    width: 100%;
-  }
- 
-  .modal {
-    margin: 10px;
-    max-height: 90vh;
-  }
- 
-  .modal-header {
-    padding: 16px;
-  }
- 
-  .modal-body {
-    padding: 16px;
-  }
-  
-  .permissions-table {
-    display: block;
-    overflow-x: auto;
-  }
-  
-  .permissions-table th,
-  .permissions-table td {
-    white-space: nowrap;
-    min-width: 150px;
-  }
+
+/* Dark mode styles */
+.dark .form-input {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #f9fafb;
 }
-@media (max-width: 480px) {
-  .page-title {
-    font-size: 24px;
-  }
- 
-  .table-card {
-    padding: 16px;
-  }
+
+.dark .form-label {
+  color: #e5e7eb;
+}
+
+.dark .btn-cancel {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #e5e7eb;
+}
+
+.dark .btn-cancel:hover {
+  background-color: #4b5563;
 }
 </style>
-
-

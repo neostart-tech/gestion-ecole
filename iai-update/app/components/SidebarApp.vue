@@ -107,6 +107,8 @@
 	import EmploiDuTemps from "~/pages/emploi-du-temps.vue";
 import { useThemeStore } from "../../stores/theme";
 	import SidebarItem from "./SidebarItem.vue";
+import CoursEtEvaluations from "~/pages/Enseignant/cours-et-evaluations.vue";
+import type Enseignants from "~/pages/personnel/enseignants.vue";
 
 	const themeStore = useThemeStore();
 
@@ -354,17 +356,31 @@ import { useThemeStore } from "../../stores/theme";
 					icon: "M12 14l9-5-9-5-9 5 9 5zm0 2l-6.16-3.422A12.083 12.083 0 006 15.5C6 17.985 8.686 20 12 20s6-2.015 6-4.5a12.083 12.083 0 00-.84-2.922L12 16z",
 					subMenus: {
 						Etudiants: [
-							{ title: "Emploi du temps", path: "Etudiant/emploi_du_temps" },
-							{ title: "Annonces", path: "Etudiant/annonces" },
-							{ title: "Relevé", path: "Etudiant/releve" },
-							{ title: "Notes", path: "Etudiant/note" },
+							{ title: "Emploi du temps", path: "/Etudiant/emploi_du_temps" },
+							{ title: "Annonces", path: "/Etudiant/annonces" },
+							{ title: "Relevé", path: "/Etudiant/releve" },
+							{ title: "Notes", path: "/Etudiant/note" },
 						],
 
 						MonDossier: [
-							{ title: "Constitution", path: "Etudiant/constitution" },
-							{ title: "Mes fichiers", path: "Etudiant/mes-fichiers" },
-							{ title: "Mon CV", path: "Etudiant/cv" },
-							{ title: "Mes dépôts", path: "Etudiant/mes-depots" },
+							{ title: "Constitution", path: "/Etudiant/constitution" },
+							{ title: "Mes fichiers", path: "/Etudiant/mes-fichiers" },
+							{ title: "Mon CV", path: "/Etudiant/cv" },
+							{ title: "Mes dépôts", path: "/Etudiant/mes-depots" },
+							{ title: "Mes paiements", path: "/Etudiant/mes-paiements" },
+						],
+					},
+				},
+
+				{
+					id: "21",
+					title: "Enseigants",
+					icon: "M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2",
+					subMenus: {
+						Enseignants: [
+							{ title: "Emploi du temps", path: "/Enseignant/emploi_du_temps" },
+							{ title: "Liste des cours", path: "/Enseignant/mes-cours" },
+							{ title: "Liste des évaluations", path: "/Enseignant/mes-evaluations" },
 						],
 					},
 				},
