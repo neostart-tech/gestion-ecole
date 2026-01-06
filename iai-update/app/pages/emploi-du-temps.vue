@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 md:p-8"
+		class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-4 md:p-8 transition-colors duration-300"
 	>
 		<div class="max-w-7xl mx-auto">
 			<!-- Breadcrumb -->
@@ -10,39 +10,43 @@
 					{ label: 'Emploi du temps', to: null },
 				]"
 				title="Mon emploi du temps"
-				:title-class="'text-xl md:text-2xl text-gray-800'"
+				:title-class="'text-xl md:text-2xl text-gray-800 dark:text-white'"
 				:spacing="'mb-2'"
-				:link-color="'text-blue-600 hover:text-blue-800'"
-				:active-color="'text-gray-900 font-medium'"
+				:link-color="'text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300'"
+				:active-color="'text-gray-900 dark:text-gray-200 font-medium'"
 				:text-size="'text-base'"
 				align="left"
 			/>
 
 			<!-- Sous-titre -->
-			<p class="text-gray-600 mb-8">
+			<p class="text-gray-600 dark:text-gray-300 mb-8">
 				Gérez vos événements et réunions en toute simplicité
 			</p>
 
 			<!-- Calendar Container -->
 			<div
-				class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transition-all duration-300"
+				class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300"
 			>
 				<!-- Calendar Toolbar -->
 				<div
-					class="px-4 sm:px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white"
+					class="px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-white dark:from-gray-800 dark:to-gray-900"
 				>
 					<div
 						class="flex flex-col sm:flex-row sm:items-center justify-between"
 					>
 						<div class="mb-4 sm:mb-0">
-							<h2 class="text-xl font-semibold text-gray-800">Calendrier</h2>
-							<p class="text-sm text-gray-500">{{ currentMonth }}</p>
+							<h2 class="text-xl font-semibold text-gray-800 dark:text-white">
+								Calendrier
+							</h2>
+							<p class="text-sm text-gray-500 dark:text-gray-400">
+								{{ currentMonth }}
+							</p>
 						</div>
 
 						<div class="flex flex-wrap gap-2">
 							<button
 								@click="handleCreateEvent"
-								class="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center shadow-sm whitespace-nowrap"
+								class="px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center shadow-sm whitespace-nowrap"
 							>
 								<svg
 									class="w-4 h-4 sm:w-5 sm:h-5 mr-2"
@@ -74,19 +78,19 @@
 							class="custom-calendar"
 						/>
 						<div v-else class="space-y-4 animate-pulse">
-							<div class="h-8 bg-gray-200 rounded w-1/4"></div>
+							<div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
 							<div class="grid grid-cols-7 gap-1 sm:gap-2">
 								<div
 									v-for="i in 7"
 									:key="i"
-									class="h-8 bg-gray-100 rounded"
+									class="h-8 bg-gray-100 dark:bg-gray-800 rounded"
 								></div>
 							</div>
 							<div class="grid grid-cols-7 gap-1 sm:gap-2">
 								<div
 									v-for="i in 42"
 									:key="i"
-									class="h-16 sm:h-20 bg-gray-50 rounded"
+									class="h-16 sm:h-20 bg-gray-50 dark:bg-gray-900 rounded"
 								></div>
 							</div>
 						</div>
@@ -298,12 +302,31 @@
 		--fc-button-text-color: white;
 		--fc-today-bg-color: #eff6ff;
 		--fc-page-bg-color: white;
+		--fc-neutral-bg-color: #f9fafb;
+		--fc-list-event-hover-bg-color: #f3f4f6;
+	}
+
+	/* Mode sombre pour FullCalendar */
+	.dark .fc {
+		--fc-border-color: #4b5563;
+		--fc-button-bg-color: #3b82f6;
+		--fc-button-border-color: #3b82f6;
+		--fc-button-hover-bg-color: #2563eb;
+		--fc-button-active-bg-color: #1d4ed8;
+		--fc-today-bg-color: rgba(59, 130, 246, 0.2);
+		--fc-page-bg-color: transparent;
+		--fc-neutral-bg-color: #374151;
+		--fc-list-event-hover-bg-color: #4b5563;
 	}
 
 	.fc .fc-toolbar-title {
 		font-size: 1.125rem;
 		font-weight: 600;
 		color: #1f2937;
+	}
+
+	.dark .fc .fc-toolbar-title {
+		color: #f3f4f6;
 	}
 
 	@media (min-width: 640px) {
@@ -358,11 +381,19 @@
 		background-color: #eff6ff !important;
 	}
 
+	.dark .fc .fc-day-today {
+		background-color: rgba(59, 130, 246, 0.2) !important;
+	}
+
 	.fc .fc-daygrid-day-number {
 		font-weight: 500;
 		color: #374151;
 		padding: 2px 4px;
 		font-size: 0.75rem;
+	}
+
+	.dark .fc .fc-daygrid-day-number {
+		color: #e5e7eb;
 	}
 
 	@media (min-width: 640px) {
@@ -382,6 +413,12 @@
 		border-bottom: 2px solid #e5e7eb;
 	}
 
+	.dark .fc .fc-col-header-cell {
+		background-color: #374151;
+		color: #e5e7eb;
+		border-bottom-color: #4b5563;
+	}
+
 	@media (min-width: 640px) {
 		.fc .fc-col-header-cell {
 			padding: 12px 4px;
@@ -393,14 +430,26 @@
 		border: 1px solid #e5e7eb;
 	}
 
+	.dark .fc .fc-daygrid-day {
+		border-color: #4b5563;
+	}
+
 	.fc .fc-daygrid-day:hover {
 		background-color: #f9fafb;
+	}
+
+	.dark .fc .fc-daygrid-day:hover {
+		background-color: #4b5563;
 	}
 
 	.fc .fc-daygrid-more-link {
 		color: #3b82f6;
 		font-weight: 500;
 		font-size: 0.7rem;
+	}
+
+	.dark .fc .fc-daygrid-more-link {
+		color: #60a5fa;
 	}
 
 	@media (min-width: 640px) {
@@ -414,7 +463,103 @@
 		border-color: #e5e7eb;
 	}
 
+	.dark .fc .fc-timegrid-slot {
+		border-color: #4b5563;
+	}
+
 	.fc .fc-list-event:hover td {
 		background-color: #f3f4f6;
+	}
+
+	.dark .fc .fc-list-event:hover td {
+		background-color: #4b5563;
+	}
+
+	/* Styles pour le tableau en mode sombre */
+	.fc-theme-standard td,
+	.fc-theme-standard th {
+		border-color: #e5e7eb;
+	}
+
+	.dark .fc-theme-standard td,
+	.dark .fc-theme-standard th {
+		border-color: #4b5563;
+	}
+
+	/* Styles pour les événements en mode sombre */
+	.fc .fc-event-main {
+		color: #ffffff;
+	}
+
+	.fc .fc-event-main-frame {
+		background-color: transparent;
+	}
+
+	/* Styles pour la vue liste en mode sombre */
+	.fc-list {
+		background-color: white;
+	}
+
+	.dark .fc-list {
+		background-color: transparent;
+	}
+
+	.fc-list-day-cushion {
+		background-color: #f9fafb;
+	}
+
+	.dark .fc-list-day-cushion {
+		background-color: #374151;
+		color: #e5e7eb;
+	}
+
+	/* Animation de skeleton en mode sombre */
+	.dark .animate-pulse div {
+		background-color: #374151;
+	}
+
+	.dark .animate-pulse .bg-gray-200 {
+		background-color: #4b5563;
+	}
+
+	.dark .animate-pulse .bg-gray-100 {
+		background-color: #374151;
+	}
+
+	.dark .animate-pulse .bg-gray-50 {
+		background-color: #1f2937;
+	}
+
+	/* Personnalisation du bouton today */
+	.fc .fc-button-primary:not(:disabled).fc-button-active,
+	.fc .fc-button-primary:not(:disabled):active {
+		background-color: var(--fc-button-active-bg-color);
+		border-color: var(--fc-button-active-bg-color);
+	}
+
+	/* Personnalisation du header */
+	.fc .fc-toolbar.fc-header-toolbar {
+		margin-bottom: 1em;
+		padding: 0.5em;
+		border-radius: 0.5em;
+		background-color: var(--fc-neutral-bg-color);
+	}
+
+	/* Ajustements responsive pour le mode sombre */
+	@media (max-width: 640px) {
+		.dark .fc .fc-toolbar-title {
+			font-size: 1rem;
+		}
+
+		.dark .fc .fc-button {
+			padding: 0.25rem 0.5rem;
+			font-size: 0.7rem;
+		}
+	}
+
+	/* Transition fluide pour le changement de thème */
+	.fc * {
+		transition: background-color 0.3s ease, border-color 0.3s ease,
+			color 0.3s ease;
 	}
 </style>

@@ -1,5 +1,7 @@
 <template>
-	<div class="min-h-screen bg-gray-50 py-8">
+	<div
+		class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 transition-colors duration-300"
+	>
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 			<!-- Breadcrumb -->
 			<Breadcrumb
@@ -8,16 +10,16 @@
 					{ label: 'Validation', to: null },
 				]"
 				title="Absences à valider"
-				:title-class="'text-xl md:text-2xl text-gray-800'"
+				:title-class="'text-xl md:text-2xl text-gray-800 dark:text-white'"
 				:spacing="'mb-2'"
-				:link-color="'text-blue-600 hover:text-blue-800'"
-				:active-color="'text-gray-900 font-medium'"
+				:link-color="'text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300'"
+				:active-color="'text-gray-900 dark:text-gray-200 font-medium'"
 				:text-size="'text-base'"
 				align="left"
 			/>
 
 			<!-- Sous-titre -->
-			<p class="text-gray-600 mb-8">
+			<p class="text-gray-600 dark:text-gray-300 mb-8">
 				Gérez et validez les absences des étudiants
 			</p>
 
@@ -29,7 +31,7 @@
 						class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
 					>
 						<svg
-							class="h-5 w-5 text-gray-400"
+							class="h-5 w-5 text-gray-400 dark:text-gray-500"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -45,7 +47,7 @@
 					<input
 						v-model="searchQuery"
 						type="search"
-						class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+						class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors placeholder-gray-500 dark:placeholder-gray-400"
 						placeholder="Nom/Prénom/Commentaire..."
 					/>
 				</div>
@@ -54,10 +56,15 @@
 				<div class="flex flex-col sm:flex-row sm:items-center gap-4">
 					<select
 						v-model="selectedGroup"
-						class="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-colors"
+						class="flex-1 px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors"
 					>
-						<option value="">Groupe: Tous</option>
-						<option v-for="group in groups" :key="group" :value="group">
+						<option value="" class="dark:bg-gray-800">Groupe: Tous</option>
+						<option
+							v-for="group in groups"
+							:key="group"
+							:value="group"
+							class="dark:bg-gray-800"
+						>
 							{{ group }}
 						</option>
 					</select>
@@ -66,17 +73,22 @@
 						<input
 							type="date"
 							v-model="selectedDate"
-							class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+							class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors"
 							placeholder="Date cours"
 						/>
 					</div>
 
 					<select
 						v-model="selectedSubject"
-						class="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-colors"
+						class="flex-1 px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors"
 					>
-						<option value="">Matière: Toutes</option>
-						<option v-for="subject in subjects" :key="subject" :value="subject">
+						<option value="" class="dark:bg-gray-800">Matière: Toutes</option>
+						<option
+							v-for="subject in subjects"
+							:key="subject"
+							:value="subject"
+							class="dark:bg-gray-800"
+						>
 							{{ subject }}
 						</option>
 					</select>
@@ -88,13 +100,13 @@
 					<div class="relative">
 						<button
 							@click="toggleColumnSelector"
-							class="flex items-center justify-between px-4 py-2.5 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors min-w-[180px]"
+							class="flex items-center justify-between px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors min-w-[180px]"
 						>
-							<span class="text-sm font-medium text-gray-700"
+							<span class="text-sm font-medium text-gray-700 dark:text-gray-300"
 								>Toutes les colonnes</span
 							>
 							<svg
-								class="h-4 w-4 text-gray-500 transition-transform duration-200"
+								class="h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform duration-200"
 								:class="{ 'rotate-180': showColumnSelector }"
 								fill="none"
 								stroke="currentColor"
@@ -112,24 +124,24 @@
 						<!-- Dropdown -->
 						<div
 							v-if="showColumnSelector"
-							class="absolute top-full left-0 mt-1 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden"
+							class="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden"
 						>
 							<div class="p-3 space-y-2 max-h-60 overflow-y-auto">
 								<div
 									v-for="col in availableColumns"
 									:key="col.field"
-									class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded"
+									class="flex items-center space-x-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded transition-colors"
 								>
 									<input
 										type="checkbox"
 										:id="'col-' + col.field"
 										v-model="selectedColumns"
 										:value="col.field"
-										class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+										class="h-4 w-4 text-indigo-600 dark:text-indigo-500 border-gray-300 dark:border-gray-600 rounded focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-800"
 									/>
 									<label
 										:for="'col-' + col.field"
-										class="text-sm text-gray-700 cursor-pointer select-none"
+										class="text-sm text-gray-700 dark:text-gray-300 cursor-pointer select-none"
 									>
 										{{ col.title }}
 									</label>
@@ -145,8 +157,8 @@
 						:class="[
 							'flex items-center justify-center space-x-2 px-4 py-2.5 rounded-lg font-medium transition-colors',
 							selectedAbsences.length > 0
-								? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-								: 'bg-gray-200 text-gray-500 cursor-not-allowed',
+								? 'bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white'
+								: 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed',
 						]"
 					>
 						<svg
@@ -168,7 +180,7 @@
 					<!-- Bouton Ajouter absence -->
 					<button
 						@click="addAbsence"
-						class="flex items-center justify-center space-x-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
+						class="flex items-center justify-center space-x-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white rounded-lg font-medium transition-colors"
 					>
 						<svg
 							class="h-5 w-5"
@@ -190,14 +202,14 @@
 
 			<!-- Tableau -->
 			<div
-				class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+				class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-300"
 			>
 				<!-- En-tête du tableau -->
-				<div class="px-6 py-4 border-b border-gray-200">
-					<h2 class="text-lg font-semibold text-gray-900">
+				<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+					<h2 class="text-lg font-semibold text-gray-900 dark:text-white">
 						Absences à valider
 					</h2>
-					<p class="text-sm text-gray-500">
+					<p class="text-sm text-gray-500 dark:text-gray-400">
 						{{ absencesCount }} absences en attente
 					</p>
 				</div>
@@ -205,26 +217,29 @@
 				<!-- Table -->
 				<div class="overflow-x-auto">
 					<table class="w-full">
-						<thead class="bg-gray-50">
+						<thead class="bg-gray-50 dark:bg-gray-700">
 							<tr>
 								<th class="py-3 px-6 text-left">
 									<input
 										type="checkbox"
 										v-model="selectAll"
-										class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+										class="h-4 w-4 text-indigo-600 dark:text-indigo-500 border-gray-300 dark:border-gray-600 rounded focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-800"
 									/>
 								</th>
 								<template v-for="col in visibleColumns" :key="col.field">
 									<th
 										v-if="col.field !== 'actions'"
 										@click="sortBy(col.field)"
-										class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+										class="py-3 px-6 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
 									>
 										<div class="flex items-center space-x-1">
 											<span>{{ col.title }}</span>
 											<svg
 												class="h-3 w-3"
-												:class="{ 'text-indigo-500': sortField === col.field }"
+												:class="{
+													'text-indigo-500 dark:text-indigo-400':
+														sortField === col.field,
+												}"
 												fill="none"
 												stroke="currentColor"
 												viewBox="0 0 24 24"
@@ -241,42 +256,46 @@
 								</template>
 								<th
 									v-if="visibleColumns.some((c) => c.field === 'actions')"
-									class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+									class="py-3 px-6 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
 								>
 									Actions
 								</th>
 							</tr>
 						</thead>
-						<tbody class="divide-y divide-gray-200">
+						<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
 							<template v-if="filteredAbsences.length > 0">
 								<tr
 									v-for="absence in paginatedAbsences"
 									:key="absence.id"
-									class="hover:bg-gray-50 transition-colors"
+									class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
 								>
 									<td class="py-4 px-6">
 										<input
 											type="checkbox"
 											:value="absence.id"
 											v-model="selectedAbsences"
-											class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+											class="h-4 w-4 text-indigo-600 dark:text-indigo-500 border-gray-300 dark:border-gray-600 rounded focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-800"
 										/>
 									</td>
 									<template v-for="col in visibleColumns" :key="col.field">
 										<td v-if="col.field === 'student'" class="py-4 px-6">
 											<div class="flex items-center space-x-3">
 												<div
-													class="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center"
+													class="flex-shrink-0 h-10 w-10 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center"
 												>
-													<span class="text-indigo-600 font-semibold">
+													<span
+														class="text-indigo-600 dark:text-indigo-300 font-semibold"
+													>
 														{{ getInitials(absence.student) }}
 													</span>
 												</div>
 												<div>
-													<div class="font-medium text-gray-900">
+													<div
+														class="font-medium text-gray-900 dark:text-white"
+													>
 														{{ absence.student }}
 													</div>
-													<div class="text-sm text-gray-500">
+													<div class="text-sm text-gray-500 dark:text-gray-400">
 														{{ absence.group }}
 													</div>
 												</div>
@@ -284,29 +303,33 @@
 										</td>
 										<td v-else-if="col.field === 'course'" class="py-4 px-6">
 											<div>
-												<div class="font-medium text-gray-900">
+												<div class="font-medium text-gray-900 dark:text-white">
 													{{ absence.course }}
 												</div>
 												<div
-													class="text-sm text-gray-500 flex items-center space-x-2"
+													class="text-sm text-gray-500 dark:text-gray-400 flex items-center space-x-2"
 												>
 													<span>{{ formatDate(absence.courseDate) }}</span>
-													<span class="text-gray-300">•</span>
+													<span class="text-gray-300 dark:text-gray-600"
+														>•</span
+													>
 													<span>{{ absence.subject }}</span>
 												</div>
 											</div>
 										</td>
 										<td v-else-if="col.field === 'comment'" class="py-4 px-6">
-											<div class="max-w-xs truncate text-gray-600">
+											<div
+												class="max-w-xs truncate text-gray-600 dark:text-gray-300"
+											>
 												{{ absence.comment || "Aucun commentaire" }}
 											</div>
 										</td>
 										<td v-else-if="col.field === 'createdAt'" class="py-4 px-6">
 											<div>
-												<div class="text-gray-900">
+												<div class="text-gray-900 dark:text-white">
 													{{ formatDateTime(absence.createdAt) }}
 												</div>
-												<div class="text-sm text-gray-500">
+												<div class="text-sm text-gray-500 dark:text-gray-400">
 													Il y a {{ getTimeAgo(absence.createdAt) }}
 												</div>
 											</div>
@@ -316,10 +339,10 @@
 												:class="[
 													'px-2 py-1 text-xs font-medium rounded-full',
 													absence.status === 'pending'
-														? 'bg-amber-100 text-amber-800'
+														? 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300'
 														: absence.status === 'validated'
-														? 'bg-emerald-100 text-emerald-800'
-														: 'bg-red-100 text-red-800',
+														? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300'
+														: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300',
 												]"
 											>
 												{{ getStatusText(absence.status) }}
@@ -333,7 +356,7 @@
 										<div class="flex space-x-2">
 											<button
 												@click.stop="validateAbsence(absence.id)"
-												class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+												class="p-2 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-lg transition-colors"
 												title="Valider"
 											>
 												<svg
@@ -352,7 +375,7 @@
 											</button>
 											<button
 												@click.stop="rejectAbsence(absence.id)"
-												class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+												class="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
 												title="Rejeter"
 											>
 												<svg
@@ -371,7 +394,7 @@
 											</button>
 											<button
 												@click.stop="viewDetails(absence)"
-												class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+												class="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
 												title="Détails"
 											>
 												<svg
@@ -399,7 +422,7 @@
 								>
 									<div class="flex flex-col items-center justify-center">
 										<svg
-											class="h-16 w-16 text-gray-300 mb-4"
+											class="h-16 w-16 text-gray-300 dark:text-gray-600 mb-4"
 											fill="none"
 											stroke="currentColor"
 											viewBox="0 0 24 24"
@@ -411,10 +434,12 @@
 												d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
 											/>
 										</svg>
-										<h3 class="text-lg font-medium text-gray-900 mb-2">
+										<h3
+											class="text-lg font-medium text-gray-900 dark:text-white mb-2"
+										>
 											Aucune absence en attente
 										</h3>
-										<p class="text-gray-500">
+										<p class="text-gray-500 dark:text-gray-400">
 											Toutes les absences ont été traitées
 										</p>
 									</div>
@@ -425,11 +450,13 @@
 				</div>
 
 				<!-- Pagination -->
-				<div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+				<div
+					class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50"
+				>
 					<div
 						class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0"
 					>
-						<div class="text-sm text-gray-700">
+						<div class="text-sm text-gray-700 dark:text-gray-300">
 							Affichage de
 							<span class="font-medium">{{ paginatedAbsences.length }}</span>
 							sur
@@ -442,10 +469,10 @@
 								@click="previousPage"
 								:disabled="currentPage === 1"
 								:class="[
-									'px-3 py-1.5 text-sm border border-gray-300 rounded-md transition-colors',
+									'px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md transition-colors',
 									currentPage === 1
-										? 'text-gray-400 cursor-not-allowed'
-										: 'text-gray-700 hover:bg-gray-100',
+										? 'text-gray-400 dark:text-gray-500 cursor-not-allowed'
+										: 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
 								]"
 							>
 								Précédent
@@ -459,39 +486,45 @@
 									:class="[
 										'px-3 py-1.5 text-sm border rounded-md transition-colors',
 										page === currentPage
-											? 'bg-indigo-600 border-indigo-600 text-white'
-											: 'border-gray-300 text-gray-700 hover:bg-gray-100',
+											? 'bg-indigo-600 dark:bg-indigo-500 border-indigo-600 dark:border-indigo-500 text-white'
+											: 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
 									]"
 								>
 									{{ page }}
 								</button>
-								<span v-if="showEllipsis" class="px-2 text-gray-500">...</span>
+								<span
+									v-if="showEllipsis"
+									class="px-2 text-gray-500 dark:text-gray-400"
+									>...</span
+								>
 							</div>
 
 							<button
 								@click="nextPage"
 								:disabled="currentPage === totalPages"
 								:class="[
-									'px-3 py-1.5 text-sm border border-gray-300 rounded-md transition-colors',
+									'px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md transition-colors',
 									currentPage === totalPages
-										? 'text-gray-400 cursor-not-allowed'
-										: 'text-gray-700 hover:bg-gray-100',
+										? 'text-gray-400 dark:text-gray-500 cursor-not-allowed'
+										: 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
 								]"
 							>
 								Suivant
 							</button>
 						</div>
 
-						<div class="flex items-center space-x-2 text-sm text-gray-700">
+						<div
+							class="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300"
+						>
 							<span>Afficher</span>
 							<select
 								v-model="itemsPerPage"
-								class="px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+								class="px-2 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors"
 							>
-								<option value="10">10</option>
-								<option value="25">25</option>
-								<option value="50">50</option>
-								<option value="100">100</option>
+								<option value="10" class="dark:bg-gray-800">10</option>
+								<option value="25" class="dark:bg-gray-800">25</option>
+								<option value="50" class="dark:bg-gray-800">50</option>
+								<option value="100" class="dark:bg-gray-800">100</option>
 							</select>
 							<span>par page</span>
 						</div>
