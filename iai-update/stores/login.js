@@ -12,7 +12,7 @@ export const useLoginStore = defineStore("login", {
 
         const response = await axios.post(url, credentials);
         this.isLoading = false;
-        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("gest-ecole-token", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
         return response.data;
       } catch (error) {
@@ -24,13 +24,13 @@ export const useLoginStore = defineStore("login", {
     },
 
     async logout() {
-      localStorage.removeItem("token");
+      localStorage.removeItem("gest-ecole-token");
       localStorage.removeItem("user");
     },
 
     async isAuthenticated() {
       if (process.server) return false;
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("gest-ecole-token");
       return !!token;
     },
   },

@@ -679,12 +679,12 @@ const rows = computed(() =>
     tp: f.tp ?? 0,
     ec: f.ec ?? 0,
     coefficient: f.coefficient ?? 0,
-    // debut: f.ue.periode.debut + "-" + f.ue.periode.fin ?? "--",
+    debut: f.periode.debut + "-" + f.periode.fin ?? "--",
     filiere: f.filiere.nom ?? 0,
     volumeHoraire: f.volume_horaire ?? 0,
     // periode: f.ue.periode.nom ?? "--",
     user: f.user ?? null,
-    periode: f.ue.periode.nom ?? null,
+    periode: f.periode.nom ?? null,
   })),
 );
 
