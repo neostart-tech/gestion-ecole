@@ -50,7 +50,11 @@
           <div
             class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/30 h-full p-6 md:p-8 transition-colors duration-300"
           >
-            <form @submit.prevent="submitForm" class="h-full flex flex-col">
+            <form
+              v-if="!ueStore.isLoading"
+              @submit.prevent="submitForm"
+              class="h-full flex flex-col"
+            >
               <!-- Contenu du formulaire avec scroll si nécessaire -->
               <div class="flex-1 overflow-y-auto pr-2 -mr-2">
                 <div class="space-y-6">
@@ -222,11 +226,13 @@ import { useRouter } from "vue-router";
 
 const filiereStore = useFiliereStore();
 const periodeStore = usePeriodeStore();
-const useStore = useUeStore();
+const ueStore = useUeStore();
 const loading = ref(false);
-const router=useRouter()
+const route = useRoute();
+const id = ref("");
+id.value = route.params.id;
 
-const {$toastr} = useNuxtApp();
+const { $toastr } = useNuxtApp();
 
 const form = ref({
   nom: "",
@@ -238,17 +244,26 @@ const form = ref({
 
 const submitForm = async () => {
   try {
-    await useStore.addUe(form.value);
+    await ueStore.updateUe(id.value, form.value);
     navigateTo("/ues/liste");
   } catch (error) {
     console.log(error);
   }
 };
 
-onMounted(() => {
-  filiereStore.fetchFilieres();
-  periodeStore.fetchPeriodeByYear();
-  $toastr.success('Données chargées avec succes')
+onMounted(async () => {
+  await ueStore.getUe(id.value);
+  await filiereStore.fetchFilieres();
+  await periodeStore.fetchPeriodeByYear();
+  form.value = {
+    nom: ueStore.ue.nom ?? "",
+    code: ueStore.ue.code ?? "",
+    periode_id: ueStore.ue.periode?.id ?? null,
+    filiere_id: ueStore.ue.filiere?.id ?? null,
+    credit: ueStore.ue.credit ?? "",
+  };
+
+  $toastr.success("Données chargées avec succes");
 });
 
 const filieresOptions = computed(() =>
