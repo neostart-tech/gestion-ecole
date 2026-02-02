@@ -69,11 +69,9 @@
 					<!-- Item Admin -->
 					<SidebarItem
 						:item="{
-						
 							title: 'Admin Administrateur',
 							icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
-							children: [{title: 'Déconnexion', 
-							path: '/logout'}],
+							children: [{ title: 'Déconnexion', path: '/logout' }],
 						}"
 					/>
 				</div>
@@ -106,10 +104,10 @@
 
 <script setup lang="ts">
 	import EmploiDuTemps from "~/pages/emploi-du-temps.vue";
-import { useThemeStore } from "../../stores/theme";
+	import { useThemeStore } from "../../stores/theme";
 	import SidebarItem from "./SidebarItem.vue";
-import CoursEtEvaluations from "~/pages/Enseignant/cours-et-evaluations.vue";
-import type Enseignants from "~/pages/personnel/enseignants.vue";
+	import CoursEtEvaluations from "~/pages/Enseignant/cours-et-evaluations.vue";
+	import type Enseignants from "~/pages/personnel/enseignants.vue";
 
 	const themeStore = useThemeStore();
 
@@ -142,7 +140,6 @@ import type Enseignants from "~/pages/personnel/enseignants.vue";
 					subMenus: {
 						Filières: [
 							{ title: "Liste des filières", path: "/filieres/liste" },
-							
 						],
 					},
 				},
@@ -240,10 +237,6 @@ import type Enseignants from "~/pages/personnel/enseignants.vue";
 							{
 								title: "Gestion Surveillants",
 								path: "/personnel/surveillants",
-							},
-							{
-								title: "Récap heures enseignants",
-								path: "/personnel/heures-enseignants",
 							},
 						],
 					},
@@ -392,7 +385,10 @@ import type Enseignants from "~/pages/personnel/enseignants.vue";
 						Enseignants: [
 							{ title: "Emploi du temps", path: "/Enseignant/emploi_du_temps" },
 							{ title: "Liste des cours", path: "/Enseignant/mes-cours" },
-							{ title: "Liste des évaluations", path: "/Enseignant/mes-evaluations" },
+							{
+								title: "Liste des évaluations",
+								path: "/Enseignant/mes-evaluations",
+							},
 						],
 					},
 				},
