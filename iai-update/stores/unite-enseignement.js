@@ -10,7 +10,7 @@ export const useUeStore = defineStore("ue", {
 
   actions: {
     authHeaders() {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("gest-ecole-token");
 
       return {
         headers: {

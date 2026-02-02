@@ -10,7 +10,7 @@ export const usePeriodeStore = defineStore("periode", {
 
   actions: {
     authHeaders() {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("gest-ecole-token");
 
       return {
         headers: {
