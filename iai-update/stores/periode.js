@@ -51,7 +51,7 @@ export const usePeriodeStore = defineStore("periode", {
       }
     },
 
-    async addFiliere(payload) {
+    async addPeriode(payload) {
       this.isLoading = true;
       try {
         const response = await axios.post(
@@ -68,7 +68,7 @@ export const usePeriodeStore = defineStore("periode", {
     },
 
    
-    async deleteFiliere(periodeId) {
+    async deletePeriode(periodeId) {
       this.isLoading = true;
       try {
         await axios.delete(
@@ -84,7 +84,7 @@ export const usePeriodeStore = defineStore("periode", {
       }
     },
 
-    async updateFiliere(periodeId, payload) {
+    async updatePeriode(periodeId, payload) {
       this.isLoading = true;
       try {
         const response = await axios.put(

@@ -1,258 +1,392 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-4 md:p-6">
+  <div
+    class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 transition-colors"
+  >
     <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
-      <span class="cursor-pointer hover:text-indigo-600 transition-colors">Accueil</span>
-      <span>/</span>
-      <span class="cursor-pointer hover:text-indigo-600 transition-colors">Administration</span>
-      <span>/</span>
-      <span class="cursor-pointer hover:text-indigo-600 transition-colors">Salles</span>
-      <span>/</span>
-      <span class="text-gray-900 font-medium cursor-default">Liste</span>
-    </div>
+    <Breadcrumb
+      :items="[
+        { label: 'Salle', to: '/' },
+        { label: 'Liste', to: null },
+      ]"
+      title="Liste des salles"
+      title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
+      spacing="mb-4"
+    />
 
-    <!-- Titre -->
-    <h1 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">Liste des salles</h1>
-
-    <!-- Zone de recherche et filtres -->
-    <div class="flex flex-col md:flex-row gap-4 mb-6">
+    <!-- Toolbar -->
+    <div
+      class="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between mb-5"
+    >
       <!-- Recherche -->
       <input
         v-model="searchQuery"
         type="search"
-        class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
         placeholder="Rechercher..."
+        class="w-full lg:w-64 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
 
-      <!-- Sélecteur de colonnes -->
-      <div class="relative">
-        <button 
-          @click="toggleSelector"
-          class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-        >
-          <span class="text-gray-700 font-medium">Toutes les colonnes</span>
-          <svg 
-            :class="{ 'rotate-180': showSelector }" 
-            class="w-4 h-4 text-gray-500 transition-transform"
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </button>
-
-        <!-- Dropdown des colonnes -->
-        <div 
-          v-if="showSelector"
-          class="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
-        >
-          <div class="p-3 space-y-2 max-h-64 overflow-y-auto">
-            <div 
-              v-for="col in availableColumns" 
-              :key="col.field"
-              class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
+      <div class="flex flex-col sm:flex-row gap-3">
+        <!-- Colonnes -->
+        <client-only>
+          <VDropdown placement="bottom-end">
+            <button
+              class="flex items-center gap-2 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <input
-                type="checkbox"
-                :id="col.field"
-                v-model="selectedColumns"
-                :value="col.field"
-                class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
-              />
-              <label 
-                :for="col.field"
-                class="text-sm text-gray-700 cursor-pointer select-none"
+              Colonnes
+              <svg
+                class="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
               >
-                {{ col.title }}
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
+                <path
+                  d="M6 9l6 6 6-6"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
 
-      <!-- Contrôles d'affichage -->
-      <div class="flex items-center gap-2">
-        <span class="text-gray-600 whitespace-nowrap">Afficher</span>
-        <select 
-          v-model="itemsPerPage" 
-          class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            <template #popper>
+              <div
+                class="w-56 p-3 rounded-lg shadow-lg bg-white dark:bg-gray-800"
+              >
+                <div
+                  v-for="col in columns"
+                  :key="col.field"
+                  class="flex items-center gap-2 py-1"
+                >
+                  <input
+                    type="checkbox"
+                    v-model="col.visible"
+                    :disabled="col.field === 'action'"
+                    class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <span class="text-sm text-gray-700 dark:text-gray-300">
+                    {{ col.title }}
+                  </span>
+                </div>
+              </div>
+            </template>
+          </VDropdown>
+        </client-only>
+
+        <!-- Ajouter -->
+        <button
+          @click="openAddModal"
+          class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
         >
-          <option value="10">10</option>
-          <option value="25">25</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-        </select>
-        <span class="text-gray-600 whitespace-nowrap">éléments</span>
+          <svg
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+          >
+            <path
+              d="M12 5v14M5 12h14"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+          Ajouter
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-3 sm:p-4">
+      <div v-if="loading" class="flex justify-center py-10">
+        <div
+          class="h-10 w-10 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent"
+        ></div>
       </div>
 
-      <!-- Bouton Ajouter salle -->
-      <button 
-        @click="openAddModal"
-        class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium whitespace-nowrap"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Ajouter une salle
-      </button>
-    </div>
+      <div v-else class="overflow-x-auto">
+        <Vue3Datatable
+          :columns="visibleColumns"
+          :rows="rows"
+          :search="searchQuery"
+          :per-page="itemsPerPage"
+          skin="bh-table-striped bh-table-hover"
+        >
+          <template #action="{ value }">
+            <div class="flex justify-center gap-3">
+              <button
+                @click="openDetailModal(value)"
+                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+              >
+                <svg
+                  class="w-4 h-4 mr-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+              </button>
 
-    <!-- Tableau -->
-    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-      <Vue3Datatable
-        :columns="filteredCols"
-        :rows="filteredRows"
-        :per-page="itemsPerPage"
-        :search="searchQuery"
-        :pagination-options="{ 
-          dropdown: true, 
-          edge: true,
-          nav: 'scroll',
-          position: 'bottom'
-        }"
-        :searchable="true"
-        :sortable="true"
-        :filterable="true"
-        :loading="loading"
-        :totalRows="filteredRows.length"
-        skin="bh-table-striped bh-table-hover"
-      >
-        <!-- Slot pour les actions -->
-        <template #action="data">
-          <div class="flex items-center justify-center gap-2">
-            <!-- Bouton Modifier -->
-            <button 
-              @click="openEditModal(data.value)"
-              class="p-1.5 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 rounded transition-colors duration-200"
-              title="Modifier"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-              </svg>
-            </button>
-            
-            <!-- Bouton Planifications -->
-            <NuxtLink
-              :to="`/salles/${data.value.id}/calendar`"
-              class="p-1.5 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors duration-200"
-              title="Planifications"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-              </svg>
-            </NuxtLink>
-            
-            <!-- Bouton Supprimer -->
-            <button 
-              @click="openDeleteModal(data.value)"
-              class="p-1.5 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded transition-colors duration-200"
-              title="Supprimer"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-              </svg>
-            </button>
-          </div>
-        </template>
-      </Vue3Datatable>
-    </div>
+              <!-- Edit -->
+              <button
+                @click="openEditModal(value)"
+                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+              >
+                <svg
+                  class="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    d="M4 20h4l10-10-4-4L4 16v4z"
+                    stroke-width="2"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
 
-    <!-- Modal d'ajout/modification -->
-    <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-        <div class="modal-content">
-          <form @submit.prevent="saveSalle">
-            <div class="modal-header border-b border-gray-200 p-6">
-              <h5 class="modal-title text-lg font-semibold text-gray-900">{{ modalTitle }}</h5>
-              <button type="button" @click="closeModal" class="btn-close text-gray-400 hover:text-gray-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              <!-- Delete -->
+              <button
+                @click="deleteItem(value)"
+                class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
+              >
+                <svg
+                  class="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    d="M3 6h18M8 6v14m8-14v14M5 6l1 14a2 2 0 002 2h8a2 2 0 002-2l1-14"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
                 </svg>
               </button>
             </div>
-            <div class="modal-body p-6">
-              <div class="form-group text-start mb-4">
-                <label for="nom" class="block text-sm font-medium text-gray-700 mb-2">
-                  Nom de la salle <span class="text-rose-500">*</span>
-                </label>
-                <input 
-                  type="text" 
-                  id="nom" 
-                  v-model="form.nom" 
-                  required
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 uppercase" 
-                  placeholder="Nom de la salle"
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="effectif" class="block text-sm font-medium text-gray-700 mb-2">
-                  Nombre de place <span class="text-rose-500">*</span>
-                </label>
-                <input 
-                  type="number" 
-                  step="1" 
-                  min="0" 
-                  id="effectif" 
-                  v-model="form.effectif" 
-                  required
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                  placeholder="Nombre de place"
-                />
-              </div>
-            </div>
-            <div class="modal-footer border-t border-gray-200 p-6 flex justify-end gap-3">
-              <button type="button" @click="closeModal" class="btn btn-secondary px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                Annuler
-              </button>
-              <button type="submit" class="btn btn-primary px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                Enregistrer
-              </button>
-            </div>
-          </form>
-        </div>
+          </template>
+        </Vue3Datatable>
       </div>
     </div>
 
-    <!-- Modal de suppression -->
-    <div v-if="showDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-        <div class="modal-content">
-          <div class="modal-header border-b border-gray-200 p-6">
-            <h5 class="modal-title text-lg font-semibold text-gray-900">Suppression</h5>
-            <button type="button" @click="closeDeleteModal" class="btn-close text-gray-400 hover:text-gray-600">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          <div class="modal-body p-6">
-            <p class="text-gray-600 mb-6">
-              Voulez-vous vraiment supprimer cette salle ? Veuillez noter que cette action est irréversible. Continuer ?
-            </p>
-          </div>
-          <div class="modal-footer border-t border-gray-200 p-6 flex justify-end gap-3">
-            <form @submit.prevent="deleteSalle" class="flex items-center gap-3">
-              <input type="hidden" id="deleteSalleForm" :value="selectedSalle?.id" />
-              <button 
-                type="button" 
-                @click="closeDeleteModal"
-                class="btn btn-secondary px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+    <TransitionRoot appear :show="showDetailModal" as="template">
+      <Dialog as="div" class="relative z-50" @close="closeDetailModal">
+        <TransitionChild
+          as="template"
+          enter="ease-out duration-300"
+          enter-from="opacity-0"
+          enter-to="opacity-100"
+          leave="ease-in duration-200"
+          leave-from="opacity-100"
+          leave-to="opacity-0"
+        >
+          <div class="fixed inset-0 bg-black/60" />
+        </TransitionChild>
+
+        <div class="fixed inset-0 overflow-y-auto">
+          <div class="flex min-h-full items-center justify-center p-4">
+            <TransitionChild
+              as="template"
+              enter="ease-out duration-300"
+              enter-from="opacity-0 scale-95"
+              enter-to="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leave-from="opacity-100 scale-100"
+              leave-to="opacity-0 scale-95"
+            >
+              <DialogPanel
+                class="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all"
               >
-                Retour
-              </button>
-              <button 
-                type="submit" 
-                class="btn btn-warning px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600"
-              >
-                Continuer la suppression
-              </button>
+                <!-- En-tête de la modale -->
+                <div class="flex items-start justify-between mb-6">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                      <div
+                        class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg"
+                      >
+                        <svg
+                          class="w-5 h-5 text-blue-600 dark:text-blue-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                          />
+                        </svg>
+                      </div>
+                      <DialogTitle
+                        class="text-xl font-bold text-gray-900 dark:text-white"
+                      >
+                        {{ selectedEvent?.nom }}
+                      </DialogTitle>
+                    </div>
+                  </div>
+                  <button
+                    @click="closeDetailModal"
+                    class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Contenu principal -->
+                <div class="space-y-5">
+                  <!-- Section Informations -->
+                  <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4">
+                    <h3
+                      class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      Informations de la salle
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3">
+                      <div>
+                        <p
+                          class="text-xs text-gray-500 dark:text-gray-400 mb-1"
+                        >
+                         Effectif
+                        </p>
+                        <p class="font-medium text-gray-900 dark:text-white">
+                          {{ selectedEvent?.effectif }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                 
+                </div>
+
+                <!-- Actions -->
+                <div
+                  class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center"
+                >
+                  <div
+                    class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    Dernière mise à jour : Aujourd'hui
+                  </div>
+                  <div class="flex gap-3">
+                    <button
+                      type="button"
+                      @click="closeDetailModal"
+                      class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                    >
+                      Fermer
+                    </button>
+                   
+                  </div>
+                </div>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+
+    <TransitionRoot appear :show="showModal" as="template">
+      <Dialog as="div" class="relative z-50" @close="closeModal">
+        <div class="fixed inset-0 bg-black/60" />
+
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+          <DialogPanel
+            class="w-full max-w-md rounded-xl bg-white dark:bg-gray-800 p-5"
+          >
+            <DialogTitle
+              class="text-lg font-semibold mb-4 text-gray-900 dark:text-white"
+            >
+              {{ modalTitle }}
+            </DialogTitle>
+
+            <form @submit.prevent="saveSalle" class="space-y-4">
+              <FloatLabel variant="on">
+                <InputText
+                  id="on_label"
+                  v-model="form.nom"
+                  autocomplete="off"
+                  class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
+                />
+                <label for="on_label">Nom</label>
+              </FloatLabel>
+               <FloatLabel variant="on">
+                <InputNumber
+                  id="on_label"
+                  v-model="form.effectif"
+                  autocomplete="off"
+                  class="w-full"
+                />
+                <label for="on_label">Effectif</label>
+              </FloatLabel>
+              <div class="flex justify-end gap-3">
+                <button
+                  type="button"
+                  @click="closeModal"
+                  class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600"
+                >
+                  Annuler
+                </button>
+
+                <button
+                  type="submit"
+                  class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+                >
+                  Enregistrer
+                </button>
+              </div>
             </form>
-          </div>
+          </DialogPanel>
         </div>
-      </div>
-    </div>
+      </Dialog>
+    </TransitionRoot>
   </div>
 </template>
 
@@ -260,223 +394,112 @@
 import { ref, computed, onMounted } from "vue";
 import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  TransitionRoot,
+} from "@headlessui/vue";
+import Breadcrumb from "~/components/Breadcrumb.vue";
+import { useSalleStore } from "~~/stores/salle";
+
+const { $toastr, $swal } = useNuxtApp();
+const salleStore = useSalleStore();
 
 const searchQuery = ref("");
-const showSelector = ref(false);
-const selectedColumns = ref([]);
+const loading = ref(true);
 const showModal = ref(false);
-const showDeleteModal = ref(false);
-const modalTitle = ref('');
-const selectedSalle = ref(null);
-const itemsPerPage = ref(50);
-const loading = ref(false);
+const modalTitle = ref("");
+const itemsPerPage = ref(5);
+const showDetailModal = ref(false);
+const selectedEvent = ref(null);
 
-// Formulaire
 const form = ref({
-  id: null,
-  nom: '',
-  effectif: ''
+  nom: "",
+  effectif: "",
 });
 
-// Charger les salles depuis localStorage
-const loadSalles = () => {
-  if (process.client) {
-    const storedSalles = localStorage.getItem('salles');
-    if (storedSalles) {
-      return JSON.parse(storedSalles);
-    }
-  }
-  return [];
-};
-
-// Données initiales
-const initialSalles = [
-  { id: 1, nom: 'SALLE A', nombrePlace: 30 },
-  { id: 2, nom: 'SALLE AMPH', nombrePlace: 65 },
-  { id: 3, nom: 'SALLE B', nombrePlace: 30 },
-  { id: 4, nom: 'SALLE C', nombrePlace: 20 },
-  { id: 5, nom: 'SALLE DE TEST', nombrePlace: 30 },
-  { id: 6, nom: 'SALLE MTWI', nombrePlace: 30 },
-  { id: 7, nom: 'SALLE TP', nombrePlace: 0 },
-  { id: 8, nom: 'SALLE TP 1', nombrePlace: 30 },
-  { id: 9, nom: 'SALLE TP 2', nombrePlace: 30 },
-  { id: 10, nom: 'TEST', nombrePlace: 0 }
-];
-
-const rows = ref([]);
-
-// Initialiser les données
-onMounted(() => {
-  let salles = loadSalles();
-  if (salles.length === 0) {
-    salles = initialSalles;
-    if (process.client) {
-      localStorage.setItem('salles', JSON.stringify(salles));
-    }
-  }
-  rows.value = salles;
-  selectedColumns.value = availableColumns.value.map(col => col.field);
-});
-
-const availableColumns = ref([
-  { field: "id", title: "#", width: "80px", isUnique: true },
-  { field: "nom", title: "NOM" },
-  { field: "nombrePlace", title: "NOMBRE DE PLACE" },
-  { field: "action", title: "Action", sort: false, width: "150px", type: "click" }
+const columns = ref([
+  { field: "nom", title: "Nom", visible: true },
+  { field: "effectif", title: "Effectif", visible: true },
+  { field: "action", title: "Actions", visible: true },
 ]);
 
-// Colonnes filtrées selon la sélection
-const filteredCols = computed(() => {
-  return availableColumns.value.filter(col => 
-    selectedColumns.value.includes(col.field)
-  );
-});
+const visibleColumns = computed(() => columns.value.filter((c) => c.visible));
 
-// Rows filtrées selon la recherche
-const filteredRows = computed(() => {
-  if (!searchQuery.value) return rows.value;
-  
-  const query = searchQuery.value.toLowerCase();
-  return rows.value.filter(salle => 
-    salle.nom.toLowerCase().includes(query) ||
-    salle.nombrePlace.toString().includes(query)
-  );
-});
+const rows = computed(() =>
+  salleStore.salles.map((f) => ({
+    id: f.id,
+    slug: f.slug,
+    nom: f.nom,
+    effectif: f.effectif ?? "--",
+  })),
+);
 
-const toggleSelector = () => {
-  showSelector.value = !showSelector.value;
+const openDetailModal = (item) => {
+  selectedEvent.value = item;
+  showDetailModal.value = true;
 };
 
-// Sauvegarder dans localStorage
-const saveToLocalStorage = () => {
-  if (process.client) {
-    localStorage.setItem('salles', JSON.stringify(rows.value));
-  }
+const closeDetailModal = () => {
+  showDetailModal.value = false;
+  selectedEvent.value = null;
 };
 
-// Gestion des modales
 const openAddModal = () => {
-  modalTitle.value = "Formulaire de création d'une salle";
-  form.value = { id: null, nom: '', effectif: '' };
-  showModal.value = true;
-};
-
-const openEditModal = (salle) => {
-  modalTitle.value = "Formulaire de modification d'une salle";
-  form.value = { 
-    id: salle.id,
-    nom: salle.nom, 
-    effectif: salle.nombrePlace 
+  modalTitle.value = "Créer une salle";
+  form.value = {
+    nom: "",
+    effectif: "",
   };
   showModal.value = true;
 };
 
-const openDeleteModal = (salle) => {
-  selectedSalle.value = salle;
-  showDeleteModal.value = true;
+const openEditModal = (f) => {
+  modalTitle.value = "Modifier la salle";
+
+  form.value = {
+    id:f.id,
+    slug: f.slug,
+    nom: f.nom,
+    effectif: f.effectif,
+  };
+
+  showModal.value = true;
 };
 
-const closeModal = () => {
-  showModal.value = false;
-};
+const closeModal = () => (showModal.value = false);
 
-const closeDeleteModal = () => {
-  showDeleteModal.value = false;
-  selectedSalle.value = null;
-};
+const saveSalle = async () => {
+  try {
+    await salleStore.addSalle(form.value);
 
-// Gestion des salles
-const saveSalle = () => {
-  if (form.value.id) {
-    // Mise à jour
-    const index = rows.value.findIndex(s => s.id === form.value.id);
-    if (index !== -1) {
-      rows.value[index] = {
-        ...rows.value[index],
-        nom: form.value.nom.toUpperCase(),
-        nombrePlace: parseInt(form.value.effectif) || 0
-      };
-    }
-  } else {
-    // Création
-    const newId = rows.value.length > 0 
-      ? Math.max(...rows.value.map(s => s.id)) + 1 
-      : 1;
-    
-    const newSalle = {
-      id: newId,
-      nom: form.value.nom.toUpperCase(),
-      nombrePlace: parseInt(form.value.effectif) || 0
-    };
-    
-    rows.value.push(newSalle);
-  }
-  
-  saveToLocalStorage();
-  closeModal();
-};
-
-const deleteSalle = () => {
-  if (selectedSalle.value) {
-    const index = rows.value.findIndex(s => s.id === selectedSalle.value.id);
-    if (index !== -1) {
-      rows.value.splice(index, 1);
-    }
-    saveToLocalStorage();
-    closeDeleteModal();
+    await salleStore.fetchSalles();
+    $toastr.success("Salle enrégistrée avec succes");
+    closeModal();
+  } catch (error) {
+    console.log(error);
+    $toastr.error(error.response.data.message);
   }
 };
+
+const deleteItem = async (p) => {
+  const res = await $swal.fire({
+    title: "Supprimer cette salle ?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Supprimer",
+  });
+
+  if (res.isConfirmed) {
+    await salleStore.deleteSalle(p.slug);
+    await salleStore.fetchSalles();
+    $toastr.success("Salle supprimée avec succes");
+  }
+};
+
+onMounted(async () => {
+  await salleStore.fetchSalles();
+  loading.value = false;
+});
 </script>
-
-<style scoped>
-/* Styles pour le tableau */
-:deep(.bh-table-wrapper) {
-  overflow-x: auto;
-}
-
-:deep(.bh-table) {
-  min-width: 100%;
-  width: 100%;
-  border-collapse: collapse;
-}
-
-:deep(.bh-table th) {
-  padding: 12px 16px;
-  text-align: left;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #6b7280;
-  background-color: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-:deep(.bh-table td) {
-  padding: 16px;
-  white-space: nowrap;
-  font-size: 0.875rem;
-  color: #1f2937;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-:deep(.bh-table tr:hover) {
-  background-color: #f9fafb;
-}
-
-:deep(.bh-pagination) {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 24px;
-  border-top: 1px solid #e5e7eb;
-}
-
-:deep(.bh-table-striped tbody tr:nth-child(odd)) {
-  background-color: #f9fafb;
-}
-
-:deep(.bh-table-hover tbody tr:hover) {
-  background-color: #f3f4f6;
-}
-</style>
