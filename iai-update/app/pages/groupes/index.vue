@@ -1,286 +1,735 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-4 md:p-6">
+  <div
+    class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 transition-colors"
+  >
     <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
-      <span class="cursor-pointer hover:text-indigo-600 transition-colors">Accueil</span>
-      <span>/</span>
-    
-      <span class="text-gray-900 font-medium cursor-default">Liste</span>
-    </div>
+    <Breadcrumb
+      :items="[
+        { label: 'Groupes', to: '/' },
+        { label: 'Liste', to: null },
+      ]"
+      title="Liste des groupes"
+      title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
+      spacing="mb-4"
+    />
 
-    <!-- Titre -->
-    <h1 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">Liste des groupes</h1>
-
-    <!-- Zone de recherche et filtres -->
-    <div class="flex flex-col md:flex-row gap-4 mb-6">
+    <!-- Toolbar -->
+    <div
+      class="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between mb-5"
+    >
       <!-- Recherche -->
       <input
         v-model="searchQuery"
         type="search"
-        class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
         placeholder="Rechercher..."
+        class="w-full lg:w-64 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
 
-      <!-- Sélecteur de colonnes -->
-      <div class="relative">
-        <button 
-          @click="toggleSelector"
-          class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-        >
-          <span class="text-gray-700 font-medium">Toutes les colonnes</span>
-          <svg 
-            :class="{ 'rotate-180': showSelector }" 
-            class="w-4 h-4 text-gray-500 transition-transform"
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </button>
-
-        <!-- Dropdown des colonnes -->
-        <div 
-          v-if="showSelector"
-          class="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
-        >
-          <div class="p-3 space-y-2 max-h-64 overflow-y-auto">
-            <div 
-              v-for="col in availableColumns" 
-              :key="col.field"
-              class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
+      <div class="flex flex-col sm:flex-row gap-3">
+        <!-- Colonnes -->
+        <client-only>
+          <VDropdown placement="bottom-end">
+            <button
+              class="flex items-center gap-2 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <input
-                type="checkbox"
-                :id="col.field"
-                v-model="selectedColumns"
-                :value="col.field"
-                class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
-              />
-              <label 
-                :for="col.field"
-                class="text-sm text-gray-700 cursor-pointer select-none"
+              Colonnes
+              <svg
+                class="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
               >
-                {{ col.title }}
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
+                <path
+                  d="M6 9l6 6 6-6"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
 
-      <!-- Contrôles d'affichage -->
-      <div class="flex items-center gap-2">
-        <span class="text-gray-600 whitespace-nowrap">Afficher</span>
-        <select 
-          v-model="itemsPerPage" 
-          class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            <template #popper>
+              <div
+                class="w-56 p-3 rounded-lg shadow-lg bg-white dark:bg-gray-800"
+              >
+                <div
+                  v-for="col in columns"
+                  :key="col.field"
+                  class="flex items-center gap-2 py-1"
+                >
+                  <input
+                    type="checkbox"
+                    v-model="col.visible"
+                    :disabled="col.field === 'action'"
+                    class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <span class="text-sm text-gray-700 dark:text-gray-300">
+                    {{ col.title }}
+                  </span>
+                </div>
+              </div>
+            </template>
+          </VDropdown>
+        </client-only>
+
+        <!-- Ajouter -->
+        <button
+          @click="openAddModal"
+          class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
         >
-          <option value="10">10</option>
-          <option value="25">25</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-        </select>
-        <span class="text-gray-600 whitespace-nowrap">éléments</span>
+          <svg
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+          >
+            <path
+              d="M12 5v14M5 12h14"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+          Ajouter
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-3 sm:p-4">
+      <div v-if="loading" class="flex justify-center py-10">
+        <div
+          class="h-10 w-10 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent"
+        ></div>
       </div>
 
-      <!-- Bouton Ajouter groupe -->
-      <button 
-        @click="openAddModal"
-        class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium whitespace-nowrap"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Ajouter un groupe
-      </button>
-    </div>
-
-    <!-- Tableau -->
-    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-      <Vue3Datatable
-        :columns="filteredCols"
-        :rows="filteredRows"
-        :per-page="itemsPerPage"
-        :search="searchQuery"
-        :pagination-options="{ 
-          dropdown: true, 
-          edge: true,
-          nav: 'scroll',
-          position: 'bottom'
-        }"
-        :searchable="true"
-        :sortable="true"
-        :filterable="true"
-        :loading="loading"
-        :totalRows="filteredRows.length"
-        skin="bh-table-striped bh-table-hover"
-      >
-        <!-- Slot pour les actions -->
-        <template #action="data">
-          <div class="flex items-center justify-center gap-2">
-            <!-- Bouton Modifier -->
-            <button 
-              @click="openEditModal(data.value)"
-              class="p-1.5 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 rounded transition-colors duration-200"
-              title="Modifier"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-              </svg>
-            </button>
+      <div v-else class="overflow-x-auto">
+        <Vue3Datatable
+          :columns="visibleColumns"
+          :rows="rows"
+          :search="searchQuery"
+          :per-page="itemsPerPage"
+          skin="bh-table-striped bh-table-hover"
+        >
+          <template #action="{ value }">
+            <div class="flex justify-center gap-3">
+              <button
+                @click="openDetailModal(value)"
+                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
+                title="Voir les détails"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+              </button>
             
-            <!-- Bouton Étudiants -->
-            <NuxtLink
-              :to="`/groupes/${data.value.id}/etudiants`"
-              class="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors duration-200"
-              title="Étudiants du groupe"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-              </svg>
-            </NuxtLink>
-            
-            <!-- Bouton Supprimer -->
-            <button 
-              @click="openDeleteModal(data.value)"
-              class="p-1.5 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded transition-colors duration-200"
-              title="Supprimer"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-              </svg>
-            </button>
-          </div>
-        </template>
 
-        <!-- Slot pour la colonne effectif -->
-        <template #effectif="data">
-          <span class="font-medium text-gray-700">{{ data.value }}</span>
-        </template>
+              <!-- Edit -->
+              <button
+                @click="openEditModal(value)"
+                class="p-2 rounded-lg text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors duration-200"
+                title="Modifier"
+              >
+                <svg
+                  class="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    d="M4 20h4l10-10-4-4L4 16v4z"
+                    stroke-width="2"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
+                <NuxtLink
+               :to="`/groupes/etudiants/${value.slug}`"
+                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
+                title="Voir les détails"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <!-- Silhouette principale -->
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <!-- + overlay pour indiquer "voir" -->
+                  <circle
+                    cx="18"
+                    cy="6"
+                    r="1.5"
+                    stroke-width="1"
+                    class="opacity-70"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1"
+                    d="M18 4v4M16 6h4"
+                    class="opacity-70"
+                  />
+                </svg>
+              </NuxtLink>
 
-        <!-- Slot pour la colonne filiere -->
-        <template #filiere="data">
-          <span class="text-gray-600">{{ data.value }}</span>
-        </template>
-      </Vue3Datatable>
-    </div>
-
-    <!-- Modal d'ajout/modification -->
-    <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-        <div class="modal-content">
-          <form @submit.prevent="saveGroupe">
-            <div class="modal-header border-b border-gray-200 p-6">
-              <h5 class="modal-title text-lg font-semibold text-gray-900">{{ modalTitle }}</h5>
-              <button type="button" @click="closeModal" class="btn-close text-gray-400 hover:text-gray-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              <!-- Delete -->
+              <button
+                @click="deleteItem(value)"
+                class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
+                title="Supprimer"
+              >
+                <svg
+                  class="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    d="M3 6h18M8 6v14m8-14v14M5 6l1 14a2 2 0 002 2h8a2 2 0 002-2l1-14"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
                 </svg>
               </button>
             </div>
-            <div class="modal-body p-6 space-y-4">
-              <div class="form-group text-start">
-                <label for="nom" class="block text-sm font-medium text-gray-700 mb-2">
-                  Nom du groupe <span class="text-rose-500">*</span>
-                </label>
-                <input 
-                  type="text" 
-                  id="nom" 
-                  v-model="form.nom" 
-                  required
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 uppercase" 
-                  placeholder="Nom du groupe"
-                />
-              </div>
+          </template>
+        </Vue3Datatable>
+      </div>
+    </div>
 
-              <div class="form-group text-start">
-                <label for="filiere" class="block text-sm font-medium text-gray-700 mb-2">
-                  Filière <span class="text-rose-500">*</span>
-                </label>
-                <select 
-                  id="filiere" 
-                  v-model="form.filiere" 
-                  required
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+    <!-- Modal de détail -->
+    <TransitionRoot appear :show="showDetailModal" as="template">
+      <Dialog as="div" class="relative z-50" @close="closeDetailModal">
+        <TransitionChild
+          as="template"
+          enter="ease-out duration-300"
+          enter-from="opacity-0"
+          enter-to="opacity-100"
+          leave="ease-in duration-200"
+          leave-from="opacity-100"
+          leave-to="opacity-0"
+        >
+          <div class="fixed inset-0 bg-black/60" />
+        </TransitionChild>
+
+        <div class="fixed inset-0 overflow-y-auto">
+          <div class="flex min-h-full items-center justify-center p-4">
+            <TransitionChild
+              as="template"
+              enter="ease-out duration-300"
+              enter-from="opacity-0 scale-95"
+              enter-to="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leave-from="opacity-100 scale-100"
+              leave-to="opacity-0 scale-95"
+            >
+              <DialogPanel
+                class="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all"
+              >
+                <!-- En-tête de la modale -->
+                <div class="flex items-start justify-between mb-6">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-3">
+                      <div
+                        class="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-md"
+                      >
+                        <svg
+                          class="w-6 h-6 text-white"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                          />
+                        </svg>
+                      </div>
+                      <div>
+                        <DialogTitle
+                          class="text-2xl font-bold text-gray-900 dark:text-white"
+                        >
+                          {{ selectedEvent?.nom }}
+                        </DialogTitle>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    @click="closeDetailModal"
+                    class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    title="Fermer"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Contenu principal -->
+                <div class="space-y-6">
+                  <!-- Section Informations principales -->
+                  <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
+                    <div
+                      class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-4"
+                    >
+                      <div class="flex items-center gap-3 mb-2">
+                        <div
+                          class="p-2 bg-blue-100 dark:bg-blue-800/30 rounded-lg"
+                        >
+                          <svg
+                            class="w-5 h-5 text-blue-600 dark:text-blue-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                        </div>
+                        <h3
+                          class="font-semibold text-gray-700 dark:text-gray-300"
+                        >
+                          Niveau
+                        </h3>
+                      </div>
+                      <div class="ml-11">
+                        <p
+                          class="text-lg font-medium text-gray-900 dark:text-white"
+                        >
+                          {{
+                            selectedEvent?.niveau_obj?.libelle || "Non spécifié"
+                          }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div
+                      class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-4"
+                    >
+                      <div class="flex items-center gap-3 mb-2">
+                        <div
+                          class="p-2 bg-purple-100 dark:bg-purple-800/30 rounded-lg"
+                        >
+                          <svg
+                            class="w-5 h-5 text-purple-600 dark:text-purple-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                            />
+                          </svg>
+                        </div>
+                        <h3
+                          class="font-semibold text-gray-700 dark:text-gray-300"
+                        >
+                          Filières
+                        </h3>
+                        <span
+                          class="ml-auto px-2 py-1 bg-purple-100 dark:bg-purple-800/30 text-purple-800 dark:text-purple-300 text-xs font-medium rounded-full"
+                        >
+                          {{ selectedEvent?.filieres_obj?.length || 0 }}
+                        </span>
+                      </div>
+                      <div
+                        v-if="selectedEvent?.filieres_obj?.length"
+                        class="flex flex-wrap gap-2 mt-2 ml-11"
+                      >
+                        <span
+                          v-for="filiere in selectedEvent.filieres_obj"
+                          :key="filiere.id"
+                          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-800/30 dark:to-pink-800/30 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-700/30"
+                        >
+                          <svg
+                            class="w-3.5 h-3.5"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clip-rule="evenodd"
+                            />
+                          </svg>
+                          {{ filiere.nom }}
+                          <span class="text-xs opacity-75"
+                            >({{ filiere.code }})</span
+                          >
+                        </span>
+                      </div>
+                      <p
+                        v-else
+                        class="text-gray-500 dark:text-gray-400 text-sm ml-11"
+                      >
+                        Aucune filière assignée
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Section Détails des filières -->
+                  <div
+                    class="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-xl p-4"
+                  >
+                    <div class="flex items-center justify-between mb-4">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="p-2 bg-emerald-100 dark:bg-emerald-800/30 rounded-lg"
+                        >
+                          <svg
+                            class="w-5 h-5 text-emerald-600 dark:text-emerald-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                            />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3
+                            class="font-semibold text-gray-700 dark:text-gray-300"
+                          >
+                            Détails des filières
+                          </h3>
+                          <p class="text-sm text-gray-500 dark:text-gray-400">
+                            Informations complémentaires
+                          </p>
+                        </div>
+                      </div>
+                      <span
+                        class="px-3 py-1 bg-emerald-100 dark:bg-emerald-800/30 text-emerald-800 dark:text-emerald-300 text-sm font-medium rounded-full"
+                      >
+                        {{ selectedEvent?.filieres_obj?.length || 0 }}
+                        filière(s)
+                      </span>
+                    </div>
+
+                    <div
+                      v-if="selectedEvent?.filieres_obj?.length"
+                      class="space-y-3"
+                    >
+                      <div
+                        v-for="filiere in selectedEvent.filieres_obj"
+                        :key="filiere.id"
+                        class="flex items-start gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg border border-emerald-100 dark:border-emerald-700/30"
+                      >
+                        <div class="flex-shrink-0"></div>
+                        <div class="flex-1 min-w-0">
+                          <p
+                            class="font-medium text-gray-900 dark:text-white truncate"
+                          >
+                            {{ filiere.nom }}
+                          </p>
+                          <p class="text-sm text-gray-500 dark:text-gray-400">
+                            {{ filiere.code }}
+                          </p>
+                          <p
+                            v-if="
+                              filiere.description &&
+                              filiere.description !== 'À fournir' &&
+                              filiere.description !== 'A fournir'
+                            "
+                            class="text-sm text-gray-600 dark:text-gray-300 mt-1 line-clamp-2"
+                          >
+                            {{ filiere.description }}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div v-else class="text-center py-6">
+                      <div
+                        class="w-16 h-16 mx-auto mb-3 bg-emerald-100 dark:bg-emerald-800/30 rounded-full flex items-center justify-center"
+                      >
+                        <svg
+                          class="w-8 h-8 text-emerald-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                          />
+                        </svg>
+                      </div>
+                      <p class="text-gray-500 dark:text-gray-400 mb-2">
+                        Aucune filière assignée à ce groupe
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Section Statistiques -->
+                  <div
+                    class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl p-4"
+                  >
+                    <div class="flex items-center justify-between mb-4">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="p-2 bg-amber-100 dark:bg-amber-800/30 rounded-lg"
+                        >
+                          <svg
+                            class="w-5 h-5 text-amber-600 dark:text-amber-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                            />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3
+                            class="font-semibold text-gray-700 dark:text-gray-300"
+                          >
+                            Statistiques
+                          </h3>
+                          <p class="text-sm text-gray-500 dark:text-gray-400">
+                            Résumé du groupe
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      <div
+                        class="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-amber-100 dark:border-amber-700/30"
+                      >
+                        <p
+                          class="text-2xl font-bold text-blue-600 dark:text-blue-400"
+                        >
+                          {{ selectedEvent?.filieres_obj?.length || 0 }}
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                          Filières
+                        </p>
+                      </div>
+
+                      <div
+                        class="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-amber-100 dark:border-amber-700/30"
+                      >
+                        <p
+                          class="text-2xl font-bold text-amber-600 dark:text-amber-400"
+                        >
+                          {{ selectedEvent?.niveau_obj?.ordre || 0 }}
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                          Niveau ordre
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Footer de la modale -->
+                <div
+                  class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4"
                 >
-                  <option value="">Sélectionner une filière</option>
-                  <option value="Génie Logiciel & Systèmes d'Informations">Génie Logiciel & Systèmes d'Informations</option>
-                  <option value="Administration Systèmes & Réseaux">Administration Systèmes & Réseaux</option>
-                  <option value="Tronc Commun Première année">Tronc Commun Première année</option>
-                  <option value="Tronc Commun Deuxième année">Tronc Commun Deuxième année</option>
-                  <option value="Génie Civil">Génie Civil</option>
-                  <option value="Génie Mécanique">Génie Mécanique</option>
-                  <option value="Génie Électrique">Génie Électrique</option>
-                </select>
-              </div>
+                  <div
+                    class="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span>Groupe créé</span>
+                  </div>
 
-              <div class="form-group text-start">
-                <label for="effectif" class="block text-sm font-medium text-gray-700 mb-2">
-                  Effectif <span class="text-rose-500">*</span>
+                  <div class="flex gap-3">
+                    <button
+                      type="button"
+                      @click="closeDetailModal"
+                      class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors duration-200 flex items-center gap-2"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                      Fermer
+                    </button>
+                    <button
+                      type="button"
+                      @click="editEvent"
+                      class="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                        />
+                      </svg>
+                      Modifier
+                    </button>
+                  </div>
+                </div>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+
+    <!-- Modale d'ajout/édition -->
+    <TransitionRoot appear :show="showModal" as="template">
+      <Dialog as="div" class="relative z-50" @close="closeModal">
+        <div class="fixed inset-0 bg-black/60" />
+
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+          <DialogPanel
+            class="w-full max-w-md rounded-xl bg-white dark:bg-gray-800 p-5"
+          >
+            <DialogTitle
+              class="text-lg font-semibold mb-4 text-gray-900 dark:text-white"
+            >
+              {{ modalTitle }}
+            </DialogTitle>
+
+            <form @submit.prevent="saveGroupe" class="space-y-4">
+              <FloatLabel variant="on">
+                <InputText
+                  id="nom"
+                  v-model="form.nom"
+                  autocomplete="off"
+                  class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
+                />
+                <label for="nom">Nom du groupe</label>
+              </FloatLabel>
+
+              <!-- Niveau -->
+              <div>
+                <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Niveau
                 </label>
-                <input 
-                  type="number" 
-                  step="1" 
-                  min="0" 
-                  id="effectif" 
-                  v-model="form.effectif" 
-                  required
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                  placeholder="Effectif du groupe"
+                <Dropdown
+                  v-model="form.niveau_id"
+                  :options="niveauxOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  filter
+                  showClear
+                  placeholder="Sélectionner un niveau"
+                  class="w-full"
                 />
               </div>
-            </div>
-            <div class="modal-footer border-t border-gray-200 p-6 flex justify-end gap-3">
-              <button type="button" @click="closeModal" class="btn btn-secondary px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                Annuler
-              </button>
-              <button type="submit" class="btn btn-primary px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                Enregistrer
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
 
-    <!-- Modal de suppression -->
-    <div v-if="showDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-        <div class="modal-content">
-          <div class="modal-header border-b border-gray-200 p-6">
-            <h5 class="modal-title text-lg font-semibold text-gray-900">Suppression</h5>
-            <button type="button" @click="closeDeleteModal" class="btn-close text-gray-400 hover:text-gray-600">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          <div class="modal-body p-6">
-            <p class="text-gray-600 mb-6">
-              Voulez-vous vraiment supprimer ce groupe ? Veuillez noter que cette action est irréversible. Continuer ?
-            </p>
-          </div>
-          <div class="modal-footer border-t border-gray-200 p-6 flex justify-end gap-3">
-            <form @submit.prevent="deleteGroupe" class="flex items-center gap-3">
-              <input type="hidden" id="deleteGroupeForm" :value="selectedGroupe?.id" />
-              <button 
-                type="button" 
-                @click="closeDeleteModal"
-                class="btn btn-secondary px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                Retour
-              </button>
-              <button 
-                type="submit" 
-                class="btn btn-warning px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600"
-              >
-                Continuer la suppression
-              </button>
+              <!-- Filières -->
+              <div>
+                <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Filières
+                </label>
+                <MultiSelect
+                  v-model="form.filieres"
+                  display="chip"
+                  :options="filieresOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  multiple
+                  filter
+                  placeholder="Sélectionner les filières"
+                  class="w-full"
+                />
+              </div>
+              <div class="flex justify-end gap-3">
+                <button
+                  type="button"
+                  @click="closeModal"
+                  class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  Annuler
+                </button>
+
+                <button
+                  type="submit"
+                  class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+                >
+                  Enregistrer
+                </button>
+              </div>
             </form>
-          </div>
+          </DialogPanel>
         </div>
-      </div>
-    </div>
+      </Dialog>
+    </TransitionRoot>
   </div>
 </template>
 
@@ -288,235 +737,223 @@
 import { ref, computed, onMounted } from "vue";
 import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  TransitionRoot,
+  TransitionChild,
+} from "@headlessui/vue";
+import Breadcrumb from "~/components/Breadcrumb.vue";
+import { useFiliereStore } from "~~/stores/filiere";
+import { useGroupeStore } from "~~/stores/group";
+import { useNiveauStore } from "~~/stores/niveau";
+
+const { $toastr, $swal } = useNuxtApp();
+const filiereStore = useFiliereStore();
+const groupeStore = useGroupeStore();
+const niveauStore = useNiveauStore();
 
 const searchQuery = ref("");
-const showSelector = ref(false);
-const selectedColumns = ref([]);
+const loading = ref(true);
 const showModal = ref(false);
-const showDeleteModal = ref(false);
-const modalTitle = ref('');
-const selectedGroupe = ref(null);
-const itemsPerPage = ref(50);
-const loading = ref(false);
+const modalTitle = ref("");
+const itemsPerPage = ref(5);
+const showDetailModal = ref(false);
+const selectedEvent = ref(null);
 
-// Liste des filières disponibles
-const filieres = ref([
-  "Génie Logiciel & Systèmes d'Informations",
-  "Administration Systèmes & Réseaux",
-  "Tronc Commun Première année",
-  "Tronc Commun Deuxième année",
-  "Génie Civil",
-  "Génie Mécanique",
-  "Génie Électrique"
-]);
-
-// Formulaire
 const form = ref({
   id: null,
-  nom: '',
-  filiere: '',
-  effectif: ''
+  nom: "",
+  niveau_id: null,
+  filieres: [],
+  groupId: null,
 });
 
-// Charger les groupes depuis localStorage
-const loadGroupes = () => {
-  if (process.client) {
-    const storedGroupes = localStorage.getItem('groupes');
-    if (storedGroupes) {
-      return JSON.parse(storedGroupes);
-    }
-  }
-  return [];
-};
-
-// Données initiales selon votre exemple
-const initialGroupes = [
-  { id: 1, nom: 'GROUPE A', filiere: "Génie Logiciel & Systèmes d'Informations", effectif: 25 },
-  { id: 2, nom: 'GROUPE B', filiere: "Tronc Commun Première année", effectif: 30 },
-  { id: 3, nom: 'GROUPE C', filiere: "Tronc Commun Première année", effectif: 19 },
-  { id: 4, nom: 'GROUPE DES ELITES DE GENIE LOGICIEL', filiere: "Génie Logiciel & Systèmes d'Informations", effectif: 1 },
-  { id: 5, nom: 'GROUPE Z', filiere: "Administration Systèmes & Réseaux", effectif: 0 }
-];
-
-const rows = ref([]);
-
-// Initialiser les données
-onMounted(() => {
-  let groupes = loadGroupes();
-  if (groupes.length === 0) {
-    groupes = initialGroupes;
-    if (process.client) {
-      localStorage.setItem('groupes', JSON.stringify(groupes));
-    }
-  }
-  rows.value = groupes;
-  selectedColumns.value = availableColumns.value.map(col => col.field);
-});
-
-const availableColumns = ref([
-  { field: "id", title: "#", width: "80px", isUnique: true },
-  { field: "nom", title: "NOM" },
-  { field: "filiere", title: "FILIÈRE" },
-  { field: "effectif", title: "EFFECTIF" },
-  { field: "action", title: "Action", sort: false, width: "150px", type: "click" }
+const columns = ref([
+  { field: "nom", title: "Nom du groupe", visible: true },
+  { field: "niveau", title: "Niveau", visible: true },
+  { field: "inscrit", title: "Effectif", visible: true },
+  { field: "action", title: "Actions", visible: true },
 ]);
 
-// Colonnes filtrées selon la sélection
-const filteredCols = computed(() => {
-  return availableColumns.value.filter(col => 
-    selectedColumns.value.includes(col.field)
-  );
+const visibleColumns = computed(() => columns.value.filter((c) => c.visible));
+
+const rows = computed(() =>
+  groupeStore.groupes.map((g) => ({
+    id: g.id,
+    slug: g.slug,
+    nom: g.nom,
+    niveau: g.niveau?.libelle ?? "--",
+    niveau_id: g.niveau.id,
+    filieres: g.filieres || [],
+    niveau_obj: g.niveau,
+    filieres_obj: g.filieres || [],
+    inscrit: g.inscrits,
+  })),
+);
+
+const filieresOptions = computed(() => {
+  return filiereStore.filieres.map((f) => ({
+    label: `${f.nom} (${f.code})`,
+    value: f.id,
+  }));
 });
 
-// Rows filtrées selon la recherche
-const filteredRows = computed(() => {
-  if (!searchQuery.value) return rows.value;
-  
-  const query = searchQuery.value.toLowerCase();
-  return rows.value.filter(groupe => 
-    groupe.nom.toLowerCase().includes(query) ||
-    groupe.filiere.toLowerCase().includes(query) ||
-    groupe.effectif.toString().includes(query)
-  );
+const niveauxOptions = computed(() => {
+  return niveauStore.niveaux.map((n) => ({
+    label: n.libelle,
+    value: n.id,
+  }));
 });
 
-const toggleSelector = () => {
-  showSelector.value = !showSelector.value;
+const openDetailModal = (item) => {
+  selectedEvent.value = item;
+  showDetailModal.value = true;
 };
 
-// Sauvegarder dans localStorage
-const saveToLocalStorage = () => {
-  if (process.client) {
-    localStorage.setItem('groupes', JSON.stringify(rows.value));
-  }
+const closeDetailModal = () => {
+  showDetailModal.value = false;
+  selectedEvent.value = null;
 };
 
-// Gestion des modales
 const openAddModal = () => {
-  modalTitle.value = "Formulaire de création d'un groupe";
-  form.value = { id: null, nom: '', filiere: '', effectif: '' };
-  showModal.value = true;
-};
-
-const openEditModal = (groupe) => {
-  modalTitle.value = "Formulaire de modification d'un groupe";
-  form.value = { 
-    id: groupe.id,
-    nom: groupe.nom, 
-    filiere: groupe.filiere,
-    effectif: groupe.effectif 
+  modalTitle.value = "Créer un groupe";
+  form.value = {
+    id: null,
+    nom: "",
+    niveau_id: null,
+    filieres: [],
   };
   showModal.value = true;
 };
 
-const openDeleteModal = (groupe) => {
-  selectedGroupe.value = groupe;
-  showDeleteModal.value = true;
+const openEditModal = (g) => {
+  modalTitle.value = "Modifier le groupe";
+
+  form.value = {
+    id: g.id,
+    slug: g.slug,
+    nom: g.nom,
+    niveau_id: g.niveau_id,
+    filieres: g.filieres?.map((f) => f.id) || [],
+    groupId: g.id,
+  };
+
+  showModal.value = true;
 };
 
-const closeModal = () => {
-  showModal.value = false;
-};
+const closeModal = () => (showModal.value = false);
 
-const closeDeleteModal = () => {
-  showDeleteModal.value = false;
-  selectedGroupe.value = null;
-};
-
-// Gestion des groupes
-const saveGroupe = () => {
-  if (form.value.id) {
-    // Mise à jour
-    const index = rows.value.findIndex(g => g.id === form.value.id);
-    if (index !== -1) {
-      rows.value[index] = {
-        ...rows.value[index],
-        nom: form.value.nom.toUpperCase(),
-        filiere: form.value.filiere,
-        effectif: parseInt(form.value.effectif) || 0
-      };
-    }
-  } else {
-    // Création
-    const newId = rows.value.length > 0 
-      ? Math.max(...rows.value.map(g => g.id)) + 1 
-      : 1;
-    
-    const newGroupe = {
-      id: newId,
-      nom: form.value.nom.toUpperCase(),
-      filiere: form.value.filiere,
-      effectif: parseInt(form.value.effectif) || 0
-    };
-    
-    rows.value.push(newGroupe);
-  }
-  
-  saveToLocalStorage();
-  closeModal();
-};
-
-const deleteGroupe = () => {
-  if (selectedGroupe.value) {
-    const index = rows.value.findIndex(g => g.id === selectedGroupe.value.id);
-    if (index !== -1) {
-      rows.value.splice(index, 1);
-    }
-    saveToLocalStorage();
-    closeDeleteModal();
+const editEvent = () => {
+  if (selectedEvent.value) {
+    openEditModal(selectedEvent.value);
+    closeDetailModal();
   }
 };
+
+const saveGroupe = async () => {
+  try {
+    if (form.value.id) {
+      await groupeStore.updateGroupe(form.value);
+      $toastr.success("Groupe modifié avec succès");
+    } else {
+      await groupeStore.addGroupe(form.value);
+      $toastr.success("Groupe créé avec succès");
+    }
+
+    await groupeStore.fetchGroupes();
+    closeModal();
+  } catch (error) {
+    console.log(error);
+    $toastr.error(error.response?.data?.message || "Une erreur est survenue");
+  }
+};
+
+const deleteItem = async (groupe) => {
+  const res = await $swal.fire({
+    title: "Supprimer ce groupe ?",
+    text: "Cette action est irréversible",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Supprimer",
+    cancelButtonText: "Annuler",
+  });
+
+  if (res.isConfirmed) {
+    try {
+      await groupeStore.deleteGroupe(groupe.slug);
+      await groupeStore.fetchGroupes();
+      $toastr.success("Groupe supprimé avec succès");
+    } catch (error) {
+      console.log(error);
+      $toastr.error(error.response?.data?.message || "Une erreur est survenue");
+    }
+  }
+};
+
+onMounted(async () => {
+  try {
+    await Promise.all([
+      filiereStore.fetchFilieres(),
+      niveauStore.fetchNiveaux(),
+      groupeStore.fetchGroupes(),
+    ]);
+  } catch (error) {
+    console.error("Erreur lors du chargement des données:", error);
+    $toastr.error("Erreur lors du chargement des données");
+  } finally {
+    loading.value = false;
+  }
+});
 </script>
 
 <style scoped>
-/* Styles pour le tableau */
-:deep(.bh-table-wrapper) {
-  overflow-x: auto;
+/* Animation pour les badges */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-:deep(.bh-table) {
-  min-width: 100%;
-  width: 100%;
-  border-collapse: collapse;
+.inline-flex.items-center {
+  animation: fadeIn 0.3s ease-out;
 }
 
-:deep(.bh-table th) {
-  padding: 12px 16px;
-  text-align: left;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #6b7280;
-  background-color: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
+/* Effet de hover sur les badges */
+.inline-flex.items-center:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease;
 }
 
-:deep(.bh-table td) {
-  padding: 16px;
-  white-space: nowrap;
-  font-size: 0.875rem;
-  color: #1f2937;
-  border-bottom: 1px solid #e5e7eb;
+/* Gradient pour les sections */
+.bg-gradient-to-br {
+  background-size: 200% 200%;
+  animation: gradient 15s ease infinite;
 }
 
-:deep(.bh-table tr:hover) {
-  background-color: #f9fafb;
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
-:deep(.bh-pagination) {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 24px;
-  border-top: 1px solid #e5e7eb;
-}
-
-:deep(.bh-table-striped tbody tr:nth-child(odd)) {
-  background-color: #f9fafb;
-}
-
-:deep(.bh-table-hover tbody tr:hover) {
-  background-color: #f3f4f6;
+/* Pour le line-clamp */
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 </style>
