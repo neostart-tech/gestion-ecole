@@ -822,6 +822,9 @@ const FilieresOptions = computed(() =>
     value: f.id,
   })),
 );
+definePageMeta(()=>({
+  middleware:'auth'
+}))
 
 onMounted(async () => {
   await filiereStore.fetchFilieres();

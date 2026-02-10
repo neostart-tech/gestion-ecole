@@ -364,7 +364,7 @@
                           <div
                             class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm"
                           >
-                            {{ enseignant.nom }}{{ enseignant.prenom }}
+                           
                           </div>
                           <div
                             class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"
@@ -456,24 +456,7 @@
                 <div
                   class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center"
                 >
-                  <div
-                    class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400"
-                  >
-                    <svg
-                      class="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    Dernière mise à jour : Aujourd'hui
-                  </div>
+                
                   <div class="flex gap-3">
                     <button
                       type="button"
@@ -482,26 +465,7 @@
                     >
                       Fermer
                     </button>
-                    <button
-                      type="button"
-                      @click="editEvent"
-                      class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2"
-                    >
-                      <svg
-                        class="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                        />
-                      </svg>
-                      Modifier
-                    </button>
+                  
                   </div>
                 </div>
               </DialogPanel>
@@ -598,7 +562,7 @@
                   inputId="integeronly"
                   fluid
                 />
-                <label for="on_label">Code</label>
+                <label for="on_label">Coefficient</label>
               </FloatLabel>
 
               <Dropdown

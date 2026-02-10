@@ -613,6 +613,11 @@ const parseDate = (value) => {
   return new Date(value)
 }
 
+definePageMeta(()=>({
+  middleware:'auth'
+}))
+
+
 onMounted(async () => {
   await periodeStore.fetchPeriodeByYear();
   loading.value = false;

@@ -224,6 +224,10 @@ const openEditModal=(ue)=>{
 router.push(`ues/ue-${ue.id}`)
 }
 
+definePageMeta(()=>({
+  middleware:'auth'
+}))
+
 onMounted(async () => {
   await ueStore.fetchUe();
   loading.value = false;

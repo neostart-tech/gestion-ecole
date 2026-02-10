@@ -1,1031 +1,1173 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-4 md:p-6">
+  <div
+    class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 transition-colors"
+  >
     <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
-      <span class="cursor-pointer hover:text-indigo-600 transition-colors">Accueil</span>
-      <span>/</span>
-      <span class="cursor-pointer hover:text-indigo-600 transition-colors">Administration</span>
-      <span>/</span>
-      <span class="cursor-pointer hover:text-indigo-600 transition-colors">Évaluations</span>
-      <span>/</span>
-      <span class="text-gray-900 font-medium cursor-default">Liste</span>
-    </div>
+    <Breadcrumb
+      :items="[
+        { label: 'Evaluations', to: '/' },
+        { label: 'Liste', to: null },
+      ]"
+      title="Liste des évaluations"
+      title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
+      spacing="mb-4"
+    />
 
-    <!-- Titre -->
-    <h1 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">Liste des Évaluations</h1>
-
-    <!-- Zone de recherche et filtres -->
-    <div class="flex flex-col md:flex-row gap-4 mb-6">
+    <!-- Toolbar -->
+    <div
+      class="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between mb-5"
+    >
       <!-- Recherche -->
       <input
         v-model="searchQuery"
         type="search"
-        class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
         placeholder="Rechercher..."
+        class="w-full lg:w-64 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
 
-      <!-- Filtre par type -->
-      <div class="relative">
-        <select 
-          v-model="filterType"
-          class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
-        >
-          <option value="">Tous les types</option>
-          <option value="Examen">Examen</option>
-          <option value="Devoir">Devoir</option>
-          <option value="Quiz">Quiz</option>
-          <option value="Projet">Projet</option>
-        </select>
-      </div>
-
-      <!-- Filtre par statut -->
-      <div class="relative">
-        <select 
-          v-model="filterPublier"
-          class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
-        >
-          <option value="">Tous les statuts</option>
-          <option value="Publié">Publié</option>
-          <option value="Brouillon">Brouillon</option>
-          <option value="Archivé">Archivé</option>
-        </select>
-      </div>
-
-      <!-- Sélecteur de colonnes -->
-      <div class="relative">
-        <button 
-          @click="toggleSelector"
-          class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-        >
-          <span class="text-gray-700 font-medium">Toutes les colonnes</span>
-          <svg 
-            :class="{ 'rotate-180': showSelector }" 
-            class="w-4 h-4 text-gray-500 transition-transform"
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </button>
-
-        <!-- Dropdown des colonnes -->
-        <div 
-          v-if="showSelector"
-          class="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
-        >
-          <div class="p-3 space-y-2 max-h-64 overflow-y-auto">
-            <div 
-              v-for="col in availableColumns" 
-              :key="col.field"
-              class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
+      <div class="flex flex-col sm:flex-row gap-3">
+        <!-- Colonnes -->
+        <client-only>
+          <VDropdown placement="bottom-end">
+            <button
+              class="flex items-center gap-2 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <input
-                type="checkbox"
-                :id="col.field"
-                v-model="selectedColumns"
-                :value="col.field"
-                class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
-              />
-              <label 
-                :for="col.field"
-                class="text-sm text-gray-700 cursor-pointer select-none"
+              Colonnes
+              <svg
+                class="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
               >
-                {{ col.title }}
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
+                <path
+                  d="M6 9l6 6 6-6"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
 
-      <!-- Contrôles d'affichage -->
-      <div class="flex items-center gap-2">
-        <span class="text-gray-600 whitespace-nowrap">Afficher</span>
-        <select 
-          v-model="itemsPerPage" 
-          class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            <template #popper>
+              <div
+                class="w-56 p-3 rounded-lg shadow-lg bg-white dark:bg-gray-800"
+              >
+                <div
+                  v-for="col in columns"
+                  :key="col.field"
+                  class="flex items-center gap-2 py-1"
+                >
+                  <input
+                    type="checkbox"
+                    v-model="col.visible"
+                    :disabled="col.field === 'action'"
+                    class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <span class="text-sm text-gray-700 dark:text-gray-300">
+                    {{ col.title }}
+                  </span>
+                </div>
+              </div>
+            </template>
+          </VDropdown>
+        </client-only>
+
+        <!-- Ajouter -->
+        <NuxtLink
+        to="/evaluations/ajouter-une-evaluation"
+          class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
         >
-          <option value="10">10</option>
-          <option value="25">25</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-        </select>
-        <span class="text-gray-600 whitespace-nowrap">éléments</span>
+          <svg
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+          >
+            <path
+              d="M12 5v14M5 12h14"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+          Ajouter
+        </NuxtLink>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-3 sm:p-4">
+      <div v-if="loading" class="flex justify-center py-10">
+        <div
+          class="h-10 w-10 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent"
+        ></div>
       </div>
 
-      <!-- Bouton Ajouter évaluation -->
-      <button 
-        @click="openAddModal"
-        class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium whitespace-nowrap"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Ajouter une évaluation
-      </button>
-    </div>
+      <div v-else class="overflow-x-auto">
+        <Vue3Datatable
+          :columns="visibleColumns"
+          :rows="rows"
+          :search="searchQuery"
+          :per-page="itemsPerPage"
+          skin="bh-table-striped bh-table-hover"
+        >
+          <template #published="{ value }">
+            <div class="flex items-center justify-center">
+              <!-- Si déjà publié -->
+              <div
+                v-if="value === 1 || value === true"
+                class="flex items-center"
+              >
+                <!-- ... badge vert existant ... -->
+              </div>
 
-    <!-- Tableau -->
-    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-      <Vue3Datatable
-        :columns="filteredCols"
-        :rows="filteredRows"
-        :per-page="itemsPerPage"
-        :search="searchQuery"
-        :pagination-options="{ 
-          dropdown: true, 
-          edge: true,
-          nav: 'scroll',
-          position: 'bottom'
-        }"
-        :searchable="true"
-        :sortable="true"
-        :filterable="true"
-        :loading="loading"
-        :totalRows="filteredRows.length"
-        skin="bh-table-striped bh-table-hover"
-      >
-        <!-- Slot pour le type -->
-        <template #type="data">
-          <span 
-            :class="[
-              'px-3 py-1 rounded-full text-xs font-medium',
-              getTypeClass(data.value)
-            ]"
-          >
-            {{ data.value }}
-          </span>
-        </template>
+              <!-- Si non publié -->
+              <div v-else class="flex items-center">
+                <button
+                  @click="
+                    value.published === 1 || value.published === true
+                      ? null
+                      : togglePublish(value)
+                  "
+                  :disabled="value.published === 1 || value.published === true"
+                  class="relative inline-flex items-center h-7 rounded-full w-14 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                  :class="{
+                    'bg-green-100 dark:bg-green-900/30 focus:ring-green-300 cursor-default':
+                      value.published === 1 || value.published === true,
+                    'bg-gray-100 dark:bg-gray-800/40 focus:ring-gray-300 cursor-pointer':
+                      !(value.published === 1 || value.published === true),
+                  }"
+                  :title="
+                    value.published === 1 || value.published === true
+                      ? 'Déjà publié (irréversible)'
+                      : 'Cliquer pour publier'
+                  "
+                >
+                  <span
+                    :class="{
+                      'translate-x-8 bg-green-500 dark:bg-green-600':
+                        value.published === 1 || value.published === true,
+                      'translate-x-1 bg-gray-500 dark:bg-gray-600': !(
+                        value.published === 1 || value.published === true
+                      ),
+                    }"
+                    class="inline-block w-5 h-5 transform rounded-full shadow-sm transition-all duration-200"
+                  ></span>
+                </button>
+                <span
+                  class="ml-3 text-sm font-medium text-red-700 dark:text-red-300"
+                >
+                </span>
+              </div>
+            </div>
+          </template>
+          <template #action="{ value }">
+            <div class="flex justify-center gap-3">
+              <button
+                @click="openDetailModal(value)"
+                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
+                title="Voir les détails"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+              </button>
 
-        <!-- Slot pour publier -->
-        <template #publier="data">
-          <span 
-            :class="[
-              'px-3 py-1 rounded-full text-xs font-medium',
-              data.value === 'Publié' 
-                ? 'bg-emerald-100 text-emerald-800' 
-                : data.value === 'Brouillon'
-                ? 'bg-amber-100 text-amber-800'
-                : 'bg-gray-100 text-gray-800'
-            ]"
-          >
-            {{ data.value }}
-          </span>
-        </template>
+              <!-- Edit -->
+              <button
+                @click="openEditModal(value)"
+                class="p-2 rounded-lg text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors duration-200"
+                title="Modifier"
+              >
+                <svg
+                  class="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    d="M4 20h4l10-10-4-4L4 16v4z"
+                    stroke-width="2"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
+              <NuxtLink
+                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
+                title="Fiche d'anpnymat"
+                :to="`/evaluations/fiche-de-note/${value.slug}`"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="w-4 h-4"
+                >
+                  <path
+                    d="M6 2h8l4 4v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"
+                  />
+                  <path d="M14 2v6h6" />
+                  <line x1="8" y1="12" x2="16" y2="12" />
+                  <line x1="8" y1="16" x2="16" y2="16" />
+                </svg>
+              </NuxtLink>
 
-        <!-- Slot pour les actions -->
-        <template #action="data">
-          <div class="flex items-center justify-center gap-2">
-            <!-- Bouton Voir -->
-            <button 
-              @click="openViewModal(data.value)"
-              class="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors duration-200"
-              title="Voir détails"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
-              </svg>
-            </button>
-            
-            <!-- Bouton Modifier -->
-            <button 
-              @click="openEditModal(data.value)"
-              class="p-1.5 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 rounded transition-colors duration-200"
-              title="Modifier"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-              </svg>
-            </button>
-            
-            <!-- Bouton Publier/Dépublier -->
-            <button 
-              @click="togglePublier(data.value)"
-              class="p-1.5 text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded transition-colors duration-200"
-              :title="data.value.publier === 'Publié' ? 'Dépublier' : 'Publier'"
-            >
-              <svg v-if="data.value.publier === 'Publié'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-              </svg>
-              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-              </svg>
-            </button>
-            
-            <!-- Bouton Supprimer -->
-            <button 
-              @click="openDeleteModal(data.value)"
-              class="p-1.5 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded transition-colors duration-200"
-              title="Supprimer"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-              </svg>
-            </button>
-          </div>
-        </template>
-      </Vue3Datatable>
-    </div>
+              <button
+                @click="openConfigModal(value)"
+                class="p-2 rounded-lg text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors duration-200"
+                title="Configurer"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              </button>
 
-    <!-- Modal d'ajout/modification -->
-    <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div class="modal-content">
-          <form @submit.prevent="saveEvaluation">
-            <div class="modal-header border-b border-gray-200 p-6">
-              <h5 class="modal-title text-lg font-semibold text-gray-900">{{ modalTitle }}</h5>
-              <button type="button" @click="closeModal" class="btn-close text-gray-400 hover:text-gray-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              <!-- Delete -->
+              <button
+                @click="deleteItem(value)"
+                class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
+                title="Supprimer"
+              >
+                <svg
+                  class="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    d="M3 6h18M8 6v14m8-14v14M5 6l1 14a2 2 0 002 2h8a2 2 0 002-2l1-14"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
                 </svg>
               </button>
             </div>
-            <div class="modal-body p-6 space-y-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Type -->
-                <div class="form-group text-start">
-                  <label for="type" class="block text-sm font-medium text-gray-700 mb-2">
-                    Type <span class="text-rose-500">*</span>
-                  </label>
-                  <select 
-                    id="type" 
-                    v-model="form.type" 
-                    required
-                    class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="">Sélectionner un type</option>
-                    <option value="Examen">Examen</option>
-                    <option value="Devoir">Devoir</option>
-                    <option value="Quiz">Quiz</option>
-                    <option value="Projet">Projet</option>
-                  </select>
-                </div>
+          </template>
+        </Vue3Datatable>
+      </div>
+    </div>
 
-                <!-- Matière -->
-                <div class="form-group text-start">
-                  <label for="matiere" class="block text-sm font-medium text-gray-700 mb-2">
-                    Matière <span class="text-rose-500">*</span>
-                  </label>
-                  <input 
-                    type="text" 
-                    id="matiere" 
-                    v-model="form.matiere" 
-                    required
-                    class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                    placeholder="Nom de la matière"
-                  />
-                </div>
-              </div>
+    <TransitionRoot appear :show="showConfigModal" as="template">
+      <Dialog as="div" class="relative z-50" @close="closeConfigModal">
+        <TransitionChild
+          as="template"
+          enter="ease-out duration-300"
+          enter-from="opacity-0"
+          enter-to="opacity-100"
+          leave="ease-in duration-200"
+          leave-from="opacity-100"
+          leave-to="opacity-0"
+        >
+          <div class="fixed inset-0 bg-black/60" />
+        </TransitionChild>
 
-              <!-- Description -->
-              <div class="form-group text-start">
-                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-                  Description
-                </label>
-                <textarea 
-                  id="description" 
-                  v-model="form.description" 
-                  rows="3"
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                  placeholder="Description de l'évaluation..."
-                ></textarea>
-              </div>
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+          <DialogPanel
+            class="w-full max-w-md rounded-xl bg-white dark:bg-gray-800 p-5"
+          >
+            <DialogTitle
+              class="text-lg font-semibold mb-4 text-gray-900 dark:text-white"
+            >
+              Configurer l'évaluation -
+              {{ selectedEvaluation?.matiere?.nom || "" }}
+            </DialogTitle>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Date -->
-                <div class="form-group text-start">
-                  <label for="date" class="block text-sm font-medium text-gray-700 mb-2">
-                    Jour <span class="text-rose-500">*</span>
-                  </label>
-                  <input 
-                    type="date" 
-                    id="date" 
-                    v-model="form.date" 
-                    required
-                    class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                  />
-                </div>
-
-                <!-- Heure -->
-                <div class="form-group text-start">
-                  <label for="heure" class="block text-sm font-medium text-gray-700 mb-2">
-                    Heure
-                  </label>
-                  <input 
-                    type="time" 
-                    id="heure" 
-                    v-model="form.heure" 
-                    class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                  />
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Durée -->
-                <div class="form-group text-start">
-                  <label for="duree" class="block text-sm font-medium text-gray-700 mb-2">
-                    Durée (minutes)
-                  </label>
-                  <input 
-                    type="number" 
-                    id="duree" 
-                    v-model="form.duree" 
-                    min="0"
-                    class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                    placeholder="Durée en minutes"
-                  />
-                </div>
-
-                <!-- Coefficient -->
-                <div class="form-group text-start">
-                  <label for="coefficient" class="block text-sm font-medium text-gray-700 mb-2">
-                    Coefficient
-                  </label>
-                  <input 
-                    type="number" 
-                    id="coefficient" 
-                    v-model="form.coefficient" 
-                    min="0"
-                    step="0.5"
-                    class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                    placeholder="Coefficient"
-                  />
-                </div>
-              </div>
-
-              <!-- Filière -->
-              <div class="form-group text-start">
-                <label for="filiere" class="block text-sm font-medium text-gray-700 mb-2">
-                  Filière
-                </label>
-                <select 
-                  id="filiere" 
-                  v-model="form.filiere" 
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            <form @submit.prevent="saveConfig" class="space-y-4">
+              <div>
+                <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
-                  <option value="">Sélectionner une filière</option>
-                  <option value="GLSI">Génie Logiciel & Systèmes d'Informations</option>
-                  <option value="ASR">Administration Systèmes & Réseaux</option>
-                  <option value="MTWI">Multimédia, Technologies Web & Infographie</option>
-                  <option value="TC_1">Tronc Commun Première année</option>
-                  <option value="TC_2">Tronc Commun Deuxième année</option>
-                </select>
+                  Surveillant 1
+                </label>
+                <Dropdown
+                  v-model="configForm.surveillant_1_id"
+                  :options="surveillantsOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  filter
+                  showClear
+                  placeholder="Sélectionner un surveillant"
+                  class="w-full"
+                />
               </div>
 
-              <!-- Statut -->
-              <div class="form-group text-start">
-                <label for="publier" class="block text-sm font-medium text-gray-700 mb-2">
-                  Statut de publication
-                </label>
-                <select 
-                  id="publier" 
-                  v-model="form.publier" 
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              <div>
+                <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
-                  <option value="Brouillon">Brouillon</option>
-                  <option value="Publié">Publié</option>
-                  <option value="Archivé">Archivé</option>
-                </select>
+                  Surveillant 2
+                </label>
+                <Dropdown
+                  v-model="configForm.surveillant_2_id"
+                  :options="surveillantsOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  filter
+                  showClear
+                  placeholder="Sélectionner un surveillant"
+                  class="w-full"
+                />
               </div>
 
-              <!-- Fichier joint -->
-              <div class="form-group text-start">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Fichier joint (optionnel)
-                </label>
-                <div class="flex items-center gap-3">
-                  <input 
-                    type="file" 
-                    id="fichier" 
-                    ref="fileInput"
-                    @change="handleFileSelect"
-                    class="hidden"
-                  />
-                  <button 
-                    type="button"
-                    @click="triggerFileInput"
-                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              <div class="flex justify-end gap-3 pt-4">
+                <button
+                  type="button"
+                  @click="closeConfigModal"
+                  class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  Annuler
+                </button>
+
+                <button
+                  type="submit"
+                  class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+                >
+                  {{ isUpdating ? "Mettre à jour" : "Enregistrer" }}
+                </button>
+              </div>
+            </form>
+          </DialogPanel>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+
+    <!-- Modal de détail -->
+    <TransitionRoot appear :show="showDetailModal" as="template">
+      <Dialog as="div" class="relative z-50" @close="closeDetailModal">
+        <TransitionChild
+          as="template"
+          enter="ease-out duration-300"
+          enter-from="opacity-0"
+          enter-to="opacity-100"
+          leave="ease-in duration-200"
+          leave-from="opacity-100"
+          leave-to="opacity-0"
+        >
+          <div class="fixed inset-0 bg-black/60" />
+        </TransitionChild>
+
+        <div class="fixed inset-0 overflow-y-auto">
+          <div class="flex min-h-full items-center justify-center p-4">
+            <TransitionChild
+              as="template"
+              enter="ease-out duration-300"
+              enter-from="opacity-0 scale-95"
+              enter-to="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leave-from="opacity-100 scale-100"
+              leave-to="opacity-0 scale-95"
+            >
+              <DialogPanel
+                class="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all"
+              >
+                <!-- En-tête de la modale -->
+                <div class="flex items-start justify-between mb-6">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-3">
+                      <div
+                        class="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-md"
+                      >
+                        <svg
+                          class="w-6 h-6 text-white"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                      </div>
+                      <div>
+                        <DialogTitle
+                          class="text-2xl font-bold text-gray-900 dark:text-white"
+                        >
+                          Détails de l'évaluation
+                        </DialogTitle>
+                        <p class="text-gray-600 dark:text-gray-300">
+                          {{ selectedEvent?.matiere?.nom || "Évaluation" }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    @click="closeDetailModal"
+                    class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    title="Fermer"
                   >
-                    Choisir un fichier
-                  </button>
-                  <span class="text-sm text-gray-500" v-if="form.fichierNom">
-                    {{ form.fichierNom }}
-                  </span>
-                  <button 
-                    v-if="form.fichierNom"
-                    type="button"
-                    @click="removeFile"
-                    class="text-rose-600 hover:text-rose-800"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
                   </button>
                 </div>
-                <p class="mt-1 text-xs text-gray-500">PDF, DOC, DOCX (max 10MB)</p>
-              </div>
-            </div>
-            <div class="modal-footer border-t border-gray-200 p-6 flex justify-end gap-3">
-              <button type="button" @click="closeModal" class="btn btn-secondary px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                Annuler
-              </button>
-              <button type="submit" class="btn btn-primary px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                Enregistrer
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
 
-    <!-- Modal de visualisation -->
-    <div v-if="showViewModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
-        <div class="modal-content">
-          <div class="modal-header border-b border-gray-200 p-6">
-            <h5 class="modal-title text-lg font-semibold text-gray-900">Détails de l'évaluation</h5>
-            <button type="button" @click="closeViewModal" class="btn-close text-gray-400 hover:text-gray-600">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          <div class="modal-body p-6 space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <h6 class="text-sm font-medium text-gray-500 mb-1">Type</h6>
-                <span :class="getTypeClass(viewedEvaluation.type) + ' px-3 py-1 rounded-full text-xs font-medium'">
-                  {{ viewedEvaluation.type }}
-                </span>
-              </div>
-              <div>
-                <h6 class="text-sm font-medium text-gray-500 mb-1">Date</h6>
-                <p class="text-gray-900">{{ formatDate(viewedEvaluation.date) }}</p>
-              </div>
-              <div>
-                <h6 class="text-sm font-medium text-gray-500 mb-1">Matière</h6>
-                <p class="text-gray-900">{{ viewedEvaluation.matiere }}</p>
-              </div>
-              <div>
-                <h6 class="text-sm font-medium text-gray-500 mb-1">Statut</h6>
-                <span 
-                  :class="[
-                    'px-3 py-1 rounded-full text-xs font-medium',
-                    viewedEvaluation.publier === 'Publié' 
-                      ? 'bg-emerald-100 text-emerald-800' 
-                      : viewedEvaluation.publier === 'Brouillon'
-                      ? 'bg-amber-100 text-amber-800'
-                      : 'bg-gray-100 text-gray-800'
-                  ]"
+                <!-- Contenu principal -->
+                <div class="space-y-6">
+                  <!-- Section Informations principales -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Matière -->
+                    <div
+                      class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-4"
+                    >
+                      <div class="flex items-center gap-3 mb-2">
+                        <div
+                          class="p-2 bg-blue-100 dark:bg-blue-800/30 rounded-lg"
+                        >
+                          <svg
+                            class="w-5 h-5 text-blue-600 dark:text-blue-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                            />
+                          </svg>
+                        </div>
+                        <h3
+                          class="font-semibold text-gray-700 dark:text-gray-300"
+                        >
+                          Matière
+                        </h3>
+                      </div>
+                      <div class="ml-11">
+                        <p
+                          class="text-lg font-medium text-gray-900 dark:text-white"
+                        >
+                          {{ selectedEvent?.matiere?.nom || "Non spécifiée" }}
+                        </p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                          Code: {{ selectedEvent?.matiere?.code || "N/A" }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Type d'évaluation -->
+                    <div
+                      class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-4"
+                    >
+                      <div class="flex items-center gap-3 mb-2">
+                        <div
+                          class="p-2 bg-purple-100 dark:bg-purple-800/30 rounded-lg"
+                        >
+                          <svg
+                            class="w-5 h-5 text-purple-600 dark:text-purple-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                        </div>
+                        <h3
+                          class="font-semibold text-gray-700 dark:text-gray-300"
+                        >
+                          Type d'évaluation
+                        </h3>
+                      </div>
+                      <div class="ml-11">
+                        <span
+                          :class="[
+                            selectedEvent?.type === 'Examen'
+                              ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
+                              : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300',
+                            'px-3 py-1 rounded-full text-sm font-medium',
+                          ]"
+                        >
+                          {{ selectedEvent?.type || "Non spécifié" }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Groupe -->
+                    <div
+                      class="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-xl p-4"
+                    >
+                      <div class="flex items-center gap-3 mb-2">
+                        <div
+                          class="p-2 bg-emerald-100 dark:bg-emerald-800/30 rounded-lg"
+                        >
+                          <svg
+                            class="w-5 h-5 text-emerald-600 dark:text-emerald-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                            />
+                          </svg>
+                        </div>
+                        <h3
+                          class="font-semibold text-gray-700 dark:text-gray-300"
+                        >
+                          Groupe
+                        </h3>
+                      </div>
+                      <div class="ml-11">
+                        <p
+                          class="text-lg font-medium text-gray-900 dark:text-white"
+                        >
+                          {{ selectedEvent?.group?.nom || "Aucun groupe" }}
+                        </p>
+                        <p
+                          v-if="selectedEvent?.group?.filieres?.length"
+                          class="text-sm text-gray-500 dark:text-gray-400 mt-1"
+                        >
+                          {{ selectedEvent.group.filieres.length }} filière(s)
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Salle -->
+                    <div
+                      class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl p-4"
+                    >
+                      <div class="flex items-center gap-3 mb-2">
+                        <div
+                          class="p-2 bg-amber-100 dark:bg-amber-800/30 rounded-lg"
+                        >
+                          <svg
+                            class="w-5 h-5 text-amber-600 dark:text-amber-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                            />
+                          </svg>
+                        </div>
+                        <h3
+                          class="font-semibold text-gray-700 dark:text-gray-300"
+                        >
+                          Salle
+                        </h3>
+                      </div>
+                      <div class="ml-11">
+                        <p
+                          class="text-lg font-medium text-gray-900 dark:text-white"
+                        >
+                          {{ selectedEvent?.salle?.nom || "Non spécifiée" }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Section Horaires et dates -->
+                  <div
+                    class="bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 rounded-xl p-4"
+                  >
+                    <div class="flex items-center justify-between mb-4">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="p-2 bg-rose-100 dark:bg-rose-800/30 rounded-lg"
+                        >
+                          <svg
+                            class="w-5 h-5 text-rose-600 dark:text-rose-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3
+                            class="font-semibold text-gray-700 dark:text-gray-300"
+                          >
+                            Horaires
+                          </h3>
+                          <p class="text-sm text-gray-500 dark:text-gray-400">
+                            Date et heures de l'évaluation
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div
+                        class="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-rose-100 dark:border-rose-700/30"
+                      >
+                        <p
+                          class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                        >
+                          Date
+                        </p>
+                        <p
+                          class="text-lg font-bold text-rose-600 dark:text-rose-400 mt-1"
+                        >
+                          {{ formatDate(selectedEvent?.date) || "Non définie" }}
+                        </p>
+                      </div>
+
+                      <div
+                        class="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-rose-100 dark:border-rose-700/30"
+                      >
+                        <p
+                          class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                        >
+                          Début
+                        </p>
+                        <p
+                          class="text-lg font-bold text-rose-600 dark:text-rose-400 mt-1"
+                        >
+                          {{ formatTime(selectedEvent?.debut) || "Non défini" }}
+                        </p>
+                      </div>
+
+                      <div
+                        class="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-rose-100 dark:border-rose-700/30"
+                      >
+                        <p
+                          class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                        >
+                          Fin
+                        </p>
+                        <p
+                          class="text-lg font-bold text-rose-600 dark:text-rose-400 mt-1"
+                        >
+                          {{ formatTime(selectedEvent?.fin) || "Non défini" }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Section Statut et publication -->
+                  <div
+                    class="bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 rounded-xl p-4"
+                  >
+                    <div class="flex items-center justify-between mb-4">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="p-2 bg-violet-100 dark:bg-violet-800/30 rounded-lg"
+                        >
+                          <svg
+                            class="w-5 h-5 text-violet-600 dark:text-violet-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3
+                            class="font-semibold text-gray-700 dark:text-gray-300"
+                          >
+                            Statut
+                          </h3>
+                          <p class="text-sm text-gray-500 dark:text-gray-400">
+                            État de l'évaluation
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div
+                        class="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-violet-100 dark:border-violet-700/30"
+                      >
+                        <p
+                          class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                        >
+                          Publication
+                        </p>
+                        <div class="mt-1">
+                          <span
+                            :class="[
+                              selectedEvent?.published === 1
+                                ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                                : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300',
+                              'px-3 py-1 rounded-full text-sm font-medium',
+                            ]"
+                          >
+                            {{
+                              selectedEvent?.published === 1
+                                ? "Publiée"
+                                : "Non publiée"
+                            }}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div
+                        class="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-violet-100 dark:border-violet-700/30"
+                      >
+                        <p
+                          class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                        >
+                          Statut
+                        </p>
+                        <div class="mt-1">
+                          <span
+                            :class="[
+                              selectedEvent?.status === 'Terminée'
+                                ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                                : selectedEvent?.status === 'En cours'
+                                  ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
+                                  : 'bg-gray-100 dark:bg-gray-700/30 text-gray-800 dark:text-gray-300',
+                              'px-3 py-1 rounded-full text-sm font-medium',
+                            ]"
+                          >
+                            {{ selectedEvent?.status || "En attente" }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Section Filières du groupe -->
+                  <div
+                    v-if="selectedEvent?.group?.filieres?.length"
+                    class="bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 rounded-xl p-4"
+                  >
+                    <div class="flex items-center justify-between mb-4">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="p-2 bg-cyan-100 dark:bg-cyan-800/30 rounded-lg"
+                        >
+                          <svg
+                            class="w-5 h-5 text-cyan-600 dark:text-cyan-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                            />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3
+                            class="font-semibold text-gray-700 dark:text-gray-300"
+                          >
+                            Filières concernées
+                          </h3>
+                          <p class="text-sm text-gray-500 dark:text-gray-400">
+                            {{ selectedEvent.group.filieres.length }} filière(s)
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                      <span
+                        v-for="filiere in selectedEvent.group.filieres"
+                        :key="filiere.id"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-gradient-to-r from-cyan-100 to-blue-100 dark:from-cyan-800/30 dark:to-blue-800/30 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-700/30"
+                      >
+                        <svg
+                          class="w-3.5 h-3.5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clip-rule="evenodd"
+                          />
+                        </svg>
+                        {{ filiere.nom }}
+                        <span class="text-xs opacity-75"
+                          >({{ filiere.code }})</span
+                        >
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Footer de la modale -->
+                <div
+                  class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4"
                 >
-                  {{ viewedEvaluation.publier }}
-                </span>
-              </div>
-            </div>
+                  <div
+                    class="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <span>Évaluation créée</span>
+                  </div>
 
-            <div v-if="viewedEvaluation.description">
-              <h6 class="text-sm font-medium text-gray-500 mb-1">Description</h6>
-              <div class="bg-gray-50 p-4 rounded-lg">
-                <p class="text-gray-700">{{ viewedEvaluation.description }}</p>
-              </div>
-            </div>
-
-            <div v-if="viewedEvaluation.duree || viewedEvaluation.coefficient" class="grid grid-cols-2 gap-4">
-              <div v-if="viewedEvaluation.duree">
-                <h6 class="text-sm font-medium text-gray-500 mb-1">Durée</h6>
-                <p class="text-gray-900">{{ viewedEvaluation.duree }} minutes</p>
-              </div>
-              <div v-if="viewedEvaluation.coefficient">
-                <h6 class="text-sm font-medium text-gray-500 mb-1">Coefficient</h6>
-                <p class="text-gray-900">{{ viewedEvaluation.coefficient }}</p>
-              </div>
-            </div>
-
-            <div v-if="viewedEvaluation.fichierNom">
-              <h6 class="text-sm font-medium text-gray-500 mb-1">Fichier joint</h6>
-              <div class="flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span class="text-gray-700">{{ viewedEvaluation.fichierNom }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer border-t border-gray-200 p-6 flex justify-end">
-            <button type="button" @click="closeViewModal" class="btn btn-secondary px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-              Fermer
-            </button>
+                  <div class="flex gap-3">
+                    <button
+                      type="button"
+                      @click="closeDetailModal"
+                      class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors duration-200 flex items-center gap-2"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                      Fermer
+                    </button>
+                  </div>
+                </div>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Modal de suppression -->
-    <div v-if="showDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-        <div class="modal-content">
-          <div class="modal-header border-b border-gray-200 p-6">
-            <h5 class="modal-title text-lg font-semibold text-gray-900">Suppression</h5>
-            <button type="button" @click="closeDeleteModal" class="btn-close text-gray-400 hover:text-gray-600">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          <div class="modal-body p-6">
-            <p class="text-gray-600 mb-6">
-              Voulez-vous vraiment supprimer cette évaluation ? Cette action est irréversible. Continuer ?
-            </p>
-          </div>
-          <div class="modal-footer border-t border-gray-200 p-6 flex justify-end gap-3">
-            <form @submit.prevent="deleteEvaluation" class="flex items-center gap-3">
-              <input type="hidden" id="deleteEvaluationForm" :value="selectedEvaluation?.id" />
-              <button 
-                type="button" 
-                @click="closeDeleteModal"
-                class="btn btn-secondary px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                Retour
-              </button>
-              <button 
-                type="submit" 
-                class="btn btn-warning px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600"
-              >
-                Continuer la suppression
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
+      </Dialog>
+    </TransitionRoot>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
+import { useRouter } from "vue-router";
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  TransitionRoot,
+  TransitionChild,
+} from "@headlessui/vue";
+import Breadcrumb from "~/components/Breadcrumb.vue";
 
+import { useEvaluationStore } from "~~/stores/evaluations";
+import { useUserStore } from "~~/stores/user";
+
+
+const { $toastr, $swal } = useNuxtApp();
+
+const userStore = useUserStore();
+const evaluationStore = useEvaluationStore();
+const router=useRouter();
 const searchQuery = ref("");
-const filterType = ref("");
-const filterPublier = ref("");
-const showSelector = ref(false);
-const selectedColumns = ref([]);
+const loading = ref(true);
 const showModal = ref(false);
-const showViewModal = ref(false);
-const showDeleteModal = ref(false);
-const modalTitle = ref('');
+const modalTitle = ref("");
+const itemsPerPage = ref(5);
+const showDetailModal = ref(false);
+const selectedEvent = ref(null);
+const showConfigModal = ref(false);
+const evaluation_id = ref("");
 const selectedEvaluation = ref(null);
-const viewedEvaluation = ref({});
-const itemsPerPage = ref(50);
-const loading = ref(false);
-const fileInput = ref(null);
+const isUpdating = ref(false);
 
-// Classes CSS pour les types
-const getTypeClass = (type) => {
-  switch(type) {
-    case 'Examen':
-      return 'bg-red-100 text-red-800';
-    case 'Devoir':
-      return 'bg-blue-100 text-blue-800';
-    case 'Quiz':
-      return 'bg-green-100 text-green-800';
-    case 'Projet':
-      return 'bg-purple-100 text-purple-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
-};
-
-// Formulaire
-const form = ref({
-  id: null,
-  type: '',
-  matiere: '',
-  description: '',
-  date: '',
-  heure: '',
-  duree: '',
-  coefficient: '',
-  filiere: '',
-  publier: 'Brouillon',
-  fichierNom: '',
-  fichier: null
+const configForm = ref({
+  surveillant_1_id: "",
+  surveillant_2_id: "",
 });
 
-// Charger les évaluations depuis localStorage
-const loadEvaluations = () => {
-  if (process.client) {
-    const storedEvaluations = localStorage.getItem('evaluations');
-    if (storedEvaluations) {
-      return JSON.parse(storedEvaluations);
+const form = ref({
+  id: null,
+  type: "", // 'Examen' ou 'Devoir'
+  niveau_id: null,
+  filieres: [],
+  group_id: null,
+  unite_valeur_id: null,
+  salle_id: null,
+  semestre: null,
+  date: null,
+  debut: null,
+  fin: null,
+  duration_minutes: null,
+  correction_end_date: null,
+  is_online: false,
+  published: false,
+});
+
+
+const columns = ref([
+  { field: "type", title: "Type", visible: true },
+  { field: "matiere.nom", title: "Matiere", visible: true },
+  { field: "published", title: "Publier", visible: true },
+  { field: "action", title: "Actions", visible: true },
+]);
+
+const visibleColumns = computed(() => columns.value.filter((c) => c.visible));
+
+const existingSurveillants = computed(() => {
+  if (!selectedEvaluation.value?.fiche?.surveillants) return [];
+  return selectedEvaluation.value.fiche.surveillants;
+});
+
+const rows = computed(() => evaluationStore.evaluations);
+
+const openConfigModal = (evaluation) => {
+  selectedEvaluation.value = evaluation;
+  isUpdating.value = !!evaluation?.fiche;
+  configForm.value = {
+    surveillant_1_id: "",
+    surveillant_2_id: "",
+  };
+  if (
+    evaluation?.fiche?.surveillants &&
+    evaluation.fiche.surveillants.length > 0
+  ) {
+    if (evaluation.fiche.surveillants[0]) {
+      configForm.value.surveillant_1_id = evaluation.fiche.surveillants[0].slug;
+    }
+    if (evaluation.fiche.surveillants[1]) {
+      configForm.value.surveillant_2_id = evaluation.fiche.surveillants[1].slug;
     }
   }
-  return [];
+  showConfigModal.value = true;
 };
 
-// Données initiales selon votre exemple
-const initialEvaluations = [
-  { 
-    id: 1, 
-    type: 'Examen', 
-    matiere: 'Algo Fichier', 
-    date: '2025-08-13', 
-    publier: 'Publié',
-    description: 'Examen sur les algorithmes de fichiers',
-    duree: 120,
-    coefficient: 2
-  },
-  { 
-    id: 2, 
-    type: 'Devoir', 
-    matiere: 'Initiation à la Programmation Objet', 
-    date: '2025-08-04', 
-    publier: 'Publié',
-    description: 'Devoir sur les concepts de POO',
-    duree: 60,
-    coefficient: 1
-  },
-  { 
-    id: 3, 
-    type: 'Examen', 
-    matiere: 'Initiation à la Programmation Objet', 
-    date: '2025-08-04', 
-    publier: 'Publié',
-    description: 'Examen final de programmation objet',
-    duree: 180,
-    coefficient: 3
-  },
-  { 
-    id: 4, 
-    type: 'Examen', 
-    matiere: 'Pratiques de SQL', 
-    date: '2024-06-19', 
-    publier: 'Publié',
-    description: 'Examen sur les requêtes SQL avancées',
-    duree: 90,
-    coefficient: 2
-  },
-  { 
-    id: 5, 
-    type: 'Examen', 
-    matiere: 'Initiation à la Programmation Objet', 
-    date: '2024-05-13', 
-    publier: 'Publié',
-    description: 'Examen intermédiaire',
-    duree: 120,
-    coefficient: 2
-  },
-  { 
-    id: 6, 
-    type: 'Devoir', 
-    matiere: 'Initiation à l\'algorithme', 
-    date: '2024-05-07', 
-    publier: 'Publié',
-    description: 'Devoir sur les structures de contrôle',
-    duree: 45,
-    coefficient: 1
-  },
-  { 
-    id: 7, 
-    type: 'Examen', 
-    matiere: 'Électronique Numérique', 
-    date: '2024-05-06', 
-    publier: 'Publié',
-    description: 'Examen sur les circuits logiques',
-    duree: 150,
-    coefficient: 2
-  },
-  { 
-    id: 8, 
-    type: 'Devoir', 
-    matiere: 'Initiation à l\'algorithme', 
-    date: '2024-05-02', 
-    publier: 'Publié',
-    description: 'Devoir sur les algorithmes de tri',
-    duree: 60,
-    coefficient: 1
-  },
-  { 
-    id: 9, 
-    type: 'Devoir', 
-    matiere: 'Initiation à l\'algorithme', 
-    date: '2024-05-02', 
-    publier: 'Publié',
-    description: 'Devoir supplémentaire',
-    duree: 30,
-    coefficient: 0.5
+const closeConfigModal = () => {
+  showConfigModal.value = false;
+  selectedEvaluation.value = null;
+  isUpdating.value = false;
+  configForm.value = {
+    surveillant_1_id: "",
+    surveillant_2_id: "",
+  };
+};
+
+const saveConfig = async () => {
+  try {
+    const payload = {
+      evaluation_id: selectedEvaluation.value.slug,
+      ...configForm.value,
+    };
+
+    if (isUpdating.value && selectedEvaluation.value?.fiche?.slug) {
+      await evaluationStore.updateFicheDePresence(
+        selectedEvaluation.value.fiche.slug,
+        payload,
+      );
+      $toastr.success("Configuration mise à jour avec succès");
+    } else {
+      await evaluationStore.addFicheDePresence(payload);
+      $toastr.success("Configuration enregistrée avec succès");
+    }
+    await evaluationStore.fetchEvaluations();
+    closeConfigModal();
+  } catch (error) {
+    console.error("Erreur lors de la configuration:", error);
+    $toastr.error(error.response?.data?.message || "Une erreur est survenue");
   }
-];
+};
 
-const rows = ref([]);
+const togglePublish = async (evaluation) => {
+  try {
+    const res = await $swal.fire({
+      title: "Publier cette évaluation ?",
+      text: "Une fois publiée, l'évaluation ne pourra plus être modifiée ou supprimée.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Publier",
+      cancelButtonText: "Annuler",
+    });
 
-// Formatage de la date
+    if (res.isConfirmed) {
+      await evaluationStore.publishedEvaluation(evaluation.slug);
+      await evaluationStore.fetchEvaluations();
+      $toastr.success("Évaluation publiée avec succès");
+    }
+  } catch (error) {
+    console.error("Erreur lors de la publication:", error);
+    $toastr.error(error.response?.data?.message || "Une erreur est survenue");
+  }
+};
+
+
+const surveillantsOptions = computed(() => {
+  return userStore.enseignants.map((e) => ({
+    label: `${e.nom} ${e.prenom} (${e.supervisor_type || "Non défini"})`,
+    value: e.slug,
+  }));
+});
+
+
+
+const openDetailModal = (evaluation) => {
+  selectedEvent.value = evaluation;
+  showDetailModal.value = true;
+};
+
+const openEditModal= async(evaluation)=>{
+  try{
+  await evaluationStore.checkEvaluation(evaluation.slug);
+  navigateTo(`/evaluations/${evaluation.slug}/modifier-une-evaluation`)
+  }catch(error){
+    console.error("Erreur lors de l'ouverture du modal d'ajout:", error);
+    $toastr.error(error.response?.data?.message || "Une erreur est survenue");
+  }
+
+}
+
+const closeDetailModal = () => {
+  showDetailModal.value = false;
+  selectedEvent.value = null;
+};
+
+
+
+
+
+const calculateDuration = () => {
+  if (form.value.debut && form.value.fin) {
+    const [startH, startM] = form.value.debut.split(':').map(Number);
+    const [endH, endM] = form.value.fin.split(':').map(Number);
+    const startMinutes = startH * 60 + startM;
+    const endMinutes = endH * 60 + endM;
+    form.value.duration_minutes = Math.max(0, endMinutes - startMinutes);
+  }
+};
+
+
+
+
+
+// Méthodes pour formater les dates et heures
 const formatDate = (dateString) => {
-  if (!dateString) return '';
+  if (!dateString) return "";
   const date = new Date(dateString);
-  return date.toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
+  return date.toLocaleDateString("fr-FR", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 };
 
-// Initialiser les données
-onMounted(() => {
-  let evaluations = loadEvaluations();
-  if (evaluations.length === 0) {
-    // CORRECTION ICI : remplacé 'eval' par 'evaluation'
-    evaluations = initialEvaluations.map(evaluation => ({
-      ...evaluation,
-      formattedDate: formatDate(evaluation.date)
-    }));
-    if (process.client) {
-      localStorage.setItem('evaluations', JSON.stringify(evaluations));
+const formatTime = (timeString) => {
+  if (!timeString) return "";
+  const date = new Date(timeString);
+  return date.toLocaleTimeString("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+const deleteItem = async (evaluation) => {
+  const res = await $swal.fire({
+    title: "Supprimer cet évaluation ?",
+    text: "Cette action est irréversible",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Supprimer",
+    cancelButtonText: "Annuler",
+  });
+
+  if (res.isConfirmed) {
+    try {
+      await evaluationStore.deleteEvaluation(evaluation.slug);
+      await evaluationStore.fetchEvaluations();
+      $toastr.success("Évaluation supprimée avec succès");
+    } catch (error) {
+      console.log(error);
+      $toastr.error(error.response?.data?.message || "Une erreur est survenue");
     }
   }
-  rows.value = evaluations;
-  selectedColumns.value = availableColumns.value.map(col => col.field);
+};
+
+
+
+watch([() => form.value.debut, () => form.value.fin], () => {
+  calculateDuration();
 });
 
-const availableColumns = ref([
-  { field: "id", title: "#", width: "80px", isUnique: true },
-  { field: "type", title: "Type" },
-  { field: "matiere", title: "Matière" },
-  { field: "date", title: "Jour" },
-  { field: "publier", title: "Publier" },
-  { field: "action", title: "Action", sort: false, width: "180px", type: "click" }
-]);
-
-// Colonnes filtrées selon la sélection
-const filteredCols = computed(() => {
-  return availableColumns.value.filter(col => 
-    selectedColumns.value.includes(col.field)
-  );
+onMounted(async () => {
+  try {
+    await Promise.all([
+      evaluationStore.fetchEvaluations(),
+      userStore.fetchUsersSurveillant(),
+    ]);
+  } catch (error) {
+    console.error("Erreur lors du chargement des données:", error);
+    $toastr.error("Erreur lors du chargement des données");
+  } finally {
+    loading.value = false;
+  }
 });
-
-// Rows filtrées selon la recherche et filtres
-const filteredRows = computed(() => {
-  let filtered = rows.value.map(evaluation => ({
-    ...evaluation,
-    formattedDate: formatDate(evaluation.date)
-  }));
-  
-  // Filtre par type
-  if (filterType.value) {
-    filtered = filtered.filter(evaluation => 
-      evaluation.type === filterType.value
-    );
-  }
-  
-  // Filtre par statut
-  if (filterPublier.value) {
-    filtered = filtered.filter(evaluation => 
-      evaluation.publier === filterPublier.value
-    );
-  }
-  
-  // Filtre par recherche
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase();
-    filtered = filtered.filter(evaluation => 
-      evaluation.type.toLowerCase().includes(query) ||
-      evaluation.matiere.toLowerCase().includes(query) ||
-      evaluation.formattedDate.toLowerCase().includes(query) ||
-      evaluation.publier.toLowerCase().includes(query)
-    );
-  }
-  
-  return filtered;
-});
-
-const toggleSelector = () => {
-  showSelector.value = !showSelector.value;
-};
-
-// Gestion des fichiers
-const triggerFileInput = () => {
-  fileInput.value.click();
-};
-
-const handleFileSelect = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    if (file.size > 10 * 1024 * 1024) {
-      alert('Le fichier est trop volumineux (max 10MB)');
-      return;
-    }
-    form.value.fichier = file;
-    form.value.fichierNom = file.name;
-  }
-};
-
-const removeFile = () => {
-  form.value.fichier = null;
-  form.value.fichierNom = '';
-  if (fileInput.value) {
-    fileInput.value.value = '';
-  }
-};
-
-// Sauvegarder dans localStorage
-const saveToLocalStorage = () => {
-  if (process.client) {
-    localStorage.setItem('evaluations', JSON.stringify(rows.value));
-  }
-};
-
-// Gestion des modales
-const openAddModal = () => {
-  modalTitle.value = "Formulaire de création d'une évaluation";
-  form.value = { 
-    id: null, 
-    type: '', 
-    matiere: '', 
-    description: '', 
-    date: new Date().toISOString().split('T')[0],
-    heure: '',
-    duree: '',
-    coefficient: '',
-    filiere: '',
-    publier: 'Brouillon',
-    fichierNom: '',
-    fichier: null
-  };
-  showModal.value = true;
-};
-
-const openEditModal = (evaluation) => {
-  modalTitle.value = "Formulaire de modification d'une évaluation";
-  form.value = { 
-    id: evaluation.id,
-    type: evaluation.type, 
-    matiere: evaluation.matiere,
-    description: evaluation.description,
-    date: evaluation.date,
-    heure: evaluation.heure || '',
-    duree: evaluation.duree || '',
-    coefficient: evaluation.coefficient || '',
-    filiere: evaluation.filiere || '',
-    publier: evaluation.publier,
-    fichierNom: evaluation.fichierNom || '',
-    fichier: null
-  };
-  showModal.value = true;
-};
-
-const openViewModal = (evaluation) => {
-  viewedEvaluation.value = {
-    ...evaluation,
-    formattedDate: formatDate(evaluation.date)
-  };
-  showViewModal.value = true;
-};
-
-const openDeleteModal = (evaluation) => {
-  selectedEvaluation.value = evaluation;
-  showDeleteModal.value = true;
-};
-
-const closeModal = () => {
-  showModal.value = false;
-  removeFile();
-};
-
-const closeViewModal = () => {
-  showViewModal.value = false;
-  viewedEvaluation.value = {};
-};
-
-const closeDeleteModal = () => {
-  showDeleteModal.value = false;
-  selectedEvaluation.value = null;
-};
-
-// Gestion des évaluations
-const saveEvaluation = () => {
-  if (form.value.id) {
-    // Mise à jour
-    const index = rows.value.findIndex(e => e.id === form.value.id);
-    if (index !== -1) {
-      rows.value[index] = {
-        ...rows.value[index],
-        type: form.value.type,
-        matiere: form.value.matiere,
-        description: form.value.description,
-        date: form.value.date,
-        heure: form.value.heure,
-        duree: parseInt(form.value.duree) || 0,
-        coefficient: parseFloat(form.value.coefficient) || 0,
-        filiere: form.value.filiere,
-        publier: form.value.publier,
-        fichierNom: form.value.fichierNom,
-        // Note: En production, vous devriez gérer l'upload du fichier
-      };
-    }
-  } else {
-    // Création
-    const newId = rows.value.length > 0 
-      ? Math.max(...rows.value.map(e => e.id)) + 1 
-      : 1;
-    
-    const newEvaluation = {
-      id: newId,
-      type: form.value.type,
-      matiere: form.value.matiere,
-      description: form.value.description,
-      date: form.value.date,
-      heure: form.value.heure,
-      duree: parseInt(form.value.duree) || 0,
-      coefficient: parseFloat(form.value.coefficient) || 0,
-      filiere: form.value.filiere,
-      publier: form.value.publier,
-      fichierNom: form.value.fichierNom,
-      dateCreation: new Date().toISOString().split('T')[0]
-    };
-    
-    rows.value.push(newEvaluation);
-  }
-  
-  saveToLocalStorage();
-  closeModal();
-};
-
-const togglePublier = (evaluation) => {
-  const index = rows.value.findIndex(e => e.id === evaluation.id);
-  if (index !== -1) {
-    rows.value[index].publier = rows.value[index].publier === 'Publié' ? 'Brouillon' : 'Publié';
-    saveToLocalStorage();
-  }
-};
-
-const deleteEvaluation = () => {
-  if (selectedEvaluation.value) {
-    const index = rows.value.findIndex(e => e.id === selectedEvaluation.value.id);
-    if (index !== -1) {
-      rows.value.splice(index, 1);
-    }
-    saveToLocalStorage();
-    closeDeleteModal();
-  }
-};
 </script>
-
-<style scoped>
-/* Styles pour le tableau */
-:deep(.bh-table-wrapper) {
-  overflow-x: auto;
-}
-
-:deep(.bh-table) {
-  min-width: 100%;
-  width: 100%;
-  border-collapse: collapse;
-}
-
-:deep(.bh-table th) {
-  padding: 12px 16px;
-  text-align: left;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #6b7280;
-  background-color: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-:deep(.bh-table td) {
-  padding: 16px;
-  white-space: nowrap;
-  font-size: 0.875rem;
-  color: #1f2937;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-:deep(.bh-table tr:hover) {
-  background-color: #f9fafb;
-}
-
-:deep(.bh-pagination) {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 24px;
-  border-top: 1px solid #e5e7eb;
-}
-
-:deep(.bh-table-striped tbody tr:nth-child(odd)) {
-  background-color: #f9fafb;
-}
-
-:deep(.bh-table-hover tbody tr:hover) {
-  background-color: #f3f4f6;
-}
-
-/* Style pour le modal scrollable */
-.modal-content {
-  max-height: calc(90vh - 120px);
-}
-</style>

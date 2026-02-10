@@ -1,0 +1,481 @@
+
+.fc {
+  --fc-border-color: #e5e7eb;
+  --fc-button-bg-color: transparent;
+  --fc-button-border-color: #d1d5db;
+  --fc-button-text-color: #4b5563;
+  --fc-button-hover-bg-color: #f3f4f6;
+  --fc-button-hover-border-color: #d1d5db;
+  --fc-button-active-bg-color: #4680FF;
+  --fc-button-active-border-color:  #4680FF;
+  --fc-button-active-text-color:  #ECF2FF;
+  --fc-today-bg-color:  #ECF2FF;
+  --fc-event-border-color: transparent;
+  --fc-event-text-color: #ffffff;
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: transparent;
+  --fc-neutral-text-color:  #ECF2FF;
+  --fc-list-event-hover-bg-color:  #EC2FF;
+  --fc-more-link-bg-color:  #ECF2FF;
+  --fc-more-link-text-color:  #ECF2FF;
+}
+
+.dark .fc {
+  --fc-border-color:  #ECF2FF;
+  --fc-button-border-color:  #ECF2FF;
+  --fc-button-text-color:  #ECF2FF;
+  --fc-button-hover-bg-color:  #ECF2FF;
+  --fc-button-hover-border-color:  #ECF2FF;
+  --fc-button-active-bg-color: #3b82f6;
+  --fc-button-active-border-color: #3b82f6;
+  --fc-today-bg-color:  #ECF2FF;
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: transparent;
+  --fc-neutral-text-color:  #ECF2FF;
+  --fc-list-event-hover-bg-color:  #ECF2FF;
+  --fc-more-link-bg-color:  #ECF2FF;
+  --fc-more-link-text-color:  #ECF2FF;
+}
+
+/* Header du calendrier */
+.fc .fc-toolbar {
+  padding: 1.5rem;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--fc-border-color);
+}
+
+.fc .fc-toolbar-title {
+  font-size:1.2rem;
+  font-weight: 700;
+  color: #111827;
+  text-transform: capitalize;
+}
+
+.dark .fc .fc-toolbar-title {
+  color: #f9fafb;
+}
+
+/* Boutons */
+.fc .fc-button {
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+  color:#4680FF;
+  background: #ECF2FF;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  color:#ECF2FF;
+  background: #4680FF;
+}
+
+/* Header des jours */
+.fc .fc-col-header-cell {
+  padding: 0.75rem 0;
+  background-color: #f9fafb;
+  border-color: var(--fc-border-color);
+}
+
+.dark .fc .fc-col-header-cell {
+  background-color: #1f2937;
+}
+
+.fc .fc-col-header-cell-cushion {
+  font-weight: 600;
+  color: #4b5563;
+  font-size: 0.875rem;
+}
+
+.dark .fc .fc-col-header-cell-cushion {
+  color: #d1d5db;
+}
+
+/* Cellules des jours */
+.fc .fc-daygrid-day {
+  padding: 0.1rem;
+  transition: background-color 0.2s ease;
+  min-height: 100px;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+  background:#E6FEFE ;
+}
+
+/* Événements - CORRECTION DE L'AFFICHAGE */
+.calendar-event {
+  border-radius: 0.5rem !important;
+  padding: 0.4rem 0.5rem !important;
+  margin: 0.125rem 0.25rem !important;
+  font-weight: 500;
+  font-size: 0.8rem !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+  border: none !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  max-height: 50px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.calendar-event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  opacity: 0.95;
+}
+
+.event-evaluation {
+  background: #EAF6F2 !important;
+  border:1.2px solid #2DA980 !important;
+  color:#2DA980 !important;
+}
+
+.event-cours {
+  background: #ECFAFB !important;
+  border:1px solid #3EC9D6 !important;
+}
+
+.event-recurring::after {
+  content: "↻";
+  margin-left: 4px;
+  font-size: 0.7em;
+  opacity: 0.8;
+}
+
+/* Contenu des événements */
+.fc-event-main-frame {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  overflow: hidden !important;
+  width: 100% !important;
+}
+
+.fc-event-time {
+  font-weight: bold !important;
+  font-size: 0.7em !important;
+  flex-shrink: 0 !important;
+  color:#2DA980 !important;
+}
+
+.fc-event-title {
+  flex: 1 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  font-size: 0.8em !important;
+  color:#2DA980 !important;
+}
+
+/* Indicateur "maintenant" */
+.fc-now-indicator-line {
+  background-color: #3b82f6;
+  height: 2px;
+}
+
+/* Indicateur "+X plus" */
+.fc-daygrid-more-link {
+  font-size: 0.75rem !important;
+  padding: 0.125rem 0.25rem !important;
+  border-radius: 0.25rem !important;
+  background-color: var(--fc-more-link-bg-color) !important;
+  color: var(--fc-more-link-text-color) !important;
+  margin-top: 0.25rem !important;
+}
+
+/* 📝 STYLES POUR LA VUE LISTE - AMÉLIORATIONS */
+
+/* Conteneur principal de la vue liste */
+.fc-list-view {
+  border: none !important;
+  background: transparent !important;
+  border-radius: 12px !important;
+}
+
+/* En-tête de la vue liste */
+.fc-list-table {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 8px !important;
+}
+
+/* En-têtes de colonnes */
+.fc-list-table th {
+  padding: 12px 16px !important;
+  background: #f8fafc !important;
+  border: none !important;
+  font-weight: 600 !important;
+  color: #475569 !important;
+  font-size: 0.875rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+.dark .fc-list-table th {
+  background: #1e293b !important;
+  color: #cbd5e1 !important;
+}
+
+/* Ligne d'événement */
+.fc-list-event {
+  background: white !important;
+  border: none !important;
+  border-radius: 10px !important;
+  margin-bottom: 8px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+}
+
+.dark .fc-list-event {
+  background: #1f2937 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+.fc-list-event:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark .fc-list-event:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Cellules des événements */
+.fc-list-event td {
+  padding: 16px !important;
+  border: none !important;
+  vertical-align: middle !important;
+}
+
+/* Colonne DATE (la première) */
+.fc-list-event-time {
+  font-weight: 600 !important;
+  color: #2DA980 !important;
+  font-size: 0.9rem !important;
+  min-width: 120px !important;
+  background: #EAF6F2 !important;
+  border-radius: 8px 0 0 8px !important;
+  border-right: 2px solid #2DA980 !important;
+}
+
+.dark .fc-list-event-time {
+  background: rgba(45, 169, 128, 0.2) !important;
+  color: #2DA980 !important;
+}
+
+/* Colonne TITRE */
+.fc-list-event-title {
+  font-weight: 600 !important;
+  color: #1e293b !important;
+  font-size: 1rem !important;
+  padding-left: 24px !important;
+}
+
+.dark .fc-list-event-title {
+  color: #f1f5f9 !important;
+}
+
+/* Indicateur d'événement (le point coloré) */
+.fc-list-event-dot {
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 50% !important;
+  margin-right: 12px !important;
+  margin-top: -2px !important;
+}
+
+/* Espacement entre les lignes */
+.fc-list-table .fc-list-event:not(:last-child) {
+  margin-bottom: 12px !important;
+}
+
+/* Badge de type dans la liste */
+.fc-list-event-title[data-event-type="Évaluation"]::before {
+  content: "Évaluation";
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-right: 12px;
+  vertical-align: middle;
+  background: #EAF6F2;
+  color: #2DA980;
+  border: 1px solid #2DA980;
+}
+
+.fc-list-event-title[data-event-type="Cours"]::before {
+  content: "Cours";
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-right: 12px;
+  vertical-align: middle;
+  background: #ECFAFB;
+  color: #3EC9D6;
+  border: 1px solid #3EC9D6;
+}
+
+/* Liste d'événements */
+.fc-list-event {
+  border-radius: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+  transition: background-color 0.2s ease !important;
+  padding: 0.5rem !important;
+}
+
+.fc-list-event:hover {
+  background-color: var(--fc-list-event-hover-bg-color) !important;
+}
+
+/* Vue mois - ajustements */
+.fc-daygrid-day-frame {
+  min-height: 100px !important;
+}
+
+.fc-daygrid-day-events {
+  margin: 0 !important;
+  min-height: 24px !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .fc .fc-toolbar {
+    flex-direction: column !important;
+    gap: 1rem !important;
+    padding: 1rem !important;
+  }
+  
+  .fc .fc-toolbar-title {
+    font-size: 1.25rem !important;
+  }
+  
+  .fc .fc-button {
+    padding: 0.375rem 0.75rem !important;
+    font-size: 0.875rem !important;
+  }
+  
+  .calendar-event {
+    font-size: 0.7rem !important;
+    padding: 0.125rem 0.25rem !important;
+    max-height: 24px !important;
+  }
+  
+  .fc-daygrid-day {
+    min-height: 80px !important;
+  }
+  
+  .fc-daygrid-day-frame {
+    min-height: 80px !important;
+  }
+  
+  /* Ajustements pour la vue liste sur mobile */
+  .fc-list-table th {
+    padding: 10px !important;
+    font-size: 0.75rem !important;
+  }
+  
+  .fc-list-event td {
+    padding: 12px !important;
+  }
+  
+  .fc-list-event-time {
+    min-width: 100px !important;
+    font-size: 0.8rem !important;
+  }
+  
+  .fc-list-event-title {
+    font-size: 0.9rem !important;
+    padding-left: 16px !important;
+  }
+  
+  /* Masquer certains éléments sur mobile pour gagner de l'espace */
+  .fc-list-event-title[data-event-type]::before {
+    display: block !important;
+    margin-bottom: 4px !important;
+    margin-right: 0 !important;
+    width: fit-content !important;
+  }
+}
+
+/* Pour les très petits écrans */
+@media (max-width: 480px) {
+  .fc .fc-view {
+    font-size: 0.875rem !important;
+  }
+  
+  .fc .fc-col-header-cell-cushion {
+    font-size: 0.75rem !important;
+    padding: 0.5rem 0.25rem !important;
+  }
+  
+  .fc-daygrid-day {
+    min-height: 70px !important;
+  }
+  
+  .fc-daygrid-day-frame {
+    min-height: 70px !important;
+  }
+  
+  .calendar-event {
+    font-size: 0.65rem !important;
+    max-height: 22px !important;
+  }
+  
+  /* Pour la vue liste sur très petits écrans */
+  .fc-list-view {
+    font-size: 0.875rem !important;
+  }
+  
+  .fc-list-table th {
+    padding: 8px !important;
+  }
+  
+  .fc-list-event td {
+    padding: 10px !important;
+  }
+  
+  .fc-list-event-time {
+    min-width: 90px !important;
+    font-size: 0.75rem !important;
+    padding: 10px 8px !important;
+  }
+  
+  .fc-list-event-title {
+    font-size: 0.85rem !important;
+    padding-left: 12px !important;
+  }
+}
+
+/* Animation de survol pour la vue liste */
+@keyframes listEventHover {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-1px);
+  }
+}
+
+.fc-list-event:hover {
+  animation: listEventHover 0.2s ease forwards;
+}
+
+@media (max-width: 768px) {
+  .fc .fc-view-harness {
+    min-height: 300px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .fc .fc-view-harness {
+    min-height: 250px !important;
+  }
+}
