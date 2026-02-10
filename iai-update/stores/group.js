@@ -4,8 +4,10 @@ import axios from "axios";
 export const useGroupeStore = defineStore("groupe", {
   state: () => ({
     groupes: [],
+    matieres: [],
     etudiants: [],
     isLoading: false,
+    programmes:[],
   }),
 
   actions: {
@@ -32,6 +34,23 @@ export const useGroupeStore = defineStore("groupe", {
       }
     },
 
+    async GroupDisplayCalendar(group) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          `/groups/${group}/emploi-du-temps`,
+          this.authHeaders(),
+        );
+
+        this.programmes = response.data.data;
+      } catch (error) {
+        console.error("Erreur chargement du programme de la salle:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
     async fetchGroupEtudiants(id) {
       this.isLoading = true;
       try {
@@ -48,6 +67,24 @@ export const useGroupeStore = defineStore("groupe", {
         this.isLoading = false;
       }
     },
+     async getMatiere(group) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          `/groups/${group}/get-matieres`,
+          this.authHeaders(),
+        );
+
+        this.matieres = response.data.data;
+      } catch (error) {
+        console.error("Erreur chargement des matières du groupe:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+
 
     async addGroupe(payload) {
       this.isLoading = true;

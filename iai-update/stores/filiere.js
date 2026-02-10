@@ -34,7 +34,6 @@ export const useFiliereStore = defineStore("filiere", {
       }
     },
 
-    // ➕ AJOUT
     async addFiliere(filiereData) {
       this.isLoading = true;
       try {

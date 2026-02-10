@@ -121,13 +121,13 @@
 					icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
 					path: "/emploi-du-temps",
 				},
-				{
-					id: "2",
-					title: "Présences à valider",
-					icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
-					badge: 3,
-					path: "/presences-validation",
-				},
+				// {
+				// 	id: "2",
+				// 	title: "Présences à valider",
+				// 	icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
+				// 	badge: 3,
+				// 	path: "/presences-validation",
+				// },
 			],
 		},
 		{
@@ -143,39 +143,39 @@
 						],
 					},
 				},
-				{
-					id: "4",
-					title: "Unités d'enseignement",
-					icon: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
-					subMenus: {
-						"Unités d'enseignement": [
-							{ title: "Liste des UEs", path: "/ues/liste" },
-							{ title: "Ajouter une UE", path: "/ues/ajouter" },
-						],
-					},
-				},
+				// {
+				// 	id: "4",
+				// 	title: "Unités d'enseignement",
+				// 	icon: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
+				// 	subMenus: {
+				// 		"Unités d'enseignement": [
+				// 			{ title: "Liste des UEs", path: "/ues/liste" },
+				// 			{ title: "Ajouter une UE", path: "/ues/ajouter" },
+				// 		],
+				// 	},
+				// },
 				{
 					id: "14",
-					title: "Unités de valeurs",
+					title: "Matieres",
 					icon: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
 					subMenus: {
-						"Unités de valeurs": [
+						"Matieres": [
 							{ title: "Liste des matieres", path: "/uvs/liste" },
-							{ title: "Ajouter une UE", path: "/ues/ajouter" },
+							// { title: "Ajouter une UE", path: "/ues/ajouter" },
 						],
 					},
 				},
-				{
-					id: "5",
-					title: "Unité de valeur",
-					icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
-					subMenus: {
-						"Unités de valeur": [
-							{ title: "Liste des Matières", path: "/matieres/liste" },
-							{ title: "Ajouter une Matière", path: "/matieres/ajouter" },
-						],
-					},
-				},
+				// {
+				// 	id: "5",
+				// 	title: "Unité de valeur",
+				// 	icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
+				// 	subMenus: {
+				// 		"Unités de valeur": [
+				// 			{ title: "Liste des Matières", path: "/matieres/liste" },
+				// 			{ title: "Ajouter une Matière", path: "/matieres/ajouter" },
+				// 		],
+				// 	},
+				// },
 				{
 					id: "6",
 					title: "Périodes",
@@ -200,14 +200,14 @@
 					icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
 					path: "/Groupes",
 				},
-				{
-					id: "9",
-					title: "Rôles",
-					icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z",
-					subMenus: {
-						Rôles: [{ title: "Liste des rôles", path: "/roles/liste" }],
-					},
-				},
+				// {
+				// 	id: "9",
+				// 	title: "Rôles",
+				// 	icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z",
+				// 	subMenus: {
+				// 		Rôles: [{ title: "Liste des rôles", path: "/roles/liste" }],
+				// 	},
+				// },
 				{
 					id: "10",
 					title: "Évaluations",
@@ -215,7 +215,7 @@
 					subMenus: {
 						Évaluations: [
 							{ title: "Liste des évaluations", path: "/evaluations/liste" },
-							{ title: "Ajouter évaluation", path: "/evaluations/ajouter" },
+							{ title: "Ajouter évaluation", path: "/evaluations/ajouter-une-evaluation" },
 						],
 					},
 				},
@@ -230,130 +230,134 @@
 								path: "/personnel/utilisateurs",
 							},
 							{ title: "Ajouter un Utilisateur", path: "/personnel/ajouter" },
-							{
-								title: "Liste des enseignants",
-								path: "/personnel/enseignants",
-							},
-							{
-								title: "Gestion Surveillants",
-								path: "/personnel/surveillants",
-							},
+							// {
+							// 	title: "Liste des enseignants",
+							// 	path: "/personnel/enseignants",
+							// },
+							// {
+							// 	title: "Gestion Surveillants",
+							// 	path: "/personnel/surveillants",
+							// },
 						],
 					},
 				},
 			],
 		},
-		{
-			title: "Candidatures",
-			items: [
-				{
-					id: "12",
-					title: "Candidatures",
-					icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
-					subMenus: {
-						Candidatures: [
-							{
-								title: "Étude de dossier",
-								path: "/candidatures/etude-dossier",
-							},
-							{ title: "Payement", path: "/candidatures/payement" },
-							{
-								title: "Contrôle de présence",
-								path: "/candidatures/controle-presence",
-							},
-							{
-								title: "Déclaration d'admission",
-								path: "/candidatures/declaration-admission",
-							},
-							{
-								title: "Attribution de groupe",
-								path: "/candidatures/attribution-groupe",
-							},
-						],
-					},
-				},
-			],
-		},
-		{
-			title: "Autres",
-			items: [
-				{
-					id: "13",
-					title: "Galerie",
-					icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z",
-					subMenus: {
-						Galerie: [
-							{ title: "Albums", path: "/galerie/albums" },
-							{ title: "Ajouter un album", path: "/galerie/albums/ajouter" },
-							{ title: "Photos", path: "/galerie/photos" },
-							{ title: "Ajouter une photo", path: "/galerie/photos/ajouter" },
-						],
-					},
-				},
-				{
-					id: "14",
-					title: "Messages",
-					icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z",
-					badge: 1,
-					path: "/Messages",
-				},
-				{
-					id: "15",
-					title: "Réclamations",
-					icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.732 0L4.346 16.5c-.77.833.192 2.5 1.732 2.5z",
-					path: "/reclamations",
-				},
-				{
-					id: "16",
-					title: "Publications",
-					icon: "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z",
-					subMenus: {
-						Publications: [
-							{ title: "Liste des publications", path: "/publications/liste" },
-							{
-								title: "Ajouter une publication",
-								path: "/publications/ajouter",
-							},
-							{ title: "Infos urgentes", path: "/publications/infos-urgentes" },
-						],
-					},
-				},
-				{
-					id: "17",
-					title: "Évènements",
-					icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
-					subMenus: {
-						Évènements: [
-							{ title: "Liste des évènements", path: "/evenements/liste" },
-							{ title: "Ajouter un évènement", path: "/evenements/ajouter" },
-						],
-					},
-				},
-				{
-					id: "18",
-					title: "Partenaires",
-					icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
-					subMenus: {
-						Partenaires: [
-							{ title: "Liste des Partenaires", path: "/partenaires/liste" },
-							{ title: "Ajouter un partenaire", path: "/partenaires/ajouter" },
-						],
-					},
-				},
-				{
-					id: "19",
-					title: "Opportunités",
-					icon: "M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
-					subMenus: {
-						Opportunités: [
-							{ title: "Liste des opportunités", path: "/opportunites/liste" },
-							{
-								title: "Ajouter une opportunité",
-								path: "/opportunites/ajouter",
-							},
-						],
-					},
-				},
+		// {
+		// 	title: "Candidatures",
+		// 	items: [
+		// 		{
+		// 			id: "12",
+		// 			title: "Candidatures",
+		// 			icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
+		// 			subMenus: {
+		// 				Candidatures: [
+		// 					{
+		// 						title: "Étude de dossier",
+		// 						path: "/candidatures/etude-dossier",
+		// 					},
+		// 						{
+		// 						title: "Étude de dossier",
+		// 						path: "/candidatures/etude-dossier",
+		// 					},
+		// 					// { title: "Payement", path: "/candidatures/payement" },
+		// 					// {
+		// 					// 	title: "Contrôle de présence",
+		// 					// 	path: "/candidatures/controle-presence",
+		// 					// },
+		// 					// {
+		// 					// 	title: "Déclaration d'admission",
+		// 					// 	path: "/candidatures/declaration-admission",
+		// 					// },
+		// 					// {
+		// 					// 	title: "Attribution de groupe",
+		// 					// 	path: "/candidatures/attribution-groupe",
+		// 					// },
+		// 				],
+		// 			},
+		// 		},
+		// 	],
+		// },
+		// {
+		// 	title: "Autres",
+		// 	items: [
+		// 		{
+		// 			id: "13",
+		// 			title: "Galerie",
+		// 			icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z",
+		// 			subMenus: {
+		// 				Galerie: [
+		// 					{ title: "Albums", path: "/galerie/albums" },
+		// 					{ title: "Ajouter un album", path: "/galerie/albums/ajouter" },
+		// 					{ title: "Photos", path: "/galerie/photos" },
+		// 					{ title: "Ajouter une photo", path: "/galerie/photos/ajouter" },
+		// 				],
+		// 			},
+		// 		},
+		// 		{
+		// 			id: "14",
+		// 			title: "Messages",
+		// 			icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z",
+		// 			badge: 1,
+		// 			path: "/Messages",
+		// 		},
+		// 		{
+		// 			id: "15",
+		// 			title: "Réclamations",
+		// 			icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.732 0L4.346 16.5c-.77.833.192 2.5 1.732 2.5z",
+		// 			path: "/reclamations",
+		// 		},
+		// 		{
+		// 			id: "16",
+		// 			title: "Publications",
+		// 			icon: "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z",
+		// 			subMenus: {
+		// 				Publications: [
+		// 					{ title: "Liste des publications", path: "/publications/liste" },
+		// 					{
+		// 						title: "Ajouter une publication",
+		// 						path: "/publications/ajouter",
+		// 					},
+		// 					{ title: "Infos urgentes", path: "/publications/infos-urgentes" },
+		// 				],
+		// 			},
+		// 		},
+		// 		{
+		// 			id: "17",
+		// 			title: "Évènements",
+		// 			icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
+		// 			subMenus: {
+		// 				Évènements: [
+		// 					{ title: "Liste des évènements", path: "/evenements/liste" },
+		// 					{ title: "Ajouter un évènement", path: "/evenements/ajouter" },
+		// 				],
+		// 			},
+		// 		},
+		// 		{
+		// 			id: "18",
+		// 			title: "Partenaires",
+		// 			icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
+		// 			subMenus: {
+		// 				Partenaires: [
+		// 					{ title: "Liste des Partenaires", path: "/partenaires/liste" },
+		// 					{ title: "Ajouter un partenaire", path: "/partenaires/ajouter" },
+		// 				],
+		// 			},
+		// 		},
+		// 		{
+		// 			id: "19",
+		// 			title: "Opportunités",
+		// 			icon: "M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
+		// 			subMenus: {
+		// 				Opportunités: [
+		// 					{ title: "Liste des opportunités", path: "/opportunites/liste" },
+		// 					{
+		// 						title: "Ajouter une opportunité",
+		// 						path: "/opportunites/ajouter",
+		// 					},
+		// 				],
+		// 			},
+		// 		},
 
 				{
 					id: "20",
@@ -377,23 +381,23 @@
 					},
 				},
 
-				{
-					id: "21",
-					title: "Enseigants",
-					icon: "M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2",
-					subMenus: {
-						Enseignants: [
-							{ title: "Emploi du temps", path: "/Enseignant/emploi_du_temps" },
-							{ title: "Liste des cours", path: "/Enseignant/mes-cours" },
-							{
-								title: "Liste des évaluations",
-								path: "/Enseignant/mes-evaluations",
-							},
-						],
-					},
-				},
-			],
-		},
+		// 		{
+		// 			id: "21",
+		// 			title: "Enseigants",
+		// 			icon: "M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2",
+		// 			subMenus: {
+		// 				Enseignants: [
+		// 					{ title: "Emploi du temps", path: "/Enseignant/emploi_du_temps" },
+		// 					{ title: "Liste des cours", path: "/Enseignant/mes-cours" },
+		// 					{
+		// 						title: "Liste des évaluations",
+		// 						path: "/Enseignant/mes-evaluations",
+		// 					},
+		// 				],
+		// 			},
+		// 		},
+		// 	],
+		// },
 	];
 
 	const closeMobileSidebar = () => {

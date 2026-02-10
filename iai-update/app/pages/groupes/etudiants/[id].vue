@@ -1173,6 +1173,9 @@ const deleteEtudiant = async (item) => {
     }
   }
 };
+definePageMeta(()=>({
+  middleware:'auth'
+}))
 
 // Chargement initial
 const group_id = ref(route.params.id);

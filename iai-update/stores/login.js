@@ -8,7 +8,9 @@ export const useLoginStore = defineStore("login", {
     async loginUser(credentials) {
       this.isLoading = true;
       try {
-         const url = credentials.rememberMe ? '/espace-etudiant/me-connecter' : '/login'
+        const url = credentials.rememberMe
+          ? "/espace-etudiant/me-connecter"
+          : "/login";
 
         const response = await axios.post(url, credentials);
         this.isLoading = false;
@@ -28,10 +30,9 @@ export const useLoginStore = defineStore("login", {
       localStorage.removeItem("user");
     },
 
-    async isAuthenticated() {
-      if (process.server) return false;
-      const token = localStorage.getItem("gest-ecole-token");
-      return !!token;
+    isAuthenticated() {
+      if (!process.client) return true;
+      return !!localStorage.getItem("gest-ecole-token");
     },
   },
 });

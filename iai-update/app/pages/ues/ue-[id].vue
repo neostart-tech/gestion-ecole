@@ -279,4 +279,9 @@ const PeriodesOptions = computed(() =>
     value: p.id,
   })),
 );
+
+definePageMeta(()=>({
+  middleware:'auth'
+}))
+
 </script>

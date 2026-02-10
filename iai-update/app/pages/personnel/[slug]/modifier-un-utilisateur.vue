@@ -5,19 +5,20 @@
       :items="[
         { label: 'Administration', to: '/' },
         { label: 'Membres', to: '/personnel/utilisateurs' },
-        { label: 'Ajouter', to: null },
+        { label: 'Modifier', to: null },
       ]"
-      title="Ajouter un utilisateur"
+      :title="`Modification des informations de: ${userStore.user ? userStore.user.nom + ' ' + userStore.user.prenom : 'Utilisateur inconnu'}`"
       title-class="text-2xl font-semibold text-gray-800 dark:text-white"
       spacing="mb-6"
     />
 
     <!-- Formulaire -->
-    <form
-      @submit.prevent="submitUser"
-      class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md space-y-5"
-    >
-      <!-- Nom -->
+    <div v-if="!loading" class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+      <form
+        @submit.prevent="submitUser"
+        class="space-y-5"
+      >
+        <!-- Nom -->
       <div>
         <label class="block text-gray-700 dark:text-gray-300 font-medium mb-1"
           >Nom *</label
@@ -154,7 +155,18 @@
           <span v-else>Soumettre</span>
         </button>
       </div>
-    </form>
+      </form>
+    </div>
+    <!-- Loading Spinner -->
+    <div v-else class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+      <div class="py-10 text-center">
+        <svg class="mx-auto h-10 w-10 text-indigo-500 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
+        <p class="mt-3 text-gray-600 dark:text-gray-400">Chargement des données, veuillez patienter...</p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -166,11 +178,15 @@ import { useRouter } from "vue-router";
 import Breadcrumb from "~/components/Breadcrumb.vue";
 import Editor from "@tinymce/tinymce-vue";
 import { useNuxtApp } from "#app";
+import { useRoute } from "vue-router";
 
 const userStore = useUserStore();
 const roleStore = useRoleStore();
 const router = useRouter();
-const { $swal, $toatr } = useNuxtApp();
+const route = useRoute();
+const { $swal, $toastr } = useNuxtApp();
+
+const loading = ref(true);
 
 const form = ref({
   nom: "",
@@ -183,9 +199,12 @@ const form = ref({
   roles: [],
 });
 
+const userSlug = ref(route.params.slug);
+
 const submitUser = async () => {
   try {
-    await userStore.addUser(form.value);
+    // Update existing user with PUT/PATCH
+    await userStore.updateUser(userSlug.value, form.value);
 
     $swal.fire({
       icon: "success",
@@ -196,7 +215,7 @@ const submitUser = async () => {
 
     navigateTo("/personnel/utilisateurs");
   } catch (error) {
-    // Gère uniquement les erreurs 422 de validation
+    // Handle 422 validation errors
     if (error.response && error.response.status === 422) {
       const messages = Object.entries(error.response.data.errors)
         .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
@@ -209,12 +228,12 @@ const submitUser = async () => {
         });
       }
     } else {
-      // Autres erreurs réseau / serveur
+      // Other network / server errors
       if (typeof $swal !== "undefined") {
         $swal.fire({
           icon: "error",
           title: "Erreur",
-          text: "Impossible d'ajouter l'utilisateur.",
+          text: "Impossible de modifier l'utilisateur.",
         });
       }
     }
@@ -229,6 +248,36 @@ const rolesOptions = computed(() => {
 });
 
 onMounted(async () => {
-  await roleStore.fetchRoles();
+  try {
+    loading.value = true;
+    
+    // Fetch roles and user data in parallel
+    await Promise.all([
+      roleStore.fetchRoles(),
+      userStore.EditUser(userSlug.value),
+    ]);
+
+    // Populate form with fetched user data
+    if (userStore.user) {
+      const user = userStore.user;
+      form.value = {
+        nom: user.nom || "",
+        prenom: user.prenom || "",
+        email: user.email || "",
+        tel: user.tel || "",
+        genre: user.genre || "",
+        supervisor_type: user.supervisor_type || "non_surveillant",
+        biographie: user.biographie || "",
+        // Extract role IDs from roles array
+        roles: user.roles?.map(r => r.id) || [],
+      };
+    }
+
+    loading.value = false;
+  } catch (error) {
+    console.error("Error loading user data:", error);
+    $toastr.error("Erreur lors du chargement des données");
+    loading.value = false;
+  }
 });
 </script>

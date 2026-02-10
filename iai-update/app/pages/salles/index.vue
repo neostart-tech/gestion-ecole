@@ -135,7 +135,25 @@
                   />
                 </svg>
               </button>
-
+              <NuxtLink
+                :to="`/salles/calendrier/${value.slug}-programme`"
+                class="p-2 rounded-lg text-purple-600 hover:bg-purple-100 dark:text-purple-400 dark:hover:bg-purple-900/30 transition-colors duration-200"
+                title="Voir dans le calendrier"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.8"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+              </NuxtLink>
               <!-- Edit -->
               <button
                 @click="openEditModal(value)"
@@ -282,7 +300,7 @@
                         <p
                           class="text-xs text-gray-500 dark:text-gray-400 mb-1"
                         >
-                         Effectif
+                          Effectif
                         </p>
                         <p class="font-medium text-gray-900 dark:text-white">
                           {{ selectedEvent?.effectif }}
@@ -290,7 +308,6 @@
                       </div>
                     </div>
                   </div>
-                 
                 </div>
 
                 <!-- Actions -->
@@ -313,7 +330,7 @@
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
-                    Dernière mise à jour : Aujourd'hui
+                    Dernière mise à jour
                   </div>
                   <div class="flex gap-3">
                     <button
@@ -323,7 +340,6 @@
                     >
                       Fermer
                     </button>
-                   
                   </div>
                 </div>
               </DialogPanel>
@@ -357,7 +373,7 @@
                 />
                 <label for="on_label">Nom</label>
               </FloatLabel>
-               <FloatLabel variant="on">
+              <FloatLabel variant="on">
                 <InputNumber
                   id="on_label"
                   v-model="form.effectif"
@@ -459,7 +475,7 @@ const openEditModal = (f) => {
   modalTitle.value = "Modifier la salle";
 
   form.value = {
-    id:f.id,
+    id: f.id,
     slug: f.slug,
     nom: f.nom,
     effectif: f.effectif,
@@ -497,6 +513,10 @@ const deleteItem = async (p) => {
     $toastr.success("Salle supprimée avec succes");
   }
 };
+definePageMeta(()=>({
+  middleware:'auth'
+}))
+
 
 onMounted(async () => {
   await salleStore.fetchSalles();
