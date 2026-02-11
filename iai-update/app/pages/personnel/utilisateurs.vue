@@ -417,7 +417,7 @@
                       </div>
                       <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50">
                         <p class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Type surveillant</p>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white capitalize">{{ selectedUser.supervisor_type || '—' }}</p>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white capitalize">{{ selectedUser.supervisor_type_value || '—' }}</p>
                       </div>
                     </div>
                   </div>
@@ -857,7 +857,7 @@ const columns = ref([
   { field: "genre", title: "Genre", sortable: true, visible: true },
   { field: "tel", title: "Téléphone", sortable: true, visible: true },
   {
-    field: "supervisor_type",
+    field: "supervisor_type_value",
     title: "Type surveillant",
     sortable: true,
     visible: true,
@@ -893,6 +893,7 @@ const rows = computed(() => {
     genre: u.genre || "--",
     tel: u.tel || "--",
     supervisor_type: u.supervisor_type ?? "—",
+    supervisor_type_value:u.supervisor_type_value ?? "--",
     action: u.id, // Pour le template d'actions
   }));
 });
