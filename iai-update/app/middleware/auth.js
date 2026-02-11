@@ -1,3 +1,5 @@
+import  { useLoginStore } from '~~/stores/login'
+
 export default defineNuxtRouteMiddleware((to) => {
   if (process.server) return;
 
