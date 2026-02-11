@@ -5,6 +5,9 @@ export const useEtudiantStore = defineStore("etudiant", {
   state: () => ({
     etudiants: [],
     isLoading: false,
+    mesevaluations: [],
+    mesfichiers: [],
+    mesNotes: [],
   }),
 
   actions: {
@@ -23,7 +26,7 @@ export const useEtudiantStore = defineStore("etudiant", {
         const response = await axios.post(
           "/etudiants/import",
           payload,
-          this.authHeaders()
+          this.authHeaders(),
         );
         this.etudiants = response.data.data;
       } catch (error) {
@@ -33,18 +36,15 @@ export const useEtudiantStore = defineStore("etudiant", {
         this.isLoading = false;
       }
     },
-     async exportEtudiants(params = {}) {
+    async exportEtudiants(params = {}) {
       this.isLoading = true;
       try {
         // IMPORTANT: Ajouter responseType: 'blob' pour recevoir le fichier
-        const response = await axios.get(
-          "/etudiants/export",
-          {
-            ...this.authHeaders(),
-            params: params,
-            responseType: 'blob' // Ceci est essentiel
-          }
-        );
+        const response = await axios.get("/etudiants/export", {
+          ...this.authHeaders(),
+          params: params,
+          responseType: "blob", // Ceci est essentiel
+        });
         return response; // Retourner la réponse complète
       } catch (error) {
         console.error("Erreur exportation étudiants:", error);
@@ -54,7 +54,57 @@ export const useEtudiantStore = defineStore("etudiant", {
       }
     },
 
+    async fetchEvaluationsEtudiant() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          "/espace-etudiant/evaluation/liste",
+          this.authHeaders(),
+        );
+        this.mesevaluations = response.data.data;
+      } catch (error) {
+        console.error(
+          "Erreur lors du chargement des évaluations de l'étudiant:",
+          error,
+        );
+      } finally {
+        this.isLoading = false;
+      }
+    },
 
-   
+    async fetchEtudiantFichier() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          "/espace-etudiant/mes-fichiers",
+          this.authHeaders(),
+        );
+        this.mesfichiers = response.data.data;
+      } catch (error) {
+        console.error(
+          "Erreur lors du chargement des fichiers de l'étudiant:",
+          error,
+        );
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async fetchEtudiantNote() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          "/espace-etudiant/mes-notes",
+          this.authHeaders(),
+        );
+        this.mesNotes = response.data.data;
+      } catch (error) {
+        console.error(
+          "Erreur lors du chargement des notes de l'étudiant:",
+          error,
+        );
+      } finally {
+        this.isLoading = false;
+      }
+    },
   },
 });

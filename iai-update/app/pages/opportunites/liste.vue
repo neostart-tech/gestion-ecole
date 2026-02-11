@@ -1,388 +1,841 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-4 md:p-6">
+  <div
+    class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 transition-colors"
+  >
     <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
-      <span class="cursor-pointer hover:text-indigo-600 transition-colors">Opportunités</span>
-      <span>/</span>
-      <span class="text-gray-900 font-medium cursor-default">Liste</span>
-    </div>
+    <Breadcrumb
+      :items="[
+        { label: 'Administration', to: '/' },
+        { label: 'Opportunités', to: null },
+      ]"
+      title="Liste des opportunités"
+      title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
+      spacing="mb-4"
+    />
 
-    <!-- Titre -->
-    <h1 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">Liste des opportunités</h1>
-
-    <!-- Zone de recherche et filtres -->
-    <div class="flex flex-col md:flex-row gap-4 mb-6">
+    <!-- Toolbar -->
+    <div
+      class="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between mb-5"
+    >
       <!-- Recherche -->
       <input
         v-model="searchQuery"
         type="search"
-        class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
         placeholder="Rechercher..."
+        class="w-full lg:w-64 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
 
-      <!-- Sélecteur de colonnes -->
-      <div class="relative">
-        <button 
-          @click="toggleSelector"
-          class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-        >
-          <span class="text-gray-700 font-medium">Toutes les colonnes</span>
-          <svg 
-            :class="{ 'rotate-180': showSelector }" 
-            class="w-4 h-4 text-gray-500 transition-transform"
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </button>
+      <!-- Filtre par type de contrat -->
+      <Dropdown
+        v-model="typeContratFilter"
+        :options="typeContratOptions"
+        optionLabel="label"
+        optionValue="value"
+        filter
+        showClear
+        placeholder="Filtrer par type de contrat"
+        class="w-full lg:w-48"
+      />
 
-        <!-- Dropdown des colonnes -->
-        <div 
-          v-if="showSelector"
-          class="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
-        >
-          <div class="p-3 space-y-2 max-h-64 overflow-y-auto">
-            <div 
-              v-for="col in availableColumns" 
-              :key="col.field"
-              class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
+      <div class="flex flex-col sm:flex-row gap-3">
+        <!-- Colonnes -->
+        <client-only>
+          <VDropdown placement="bottom-end">
+            <button
+              class="flex items-center gap-2 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <input
-                type="checkbox"
-                :id="col.field"
-                v-model="selectedColumns"
-                :value="col.field"
-                class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
-              />
-              <label 
-                :for="col.field"
-                class="text-sm text-gray-700 cursor-pointer select-none"
+              Colonnes
+              <svg
+                class="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
               >
-                {{ col.title }}
-              </label>
-            </div>
-          </div>
+                <path
+                  d="M6 9l6 6 6-6"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+
+            <template #popper>
+              <div
+                class="w-56 p-3 rounded-lg shadow-lg bg-white dark:bg-gray-800"
+              >
+                <div
+                  v-for="col in columns"
+                  :key="col.field"
+                  class="flex items-center gap-2 py-1"
+                >
+                  <input
+                    type="checkbox"
+                    v-model="col.visible"
+                    :disabled="col.field === 'action'"
+                    class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <span class="text-sm text-gray-700 dark:text-gray-300">
+                    {{ col.title }}
+                  </span>
+                </div>
+              </div>
+            </template>
+          </VDropdown>
+        </client-only>
+
+        <!-- Boutons d'action -->
+        <div class="flex gap-2">
+          <button
+            @click="openCreateModal"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          >
+            <svg
+              class="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+            >
+              <path
+                d="M12 5v14M5 12h14"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            Ajouter
+          </button>
         </div>
       </div>
+    </div>
 
-      <!-- Contrôles d'affichage -->
-      <div class="flex items-center gap-2">
-        <span class="text-gray-600 whitespace-nowrap">Afficher</span>
-        <select 
-          v-model="itemsPerPage" 
-          class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          <option value="10">10</option>
-          <option value="25">25</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-        </select>
-        <span class="text-gray-600 whitespace-nowrap">éléments</span>
+    <!-- Table -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-3 sm:p-4">
+      <!-- Loader -->
+      <div v-if="loading" class="flex justify-center py-10">
+        <div
+          class="h-10 w-10 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent"
+        ></div>
       </div>
 
-      <!-- Bouton Ajouter opportunité -->
-      <button 
-        @click="openAddModal"
-        class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium whitespace-nowrap"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Ajouter une annonce
-      </button>
-    </div>
+      <div v-else class="overflow-x-auto">
+        <Vue3Datatable
+          :columns="visibleColumns"
+          :rows="rows"
+          :search="searchQuery"
+          :per-page="itemsPerPage"
+          skin="bh-table-striped bh-table-hover"
+        >
+          <!-- Statut avec toggle exactement comme votre exemple -->
+          <template #published="data">
+            <div class="flex items-center justify-center">
+              <!-- Si déjà publié -->
+              <div
+                v-if="data.value.published.published === 1"
+                class="flex items-center"
+              >
+                <button
+                  class="relative inline-flex items-center h-7 rounded-full w-14 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-green-100 dark:bg-green-900/30 focus:ring-green-300 cursor-default"
+                  title="Déjà publié (irréversible)"
+                  disabled
+                >
+                  <span
+                    class="translate-x-8 bg-green-500 dark:bg-green-600 inline-block w-5 h-5 transform rounded-full shadow-sm transition-all duration-200"
+                  ></span>
+                </button>
+                <span
+                  class="ml-3 text-sm font-medium text-green-700 dark:text-green-300"
+                >
+                  
+                </span>
+              </div>
 
-    <!-- Tableau -->
-    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-      <Vue3Datatable
-        :columns="filteredCols"
-        :rows="filteredRows"
-        :per-page="itemsPerPage"
-        :search="searchQuery"
-        :pagination-options="{ 
-          dropdown: true, 
-          edge: true,
-          nav: 'scroll',
-          position: 'bottom'
-        }"
-        :searchable="true"
-        :sortable="true"
-        :filterable="true"
-        :loading="loading"
-        :totalRows="filteredRows.length"
-        skin="bh-table-striped bh-table-hover"
-      >
-        <!-- Slot pour le status -->
-        <template #status="data">
-          <span :class="[
-            'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium',
-            data.value === 'Publiée' 
-              ? 'bg-emerald-100 text-emerald-800'
-              : 'bg-rose-100 text-rose-800'
-          ]">
-            {{ data.value }}
-          </span>
-        </template>
+              <!-- Si non publié -->
+              <div v-else class="flex items-center">
+                <button
+                  @click="togglePublish(data.value)"
+                  class="relative inline-flex items-center h-7 rounded-full w-14 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-gray-100 dark:bg-gray-800/40 focus:ring-gray-300 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
+                  title="Cliquer pour publier"
+                >
+                  <span
+                    class="translate-x-1 bg-gray-500 dark:bg-gray-600 inline-block w-5 h-5 transform rounded-full shadow-sm transition-all duration-200"
+                  ></span>
+                </button>
+                <span
+                  class="ml-3 text-sm font-medium text-red-700 dark:text-red-300"
+                >
+                  
+                </span>
+              </div>
+            </div>
+          </template>
 
-        <!-- Slot pour le titre -->
-        <template #titre="data">
-          <div class="max-w-xs truncate font-medium text-gray-900" :title="data.value">
-            {{ data.value }}
-          </div>
-        </template>
+          <!-- Actions -->
+          <template #action="data">
+            <div class="flex justify-center gap-3">
+              <!-- View -->
+              <button
+                class="p-2 rounded-lg text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors duration-200"
+                @click="openViewModal(data.value)"
+                title="Voir détails"
+              >
+                <svg
+                  class="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </button>
 
-        <!-- Slot pour la description -->
-        <template #description="data">
-          <div class="max-w-xs truncate text-sm text-gray-600" :title="data.value">
-            {{ data.value || 'Aucune description' }}
-          </div>
-        </template>
+              <!-- Edit -->
+              <button
+                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
+                @click="openEditModal(data.value)"
+                title="Modifier"
+              >
+                <svg
+                  class="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    d="M4 20h4l10-10-4-4L4 16v4z"
+                    stroke-width="2"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
 
-        <!-- Slot pour la date -->
-        <template #date="data">
-          <div class="text-sm text-gray-600 whitespace-nowrap">
-            {{ formatDate(data.value) }}
-          </div>
-        </template>
-
-        <!-- Slot pour les actions -->
-        <template #action="data">
-          <div class="flex items-center justify-center gap-2">
-            <!-- Bouton Modifier -->
-            <button 
-              @click="openEditModal(data.value)"
-              class="p-1.5 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 rounded transition-colors duration-200"
-              title="Modifier"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-              </svg>
-            </button>
-            
-            <!-- Bouton Publier/Dépublier -->
-            <button 
-              @click="togglePublishStatus(data.value)"
-              :class="[
-                'p-1.5 rounded transition-colors duration-200',
-                data.value.status === 'Publiée'
-                  ? 'text-amber-600 hover:text-amber-800 hover:bg-amber-50'
-                  : 'text-blue-600 hover:text-blue-800 hover:bg-blue-50'
-              ]"
-              :title="data.value.status === 'Publiée' ? 'Dépublier' : 'Publier'"
-            >
-              <svg v-if="data.value.status === 'Publiée'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-              </svg>
-              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-              </svg>
-            </button>
-            
-            <!-- Bouton Supprimer -->
-            <button 
-              @click="openDeleteModal(data.value)"
-              class="p-1.5 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded transition-colors duration-200"
-              title="Supprimer"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-              </svg>
-            </button>
-          </div>
-        </template>
-      </Vue3Datatable>
-    </div>
-
-    <!-- Modal d'ajout/modification -->
-    <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
-        <div class="modal-content">
-          <form @submit.prevent="saveOpportunity">
-            <div class="modal-header border-b border-gray-200 p-6">
-              <h5 class="modal-title text-lg font-semibold text-gray-900">{{ modalTitle }}</h5>
-              <button type="button" @click="closeModal" class="btn-close text-gray-400 hover:text-gray-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              <!-- Delete -->
+              <button
+                class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
+                @click="confirmDelete(data.value)"
+                title="Supprimer"
+              >
+                <svg
+                  class="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    d="M3 6h18M8 6v14m8-14v14M5 6l1 14a2 2 0 002 2h8a2 2 0 002-2l1-14"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
                 </svg>
               </button>
             </div>
-            <div class="modal-body p-6 space-y-4">
-              <!-- Titre -->
-              <div class="form-group text-start">
-                <label for="titre" class="block text-sm font-medium text-gray-700 mb-2">
-                  Titre <span class="text-rose-500">*</span>
-                </label>
-                <input 
-                  type="text" 
-                  id="titre" 
-                  v-model="form.titre" 
-                  required
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                  placeholder="Titre de l'opportunité"
-                />
-              </div>
+          </template>
+        </Vue3Datatable>
+      </div>
+    </div>
 
-              <!-- Annonceur -->
-              <div class="form-group text-start">
-                <label for="annonceur" class="block text-sm font-medium text-gray-700 mb-2">
-                  Annonceur <span class="text-rose-500">*</span>
-                </label>
-                <input 
-                  type="text" 
-                  id="annonceur" 
-                  v-model="form.annonceur" 
-                  required
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                  placeholder="Nom de l'annonceur"
-                />
-              </div>
+    <!-- CREATE/EDIT MODAL -->
+    <TransitionRoot appear :show="showEditModal" as="template">
+      <Dialog
+        as="div"
+        class="relative z-50"
+        @close="() => (showEditModal = false)"
+      >
+        <TransitionChild
+          as="template"
+          enter="ease-out duration-300"
+          enter-from="opacity-0"
+          enter-to="opacity-100"
+          leave="ease-in duration-200"
+          leave-from="opacity-100"
+          leave-to="opacity-0"
+        >
+          <div class="fixed inset-0 bg-black/50" />
+        </TransitionChild>
 
-              <!-- Date -->
-              <div class="form-group text-start">
-                <label for="date" class="block text-sm font-medium text-gray-700 mb-2">
-                  Date <span class="text-rose-500">*</span>
-                </label>
-                <input 
-                  type="date" 
-                  id="date" 
-                  v-model="form.date" 
-                  required
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                />
-              </div>
-
-              <!-- Description -->
-              <div class="form-group text-start">
-                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-                  Description
-                </label>
-                <textarea 
-                  id="description" 
-                  v-model="form.description" 
-                  rows="4"
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                  placeholder="Description détaillée de l'opportunité..."
-                ></textarea>
-              </div>
-
-              <!-- Type d'opportunité -->
-              <div class="form-group text-start">
-                <label for="type" class="block text-sm font-medium text-gray-700 mb-2">
-                  Type d'opportunité
-                </label>
-                <select 
-                  id="type" 
-                  v-model="form.type" 
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+        <div class="fixed inset-0 overflow-y-auto">
+          <div class="flex min-h-full items-center justify-center p-4">
+            <TransitionChild
+              as="template"
+              enter="ease-out duration-300"
+              enter-from="opacity-0 scale-95"
+              enter-to="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leave-from="opacity-100 scale-100"
+              leave-to="opacity-0 scale-95"
+            >
+              <DialogPanel
+                class="w-full max-w-2xl transform overflow-hidden rounded-xl bg-white dark:bg-gray-800 shadow-2xl transition-all"
+              >
+                <!-- Header -->
+                <div
+                  class="px-6 py-6 flex items-center justify-between"
+                  style="background-color: #4f39f6"
                 >
-                  <option value="Alternance">Alternance</option>
-                  <option value="Stage">Stage</option>
-                  <option value="Emploi">Emploi</option>
-                  <option value="Formation">Formation</option>
-                  <option value="Bourse">Bourse</option>
-                  <option value="Autre">Autre</option>
-                </select>
-              </div>
-
-              <!-- Statut -->
-              <div class="form-group text-start">
-                <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
-                  Statut
-                </label>
-                <select 
-                  id="status" 
-                  v-model="form.status" 
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
-                >
-                  <option value="Publiée">Publiée</option>
-                  <option value="Non publiée">Non publiée</option>
-                </select>
-              </div>
-
-              <!-- Lien -->
-              <div class="form-group text-start">
-                <label for="lien" class="block text-sm font-medium text-gray-700 mb-2">
-                  Lien (URL)
-                </label>
-                <input 
-                  type="url" 
-                  id="lien" 
-                  v-model="form.lien" 
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                  placeholder="https://example.com/opportunite"
-                />
-              </div>
-
-              <!-- Filières concernées -->
-              <div class="form-group text-start">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Filières concernées
-                </label>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  <label v-for="filiere in filieresOptions" :key="filiere.id" class="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      :value="filiere.id"
-                      v-model="form.filieres"
-                      class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
-                    />
-                    <span class="text-sm text-gray-700">{{ filiere.nom }}</span>
-                  </label>
+                  <h2 class="text-xl font-bold text-white">
+                    {{
+                      editForm.id
+                        ? "Modifier l'opportunité"
+                        : "Créer une opportunité"
+                    }}
+                  </h2>
+                  <button
+                    @click="showEditModal = false"
+                    class="text-white hover:text-slate-200 transition-colors p-1 rounded-lg hover:bg-white/10"
+                  >
+                    <svg
+                      class="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
                 </div>
-              </div>
-            </div>
-            <div class="modal-footer border-t border-gray-200 p-6 flex justify-end gap-3">
-              <button type="button" @click="closeModal" class="btn btn-secondary px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                Annuler
-              </button>
-              <button type="submit" class="btn btn-primary px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                Enregistrer
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
 
-    <!-- Modal de suppression -->
-    <div v-if="showDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-        <div class="modal-content">
-          <div class="modal-header border-b border-gray-200 p-6">
-            <h5 class="modal-title text-lg font-semibold text-gray-900">Suppression</h5>
-            <button type="button" @click="closeDeleteModal" class="btn-close text-gray-400 hover:text-gray-600">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          <div class="modal-body p-6">
-            <p class="text-gray-600 mb-6">
-              Voulez-vous vraiment supprimer l'opportunité "{{ selectedOpportunity?.titre }}" ? Cette action est irréversible.
-            </p>
-          </div>
-          <div class="modal-footer border-t border-gray-200 p-6 flex justify-end gap-3">
-            <button 
-              type="button" 
-              @click="closeDeleteModal"
-              class="btn btn-secondary px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              Retour
-            </button>
-            <button 
-              type="button" 
-              @click="deleteOpportunity"
-              class="btn btn-warning px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600"
-            >
-              Continuer la suppression
-            </button>
+                <!-- Content -->
+                <form
+                  @submit.prevent="submitForm"
+                  class="overflow-y-auto p-6"
+                  style="max-height: calc(90vh - 100px)"
+                >
+                  <div class="space-y-5">
+                    <!-- Annonceur -->
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-900 dark:text-white mb-2"
+                        >Annonceur *</label
+                      >
+                      <Dropdown
+                        v-model="editForm.advertiser_id"
+                        :options="advertisersOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Sélectionner un annonceur"
+                        class="w-full"
+                        required
+                      />
+                    </div>
+
+                    <!-- Titre -->
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-900 dark:text-white mb-2"
+                        >Titre *</label
+                      >
+                      <input
+                        v-model="editForm.title"
+                        type="text"
+                        placeholder="Titre de l'opportunité"
+                        class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        required
+                      />
+                    </div>
+
+                    <!-- Type d'annonce et Type de contrat -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label
+                          class="block text-sm font-semibold text-gray-900 dark:text-white mb-2"
+                          >Type d'annonce *</label
+                        >
+                        <Dropdown
+                          v-model="editForm.type_annonce"
+                          :options="typeAnnonceOptions"
+                          optionLabel="label"
+                          optionValue="value"
+                          placeholder="Sélectionner"
+                          class="w-full"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label
+                          class="block text-sm font-semibold text-gray-900 dark:text-white mb-2"
+                          >Type de contrat *</label
+                        >
+                        <Dropdown
+                          v-model="editForm.type_contrat"
+                          :options="typeContratOptions"
+                          optionLabel="label"
+                          optionValue="value"
+                          placeholder="Sélectionner"
+                          class="w-full"
+                          required
+                          @change="onTypeContratChange"
+                        />
+                      </div>
+                    </div>
+
+                    <!-- Ville -->
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-900 dark:text-white mb-2"
+                        >Ville</label
+                      >
+                      <input
+                        v-model="editForm.ville"
+                        type="text"
+                        placeholder="Ville (optionnel - sera défini par l'annonceur si vide)"
+                        class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+
+                    <!-- Durée (si CDD) -->
+                    <div
+                      v-if="
+                        editForm.type_contrat === 'Contrat à Durée Déterminée'
+                      "
+                    >
+                      <label
+                        class="block text-sm font-semibold text-gray-900 dark:text-white mb-2"
+                        >Durée (CDD) *</label
+                      >
+                      <input
+                        v-model="editForm.duration"
+                        type="text"
+                        placeholder="ex: 3 mois, 6 mois..."
+                        class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        required
+                      />
+                    </div>
+
+                    <!-- Contenu -->
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-900 dark:text-white mb-2"
+                      >
+                        Contenu {{ !editForm.file_path ? "*" : "" }}
+                      </label>
+                      <Editor
+                        api-key="ktf8z0z55enm2wd9xyeoo6qzzoy7w9b629e51wii9y8lw4dx"
+                        v-model="editForm.content"
+                        :init="{
+                          height: 250,
+                          menubar: false,
+                          plugins: 'lists link image media table wordcount',
+                          toolbar:
+                            'undo redo | bold italic underline | bullist numlist | link image media | removeformat',
+                          content_style:
+                            'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+                        }"
+                      />
+                    </div>
+
+                    <!-- Fichier -->
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-900 dark:text-white mb-2"
+                      >
+                        Document/Fichier {{ !editForm.content ? "*" : "" }}
+                      </label>
+
+                      <!-- Fichier actuel (si en modification) -->
+                      <div v-if="editForm.id && editForm.filepath" class="mb-4">
+                        <div
+                          class="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg"
+                        >
+                          <svg
+                            class="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            />
+                          </svg>
+                          <div class="flex-1 min-w-0">
+                            <p
+                              class="text-xs font-medium text-blue-900 dark:text-blue-100 uppercase"
+                            >
+                              Fichier actuel
+                            </p>
+                            <p
+                              class="text-sm text-blue-700 dark:text-blue-300 truncate font-medium"
+                            >
+                              {{ editForm.filepath.split("/").pop() }}
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            @click="editForm.filepath = null"
+                            class="px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors"
+                          >
+                            Supprimer
+                          </button>
+                        </div>
+                        <p
+                          class="text-xs text-gray-600 dark:text-gray-400 mt-2"
+                        >
+                          Sélectionnez un nouveau fichier pour le remplacer
+                        </p>
+                      </div>
+
+                      <!-- Zone de téléchargement de fichier -->
+                      <div
+                        class="relative"
+                        @dragover.prevent="dragover = true"
+                        @dragleave.prevent="dragover = false"
+                        @drop.prevent="handleFileDrop"
+                      >
+                        <input
+                          ref="fileInput"
+                          type="file"
+                          @change="onFileSelect"
+                          class="hidden"
+                        />
+                        <div
+                          :class="[
+                            'relative flex flex-col items-center justify-center p-8 rounded-lg border-2 border-dashed transition-all',
+                            dragover
+                              ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
+                              : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50',
+                          ]"
+                        >
+                          <svg
+                            class="w-10 h-10 mb-2"
+                            :class="
+                              dragover
+                                ? 'text-indigo-600 dark:text-indigo-400'
+                                : 'text-gray-400 dark:text-gray-500'
+                            "
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                            />
+                          </svg>
+                          <button
+                            type="button"
+                            @click="$refs.fileInput.click()"
+                            class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300"
+                          >
+                            Cliquez pour sélectionner
+                          </button>
+                          <p
+                            class="text-xs text-gray-600 dark:text-gray-400 mt-2"
+                          >
+                            ou glissez-déposez votre fichier ici
+                          </p>
+                        </div>
+                      </div>
+
+                      <!-- Aperçu du fichier sélectionné -->
+                      <div v-if="editForm.file_path" class="mt-3">
+                        <div
+                          class="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg"
+                        >
+                          <svg
+                            class="w-4 h-4 text-green-600 dark:text-green-400"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                              clip-rule="evenodd"
+                            />
+                          </svg>
+                          <span
+                            class="text-sm text-green-700 dark:text-green-300 font-medium"
+                          >
+                            {{ editForm.file_path.name }}
+                          </span>
+                          <span
+                            class="text-xs text-green-600 dark:text-green-400 ml-auto"
+                          >
+                            {{ (editForm.file_path.size / 1024).toFixed(2) }} KB
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Footer -->
+                  <div
+                    class="border-t border-gray-200 dark:border-gray-700 mt-6 pt-4 flex justify-end gap-3"
+                  >
+                    <button
+                      type="button"
+                      @click="showEditModal = false"
+                      class="px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                    >
+                      Annuler
+                    </button>
+                    <button
+                      type="submit"
+                      class="px-6 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
+                    >
+                      {{ editForm.id ? "Modifier" : "Créer" }}
+                    </button>
+                  </div>
+                </form>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </div>
-      </div>
-    </div>
+      </Dialog>
+    </TransitionRoot>
+
+    <!-- VIEW DETAILS MODAL -->
+    <TransitionRoot appear :show="showViewModal" as="template">
+      <Dialog
+        as="div"
+        class="relative z-50"
+        @close="() => (showViewModal = false)"
+      >
+        <TransitionChild
+          as="template"
+          enter="ease-out duration-300"
+          enter-from="opacity-0"
+          enter-to="opacity-100"
+          leave="ease-in duration-200"
+          leave-from="opacity-100"
+          leave-to="opacity-0"
+        >
+          <div class="fixed inset-0 bg-black/50" />
+        </TransitionChild>
+
+        <div class="fixed inset-0 overflow-y-auto">
+          <div class="flex min-h-full items-center justify-center p-4">
+            <TransitionChild
+              as="template"
+              enter="ease-out duration-300"
+              enter-from="opacity-0 scale-95"
+              enter-to="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leave-from="opacity-100 scale-100"
+              leave-to="opacity-0 scale-95"
+            >
+              <DialogPanel
+                class="w-full max-w-3xl transform overflow-hidden rounded-xl bg-white dark:bg-gray-800 shadow-2xl transition-all"
+              >
+                <!-- Header -->
+                <div class="px-6 py-6 flex items-center justify-between">
+                  <h2 class="text-xl font-bold">
+                    {{ selectedAnnonce.title_detail }}
+                  </h2>
+                  <button
+                    @click="showViewModal = false"
+                    class="text-white hover:text-slate-200 transition-colors p-1 rounded-lg hover:bg-white/10"
+                  >
+                    <svg
+                      class="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Content -->
+                <div
+                  class="overflow-y-auto p-6"
+                  style="max-height: calc(90vh - 140px)"
+                >
+                  <!-- Infos principales -->
+                  <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50"
+                    >
+                      <p
+                        class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1"
+                      >
+                        Type d'annonce
+                      </p>
+                      <p
+                        class="text-sm font-medium text-gray-900 dark:text-white"
+                      >
+                        {{ selectedAnnonce.type_annonce || "—" }}
+                      </p>
+                    </div>
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50"
+                    >
+                      <p
+                        class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1"
+                      >
+                        Type de contrat
+                      </p>
+                      <p
+                        class="text-sm font-medium text-gray-900 dark:text-white"
+                      >
+                        {{ selectedAnnonce.type_contrat || "—" }}
+                      </p>
+                    </div>
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50"
+                    >
+                      <p
+                        class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1"
+                      >
+                        Ville
+                      </p>
+                      <p
+                        class="text-sm font-medium text-gray-900 dark:text-white"
+                      >
+                        {{ selectedAnnonce.ville || "—" }}
+                      </p>
+                    </div>
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50"
+                    >
+                      <p
+                        class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1"
+                      >
+                        Statut
+                      </p>
+                      <span
+                        :class="[
+                          'text-xs font-semibold px-2 py-1 rounded',
+                          selectedAnnonce.status === 'Publié' || selectedAnnonce.published === 1 || selectedAnnonce.published === true
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-yellow-100 text-yellow-800',
+                        ]"
+                      >
+                        {{ selectedAnnonce.status === 'Publié' || selectedAnnonce.published === 1 || selectedAnnonce.published === true ? 'Publié' : 'Brouillon' }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Durée si CDD -->
+                  <div v-if="selectedAnnonce.duration" class="mb-6">
+                    <h3
+                      class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-2"
+                    >
+                      Durée
+                    </h3>
+                    <p class="text-sm text-gray-700 dark:text-gray-300">
+                      {{ selectedAnnonce.duration }}
+                    </p>
+                  </div>
+
+                  <!-- Annonceur -->
+                  <div class="mb-6">
+                    <h3
+                      class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3"
+                    >
+                      Annonceur
+                    </h3>
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50"
+                    >
+                      <div class="space-y-2 text-sm">
+                        <div>
+                          <p class="text-gray-600 dark:text-gray-400">Nom</p>
+                          <p class="font-medium text-gray-900 dark:text-white">
+                            {{ selectedAnnonce.advertiser || "—" }}
+                          </p>
+                        </div>
+                        <div>
+                          <p class="text-gray-600 dark:text-gray-400">Ville</p>
+                          <p class="font-medium text-gray-900 dark:text-white">
+                            {{ selectedAnnonce.ville || "—" }}
+                          </p>
+                        </div>
+                        <div v-if="selectedAnnonce.advertiser?.email">
+                          <p class="text-gray-600 dark:text-gray-400">Email</p>
+                          <p class="font-medium text-gray-900 dark:text-white">
+                            {{ selectedAnnonce.advertiser.email }}
+                          </p>
+                        </div>
+                        <div v-if="selectedAnnonce.advertiser?.tel">
+                          <p class="text-gray-600 dark:text-gray-400">
+                            Téléphone
+                          </p>
+                          <p class="font-medium text-gray-900 dark:text-white">
+                            {{ selectedAnnonce.advertiser.tel }}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Contenu -->
+                  <div v-if="selectedAnnonce.content" class="mb-6">
+                    <h3
+                      class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3"
+                    >
+                      Description
+                    </h3>
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50 text-sm prose dark:prose-invert prose-sm max-w-none"
+                      v-html="selectedAnnonce.content"
+                    ></div>
+                  </div>
+
+                  <!-- Fichier -->
+                  <div v-if="selectedAnnonce.filepath" class="mb-6">
+                    <h3
+                      class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3"
+                    >
+                      Fichier
+                    </h3>
+                    <a
+                      :href="selectedAnnonce.filepath"
+                      target="_blank"
+                      class="inline-flex items-center gap-2 text-sm text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          d="M8 16.5a1 1 0 11-2 0 1 1 0 012 0zM15 7a1 1 0 11-2 0 1 1 0 012 0zM4.5 20H19a2 2 0 002-2V9a2 2 0 00-2-2h-3.278l-1.957-6.26A2 2 0 0010.5 0h-7a2 2 0 00-1.965 2.74L2.75 7H.5a2 2 0 00-2 2v9a2 2 0 002 2z"
+                        />
+                      </svg>
+                      Télécharger le document
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Footer -->
+                <div
+                  class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 flex justify-end gap-3"
+                >
+                  <button
+                    @click="showViewModal = false"
+                    class="px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    Fermer
+                  </button>
+                </div>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
+        </div>
+      </Dialog>
+    </TransitionRoot>
   </div>
 </template>
 
@@ -390,337 +843,275 @@
 import { ref, computed, onMounted } from "vue";
 import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
+import Breadcrumb from "~/components/Breadcrumb.vue";
+import Dropdown from "primevue/dropdown";
+import Editor from "@tinymce/tinymce-vue";
 
+import { useAnnonceStore } from "~~/stores/annonce";
+import { useAdvertiserStore } from "~~/stores/adverstiser";
+import {
+  Dialog,
+  DialogPanel,
+  TransitionRoot,
+  TransitionChild,
+} from "@headlessui/vue";
+
+const annonceStore = useAnnonceStore();
+const advertiserStore = useAdvertiserStore();
+const { $toastr } = useNuxtApp();
+
+// Références
+const showEditModal = ref(false);
+const showViewModal = ref(false);
 const searchQuery = ref("");
-const showSelector = ref(false);
-const selectedColumns = ref([]);
-const showModal = ref(false);
-const showDeleteModal = ref(false);
-const modalTitle = ref('');
-const selectedOpportunity = ref(null);
-const itemsPerPage = ref(50);
-const loading = ref(false);
+const typeContratFilter = ref(null);
+const itemsPerPage = ref(10);
+const loading = ref(true);
 
-// Formulaire
-const form = ref({
+const editForm = ref({
   id: null,
-  titre: '',
-  annonceur: '',
-  date: new Date().toISOString().split('T')[0],
-  description: '',
-  type: 'Alternance',
-  status: 'Non publiée',
-  lien: '',
-  filieres: []
+  advertiser_id: null,
+  type_annonce: null,
+  type_contrat: null,
+  title: "",
+  ville: "",
+  content: "",
+  filepath: null,
+  duration: "",
 });
 
-// Options des filières
-const filieresOptions = ref([
-  { id: 1, nom: 'GLSI' },
-  { id: 2, nom: 'ASR' },
-  { id: 3, nom: 'MTWI' },
-  { id: 4, nom: 'TC_1' },
-  { id: 5, nom: 'TC_2' }
+const selectedAnnonce = ref({});
+const fileInput = ref(null);
+const dragover = ref(false);
+
+// Colonnes de la table - CHANGEZ ICI pour utiliser 'published' au lieu de 'status'
+const columns = ref([
+  { field: "title", title: "Titre", sortable: true, visible: true },
+  { field: "advertiser", title: "Annonceur", sortable: true, visible: true },
+  {
+    field: "type_contrat",
+    title: "Type de contrat",
+    sortable: true,
+    visible: false,
+  },
+  {
+    field: "type_annonce",
+    title: "Type d'annonce",
+    sortable: true,
+    visible: false,
+  },
+  { field: "published", title: "Statut", sortable: true, visible: true }, // Changé de 'status' à 'published'
+  { field: "action", title: "Actions", sortable: false, visible: true },
 ]);
 
-// Charger les opportunités depuis localStorage
-const loadOpportunities = () => {
-  if (process.client) {
-    const storedOpportunities = localStorage.getItem('opportunities');
-    if (storedOpportunities) {
-      return JSON.parse(storedOpportunities);
-    }
-  }
-  return [];
-};
+const visibleColumns = computed(() => columns.value.filter((c) => c.visible));
 
-// Données initiales selon votre exemple
-const initialOpportunities = [
-  { 
-    id: 1, 
-    titre: "Officia corrupti as", 
-    annonceur: "TechSol", 
-    date: "2024-06-14", 
-    description: "Opportunité technique pour les développeurs",
-    type: "Emploi",
-    status: "Non publiée",
-    lien: "",
-    filieres: [1, 3]
-  },
-  { 
-    id: 2, 
-    titre: "Opportunité d'Alternance pour les Étudiants de Troisième Année", 
-    annonceur: "TechSol", 
-    date: "2024-06-10", 
-    description: "Alternance d'un an pour les étudiants en dernière année",
-    type: "Alternance",
-    status: "Publiée",
-    lien: "https://techsol.com/alternance",
-    filieres: [1, 2, 3]
-  },
-  { 
-    id: 3, 
-    titre: "Stage Été 2024 - Développement Web", 
-    annonceur: "WebCorp", 
-    date: "2024-06-05", 
-    description: "Stage de 3 mois en développement web fullstack",
-    type: "Stage",
-    status: "Publiée",
-    lien: "https://webcorp.com/stages",
-    filieres: [1, 3, 4]
-  },
-  { 
-    id: 4, 
-    titre: "Formation Certifiante en Cybersécurité", 
-    annonceur: "SecurIT", 
-    date: "2024-06-01", 
-    description: "Formation intensive de 2 mois en cybersécurité",
-    type: "Formation",
-    status: "Non publiée",
-    lien: "https://securit.com/formation",
-    filieres: [2, 5]
-  },
-  { 
-    id: 5, 
-    titre: "Bourse d'Excellence pour Étudiants en Informatique", 
-    annonceur: "Fondation TechEdu", 
-    date: "2024-05-28", 
-    description: "Bourse couvrant les frais de scolarité pour l'année académique",
-    type: "Bourse",
-    status: "Publiée",
-    lien: "https://techedu.org/bourses",
-    filieres: [1, 2, 3, 4, 5]
-  }
+// Options pour les dropdowns
+const typeAnnonceOptions = [
+  { label: "Plein temps", value: "Plein temps" },
+  { label: "Temps partiel", value: "Temps partiel" },
+  { label: "Télétravail", value: "Télétravail" },
 ];
 
-const rows = ref([]);
+const typeContratOptions = [
+  { label: "Contrat à Durée Déterminée", value: "Contrat à Durée Déterminée" },
+  {
+    label: "Contrat à Durée Indéterminée",
+    value: "Contrat à Durée Indéterminée",
+  },
+  { label: "Alternance", value: "Alternance" },
+];
 
-// Initialiser les données
-onMounted(() => {
-  let opportunities = loadOpportunities();
-  if (opportunities.length === 0) {
-    opportunities = initialOpportunities;
-    if (process.client) {
-      localStorage.setItem('opportunities', JSON.stringify(opportunities));
-    }
-  }
-  rows.value = opportunities;
-  selectedColumns.value = availableColumns.value.map(col => col.field);
+const advertisersOptions = computed(() =>
+  (advertiserStore.advertisers || []).map((a) => ({
+    label: a.nom,
+    value: a.slug,
+  })),
+);
+
+// Rows de la table - AJOUTEZ published ici
+const rows = computed(() => {
+  const filtered = typeContratFilter.value
+    ? annonceStore.annonces.filter(
+        (a) => a.type_contrat === typeContratFilter.value,
+      )
+    : annonceStore.annonces;
+
+  return filtered.map((a, i) => ({
+    ...a,
+    index: i + 1,
+    title: a.title?.slice(0, 30) + "..." || a.titre?.slice(0, 30) + "..." || "--",
+    title_detail: a.title || a.titre || "--",
+    advertiser: a.advertiser?.nom || "--",
+    advertiser_id: a.advertiser?.slug || null,
+    type_contrat: a.type_contrat || "--",
+    type_annonce: a.type_annonce || "--",
+    published: {
+      published: a.status ? 1 : 0, // Adapté pour votre template
+      status: a.status ? "Publié" : "Brouillon",
+      slug: a.slug,
+      title_detail: a.title || a.titre || "--",
+    },
+    duration: a.duration || null,
+  }));
 });
 
-const availableColumns = ref([
-  { field: "id", title: "#", width: "80px", isUnique: true },
-  { field: "titre", title: "Titre", width: "300px" },
-  { field: "annonceur", title: "Annonceur", width: "150px" },
-  { field: "date", title: "Date", width: "150px" },
-  { field: "description", title: "Description", width: "300px" },
-  { field: "type", title: "Type", width: "120px" },
-  { field: "status", title: "Status", width: "120px" },
-  { field: "action", title: "Actions", sort: false, width: "150px", type: "click" }
-]);
-
-// Colonnes filtrées selon la sélection
-const filteredCols = computed(() => {
-  return availableColumns.value.filter(col => 
-    selectedColumns.value.includes(col.field)
-  );
-});
-
-// Rows filtrées selon la recherche
-const filteredRows = computed(() => {
-  if (!searchQuery.value) return rows.value;
-  
-  const query = searchQuery.value.toLowerCase();
-  return rows.value.filter(opportunity => 
-    opportunity.titre.toLowerCase().includes(query) ||
-    opportunity.annonceur.toLowerCase().includes(query) ||
-    opportunity.description.toLowerCase().includes(query) ||
-    opportunity.type.toLowerCase().includes(query) ||
-    opportunity.status.toLowerCase().includes(query)
-  );
-});
-
-// Formater la date
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
-};
-
-const toggleSelector = () => {
-  showSelector.value = !showSelector.value;
-};
-
-// Sauvegarder dans localStorage
-const saveToLocalStorage = () => {
-  if (process.client) {
-    localStorage.setItem('opportunities', JSON.stringify(rows.value));
-  }
-};
-
-// Gestion des modales
-const openAddModal = () => {
-  modalTitle.value = "Formulaire de création d'une opportunité";
-  form.value = {
+// Fonctions
+const openCreateModal = () => {
+  editForm.value = {
     id: null,
-    titre: '',
-    annonceur: '',
-    date: new Date().toISOString().split('T')[0],
-    description: '',
-    type: 'Alternance',
-    status: 'Non publiée',
-    lien: '',
-    filieres: []
+    advertiser_id: null,
+    type_annonce: null,
+    type_contrat: null,
+    title: "",
+    ville: "",
+    content: "",
+    filepath: null,
+    duration: "",
   };
-  showModal.value = true;
+  showEditModal.value = true;
 };
 
-const openEditModal = (opportunity) => {
-  modalTitle.value = "Formulaire de modification d'une opportunité";
-  form.value = {
-    id: opportunity.id,
-    titre: opportunity.titre,
-    annonceur: opportunity.annonceur,
-    date: opportunity.date,
-    description: opportunity.description || '',
-    type: opportunity.type || 'Alternance',
-    status: opportunity.status || 'Non publiée',
-    lien: opportunity.lien || '',
-    filieres: opportunity.filieres || []
+const openEditModal = (annonce) => {
+  console.log("Opening edit modal for annonce:", annonce);
+
+  editForm.value = {
+    id: annonce.id,
+    slug: annonce.slug,
+    advertiser_id: annonce.advertiser_id || null,
+    type_annonce: annonce.type_annonce || null,
+    type_contrat: annonce.type_contrat || annonce.type || null,
+    title: annonce.title_detail || annonce.title || "",
+    ville: annonce.ville || "",
+    content: annonce.content || "",
+    filepath: annonce.filepath || null,
+    duration: annonce.duration || "",
   };
-  showModal.value = true;
+
+  showEditModal.value = true;
 };
 
-const openDeleteModal = (opportunity) => {
-  selectedOpportunity.value = opportunity;
-  showDeleteModal.value = true;
+const openViewModal = (annonce) => {
+  selectedAnnonce.value = annonce;
+  console.log("Selected Annonce:", selectedAnnonce.value);
+  showViewModal.value = true;
 };
 
-const closeModal = () => {
-  showModal.value = false;
-};
-
-const closeDeleteModal = () => {
-  showDeleteModal.value = false;
-  selectedOpportunity.value = null;
-};
-
-// Gestion des opportunités
-const saveOpportunity = () => {
-  if (form.value.id) {
-    // Mise à jour
-    const index = rows.value.findIndex(o => o.id === form.value.id);
-    if (index !== -1) {
-      rows.value[index] = {
-        ...rows.value[index],
-        titre: form.value.titre,
-        annonceur: form.value.annonceur,
-        date: form.value.date,
-        description: form.value.description,
-        type: form.value.type,
-        status: form.value.status,
-        lien: form.value.lien,
-        filieres: form.value.filieres
-      };
-    }
-  } else {
-    // Création
-    const newId = rows.value.length > 0 
-      ? Math.max(...rows.value.map(o => o.id)) + 1 
-      : 1;
-    
-    const newOpportunity = {
-      id: newId,
-      titre: form.value.titre,
-      annonceur: form.value.annonceur,
-      date: form.value.date,
-      description: form.value.description,
-      type: form.value.type,
-      status: form.value.status,
-      lien: form.value.lien,
-      filieres: form.value.filieres
-    };
-    
-    rows.value.push(newOpportunity);
+const onFileSelect = (event) => {
+  const file = event.target.files?.[0] || event.dataTransfer?.files?.[0];
+  if (file) {
+    editForm.value.file_path = file;
   }
+  dragover.value = false;
+};
+
+const handleFileDrop = (event) => {
+  dragover.value = false;
+  const file = event.dataTransfer.files?.[0];
+  if (file) {
+    editForm.value.file_path = file;
+  }
+};
+
+const onTypeContratChange = () => {
+  if (editForm.value.type_contrat !== "Contrat à Durée Déterminée") {
+    editForm.value.duration = "";
+  }
+};
+
+const togglePublish = async (annonceData) => {
+  const { $swal } = useNuxtApp();
   
-  saveToLocalStorage();
-  closeModal();
-};
+  const result = await $swal.fire({
+    title: "Publier l'opportunité ?",
+    text: `Voulez-vous publier "${annonceData.title_detail || annonceData.title}" ? Cette action est irréversible.`,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonColor: "#10b981",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Oui, publier",
+    cancelButtonText: "Annuler",
+  });
 
-const deleteOpportunity = () => {
-  if (selectedOpportunity.value) {
-    const index = rows.value.findIndex(o => o.id === selectedOpportunity.value.id);
-    if (index !== -1) {
-      rows.value.splice(index, 1);
+  if (result.isConfirmed) {
+    try {
+      await annonceStore.PublierAnnonce(annonceData.slug);
+      $toastr.success("Opportunité publiée avec succès");
+      await annonceStore.fetchAnnonces();
+    } catch (error) {
+      console.error("Erreur publication:", error);
+      $toastr.error("Impossible de publier l'opportunité");
     }
-    saveToLocalStorage();
-    closeDeleteModal();
   }
 };
 
-// Basculer le statut de publication
-const togglePublishStatus = (opportunity) => {
-  const index = rows.value.findIndex(o => o.id === opportunity.id);
-  if (index !== -1) {
-    rows.value[index].status = rows.value[index].status === 'Publiée' ? 'Non publiée' : 'Publiée';
-    saveToLocalStorage();
+const submitForm = async () => {
+  try {
+    const formData = new FormData();
+    formData.append("advertiser_id", editForm.value.advertiser_id);
+    formData.append("type_annonce", editForm.value.type_annonce);
+    formData.append("type_contrat", editForm.value.type_contrat);
+    formData.append("title", editForm.value.title);
+    formData.append("ville", editForm.value.ville || "");
+    formData.append("content", editForm.value.content || "");
+    if (editForm.value.duration) {
+      formData.append("duration", editForm.value.duration);
+    }
+    if (editForm.value.file_path instanceof File) {
+      formData.append("file_path", editForm.value.file_path);
+    }
+
+    if (editForm.value.id) {
+      await annonceStore.updateAnnonce(editForm.value.slug, formData);
+    } else {
+      await annonceStore.addAnnonce(formData);
+    }
+
+    showEditModal.value = false;
+    await annonceStore.fetchAnnonces();
+    $toastr.success("Enrégistrement effectué avec succès");
+  } catch (error) {
+    console.error("Erreur:", error);
+    $toastr.error(error?.message || "Erreur lors de l'opération");
   }
 };
+
+const confirmDelete = async (annonce) => {
+  const { $swal } = useNuxtApp();
+  const result = await $swal.fire({
+    title: "Supprimer ?",
+    text: `Voulez-vous supprimer "${annonce.title_detail || annonce.title}" ?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#dc2626",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Oui, supprimer",
+    cancelButtonText: "Annuler",
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await annonceStore.deleteAnnonce(annonce.slug);
+      $toastr.success("Opportunité supprimée avec succès");
+      await annonceStore.fetchAnnonces();
+    } catch (error) {
+      console.error("Erreur suppression:", error);
+      $toastr.error("Impossible de supprimer l'opportunité");
+    }
+  }
+};
+
+// Chargement initial
+onMounted(async () => {
+  try {
+    loading.value = true;
+    await annonceStore.fetchAnnonces();
+    await advertiserStore.fetchAdvertisers();
+  } catch (error) {
+    console.error("Erreur chargement:", error);
+    $toastr.error("Erreur lors du chargement");
+  } finally {
+    loading.value = false;
+  }
+});
 </script>
-
-<style scoped>
-/* Styles pour le tableau */
-:deep(.bh-table-wrapper) {
-  overflow-x: auto;
-}
-
-:deep(.bh-table) {
-  min-width: 100%;
-  width: 100%;
-  border-collapse: collapse;
-}
-
-:deep(.bh-table th) {
-  padding: 12px 16px;
-  text-align: left;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #6b7280;
-  background-color: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-:deep(.bh-table td) {
-  padding: 16px;
-  white-space: nowrap;
-  font-size: 0.875rem;
-  color: #1f2937;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-:deep(.bh-table tr:hover) {
-  background-color: #f9fafb;
-}
-
-:deep(.bh-pagination) {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 24px;
-  border-top: 1px solid #e5e7eb;
-}
-
-:deep(.bh-table-striped tbody tr:nth-child(odd)) {
-  background-color: #f9fafb;
-}
-
-:deep(.bh-table-hover tbody tr:hover) {
-  background-color: #f3f4f6;
-}
-</style>

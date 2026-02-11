@@ -121,13 +121,13 @@
 					icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
 					path: "/emploi-du-temps",
 				},
-				// {
-				// 	id: "2",
-				// 	title: "Présences à valider",
-				// 	icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
-				// 	badge: 3,
-				// 	path: "/presences-validation",
-				// },
+				{
+					id: "2",
+					title: "Présences à valider",
+					icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
+					badge: 3,
+					path: "/presences-validation",
+				},
 			],
 		},
 		{
@@ -229,11 +229,11 @@
 								title: "Liste des Utilisateurs",
 								path: "/personnel/utilisateurs",
 							},
-							{ title: "Ajouter un Utilisateur", path: "/personnel/ajouter" },
-							// {
-							// 	title: "Liste des enseignants",
-							// 	path: "/personnel/enseignants",
-							// },
+							// { title: "Ajouter un Utilisateur", path: "/personnel/ajouter" },
+							{
+								title: "Liste des enseignants",
+								path: "/personnel/enseignants",
+							},
 							// {
 							// 	title: "Gestion Surveillants",
 							// 	path: "/personnel/surveillants",
@@ -243,121 +243,121 @@
 				},
 			],
 		},
-		// {
-		// 	title: "Candidatures",
-		// 	items: [
-		// 		{
-		// 			id: "12",
-		// 			title: "Candidatures",
-		// 			icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
-		// 			subMenus: {
-		// 				Candidatures: [
-		// 					{
-		// 						title: "Étude de dossier",
-		// 						path: "/candidatures/etude-dossier",
-		// 					},
-		// 						{
-		// 						title: "Étude de dossier",
-		// 						path: "/candidatures/etude-dossier",
-		// 					},
-		// 					// { title: "Payement", path: "/candidatures/payement" },
-		// 					// {
-		// 					// 	title: "Contrôle de présence",
-		// 					// 	path: "/candidatures/controle-presence",
-		// 					// },
-		// 					// {
-		// 					// 	title: "Déclaration d'admission",
-		// 					// 	path: "/candidatures/declaration-admission",
-		// 					// },
-		// 					// {
-		// 					// 	title: "Attribution de groupe",
-		// 					// 	path: "/candidatures/attribution-groupe",
-		// 					// },
-		// 				],
-		// 			},
-		// 		},
-		// 	],
-		// },
-		// {
-		// 	title: "Autres",
-		// 	items: [
-		// 		{
-		// 			id: "13",
-		// 			title: "Galerie",
-		// 			icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z",
-		// 			subMenus: {
-		// 				Galerie: [
-		// 					{ title: "Albums", path: "/galerie/albums" },
-		// 					{ title: "Ajouter un album", path: "/galerie/albums/ajouter" },
-		// 					{ title: "Photos", path: "/galerie/photos" },
-		// 					{ title: "Ajouter une photo", path: "/galerie/photos/ajouter" },
-		// 				],
-		// 			},
-		// 		},
-		// 		{
-		// 			id: "14",
-		// 			title: "Messages",
-		// 			icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z",
-		// 			badge: 1,
-		// 			path: "/Messages",
-		// 		},
-		// 		{
-		// 			id: "15",
-		// 			title: "Réclamations",
-		// 			icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.732 0L4.346 16.5c-.77.833.192 2.5 1.732 2.5z",
-		// 			path: "/reclamations",
-		// 		},
-		// 		{
-		// 			id: "16",
-		// 			title: "Publications",
-		// 			icon: "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z",
-		// 			subMenus: {
-		// 				Publications: [
-		// 					{ title: "Liste des publications", path: "/publications/liste" },
-		// 					{
-		// 						title: "Ajouter une publication",
-		// 						path: "/publications/ajouter",
-		// 					},
-		// 					{ title: "Infos urgentes", path: "/publications/infos-urgentes" },
-		// 				],
-		// 			},
-		// 		},
-		// 		{
-		// 			id: "17",
-		// 			title: "Évènements",
-		// 			icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
-		// 			subMenus: {
-		// 				Évènements: [
-		// 					{ title: "Liste des évènements", path: "/evenements/liste" },
-		// 					{ title: "Ajouter un évènement", path: "/evenements/ajouter" },
-		// 				],
-		// 			},
-		// 		},
-		// 		{
-		// 			id: "18",
-		// 			title: "Partenaires",
-		// 			icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
-		// 			subMenus: {
-		// 				Partenaires: [
-		// 					{ title: "Liste des Partenaires", path: "/partenaires/liste" },
-		// 					{ title: "Ajouter un partenaire", path: "/partenaires/ajouter" },
-		// 				],
-		// 			},
-		// 		},
-		// 		{
-		// 			id: "19",
-		// 			title: "Opportunités",
-		// 			icon: "M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
-		// 			subMenus: {
-		// 				Opportunités: [
-		// 					{ title: "Liste des opportunités", path: "/opportunites/liste" },
-		// 					{
-		// 						title: "Ajouter une opportunité",
-		// 						path: "/opportunites/ajouter",
-		// 					},
-		// 				],
-		// 			},
-		// 		},
+		{
+			title: "Candidatures",
+			items: [
+				{
+					id: "12",
+					title: "Candidatures",
+					icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
+					subMenus: {
+						Candidatures: [
+							{
+								title: "Étude de dossier",
+								path: "/candidatures/etude-dossier",
+							},
+								{
+								title: "Étude de dossier",
+								path: "/candidatures/etude-dossier",
+							},
+							{ title: "Payement", path: "/candidatures/payement" },
+							{
+								title: "Contrôle de présence",
+								path: "/candidatures/controle-presence",
+							},
+							{
+								title: "Déclaration d'admission",
+								path: "/candidatures/declaration-admission",
+							},
+							{
+								title: "Attribution de groupe",
+								path: "/candidatures/attribution-groupe",
+							},
+						],
+					},
+				},
+			],
+		},
+		{
+			title: "Autres",
+			items: [
+				{
+					id: "13",
+					title: "Galerie",
+					icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z",
+					subMenus: {
+						Galerie: [
+							{ title: "Albums", path: "/galerie/albums" },
+							{ title: "Ajouter un album", path: "/galerie/albums/ajouter" },
+							{ title: "Photos", path: "/galerie/photos" },
+							{ title: "Ajouter une photo", path: "/galerie/photos/ajouter" },
+						],
+					},
+				},
+				{
+					id: "14",
+					title: "Messages",
+					icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z",
+					badge: 1,
+					path: "/Messages",
+				},
+				{
+					id: "15",
+					title: "Réclamations",
+					icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.732 0L4.346 16.5c-.77.833.192 2.5 1.732 2.5z",
+					path: "/reclamations",
+				},
+				{
+					id: "16",
+					title: "Publications",
+					icon: "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z",
+					subMenus: {
+						Publications: [
+							{ title: "Liste des publications", path: "/publications/liste" },
+							{
+								title: "Ajouter une publication",
+								path: "/publications/ajouter",
+							},
+							{ title: "Infos urgentes", path: "/publications/infos-urgentes" },
+						],
+					},
+				},
+				{
+					id: "17",
+					title: "Évènements",
+					icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
+					subMenus: {
+						Évènements: [
+							{ title: "Liste des évènements", path: "/evenements/liste" },
+							{ title: "Ajouter un évènement", path: "/evenements/ajouter" },
+						],
+					},
+				},
+				{
+					id: "18",
+					title: "Partenaires",
+					icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
+					subMenus: {
+						Partenaires: [
+							{ title: "Liste des Partenaires", path: "/partenaires/liste" },
+							{ title: "Ajouter un partenaire", path: "/partenaires/ajouter" },
+						],
+					},
+				},
+				{
+					id: "19",
+					title: "Opportunités",
+					icon: "M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
+					subMenus: {
+						Opportunités: [
+							{ title: "Liste des opportunités", path: "/opportunites/liste" },
+							// {
+							// 	title: "Ajouter une opportunité",
+							// 	path: "/opportunites/ajouter",
+							// },
+						],
+					},
+				},
 
 				{
 					id: "20",
@@ -365,39 +365,39 @@
 					icon: "M12 14l9-5-9-5-9 5 9 5zm0 2l-6.16-3.422A12.083 12.083 0 006 15.5C6 17.985 8.686 20 12 20s6-2.015 6-4.5a12.083 12.083 0 00-.84-2.922L12 16z",
 					subMenus: {
 						Etudiants: [
-							{ title: "Emploi du temps", path: "/Etudiant/emploi_du_temps" },
-							{ title: "Annonces", path: "/Etudiant/annonces" },
-							{ title: "Relevé", path: "/Etudiant/releve" },
-							{ title: "Notes", path: "/Etudiant/note" },
+							// { title: "Emploi du temps", path: "/Etudiant/emploi_du_temps" },
+							{ title: "Annonces", path: "/etudiant/annonces" },
+							{ title: "Relevé", path: "/etudiant/releve" },
+							{ title: "Notes", path: "/etudiant/note" },
 						],
 
 						MonDossier: [
-							{ title: "Constitution", path: "/Etudiant/constitution" },
-							{ title: "Mes fichiers", path: "/Etudiant/mes-fichiers" },
-							{ title: "Mon CV", path: "/Etudiant/cv" },
-							{ title: "Mes dépôts", path: "/Etudiant/mes-depots" },
-							{ title: "Mes paiements", path: "/Etudiant/mes-paiements" },
+							{ title: "Constitution", path: "/etudiant/constitution" },
+							{ title: "Mes fichiers", path: "/etudiant/mes-fichiers" },
+							{ title: "Mon CV", path: "/etudiant/cv" },
+							{ title: "Mes dépôts", path: "/etudiant/mes-depots" },
+							{ title: "Mes paiements", path: "/etudiant/mes-paiements" },
 						],
 					},
 				},
 
-		// 		{
-		// 			id: "21",
-		// 			title: "Enseigants",
-		// 			icon: "M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2",
-		// 			subMenus: {
-		// 				Enseignants: [
-		// 					{ title: "Emploi du temps", path: "/Enseignant/emploi_du_temps" },
-		// 					{ title: "Liste des cours", path: "/Enseignant/mes-cours" },
-		// 					{
-		// 						title: "Liste des évaluations",
-		// 						path: "/Enseignant/mes-evaluations",
-		// 					},
-		// 				],
-		// 			},
-		// 		},
-		// 	],
-		// },
+				{
+					id: "21",
+					title: "Enseigants",
+					icon: "M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2",
+					subMenus: {
+						Enseignants: [
+							{ title: "Emploi du temps", path: "/Enseignant/emploi_du_temps" },
+							{ title: "Liste des cours", path: "/Enseignant/mes-cours" },
+							{
+								title: "Liste des évaluations",
+								path: "/Enseignant/mes-evaluations",
+							},
+						],
+					},
+				},
+			],
+		},
 	];
 
 	const closeMobileSidebar = () => {
