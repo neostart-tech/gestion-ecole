@@ -1,365 +1,533 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-4 md:p-6">
+  <div
+    class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 transition-colors"
+  >
     <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
-      <span class="cursor-pointer hover:text-indigo-600 transition-colors">Accueil</span>
-      <span>/</span>
-      
-      <span class="text-gray-900 font-medium cursor-default">Liste</span>
-    </div>
+    <Breadcrumb
+      :items="[
+        { label: 'Messages', to: '/' },
+        { label: 'Liste', to: null },
+      ]"
+      title="Liste des messages"
+      title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
+      spacing="mb-4"
+    />
 
-    <!-- Titre -->
-    <h1 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">Liste des Messages</h1>
-
-    <!-- Zone de recherche et filtres -->
-    <div class="flex flex-col md:flex-row gap-4 mb-6">
+    <!-- Toolbar -->
+    <div
+      class="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between mb-5"
+    >
       <!-- Recherche -->
       <input
         v-model="searchQuery"
         type="search"
-        class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
         placeholder="Rechercher..."
+        class="w-full lg:w-64 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
 
-      <!-- Sélecteur de colonnes -->
-      <div class="relative">
-        <button 
-          @click="toggleSelector"
-          class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-        >
-          <span class="text-gray-700 font-medium">Toutes les colonnes</span>
-          <svg 
-            :class="{ 'rotate-180': showSelector }" 
-            class="w-4 h-4 text-gray-500 transition-transform"
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </button>
-
-        <!-- Dropdown des colonnes -->
-        <div 
-          v-if="showSelector"
-          class="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
-        >
-          <div class="p-3 space-y-2 max-h-64 overflow-y-auto">
-            <div 
-              v-for="col in availableColumns" 
-              :key="col.field"
-              class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
+      <div class="flex flex-col sm:flex-row gap-3">
+        <!-- Colonnes -->
+        <client-only>
+          <VDropdown placement="bottom-end">
+            <button
+              class="flex items-center gap-2 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <input
-                type="checkbox"
-                :id="col.field"
-                v-model="selectedColumns"
-                :value="col.field"
-                class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
-              />
-              <label 
-                :for="col.field"
-                class="text-sm text-gray-700 cursor-pointer select-none"
+              Colonnes
+              <svg
+                class="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
               >
-                {{ col.title }}
-              </label>
-            </div>
-          </div>
-        </div>
+                <path
+                  d="M6 9l6 6 6-6"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+
+            <template #popper>
+              <div
+                class="w-56 p-3 rounded-lg shadow-lg bg-white dark:bg-gray-800"
+              >
+                <div
+                  v-for="col in columns"
+                  :key="col.field"
+                  class="flex items-center gap-2 py-1"
+                >
+                  <input
+                    type="checkbox"
+                    v-model="col.visible"
+                    :disabled="col.field === 'action'"
+                    class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <span class="text-sm text-gray-700 dark:text-gray-300">
+                    {{ col.title }}
+                  </span>
+                </div>
+              </div>
+            </template>
+          </VDropdown>
+        </client-only>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-3 sm:p-4">
+      <div v-if="loading" class="flex justify-center py-10">
+        <div
+          class="h-10 w-10 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent"
+        ></div>
       </div>
 
-      
-      <!-- Bouton Ajouter message -->
-      <button 
-        @click="openAddModal"
-        class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium whitespace-nowrap"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Ajouter un message
-      </button>
+      <div v-else class="overflow-x-auto">
+        <Vue3Datatable
+          :columns="visibleColumns"
+          :rows="rows"
+          :search="searchQuery"
+          :per-page="itemsPerPage"
+          skin="bh-table-striped bh-table-hover"
+        >
+          <template #action="{ value }">
+            <div class="flex justify-center gap-3">
+              <button
+                @click="openDetailModal(value)"
+                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+              >
+                <svg
+                  class="w-4 h-4 mr-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+              </button>
 
-      <!-- Bouton Marquer tous comme lu -->
-     
-    </div>
+              <!-- SI NON LU - Message non lu -->
+              <button
+                v-if="value.status === 'Non lu'"
+                @click="markAsRead(value)"
+                class="p-2 rounded-lg text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
+                title="Non lu - Marquer comme lu"
+              >
+                <svg
+                  class="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <!-- Bulle de message -->
+                  <path
+                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <!-- Point indicateur non lu -->
+                  <circle cx="19" cy="7" r="2.5" fill="currentColor" />
+                </svg>
+              </button>
 
-    <!-- Tableau -->
-    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-      <Vue3Datatable
-        :columns="filteredCols"
-        :rows="filteredRows"
-        :per-page="itemsPerPage"
-        :search="searchQuery"
-        :pagination-options="{ 
-          dropdown: true, 
-          edge: true,
-          nav: 'scroll',
-          position: 'bottom'
-        }"
-        :searchable="true"
-        :sortable="true"
-        :filterable="true"
-        :loading="loading"
-        :totalRows="filteredRows.length"
-        skin="bh-table-striped bh-table-hover"
-      >
-        <!-- Slot pour le statut -->
-        <template #statut="data">
-          <span 
-            :class="[
-              'px-3 py-1 rounded-full text-xs font-medium',
-              data.value === 'Lu' 
-                ? 'bg-emerald-100 text-emerald-800' 
-                : 'bg-amber-100 text-amber-800'
-            ]"
-          >
-            {{ data.value }}
-          </span>
-        </template>
+              <!-- SI DÉJÀ LU - Message lu avec coche -->
+              <button
+                v-else
+                disabled
+                class="p-2 rounded-lg text-green-600 cursor-default opacity-75"
+                title="Déjà lu"
+              >
+                <svg
+                  class="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <!-- Bulle de message -->
+                  <path
+                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <!-- Double coche (WhatsApp style) -->
+                  <path
+                    d="M6 12l2 2 4-4"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M14 12l2 2 4-4"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
 
-        <!-- Slot pour les actions -->
-        <template #action="data">
-          <div class="flex items-center justify-center gap-2">
-            <!-- Bouton Voir -->
-            <button 
-              @click="openViewModal(data.value)"
-              class="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors duration-200"
-              title="Voir le message"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
-              </svg>
-            </button>
-            
-            <!-- Bouton Marquer comme lu/non lu -->
-            <button 
-              @click="toggleReadStatus(data.value)"
-              class="p-1.5 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors duration-200"
-              :title="data.value.statut === 'Lu' ? 'Marquer comme non lu' : 'Marquer comme lu'"
-            >
-              <svg v-if="data.value.statut === 'Non lu'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-              </svg>
-              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-              </svg>
-            </button>
-            
-            <!-- Bouton Supprimer -->
-            <button 
-              @click="openDeleteModal(data.value)"
-              class="p-1.5 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded transition-colors duration-200"
-              title="Supprimer"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-              </svg>
-            </button>
-          </div>
-        </template>
-      </Vue3Datatable>
-    </div>
-
-    <!-- Modal d'ajout/modification -->
-    <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
-        <div class="modal-content">
-          <form @submit.prevent="saveMessage">
-            <div class="modal-header border-b border-gray-200 p-6">
-              <h5 class="modal-title text-lg font-semibold text-gray-900">{{ modalTitle }}</h5>
-              <button type="button" @click="closeModal" class="btn-close text-gray-400 hover:text-gray-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              <button
+                @click="deleteItem(value)"
+                class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
+              >
+                <svg
+                  class="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    d="M3 6h18M8 6v14m8-14v14M5 6l1 14a2 2 0 002 2h8a2 2 0 002-2l1-14"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
                 </svg>
               </button>
             </div>
-            <div class="modal-body p-6 space-y-4">
-              <div class="form-group text-start">
-                <label for="titre" class="block text-sm font-medium text-gray-700 mb-2">
-                  Titre <span class="text-rose-500">*</span>
-                </label>
-                <input 
-                  type="text" 
-                  id="titre" 
-                  v-model="form.titre" 
-                  required
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                  placeholder="Titre du message"
-                />
-              </div>
+          </template>
+        </Vue3Datatable>
+      </div>
+    </div>
 
-              <div class="form-group text-start">
-                <label for="auteur" class="block text-sm font-medium text-gray-700 mb-2">
-                  Auteur <span class="text-rose-500">*</span>
-                </label>
-                <input 
-                  type="text" 
-                  id="auteur" 
-                  v-model="form.auteur" 
-                  required
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                  placeholder="Nom de l'auteur"
-                />
-              </div>
-
-              <div class="form-group text-start">
-                <label for="contenu" class="block text-sm font-medium text-gray-700 mb-2">
-                  Contenu <span class="text-rose-500">*</span>
-                </label>
-                <textarea 
-                  id="contenu" 
-                  v-model="form.contenu" 
-                  rows="6"
-                  required
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                  placeholder="Contenu du message"
-                ></textarea>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="form-group text-start">
-                  <label for="date" class="block text-sm font-medium text-gray-700 mb-2">
-                    Date <span class="text-rose-500">*</span>
-                  </label>
-                  <input 
-                    type="date" 
-                    id="date" 
-                    v-model="form.date" 
-                    required
-                    class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                  />
-                </div>
-
-                <div class="form-group text-start">
-                  <label for="statut" class="block text-sm font-medium text-gray-700 mb-2">
-                    Statut <span class="text-rose-500">*</span>
-                  </label>
-                  <select 
-                    id="statut" 
-                    v-model="form.statut" 
-                    required
-                    class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="Non lu">Non lu</option>
-                    <option value="Lu">Lu</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div class="modal-footer border-t border-gray-200 p-6 flex justify-end gap-3">
-              <button type="button" @click="closeModal" class="btn btn-secondary px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                Annuler
-              </button>
-              <button type="submit" class="btn btn-primary px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                Enregistrer
-              </button>
-            </div>
-          </form>
-          <!-- Contrôles d'affichage -->
-      <div class="flex items-center gap-2">
-        <span class="text-gray-600 whitespace-nowrap">Afficher</span>
-        <select 
-          v-model="itemsPerPage" 
-          class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+    <TransitionRoot appear :show="showDetailModal" as="template">
+      <Dialog as="div" class="relative z-50" @close="closeDetailModal">
+        <TransitionChild
+          as="template"
+          enter="ease-out duration-300"
+          enter-from="opacity-0"
+          enter-to="opacity-100"
+          leave="ease-in duration-200"
+          leave-from="opacity-100"
+          leave-to="opacity-0"
         >
-          <option value="10">10</option>
-          <option value="25">25</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-        </select>
-        <span class="text-gray-600 whitespace-nowrap">éléments</span>
-      </div>
+          <div class="fixed inset-0 bg-black/60" />
+        </TransitionChild>
 
-        </div>
-      </div>
-    </div>
-    
-
-    <!-- Modal de visualisation -->
-    <div v-if="showViewModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
-        <div class="modal-content">
-          <div class="modal-header border-b border-gray-200 p-6">
-            <h5 class="modal-title text-lg font-semibold text-gray-900">Détails du message</h5>
-            <button type="button" @click="closeViewModal" class="btn-close text-gray-400 hover:text-gray-600">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          <div class="modal-body p-6 space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <h6 class="text-sm font-medium text-gray-500 mb-1">Auteur</h6>
-                <p class="text-gray-900">{{ viewedMessage.auteur }}</p>
-              </div>
-              <div>
-                <h6 class="text-sm font-medium text-gray-500 mb-1">Date</h6>
-                <p class="text-gray-900">{{ formatDate(viewedMessage.date) }}</p>
-              </div>
-            </div>
-            
-            <div class="mb-4">
-              <h6 class="text-sm font-medium text-gray-500 mb-1">Titre</h6>
-              <p class="text-gray-900 text-lg font-semibold">{{ viewedMessage.titre }}</p>
-            </div>
-            
-            <div>
-              <h6 class="text-sm font-medium text-gray-500 mb-1">Contenu</h6>
-              <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <p class="text-gray-700 whitespace-pre-line">{{ viewedMessage.contenu }}</p>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer border-t border-gray-200 p-6 flex justify-end">
-            <button type="button" @click="closeViewModal" class="btn btn-secondary px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-              Fermer
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal de suppression -->
-    <div v-if="showDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-        <div class="modal-content">
-          <div class="modal-header border-b border-gray-200 p-6">
-            <h5 class="modal-title text-lg font-semibold text-gray-900">Suppression</h5>
-            <button type="button" @click="closeDeleteModal" class="btn-close text-gray-400 hover:text-gray-600">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          <div class="modal-body p-6">
-            <p class="text-gray-600 mb-6">
-              Voulez-vous vraiment supprimer ce message ? Veuillez noter que cette action est irréversible. Continuer ?
-            </p>
-          </div>
-          <div class="modal-footer border-t border-gray-200 p-6 flex justify-end gap-3">
-            <form @submit.prevent="deleteMessage" class="flex items-center gap-3">
-              <input type="hidden" id="deleteMessageForm" :value="selectedMessage?.id" />
-              <button 
-                type="button" 
-                @click="closeDeleteModal"
-                class="btn btn-secondary px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+        <div class="fixed inset-0 overflow-y-auto">
+          <div class="flex w-full items-center justify-center p-4">
+            <TransitionChild
+              as="template"
+              enter="ease-out duration-300"
+              enter-from="opacity-0 scale-95"
+              enter-to="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leave-from="opacity-100 scale-100"
+              leave-to="opacity-0 scale-95"
+            >
+              <DialogPanel
+                class="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all"
               >
-                Retour
-              </button>
-              <button 
-                type="submit" 
-                class="btn btn-warning px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600"
-              >
-                Continuer la suppression
-              </button>
-            </form>
+                <!-- En-tête de la modale -->
+                <div class="flex items-start justify-between mb-6">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                      <!-- Icône dynamique selon le statut -->
+                      <div
+                        :class="[
+                          'p-2 rounded-lg',
+                          selectedMessage?.status === 'Non lu'
+                            ? 'bg-yellow-100 dark:bg-yellow-900/30'
+                            : 'bg-green-100 dark:bg-green-900/30',
+                        ]"
+                      >
+                        <svg
+                          v-if="selectedMessage?.status === 'Non lu'"
+                          class="w-5 h-5 text-yellow-600 dark:text-yellow-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                          />
+                        </svg>
+                        <svg
+                          v-else
+                          class="w-5 h-5 text-green-600 dark:text-green-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </div>
+
+                      <DialogTitle
+                        class="text-xl font-bold text-gray-900 dark:text-white"
+                      >
+                        Message de {{ selectedMessage?.nom }}
+                      </DialogTitle>
+                    </div>
+
+                    <!-- Badge de statut -->
+                    <div class="flex items-center gap-2 mt-1">
+                      <span
+                        :class="[
+                          'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                          selectedMessage?.status === 'Non lu'
+                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                            : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+                        ]"
+                      >
+                        {{ selectedMessage?.status }}
+                      </span>
+                      <span class="text-xs text-gray-500 dark:text-gray-400">
+                        Reçu le {{ selectedMessage?.date_reception }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    @click="closeDetailModal"
+                    class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Contenu principal -->
+                <div class="space-y-5">
+                  <!-- Section Informations de contact -->
+                  <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-5">
+                    <h3
+                      class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                        />
+                      </svg>
+                      Informations de contact
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <!-- Nom -->
+                      <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 mt-0.5">
+                          <div
+                            class="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg"
+                          >
+                            <svg
+                              class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                              />
+                            </svg>
+                          </div>
+                        </div>
+                        <div>
+                          <p
+                            class="text-xs text-gray-500 dark:text-gray-400 mb-0.5"
+                          >
+                            Nom complet
+                          </p>
+                          <p
+                            class="text-sm font-medium text-gray-900 dark:text-white"
+                          >
+                            {{ selectedMessage?.nom }}
+                          </p>
+                        </div>
+                      </div>
+
+                      <!-- Email -->
+                      <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 mt-0.5">
+                          <div
+                            class="p-1.5 bg-purple-100 dark:bg-purple-900/30 rounded-lg"
+                          >
+                            <svg
+                              class="w-3.5 h-3.5 text-purple-600 dark:text-purple-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                              />
+                            </svg>
+                          </div>
+                        </div>
+                        <div>
+                          <p
+                            class="text-xs text-gray-500 dark:text-gray-400 mb-0.5"
+                          >
+                            Email
+                          </p>
+                          <a
+                            :href="`mailto:${selectedMessage?.email}`"
+                            class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline break-all"
+                          >
+                            {{ selectedMessage?.email }}
+                          </a>
+                        </div>
+                      </div>
+
+                      <!-- Téléphone -->
+                      <div
+                        v-if="selectedMessage?.tel"
+                        class="flex items-start gap-3"
+                      >
+                        <div class="flex-shrink-0 mt-0.5">
+                          <div
+                            class="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-lg"
+                          >
+                            <svg
+                              class="w-3.5 h-3.5 text-green-600 dark:text-green-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                              />
+                            </svg>
+                          </div>
+                        </div>
+                        <div>
+                          <p
+                            class="text-xs text-gray-500 dark:text-gray-400 mb-0.5"
+                          >
+                            Téléphone
+                          </p>
+                          <a
+                            :href="`tel:${selectedMessage?.tel}`"
+                            class="text-sm font-medium text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400"
+                          >
+                            {{ selectedMessage?.tel }}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Section Message -->
+                  <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-5">
+                    <h3
+                      class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                        />
+                      </svg>
+                      Message
+                    </h3>
+
+                    <div
+                      class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+                    >
+                      <p
+                        class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed"
+                      >
+                        {{ selectedMessage?.message }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div
+                  class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-3"
+                >
+                  <div class="flex items-center gap-2 order-2 sm:order-1"></div>
+
+                  <div class="flex gap-2 order-1 sm:order-2">
+                    <!-- Bouton Supprimer -->
+                    <button
+                      @click="deleteItem(selectedMessage)"
+                      class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium rounded-lg transition-colors"
+                    >
+                      <svg
+                        class="w-4 h-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                      </svg>
+                      Supprimer
+                    </button>
+
+                    <button
+                      type="button"
+                      @click="closeDetailModal"
+                      class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                    >
+                      Fermer
+                    </button>
+                  </div>
+                </div>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </div>
-      </div>
-    </div>
+      </Dialog>
+    </TransitionRoot>
   </div>
 </template>
 
@@ -367,319 +535,101 @@
 import { ref, computed, onMounted } from "vue";
 import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  TransitionRoot,
+} from "@headlessui/vue";
+import Breadcrumb from "~/components/Breadcrumb.vue";
+import { useMessageStore } from "~~/stores/message";
+
+const messageStore = useMessageStore();
+
+const { $toastr, $swal } = useNuxtApp();
 
 const searchQuery = ref("");
-const showSelector = ref(false);
-const selectedColumns = ref([]);
+const loading = ref(true);
 const showModal = ref(false);
-const showViewModal = ref(false);
-const showDeleteModal = ref(false);
-const modalTitle = ref('');
+const modalTitle = ref("");
+const itemsPerPage = ref(5);
+const showDetailModal = ref(false);
 const selectedMessage = ref(null);
-const viewedMessage = ref({});
-const itemsPerPage = ref(50);
-const loading = ref(false);
 
-// Formulaire
 const form = ref({
-  id: null,
-  titre: '',
-  auteur: '',
-  contenu: '',
-  date: '',
-  statut: 'Non lu'
+  nom: "",
+  effectif: "",
 });
 
-// Charger les messages depuis localStorage
-const loadMessages = () => {
-  if (process.client) {
-    const storedMessages = localStorage.getItem('messages');
-    if (storedMessages) {
-      return JSON.parse(storedMessages);
-    }
-  }
-  return [];
-};
-
-// Données initiales selon votre exemple
-const initialMessages = [
-  { 
-    id: 1, 
-    titre: "Demande d'information", 
-    auteur: "Ezéchiel Godwill SOSSOU-GAH", 
-    date: "2024-07-05", 
-    statut: "Non lu",
-    contenu: "Bonjour, je souhaiterais avoir plus d'informations sur les cours de programmation."
-  },
-  { 
-    id: 2, 
-    titre: "Problème technique", 
-    auteur: "Battle", 
-    date: "2024-07-05", 
-    statut: "Lu",
-    contenu: "Je rencontre des difficultés pour accéder à la plateforme en ligne."
-  },
-  { 
-    id: 3, 
-    titre: "Demande de rendez-vous", 
-    auteur: "Ezéchiel Godwill SOSSOU-GAH", 
-    date: "2024-07-05", 
-    statut: "Non lu",
-    contenu: "Je souhaiterais prendre rendez-vous pour discuter de mon projet."
-  },
-  { 
-    id: 4, 
-    titre: "Question administrative", 
-    auteur: "Mullins", 
-    date: "2024-07-05", 
-    statut: "Lu",
-    contenu: "Pouvez-vous m'indiquer les documents nécessaires pour l'inscription ?"
-  }
-];
-
-const rows = ref([]);
-
-// Formatage de la date
-const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
-};
-
-// Initialiser les données
-onMounted(() => {
-  let messages = loadMessages();
-  if (messages.length === 0) {
-    messages = initialMessages.map(msg => ({
-      ...msg,
-      formattedDate: formatDate(msg.date)
-    }));
-    if (process.client) {
-      localStorage.setItem('messages', JSON.stringify(messages));
-    }
-  }
-  rows.value = messages;
-  selectedColumns.value = availableColumns.value.map(col => col.field);
-});
-
-const availableColumns = ref([
-  { field: "id", title: "#", width: "80px", isUnique: true },
-  { field: "titre", title: "Titre" },
-  { field: "auteur", title: "Auteur" },
-  { field: "date", title: "Date de réception" },
-  { field: "statut", title: "Statut" },
-  { field: "action", title: "Action", sort: false, width: "150px", type: "click" }
+const columns = ref([
+  { field: "nom", title: "Nom", visible: true },
+  { field: "email", title: "Email", visible: false },
+  { field: "tel", title: "Téléphone", visible: false },
+  { field: "status", title: "Status", visible: true },
+  { field: "date_reception", title: "Date réception", visible: true },
+  { field: "action", title: "Actions", visible: true },
 ]);
 
-// Colonnes filtrées selon la sélection
-const filteredCols = computed(() => {
-  return availableColumns.value.filter(col => 
-    selectedColumns.value.includes(col.field)
-  );
-});
+const visibleColumns = computed(() => columns.value.filter((c) => c.visible));
 
-// Rows filtrées selon la recherche avec date formatée
-const filteredRows = computed(() => {
-  const rowsWithFormattedDate = rows.value.map(row => ({
-    ...row,
-    formattedDate: formatDate(row.date)
-  }));
+const rows = computed(() =>
+  messageStore.messages.map((m) => ({
+    id: m.id,
+    slug: m.slug,
+    nom: m.nom,
+    email: m.email ?? "--",
+    tel: m.tel ?? "--",
+    status: m.status,
+    message: m.message ?? "--",
+    date_reception: m.date_reception ?? "--",
+  })),
+);
 
-  if (!searchQuery.value) return rowsWithFormattedDate;
-  
-  const query = searchQuery.value.toLowerCase();
-  return rowsWithFormattedDate.filter(message => 
-    message.titre.toLowerCase().includes(query) ||
-    message.auteur.toLowerCase().includes(query) ||
-    message.formattedDate.toLowerCase().includes(query) ||
-    message.statut.toLowerCase().includes(query)
-  );
-});
-
-const toggleSelector = () => {
-  showSelector.value = !showSelector.value;
+const openDetailModal = (item) => {
+  selectedMessage.value = item;
+  showDetailModal.value = true;
 };
 
-// Sauvegarder dans localStorage
-const saveToLocalStorage = () => {
-  if (process.client) {
-    localStorage.setItem('messages', JSON.stringify(rows.value));
-  }
-};
-
-// Gestion des modales
-const openAddModal = () => {
-  modalTitle.value = "Formulaire de création d'un message";
-  form.value = { 
-    id: null, 
-    titre: '', 
-    auteur: '', 
-    contenu: '', 
-    date: new Date().toISOString().split('T')[0], 
-    statut: 'Non lu' 
-  };
-  showModal.value = true;
-};
-
-const openEditModal = (message) => {
-  modalTitle.value = "Formulaire de modification d'un message";
-  form.value = { 
-    id: message.id,
-    titre: message.titre, 
-    auteur: message.auteur,
-    contenu: message.contenu,
-    date: message.date,
-    statut: message.statut
-  };
-  showModal.value = true;
-};
-
-const openViewModal = (message) => {
-  viewedMessage.value = {
-    ...message,
-    formattedDate: formatDate(message.date)
-  };
-  showViewModal.value = true;
-};
-
-const openDeleteModal = (message) => {
-  selectedMessage.value = message;
-  showDeleteModal.value = true;
-};
-
-const closeModal = () => {
-  showModal.value = false;
-};
-
-const closeViewModal = () => {
-  showViewModal.value = false;
-  viewedMessage.value = {};
-};
-
-const closeDeleteModal = () => {
-  showDeleteModal.value = false;
+const closeDetailModal = () => {
+  showDetailModal.value = false;
   selectedMessage.value = null;
 };
 
-// Gestion des messages
-const saveMessage = () => {
-  if (form.value.id) {
-    // Mise à jour
-    const index = rows.value.findIndex(m => m.id === form.value.id);
-    if (index !== -1) {
-      rows.value[index] = {
-        ...rows.value[index],
-        titre: form.value.titre,
-        auteur: form.value.auteur,
-        contenu: form.value.contenu,
-        date: form.value.date,
-        statut: form.value.statut
-      };
-    }
-  } else {
-    // Création
-    const newId = rows.value.length > 0 
-      ? Math.max(...rows.value.map(m => m.id)) + 1 
-      : 1;
-    
-    const newMessage = {
-      id: newId,
-      titre: form.value.titre,
-      auteur: form.value.auteur,
-      contenu: form.value.contenu,
-      date: form.value.date,
-      statut: form.value.statut
-    };
-    
-    rows.value.push(newMessage);
-  }
-  
-  saveToLocalStorage();
-  closeModal();
-};
+const closeModal = () => (showModal.value = false);
 
-const deleteMessage = () => {
-  if (selectedMessage.value) {
-    const index = rows.value.findIndex(m => m.id === selectedMessage.value.id);
-    if (index !== -1) {
-      rows.value.splice(index, 1);
-    }
-    saveToLocalStorage();
-    closeDeleteModal();
+const markAsRead = async (value) => {
+  try {
+    await messageStore.MarkMessageAsRead(value.slug);
+    messageStore.fetchMessages();
+    $toastr.success("Message marqué comme lu");
+  } catch (error) {
+    $toatr.error(error.response.data.message);
   }
 };
 
-// Fonction pour basculer le statut lu/non lu
-const toggleReadStatus = (message) => {
-  const index = rows.value.findIndex(m => m.id === message.id);
-  if (index !== -1) {
-    rows.value[index].statut = rows.value[index].statut === 'Lu' ? 'Non lu' : 'Lu';
-    saveToLocalStorage();
-  }
-};
-
-// Fonction pour marquer tous les messages comme lus
-const markAllAsRead = () => {
-  rows.value.forEach(message => {
-    message.statut = 'Lu';
+const deleteItem = async (m) => {
+  const res = await $swal.fire({
+    title: "Supprimer ce message ?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Supprimer",
   });
-  saveToLocalStorage();
+
+  if (res.isConfirmed) {
+    try {
+      messageStore.deleteMessage(m.slug);
+      messageStore.fetchMessages();
+      $toastr.success("Message supprimé avec succes");
+      showDetailModal.value = false;
+    } catch (error) {
+      $toastr.error(error.response.data.message);
+    }
+  }
 };
+
+
+onMounted(async () => {
+  await messageStore.fetchMessages();
+  loading.value = false;
+});
 </script>
-
-<style scoped>
-/* Styles pour le tableau */
-:deep(.bh-table-wrapper) {
-  overflow-x: auto;
-}
-
-:deep(.bh-table) {
-  min-width: 100%;
-  width: 100%;
-  border-collapse: collapse;
-}
-
-:deep(.bh-table th) {
-  padding: 12px 16px;
-  text-align: left;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #6b7280;
-  background-color: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-:deep(.bh-table td) {
-  padding: 16px;
-  white-space: nowrap;
-  font-size: 0.875rem;
-  color: #1f2937;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-:deep(.bh-table tr:hover) {
-  background-color: #f9fafb;
-}
-
-:deep(.bh-pagination) {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 24px;
-  border-top: 1px solid #e5e7eb;
-}
-
-:deep(.bh-table-striped tbody tr:nth-child(odd)) {
-  background-color: #f9fafb;
-}
-
-:deep(.bh-table-hover tbody tr:hover) {
-  background-color: #f3f4f6;
-}
-</style>

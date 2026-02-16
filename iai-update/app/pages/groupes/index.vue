@@ -911,9 +911,7 @@ const deleteItem = async (groupe) => {
     }
   }
 };
-definePageMeta(()=>({
-  middleware:'auth'
-}))
+
 
 
 onMounted(async () => {

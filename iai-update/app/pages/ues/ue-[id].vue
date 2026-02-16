@@ -280,8 +280,6 @@ const PeriodesOptions = computed(() =>
   })),
 );
 
-definePageMeta(()=>({
-  middleware:'auth'
-}))
+
 
 </script>

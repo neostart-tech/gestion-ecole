@@ -1332,9 +1332,7 @@ const loadNotes = async () => {
   }
 };
 
-definePageMeta(() => ({
-  middleware: "auth",
-}));
+
 
 onMounted(async () => {
   await loadNotes();

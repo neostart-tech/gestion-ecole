@@ -76,7 +76,7 @@ export const useGroupeStore = defineStore("groupe", {
         );
 
         this.matieres = response.data.data;
-      } catch (error) {
+      } catch (error) {a
         console.error("Erreur chargement des matières du groupe:", error);
         throw error;
       } finally {

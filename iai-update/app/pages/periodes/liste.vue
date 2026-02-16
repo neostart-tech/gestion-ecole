@@ -613,9 +613,6 @@ const parseDate = (value) => {
   return new Date(value)
 }
 
-definePageMeta(()=>({
-  middleware:'auth'
-}))
 
 
 onMounted(async () => {
