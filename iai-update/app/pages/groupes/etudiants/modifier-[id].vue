@@ -659,7 +659,7 @@ import {
   TransitionRoot,
 } from "@headlessui/vue";
 import Breadcrumb from "~/components/Breadcrumb.vue";
-import { useFiliereStore } from "../../../stores/filiere";
+import { useFiliereStore } from "~~/stores/filiere";
 import { useUvStore } from "~~/stores/unite-valeur";
 import { useUserStore } from "~~/stores/user";
 import { usePeriodeStore } from "~~/stores/periode";
@@ -822,9 +822,6 @@ const FilieresOptions = computed(() =>
     value: f.id,
   })),
 );
-definePageMeta(()=>({
-  middleware:'auth'
-}))
 
 onMounted(async () => {
   await filiereStore.fetchFilieres();

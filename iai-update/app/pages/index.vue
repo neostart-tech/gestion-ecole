@@ -406,9 +406,7 @@ const deadlines = ref([
   },
 ]);
 
-definePageMeta(() => ({
-  middleware: "auth",
-}));
+
 </script>
 
 <style scoped>

@@ -307,9 +307,7 @@ const deleteSalle = () => {
     closeDeleteModal()
   }
 }
-definePageMeta(()=>({
-  middleware:'auth'
-}))
+
 
 </script>
 

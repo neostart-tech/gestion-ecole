@@ -1,296 +1,468 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-4 md:p-6">
+  <div
+    class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 transition-colors"
+  >
     <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
-      <span class="cursor-pointer hover:text-indigo-600 transition-colors">Partenaires</span>
-      <span>/</span>
-      <span class="text-gray-900 font-medium cursor-default">Liste</span>
-    </div>
+    <Breadcrumb
+      :items="[
+        { label: 'Partenaires', to: '/' },
+        { label: 'Liste', to: null },
+      ]"
+      title="Liste des partenaires"
+      title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
+      spacing="mb-4"
+    />
 
-    <!-- Titre -->
-    <h1 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">Liste des partenaires</h1>
-
-    <!-- Zone de recherche et filtres -->
-    <div class="flex flex-col md:flex-row gap-4 mb-6">
+    <!-- Toolbar -->
+    <div
+      class="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between mb-5"
+    >
       <!-- Recherche -->
       <input
         v-model="searchQuery"
         type="search"
-        class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
         placeholder="Rechercher..."
+        class="w-full lg:w-64 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
 
-      <!-- Sélecteur de colonnes -->
-      <div class="relative">
-        <button 
-          @click="toggleSelector"
-          class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-        >
-          <span class="text-gray-700 font-medium">Toutes les colonnes</span>
-          <svg 
-            :class="{ 'rotate-180': showSelector }" 
-            class="w-4 h-4 text-gray-500 transition-transform"
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </button>
-
-        <!-- Dropdown des colonnes -->
-        <div 
-          v-if="showSelector"
-          class="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
-        >
-          <div class="p-3 space-y-2 max-h-64 overflow-y-auto">
-            <div 
-              v-for="col in availableColumns" 
-              :key="col.field"
-              class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
+      <div class="flex flex-col sm:flex-row gap-3">
+        <!-- Colonnes -->
+        <client-only>
+          <VDropdown placement="bottom-end">
+            <button
+              class="flex items-center gap-2 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <input
-                type="checkbox"
-                :id="col.field"
-                v-model="selectedColumns"
-                :value="col.field"
-                class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
-              />
-              <label 
-                :for="col.field"
-                class="text-sm text-gray-700 cursor-pointer select-none"
+              Colonnes
+              <svg
+                class="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
               >
-                {{ col.title }}
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
+                <path
+                  d="M6 9l6 6 6-6"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
 
-      <!-- Contrôles d'affichage -->
-      <div class="flex items-center gap-2">
-        <span class="text-gray-600 whitespace-nowrap">Afficher</span>
-        <select 
-          v-model="itemsPerPage" 
-          class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            <template #popper>
+              <div
+                class="w-56 p-3 rounded-lg shadow-lg bg-white dark:bg-gray-800"
+              >
+                <div
+                  v-for="col in columns"
+                  :key="col.field"
+                  class="flex items-center gap-2 py-1"
+                >
+                  <input
+                    type="checkbox"
+                    v-model="col.visible"
+                    :disabled="col.field === 'action'"
+                    class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <span class="text-sm text-gray-700 dark:text-gray-300">
+                    {{ col.title }}
+                  </span>
+                </div>
+              </div>
+            </template>
+          </VDropdown>
+        </client-only>
+
+        <!-- Ajouter -->
+        <NuxtLink
+          to="/partenaires/ajouter-un-partenaire"
+          class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
         >
-          <option value="10">10</option>
-          <option value="25">25</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-        </select>
-        <span class="text-gray-600 whitespace-nowrap">éléments</span>
+          <svg
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+          >
+            <path
+              d="M12 5v14M5 12h14"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+          Ajouter
+        </NuxtLink>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-3 sm:p-4">
+      <div v-if="loading" class="flex justify-center py-10">
+        <div
+          class="h-10 w-10 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent"
+        ></div>
       </div>
 
-      <!-- Bouton Ajouter partenaire -->
-      <NuxtLink 
-        to="/partenaires/ajouter"
-        class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium whitespace-nowrap"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Ajouter un partenaire
-      </NuxtLink>
-    </div>
+      <div v-else class="overflow-x-auto">
+        <Vue3Datatable
+          :columns="visibleColumns"
+          :rows="rows"
+          :search="searchQuery"
+          :per-page="itemsPerPage"
+          skin="bh-table-striped bh-table-hover"
+        >
+          <template #action="{ value }">
+            <div class="flex justify-center gap-3">
+              <!-- Detail -->
+              <NuxtLink
+                :to="`/partenaires/${value.slug}/detail`"
+                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+              >
+                <svg
+                  class="w-4 h-4 mr-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+              </NuxtLink>
 
-    <!-- Tableau -->
-    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-      <Vue3Datatable
-        :columns="filteredCols"
-        :rows="filteredRows"
-        :per-page="itemsPerPage"
-        :search="searchQuery"
-        :pagination-options="{ 
-          dropdown: true, 
-          edge: true,
-          nav: 'scroll',
-          position: 'bottom'
-        }"
-        :searchable="true"
-        :sortable="true"
-        :filterable="true"
-        :loading="loading"
-        :totalRows="filteredRows.length"
-        skin="bh-table-striped bh-table-hover"
-      >
-        <!-- Slot pour l'email -->
-        <template #email="data">
-          <a 
-            :href="`mailto:${data.value}`" 
-            class="text-indigo-600 hover:text-indigo-800 hover:underline transition-colors"
-            title="Envoyer un email"
-          >
-            {{ data.value }}
-          </a>
-        </template>
+              <!-- Edit -->
+              <NuxtLink
+                :to="`/partenaires/${value.slug}/modifier-un-partenaire`"
+                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+              >
+                <svg
+                  class="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    d="M4 20h4l10-10-4-4L4 16v4z"
+                    stroke-width="2"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </NuxtLink>
 
-        <!-- Slot pour le site web -->
-        <template #siteWeb="data">
-          <template v-if="data.value && typeof data.value === 'string' && data.value.trim()">
-            <a 
-              :href="formatUrlForHref(data.value)" 
-              target="_blank" 
-              class="text-blue-600 hover:text-blue-800 hover:underline transition-colors flex items-center gap-1"
-              title="Visiter le site web"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
-              </svg>
-              <span class="truncate max-w-[200px]">{{ formatUrlForDisplay(data.value) }}</span>
-            </a>
-          </template>
-          <span v-else class="text-gray-400">-</span>
-        </template>
-
-        <!-- Slot pour les actions -->
-        <template #action="data">
-          <div class="flex items-center justify-center gap-2">
-            <!-- Bouton Modifier -->
-            <button 
-              @click="openEditModal(data.value)"
-              class="p-1.5 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 rounded transition-colors duration-200"
-              title="Modifier"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-              </svg>
-            </button>
-            
-            <!-- Bouton Supprimer -->
-            <button 
-              @click="openDeleteModal(data.value)"
-              class="p-1.5 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded transition-colors duration-200"
-              title="Supprimer"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-              </svg>
-            </button>
-          </div>
-        </template>
-      </Vue3Datatable>
-    </div>
-
-    <!-- Modal de modification -->
-    <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-        <div class="modal-content">
-          <form @submit.prevent="savePartner">
-            <div class="modal-header border-b border-gray-200 p-6">
-              <h5 class="modal-title text-lg font-semibold text-gray-900">{{ modalTitle }}</h5>
-              <button type="button" @click="closeModal" class="btn-close text-gray-400 hover:text-gray-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              <!-- Delete -->
+              <button
+                @click="deleteItem(value)"
+                class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
+              >
+                <svg
+                  class="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    d="M3 6h18M8 6v14m8-14v14M5 6l1 14a2 2 0 002 2h8a2 2 0 002-2l1-14"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
                 </svg>
               </button>
             </div>
-            <div class="modal-body p-6 space-y-4">
-              <div class="form-group text-start">
-                <label for="nom" class="block text-sm font-medium text-gray-700 mb-2">
-                  Nom <span class="text-rose-500">*</span>
-                </label>
-                <input 
-                  type="text" 
-                  id="nom" 
-                  v-model="form.nom" 
-                  required
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                  placeholder="Nom du partenaire"
-                />
-              </div>
-
-              <div class="form-group text-start">
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                  Email <span class="text-rose-500">*</span>
-                </label>
-                <input 
-                  type="email" 
-                  id="email" 
-                  v-model="form.email" 
-                  required
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                  placeholder="contact@entreprise.com"
-                />
-              </div>
-
-              <div class="form-group text-start">
-                <label for="code" class="block text-sm font-medium text-gray-700 mb-2">
-                  Code
-                </label>
-                <input 
-                  type="text" 
-                  id="code" 
-                  v-model="form.code" 
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 uppercase" 
-                  placeholder="Code partenaire"
-                />
-              </div>
-
-              <div class="form-group text-start">
-                <label for="siteWeb" class="block text-sm font-medium text-gray-700 mb-2">
-                  Site web
-                </label>
-                <input 
-                  type="url" 
-                  id="siteWeb" 
-                  v-model="form.siteWeb" 
-                  class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                  placeholder="https://www.entreprise.com"
-                />
-              </div>
-            </div>
-            <div class="modal-footer border-t border-gray-200 p-6 flex justify-end gap-3">
-              <button type="button" @click="closeModal" class="btn btn-secondary px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                Annuler
-              </button>
-              <button type="submit" class="btn btn-primary px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                Enregistrer
-              </button>
-            </div>
-          </form>
-        </div>
+          </template>
+        </Vue3Datatable>
       </div>
     </div>
 
-    <!-- Modal de suppression -->
-    <div v-if="showDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-        <div class="modal-content">
-          <div class="modal-header border-b border-gray-200 p-6">
-            <h5 class="modal-title text-lg font-semibold text-gray-900">Suppression</h5>
-            <button type="button" @click="closeDeleteModal" class="btn-close text-gray-400 hover:text-gray-600">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          <div class="modal-body p-6">
-            <p class="text-gray-600 mb-6">
-              Voulez-vous vraiment supprimer ce partenaire ? Cette action est irréversible.
-            </p>
-          </div>
-          <div class="modal-footer border-t border-gray-200 p-6 flex justify-end gap-3">
-            <form @submit.prevent="deletePartner" class="flex items-center gap-3">
-              <input type="hidden" id="deletePartnerForm" :value="selectedPartner?.id" />
-              <button 
-                type="button" 
-                @click="closeDeleteModal"
-                class="btn btn-secondary px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+    <!-- MODAL DETAIL -->
+    <TransitionRoot appear :show="showDetailModal" as="template">
+      <Dialog as="div" class="relative z-50" @close="closeDetailModal">
+        <TransitionChild
+          as="template"
+          enter="ease-out duration-300"
+          enter-from="opacity-0"
+          enter-to="opacity-100"
+          leave="ease-in duration-200"
+          leave-from="opacity-100"
+          leave-to="opacity-0"
+        >
+          <div class="fixed inset-0 bg-black/60" />
+        </TransitionChild>
+
+        <div class="fixed inset-0 overflow-y-auto">
+          <div class="flex min-h-full items-center justify-center p-4">
+            <TransitionChild
+              as="template"
+              enter="ease-out duration-300"
+              enter-from="opacity-0 scale-95"
+              enter-to="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leave-from="opacity-100 scale-100"
+              leave-to="opacity-0 scale-95"
+            >
+              <DialogPanel
+                class="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all"
               >
-                Retour
-              </button>
-              <button 
-                type="submit" 
-                class="btn btn-warning px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700"
-              >
-                Supprimer
-              </button>
+                <!-- En-tête de la modale -->
+                <div class="flex items-start justify-between mb-6">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                      <div
+                        class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg"
+                      >
+                        <svg
+                          class="w-5 h-5 text-blue-600 dark:text-blue-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                          />
+                        </svg>
+                      </div>
+                      <DialogTitle
+                        class="text-xl font-bold text-gray-900 dark:text-white"
+                      >
+                        {{ selectedAdvertiser?.nom }}
+                      </DialogTitle>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                      {{ selectedAdvertiser?.email }}
+                    </p>
+                  </div>
+                  <button
+                    @click="closeDetailModal"
+                    class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Contenu principal -->
+                <div class="space-y-5">
+                  <!-- Section Informations -->
+                  <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4">
+                    <h3
+                      class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      Informations du partenaire
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3">
+                      <div>
+                        <p
+                          class="text-xs text-gray-500 dark:text-gray-400 mb-1"
+                        >
+                          Ville
+                        </p>
+                        <p class="font-medium text-gray-900 dark:text-white">
+                          {{ selectedAdvertiser?.ville }}
+                        </p>
+                      </div>
+                      <div>
+                        <p
+                          class="text-xs text-gray-500 dark:text-gray-400 mb-1"
+                        >
+                          Site web
+                        </p>
+                        <p class="font-medium text-gray-900 dark:text-white">
+                          <a
+                            :href="selectedAdvertiser?.site"
+                            target="_blank"
+                            class="text-indigo-600 dark:text-indigo-400 hover:underline"
+                          >
+                            {{ selectedAdvertiser?.site }}
+                          </a>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Section Description -->
+                  <div
+                    v-if="selectedAdvertiser?.details"
+                    class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4"
+                  >
+                    <h3
+                      class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        />
+                      </svg>
+                      Description
+                    </h3>
+                    <div
+                      class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed"
+                      v-html="selectedAdvertiser?.details"
+                    ></div>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div
+                  class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center"
+                >
+                  <div class="flex gap-3">
+                    <button
+                      type="button"
+                      @click="closeDetailModal"
+                      class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                    >
+                      Fermer
+                    </button>
+                  </div>
+                </div>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+
+    <!-- MODAL AJOUT / EDIT -->
+    <TransitionRoot appear :show="showModal" as="template">
+      <Dialog as="div" class="relative z-150" @close="closeModal">
+        <div class="fixed inset-0 bg-black/60" />
+
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+          <DialogPanel
+            class="w-full max-w-md rounded-xl bg-white dark:bg-gray-800 p-5"
+          >
+            <DialogTitle
+              class="text-lg font-semibold mb-4 text-gray-900 dark:text-white"
+            >
+              {{ modalTitle }}
+            </DialogTitle>
+
+            <form @submit.prevent="saveAdvertiser" class="space-y-4">
+              <FloatLabel variant="on">
+                <InputText
+                  id="nom"
+                  v-model="form.nom"
+                  autocomplete="off"
+                  class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
+                />
+                <label for="nom">Nom</label>
+              </FloatLabel>
+
+              <FloatLabel variant="on">
+                <InputText
+                  id="email"
+                  v-model="form.email"
+                  autocomplete="off"
+                  class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
+                />
+                <label for="email">Email</label>
+              </FloatLabel>
+
+              <FloatLabel variant="on">
+                <InputText
+                  id="ville"
+                  v-model="form.ville"
+                  autocomplete="off"
+                  class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
+                />
+                <label for="ville">Ville</label>
+              </FloatLabel>
+
+              <FloatLabel variant="on">
+                <InputText
+                  id="site"
+                  v-model="form.site"
+                  autocomplete="off"
+                  class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
+                />
+                <label for="site">Site web</label>
+              </FloatLabel>
+
+              <FloatLabel variant="on">
+                <!-- <Textarea
+                  id="details"
+                  v-model="form.details"
+                  rows="4"
+                  class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
+                /> -->
+                <Editor
+                  api-key="ktf8z0z55enm2wd9xyeoo6qzzoy7w9b629e51wii9y8lw4dx"
+                  v-model="form.details"
+                  :init="{
+                    height: 250,
+                    menubar: false,
+                    plugins: 'lists link image media table wordcount',
+                    toolbar:
+                      'undo redo | bold italic underline | bullist numlist | link image media | removeformat',
+                    content_style:
+                      'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+                  }"
+                />
+                <!-- <label for="details">Description</label> -->
+              </FloatLabel>
+
+              <div class="flex justify-end gap-3">
+                <button
+                  type="button"
+                  @click="closeModal"
+                  class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  Annuler
+                </button>
+
+                <button
+                  type="submit"
+                  class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+                >
+                  Enregistrer
+                </button>
+              </div>
             </form>
-          </div>
+          </DialogPanel>
         </div>
-      </div>
-    </div>
+      </Dialog>
+    </TransitionRoot>
   </div>
 </template>
 
@@ -298,271 +470,146 @@
 import { ref, computed, onMounted } from "vue";
 import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  TransitionRoot,
+  TransitionChild,
+} from "@headlessui/vue";
+import Breadcrumb from "~/components/Breadcrumb.vue";
+import { useAdvertiserStore } from "~~/stores/adverstiser";
+import FloatLabel from "primevue/floatlabel";
+import InputText from "primevue/inputtext";
+import Textarea from "primevue/textarea";
+import Editor from "@tinymce/tinymce-vue";
+
+const { $toastr, $swal } = useNuxtApp();
+const advertiserStore = useAdvertiserStore();
 
 const searchQuery = ref("");
-const showSelector = ref(false);
-const selectedColumns = ref([]);
+const loading = ref(true);
 const showModal = ref(false);
-const showDeleteModal = ref(false);
-const modalTitle = ref('');
-const selectedPartner = ref(null);
-const itemsPerPage = ref(50);
-const loading = ref(false);
+const showDetailModal = ref(false);
+const modalTitle = ref("");
+const itemsPerPage = ref(5);
+const selectedAdvertiser = ref(null);
 
-// Formulaire
 const form = ref({
   id: null,
-  nom: '',
-  email: '',
-  code: '',
-  siteWeb: ''
+  slug: null,
+  nom: "",
+  email: "",
+  ville: "",
+  site: "",
+  details: "",
 });
 
-// Charger les partenaires depuis localStorage
-const loadPartners = () => {
-  if (process.client) {
-    const storedPartners = localStorage.getItem('partners');
-    if (storedPartners) {
-      return JSON.parse(storedPartners);
-    }
-  }
-  return [];
-};
-
-// Données initiales selon votre exemple
-const initialPartners = [
-  { 
-    id: 1, 
-    nom: 'TechSol', 
-    email: 'contact@techsol.fr', 
-    code: 'TECH001',
-    siteWeb: 'https://www.techsol.fr'
-  },
-  { 
-    id: 2, 
-    nom: 'Digital Solutions', 
-    email: 'info@digitalsolutions.com', 
-    code: 'DIG002',
-    siteWeb: 'https://www.digitalsolutions.com'
-  },
-  { 
-    id: 3, 
-    nom: 'Innovatech', 
-    email: 'contact@innovatech.io', 
-    code: 'INN003',
-    siteWeb: 'https://www.innovatech.io'
-  }
-];
-
-const rows = ref([]);
-
-// Initialiser les données
-onMounted(() => {
-  let partners = loadPartners();
-  if (partners.length === 0) {
-    partners = initialPartners;
-    if (process.client) {
-      localStorage.setItem('partners', JSON.stringify(partners));
-    }
-  }
-  
-  // S'assurer que tous les partenaires ont les champs requis
-  rows.value = partners.map(partner => ({
-    id: partner.id || 0,
-    nom: partner.nom || '',
-    email: partner.email || '',
-    code: partner.code || '',
-    siteWeb: partner.siteWeb || ''
-  }));
-  
-  selectedColumns.value = availableColumns.value.map(col => col.field);
-});
-
-const availableColumns = ref([
-  { field: "id", title: "#", width: "80px", isUnique: true },
-  { field: "nom", title: "Nom" },
-  { field: "email", title: "Email" },
-  { field: "code", title: "Code" },
-  { field: "siteWeb", title: "Lien du site" },
-  { field: "action", title: "Actions", sort: false, width: "120px", type: "click" }
+const columns = ref([
+  { field: "nom", title: "Nom", visible: true },
+  { field: "email", title: "Email", visible: true },
+  { field: "ville", title: "Ville", visible: true },
+  { field: "site", title: "Site web", visible: false },
+  { field: "action", title: "Actions", visible: true },
 ]);
 
-// Colonnes filtrées selon la sélection
-const filteredCols = computed(() => {
-  return availableColumns.value.filter(col => 
-    selectedColumns.value.includes(col.field)
-  );
-});
+const visibleColumns = computed(() => columns.value.filter((c) => c.visible));
 
-// Rows filtrées selon la recherche
-const filteredRows = computed(() => {
-  if (!searchQuery.value) return rows.value;
-  
-  const query = searchQuery.value.toLowerCase();
-  return rows.value.filter(partner => 
-    (partner.nom && partner.nom.toLowerCase().includes(query)) ||
-    (partner.email && partner.email.toLowerCase().includes(query)) ||
-    (partner.code && partner.code.toLowerCase().includes(query)) ||
-    (partner.siteWeb && typeof partner.siteWeb === 'string' && partner.siteWeb.toLowerCase().includes(query))
-  );
-});
+const rows = computed(() =>
+  advertiserStore.advertisers.map((a) => ({
+    id: a.id,
+    slug: a.slug,
+    nom: a.nom,
+    email: a.email,
+    ville: a.ville,
+    site: a.site ?? "--",
+    details: a.details,
+  })),
+);
 
-// Formater l'URL pour l'affichage (corrigé)
-const formatUrlForDisplay = (url) => {
-  if (!url || typeof url !== 'string') return '';
-  try {
-    // S'assurer que l'URL est valide
-    const trimmed = url.trim();
-    if (!trimmed) return '';
-    
-    // Retirer le protocole et www pour l'affichage
-    return trimmed
-      .replace(/^https?:\/\//i, '')
-      .replace(/^www\./i, '')
-      .replace(/\/$/, ''); // Retirer le slash final
-  } catch (error) {
-    console.error('Erreur de formatage URL:', error);
-    return url || '';
-  }
+const openDetailModal = (item) => {
+  selectedAdvertiser.value = item;
+  showDetailModal.value = true;
 };
 
-// Formater l'URL pour le href (ajouter https:// si manquant)
-const formatUrlForHref = (url) => {
-  if (!url || typeof url !== 'string') return '#';
-  try {
-    const trimmed = url.trim();
-    if (!trimmed) return '#';
-    
-    // Si l'URL ne commence pas par http:// ou https://, ajouter https://
-    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
-      return 'https://' + trimmed;
-    }
-    return trimmed;
-  } catch (error) {
-    console.error('Erreur de formatage href:', error);
-    return '#';
-  }
+const closeDetailModal = () => {
+  showDetailModal.value = false;
+  selectedAdvertiser.value = null;
 };
 
-const toggleSelector = () => {
-  showSelector.value = !showSelector.value;
-};
-
-// Sauvegarder dans localStorage
-const saveToLocalStorage = () => {
-  if (process.client) {
-    localStorage.setItem('partners', JSON.stringify(rows.value));
-  }
-};
-
-// Gestion des modales
-const openEditModal = (partner) => {
-  modalTitle.value = "Modifier le partenaire";
-  form.value = { 
-    id: partner.id,
-    nom: partner.nom || '', 
-    email: partner.email || '',
-    code: partner.code || '',
-    siteWeb: partner.siteWeb || ''
+const openAddModal = () => {
+  modalTitle.value = "Ajouter un partenaire";
+  form.value = {
+    id: null,
+    slug: null,
+    nom: "",
+    email: "",
+    ville: "",
+    site: "",
+    details: "",
   };
   showModal.value = true;
 };
 
-const openDeleteModal = (partner) => {
-  selectedPartner.value = partner;
-  showDeleteModal.value = true;
+const openEditModal = (a) => {
+  modalTitle.value = "Modifier le partenaire";
+  form.value = {
+    id: a.id,
+    slug: a.slug,
+    nom: a.nom,
+    email: a.email,
+    ville: a.ville,
+    site: a.site,
+    details: a.details,
+  };
+  showModal.value = true;
 };
 
 const closeModal = () => {
   showModal.value = false;
 };
 
-const closeDeleteModal = () => {
-  showDeleteModal.value = false;
-  selectedPartner.value = null;
-};
-
-// Gestion des partenaires
-const savePartner = () => {
-  if (form.value.id) {
-    // Mise à jour
-    const index = rows.value.findIndex(p => p.id === form.value.id);
-    if (index !== -1) {
-      rows.value[index] = {
-        ...rows.value[index],
-        nom: form.value.nom || '',
-        email: form.value.email || '',
-        code: form.value.code || '',
-        siteWeb: form.value.siteWeb || ''
-      };
+const saveAdvertiser = async () => {
+  try {
+    if (form.value.id) {
+      await advertiserStore.updateAdvertiser(form.value, form.value.slug);
+      $toastr.success("Partenaire modifié avec succès");
+    } else {
+      await advertiserStore.addAdvertiser(form.value);
+      $toastr.success("Partenaire ajouté avec succès");
     }
-  }
-  
-  saveToLocalStorage();
-  closeModal();
-};
-
-const deletePartner = () => {
-  if (selectedPartner.value) {
-    const index = rows.value.findIndex(p => p.id === selectedPartner.value.id);
-    if (index !== -1) {
-      rows.value.splice(index, 1);
-    }
-    saveToLocalStorage();
-    closeDeleteModal();
+    await advertiserStore.fetchAdvertisers();
+    closeModal();
+  } catch (error) {
+    console.log(error);
+    $toastr.error(error.response?.data?.message || "Une erreur est survenue");
   }
 };
+
+const deleteItem = async (advertiser) => {
+  const res = await $swal.fire({
+    title: "Supprimer ce partenaire ?",
+    text: "Cette action est irréversible",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Supprimer",
+    cancelButtonText: "Annuler",
+  });
+
+  if (res.isConfirmed) {
+    try {
+      await advertiserStore.deleteAdvertiser(advertiser.slug);
+      await advertiserStore.fetchAdvertisers();
+      $toastr.success("Partenaire supprimé avec succès");
+    } catch (error) {
+      console.log(error);
+      $toastr.error(error.response?.data?.message || "Une erreur est survenue");
+    }
+  }
+};
+
+onMounted(async () => {
+  await advertiserStore.fetchAdvertisers();
+  loading.value = false;
+});
 </script>
-
-<style scoped>
-/* Styles pour le tableau */
-:deep(.bh-table-wrapper) {
-  overflow-x: auto;
-}
-
-:deep(.bh-table) {
-  min-width: 100%;
-  width: 100%;
-  border-collapse: collapse;
-}
-
-:deep(.bh-table th) {
-  padding: 12px 16px;
-  text-align: left;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #6b7280;
-  background-color: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-:deep(.bh-table td) {
-  padding: 16px;
-  white-space: nowrap;
-  font-size: 0.875rem;
-  color: #1f2937;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-:deep(.bh-table tr:hover) {
-  background-color: #f9fafb;
-}
-
-:deep(.bh-pagination) {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 24px;
-  border-top: 1px solid #e5e7eb;
-}
-
-:deep(.bh-table-striped tbody tr:nth-child(odd)) {
-  background-color: #f9fafb;
-}
-
-:deep(.bh-table-hover tbody tr:hover) {
-  background-color: #f3f4f6;
-}
-</style>

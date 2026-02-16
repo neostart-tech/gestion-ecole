@@ -513,9 +513,7 @@ const deleteItem = async (p) => {
     $toastr.success("Salle supprimée avec succes");
   }
 };
-definePageMeta(()=>({
-  middleware:'auth'
-}))
+
 
 
 onMounted(async () => {

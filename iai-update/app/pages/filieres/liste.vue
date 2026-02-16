@@ -308,9 +308,6 @@ const deleteItem = async (filiere) => {
   }
 };
 
-definePageMeta(()=>({
-  middleware:'auth'
-}))
 
 
 onMounted(async () => {

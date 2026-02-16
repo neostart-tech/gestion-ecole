@@ -210,9 +210,13 @@ const deleteItem = async (ue) => {
   });
 
   if (res.isConfirmed) {
-    await ueStore.deleteUe(ue.slug);
+    try{
+      await ueStore.deleteUe(ue.slug);
     await ueStore.fetchUe();
     $toastr.success("Unité d'enseignement supprimée avec succes");
+    }catch(error){
+      $toastr.error(error?.response?.data?.message)
+    }
   }
 };
 
@@ -224,9 +228,7 @@ const openEditModal=(ue)=>{
 router.push(`ues/ue-${ue.id}`)
 }
 
-definePageMeta(()=>({
-  middleware:'auth'
-}))
+
 
 onMounted(async () => {
   await ueStore.fetchUe();
