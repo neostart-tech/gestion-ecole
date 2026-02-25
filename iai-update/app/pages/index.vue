@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 lg:p-8"
+		class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-6 lg:p-8"
 	>
 		<!-- Header avec effet de verre -->
 		<div class="mb-8">
@@ -9,11 +9,13 @@
 			>
 				<div class="space-y-1">
 					<h1
-						class="text-2xl md:text-3xl font-bold text-gray-800 tracking-tight"
+						class="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white tracking-tight"
 					>
 						Tableau de bord
 					</h1>
-					<p class="text-sm text-gray-500 flex items-center gap-2">
+					<p
+						class="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2"
+					>
 						<svg
 							class="w-4 h-4"
 							fill="none"
@@ -29,19 +31,20 @@
 						</svg>
 						<span
 							>Année universitaire
-							<span class="font-semibold text-indigo-600">{{
-								anneeScolaireActive?.nom || currentYear
-							}}</span></span
+							<span
+								class="font-semibold text-indigo-600 dark:text-indigo-400"
+								>{{ anneeScolaireActive?.nom || currentYear }}</span
+							></span
 						>
 					</p>
 				</div>
 
 				<!-- Badge période -->
 				<div
-					class="flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-gray-200/50"
+					class="flex items-center gap-2 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-gray-200/50 dark:border-gray-700/50"
 				>
 					<span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-					<span class="text-sm font-medium text-gray-600"
+					<span class="text-sm font-medium text-gray-600 dark:text-gray-300"
 						>Mise à jour en temps réel</span
 					>
 				</div>
@@ -51,22 +54,24 @@
 		<!-- Statistiques principales avec design moderne -->
 		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
 			<div
-				class="group bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 hover:border-indigo-200"
+				class="group bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-700 hover:border-indigo-200 dark:hover:border-indigo-700"
 			>
 				<div class="flex items-start justify-between">
 					<div>
-						<p class="text-sm font-medium text-gray-500">Étudiants</p>
+						<p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+							Étudiants
+						</p>
 						<p
-							class="text-3xl font-bold text-gray-800 mt-2 group-hover:text-indigo-600 transition-colors"
+							class="text-3xl font-bold text-gray-800 dark:text-white mt-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors"
 						>
 							{{ stats.students }}
 						</p>
 					</div>
 					<div
-						class="p-3 bg-indigo-50 rounded-lg group-hover:bg-indigo-100 transition-colors"
+						class="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50 transition-colors"
 					>
 						<svg
-							class="w-6 h-6 text-indigo-600"
+							class="w-6 h-6 text-indigo-600 dark:text-indigo-400"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -80,29 +85,35 @@
 						</svg>
 					</div>
 				</div>
-				<div class="mt-3 text-xs text-gray-400 flex items-center gap-1">
-					<span class="inline-block w-2 h-2 bg-indigo-400 rounded-full"></span>
+				<div
+					class="mt-3 text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1"
+				>
+					<span
+						class="inline-block w-2 h-2 bg-indigo-400 dark:bg-indigo-500 rounded-full"
+					></span>
 					<span>Total inscrits</span>
 				</div>
 			</div>
 
 			<div
-				class="group bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 hover:border-emerald-200"
+				class="group bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-700 hover:border-emerald-200 dark:hover:border-emerald-700"
 			>
 				<div class="flex items-start justify-between">
 					<div>
-						<p class="text-sm font-medium text-gray-500">Filières</p>
+						<p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+							Filières
+						</p>
 						<p
-							class="text-3xl font-bold text-gray-800 mt-2 group-hover:text-emerald-600 transition-colors"
+							class="text-3xl font-bold text-gray-800 dark:text-white mt-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors"
 						>
 							{{ stats.filieres }}
 						</p>
 					</div>
 					<div
-						class="p-3 bg-emerald-50 rounded-lg group-hover:bg-emerald-100 transition-colors"
+						class="p-3 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50 transition-colors"
 					>
 						<svg
-							class="w-6 h-6 text-emerald-600"
+							class="w-6 h-6 text-emerald-600 dark:text-emerald-400"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -116,29 +127,35 @@
 						</svg>
 					</div>
 				</div>
-				<div class="mt-3 text-xs text-gray-400 flex items-center gap-1">
-					<span class="inline-block w-2 h-2 bg-emerald-400 rounded-full"></span>
+				<div
+					class="mt-3 text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1"
+				>
+					<span
+						class="inline-block w-2 h-2 bg-emerald-400 dark:bg-emerald-500 rounded-full"
+					></span>
 					<span>Programmes actifs</span>
 				</div>
 			</div>
 
 			<div
-				class="group bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 hover:border-amber-200"
+				class="group bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-700 hover:border-amber-200 dark:hover:border-amber-700"
 			>
 				<div class="flex items-start justify-between">
 					<div>
-						<p class="text-sm font-medium text-gray-500">Salles utilisées</p>
+						<p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+							Salles utilisées
+						</p>
 						<p
-							class="text-3xl font-bold text-gray-800 mt-2 group-hover:text-amber-600 transition-colors"
+							class="text-3xl font-bold text-gray-800 dark:text-white mt-2 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors"
 						>
 							{{ stats.sallesUtilisees }}
 						</p>
 					</div>
 					<div
-						class="p-3 bg-amber-50 rounded-lg group-hover:bg-amber-100 transition-colors"
+						class="p-3 bg-amber-50 dark:bg-amber-900/30 rounded-lg group-hover:bg-amber-100 dark:group-hover:bg-amber-900/50 transition-colors"
 					>
 						<svg
-							class="w-6 h-6 text-amber-600"
+							class="w-6 h-6 text-amber-600 dark:text-amber-400"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -152,29 +169,35 @@
 						</svg>
 					</div>
 				</div>
-				<div class="mt-3 text-xs text-gray-400 flex items-center gap-1">
-					<span class="inline-block w-2 h-2 bg-amber-400 rounded-full"></span>
+				<div
+					class="mt-3 text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1"
+				>
+					<span
+						class="inline-block w-2 h-2 bg-amber-400 dark:bg-amber-500 rounded-full"
+					></span>
 					<span>En cours d'utilisation</span>
 				</div>
 			</div>
 
 			<div
-				class="group bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 hover:border-blue-200"
+				class="group bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-700"
 			>
 				<div class="flex items-start justify-between">
 					<div>
-						<p class="text-sm font-medium text-gray-500">Salles disponibles</p>
+						<p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+							Salles disponibles
+						</p>
 						<p
-							class="text-3xl font-bold text-gray-800 mt-2 group-hover:text-blue-600 transition-colors"
+							class="text-3xl font-bold text-gray-800 dark:text-white mt-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
 						>
 							{{ stats.sallesDispos }}
 						</p>
 					</div>
 					<div
-						class="p-3 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors"
+						class="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 transition-colors"
 					>
 						<svg
-							class="w-6 h-6 text-blue-600"
+							class="w-6 h-6 text-blue-600 dark:text-blue-400"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -188,8 +211,12 @@
 						</svg>
 					</div>
 				</div>
-				<div class="mt-3 text-xs text-gray-400 flex items-center gap-1">
-					<span class="inline-block w-2 h-2 bg-blue-400 rounded-full"></span>
+				<div
+					class="mt-3 text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1"
+				>
+					<span
+						class="inline-block w-2 h-2 bg-blue-400 dark:bg-blue-500 rounded-full"
+					></span>
 					<span>Libres pour réservation</span>
 				</div>
 			</div>
@@ -198,11 +225,13 @@
 		<!-- Répartition par Cycle et Graphique -->
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 			<!-- Carte Répartition par Cycle avec Pie Chart -->
-			<div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+			<div
+				class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700"
+			>
 				<div class="flex items-center gap-3 mb-6">
-					<div class="p-2 bg-indigo-50 rounded-lg">
+					<div class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
 						<svg
-							class="w-5 h-5 text-indigo-600"
+							class="w-5 h-5 text-indigo-600 dark:text-indigo-400"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -221,7 +250,7 @@
 							/>
 						</svg>
 					</div>
-					<h3 class="font-semibold text-gray-800 text-lg">
+					<h3 class="font-semibold text-gray-800 dark:text-white text-lg">
 						Répartition par Cycle
 					</h3>
 				</div>
@@ -263,29 +292,36 @@
 						/>
 						<div
 							v-else
-							class="w-full h-full flex items-center justify-center bg-gray-50 rounded-full"
+							class="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-full"
 						>
-							<p class="text-gray-400 text-sm">Aucune donnée</p>
+							<p class="text-gray-400 dark:text-gray-500 text-sm">
+								Aucune donnée
+							</p>
 						</div>
 					</div>
 
 					<!-- Légende et statistiques -->
 					<div class="flex-1 space-y-4">
 						<!-- Licence -->
-						<div class="bg-indigo-50/50 p-3 rounded-lg">
+						<div class="bg-indigo-50/50 dark:bg-indigo-900/20 p-3 rounded-lg">
 							<div class="flex justify-between items-center mb-1">
 								<div class="flex items-center gap-2">
 									<span class="w-3 h-3 bg-indigo-500 rounded-full"></span>
-									<span class="font-medium text-gray-700">Licence</span>
+									<span class="font-medium text-gray-700 dark:text-gray-300"
+										>Licence</span
+									>
 								</div>
-								<span class="text-sm font-semibold text-indigo-600"
+								<span
+									class="text-sm font-semibold text-indigo-600 dark:text-indigo-400"
 									>{{ licencePercent.toFixed(1) }}%</span
 								>
 							</div>
 							<div class="flex justify-between items-center text-sm">
-								<span class="text-gray-500">{{ stats.licence }} étudiants</span>
+								<span class="text-gray-500 dark:text-gray-400"
+									>{{ stats.licence }} étudiants</span
+								>
 								<span
-									class="text-xs px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full"
+									class="text-xs px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-full"
 								>
 									{{ ((stats.licence / totalStudents) * 100).toFixed(1) }}%
 								</span>
@@ -293,20 +329,25 @@
 						</div>
 
 						<!-- Master -->
-						<div class="bg-emerald-50/50 p-3 rounded-lg">
+						<div class="bg-emerald-50/50 dark:bg-emerald-900/20 p-3 rounded-lg">
 							<div class="flex justify-between items-center mb-1">
 								<div class="flex items-center gap-2">
 									<span class="w-3 h-3 bg-emerald-500 rounded-full"></span>
-									<span class="font-medium text-gray-700">Master</span>
+									<span class="font-medium text-gray-700 dark:text-gray-300"
+										>Master</span
+									>
 								</div>
-								<span class="text-sm font-semibold text-emerald-600"
+								<span
+									class="text-sm font-semibold text-emerald-600 dark:text-emerald-400"
 									>{{ masterPercent.toFixed(1) }}%</span
 								>
 							</div>
 							<div class="flex justify-between items-center text-sm">
-								<span class="text-gray-500">{{ stats.master }} étudiants</span>
+								<span class="text-gray-500 dark:text-gray-400"
+									>{{ stats.master }} étudiants</span
+								>
 								<span
-									class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full"
+									class="text-xs px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 rounded-full"
 								>
 									{{ ((stats.master / totalStudents) * 100).toFixed(1) }}%
 								</span>
@@ -314,14 +355,21 @@
 						</div>
 
 						<!-- Total -->
-						<div class="mt-4 pt-4 border-t border-gray-200">
+						<div
+							class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700"
+						>
 							<div class="flex justify-between items-center">
-								<span class="text-sm text-gray-500">Total</span>
+								<span class="text-sm text-gray-500 dark:text-gray-400"
+									>Total</span
+								>
 								<div class="text-right">
-									<span class="text-lg font-bold text-gray-800">{{
-										totalStudents
-									}}</span>
-									<span class="text-xs text-gray-500 ml-1">étudiants</span>
+									<span
+										class="text-lg font-bold text-gray-800 dark:text-white"
+										>{{ totalStudents }}</span
+									>
+									<span class="text-xs text-gray-500 dark:text-gray-400 ml-1"
+										>étudiants</span
+									>
 								</div>
 							</div>
 						</div>
@@ -330,11 +378,13 @@
 			</div>
 
 			<!-- Graphique : Nombre d'étudiants par année scolaire -->
-			<div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+			<div
+				class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700"
+			>
 				<div class="flex items-center gap-3 mb-6">
-					<div class="p-2 bg-purple-50 rounded-lg">
+					<div class="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
 						<svg
-							class="w-5 h-5 text-purple-600"
+							class="w-5 h-5 text-purple-600 dark:text-purple-400"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -347,7 +397,7 @@
 							/>
 						</svg>
 					</div>
-					<h3 class="font-semibold text-gray-800 text-lg">
+					<h3 class="font-semibold text-gray-800 dark:text-white text-lg">
 						Évolution des inscriptions
 					</h3>
 				</div>
@@ -397,7 +447,7 @@
 					<div v-else class="h-full flex items-center justify-center">
 						<div class="text-center">
 							<svg
-								class="w-12 h-12 text-gray-300 mx-auto mb-3"
+								class="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -409,7 +459,9 @@
 									d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
 								/>
 							</svg>
-							<p class="text-gray-400 text-sm">Aucune donnée disponible</p>
+							<p class="text-gray-400 dark:text-gray-500 text-sm">
+								Aucune donnée disponible
+							</p>
 						</div>
 					</div>
 				</div>
