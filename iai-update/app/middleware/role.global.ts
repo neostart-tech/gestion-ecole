@@ -66,7 +66,7 @@ export default defineNuxtRouteMiddleware((to) => {
 
   if (!hasAccess) {
     const {$toastr}=useNuxtApp()
-    $toastr.error(`Accès refusé pour ${to.fullPath} - redirection`);
+    $toastr.error(`Accès refusé car vous n'avez pas la permission d'accéder à cette page!`);
     // console.log(`Accès refusé pour ${to.path} - redirection`);
     
     // Rediriger vers la page appropriée selon le rôle

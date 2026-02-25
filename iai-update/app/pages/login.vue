@@ -137,7 +137,7 @@
                       <button
                         type="button"
                         @click="showPassword = !showPassword"
-                        class="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
                       >
                         <svg
                           v-if="!showPassword"

@@ -22,7 +22,14 @@ export const rolePermissions = {
     '/admin/liste-des-etudiants',
     '/annee-scolaire/*',
     '/personnel/*',
-    '/publications/*'
+    '/publications/*',
+    '/notifications/*',
+    'admin/*',
+    'année-scolaire/*',
+    'periodes/*',
+    'parcours/*',
+    'annonces/*',
+    'statistiques/*'
   ],
   
   'logiticien-academique': [
@@ -34,7 +41,8 @@ export const rolePermissions = {
     '/salles/*',
     '/groupes/*',
     '/admin/liste-des-etudiants',
-    '/evenements/*'
+    '/evenements/*',
+    '/notifications/*'
   ],
   
   'surveillant': [
@@ -44,14 +52,19 @@ export const rolePermissions = {
     '/presences/*',
     '/emploi-du-temps/*',
     '/groupes/*',
-    '/admin/liste-des-etudiants'
+    '/admin/liste-des-etudiants',
+    '/notifications/*'
   ],
   
   'professeur': [
     '/',
     '/profile/*',
     '/emploi-du-temps/*',
-    '/presences/*'
+    '/presences/*',
+    '/notifications/*',
+    '/annonces/*',
+    '/statistiques/*',
+    
   ],
   
   // Rôles financiers
@@ -62,7 +75,8 @@ export const rolePermissions = {
     '/finance/*',
     '/frais-de-scolarite/*',
     '/bourses/*',
-    '/personnel/*'
+    '/personnel/*',
+    '/notifications/*'
   ],
   
   // Rôles logistiques
@@ -71,7 +85,8 @@ export const rolePermissions = {
     '/profile/*',
     '/messages/*',
     '/salles/*',
-    '/evenements/*'
+    '/evenements/*',
+    '/notifications/*'
   ],
   
   // Rôles communication
@@ -82,7 +97,8 @@ export const rolePermissions = {
     '/reclamations/*',
     '/presences/*',
     '/publications/*',
-    '/emploi-du-temps/*'
+    '/emploi-du-temps/*',
+    '/notifications/*'
   ],
   
   'responsable-marketing': [
@@ -92,7 +108,8 @@ export const rolePermissions = {
     '/publications/*',
     '/evenements/*',
     '/partenaires/*',
-    '/opportunites/*'
+    '/opportunites/*',
+    '/notifications/*'
   ],
   
   // Rôles techniques
@@ -102,7 +119,8 @@ export const rolePermissions = {
     '/reclamations/*',
     '/presences/*',
     '/personnel/*',
-    '/logs'
+    '/logs',
+    '/notifications/*'
   ],
   
   // Étudiants
@@ -111,21 +129,24 @@ export const rolePermissions = {
     '/profile/*',
     '/etudiant/*',
     '/emploi-du-temps/*',
-    '/messages/*'
+    '/messages/*',
+    '/notifications/*'
   ],
   
   // Utilisateur simple
   'utilisateur-de-la-plateforme': [
     '/',
     '/profile/*',
-    '/messages/*'
+    '/messages/*',
+    '/notifications/*'
   ],
   
   'stagiaire-academie': [
     '/',
     '/profile/*',
     '/messages/*',
-    '/presences/*'
+    '/presences/*',
+    '/notifications/*'
   ]
 };
 
@@ -134,12 +155,14 @@ export const publicRoutes = [
   '/login',
   '/register',
   '/forgot-password',
-  '/reset-password'
+  '/reset-password',
+  '/notifications/*'
 ];
 
 // Routes interdites pour les utilisateurs connectés (comme login)
 export const authRoutes = [
   '/login',
   '/register',
-  '/forgot-password'
+  '/forgot-password',
+  '/notifications/*'
 ];

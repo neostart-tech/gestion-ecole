@@ -6,6 +6,10 @@
     class="fixed inset-0 z-30 bg-black bg-opacity-50 lg:hidden backdrop-blur-sm"
   ></div>
 
+
+<!-- Le délégué et le sous délégué peuvent enregistrer la liste des présences-->
+
+
   <!-- Sidebar -->
   <aside
     :class="[
@@ -336,6 +340,7 @@
                   'surveillant',
                   'directeur-academique',
                   'informaticien',
+                  'logiticien-academique'
                 ])
               "
             >
@@ -387,7 +392,7 @@
                   'informaticien',
                 ])
               "
-            >
+            > 
               <NuxtLink
                 to="/presences/liste-des-presences"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
