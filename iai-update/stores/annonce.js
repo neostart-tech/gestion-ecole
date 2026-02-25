@@ -1,3 +1,4 @@
+// stores/annonce.js
 import { defineStore } from "pinia";
 import axios from "axios";
 
@@ -13,10 +14,20 @@ export const useAnnonceStore = defineStore("annonce", {
   actions: {
     authHeaders() {
       const token = localStorage.getItem("gest-ecole-token");
-
       return {
         headers: {
           Authorization: token ? `Bearer ${token}` : "",
+        },
+      };
+    },
+
+    // Headers pour l'upload de fichiers
+    multipartHeaders() {
+      const token = localStorage.getItem("gest-ecole-token");
+      return {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+          "Content-Type": "multipart/form-data",
         },
       };
     },
@@ -26,7 +37,7 @@ export const useAnnonceStore = defineStore("annonce", {
       try {
         const response = await axios.get(
           "/opportunites/liste",
-          this.authHeaders(),
+          this.authHeaders()
         );
         this.annonces = response.data.data;
       } catch (error) {
@@ -39,9 +50,9 @@ export const useAnnonceStore = defineStore("annonce", {
       this.isLoading = true;
       try {
         const response = await axios.post(
-          "/opportunites/ajouter ",
+          "/opportunites/ajouter",
           payload,
-          this.authHeaders(),
+          this.authHeaders()
         );
         this.annonces = response.data.data;
       } catch (error) {
@@ -49,12 +60,13 @@ export const useAnnonceStore = defineStore("annonce", {
       }
       this.isLoading = false;
     },
+
     async deleteAnnonce(announcement) {
       this.isLoading = true;
       try {
         const response = await axios.delete(
           `/opportunites/${announcement}/supprimer`,
-          this.authHeaders(),
+          this.authHeaders()
         );
         this.annonces = response.data.data;
       } catch (error) {
@@ -69,7 +81,7 @@ export const useAnnonceStore = defineStore("annonce", {
         const response = await axios.post(
           `/opportunites/${announcement}/mettre-a-jour`,
           payload,
-          this.authHeaders(),
+          this.authHeaders()
         );
         this.annonces = response.data.data;
       } catch (error) {
@@ -78,12 +90,12 @@ export const useAnnonceStore = defineStore("annonce", {
       this.isLoading = false;
     },
 
-     async PublierAnnonce(announcement) {
+    async PublierAnnonce(announcement) {
       this.isLoading = true;
       try {
         const response = await axios.get(
           `/opportunites/${announcement}/publier`,
-          this.authHeaders(),
+          this.authHeaders()
         );
         this.annonces = response.data.data;
       } catch (error) {
@@ -96,8 +108,8 @@ export const useAnnonceStore = defineStore("annonce", {
       this.isLoading = true;
       try {
         const response = await axios.get(
-          "/espace-etudiant/annonces/liste",
-          this.authHeaders(),
+          "/etudiant/annonces/liste",
+          this.authHeaders()
         );
         this.mesannonces = response.data.data;
       } catch (error) {
@@ -105,12 +117,13 @@ export const useAnnonceStore = defineStore("annonce", {
       }
       this.isLoading = false;
     },
+
     async fetchMesDepots() {
       this.isLoading = true;
       try {
         const response = await axios.get(
-          "/espace-etudiant/annonces/mes-depots",
-          this.authHeaders(),
+          "/etudiant/annonces/mes-depots",
+          this.authHeaders()
         );
         this.mesdepots = response.data.data;
       } catch (error) {
@@ -118,36 +131,46 @@ export const useAnnonceStore = defineStore("annonce", {
       }
       this.isLoading = false;
     },
+
     async fetchAnnonceDetail(announcement) {
       this.isLoading = true;
       try {
         const response = await axios.get(
-          `/espace-etudiant/annonces/${announcement}/details`,
-          this.authHeaders(),
+          `/etudiant/annonces/${announcement}/details`,
+          this.authHeaders()
         );
         this.annonce = response.data.data;
       } catch (error) {
         console.error(
           "Erreur lors du chargement des détails de l'annonce:",
-          error,
+          error
         );
       }
       this.isLoading = false;
     },
 
-    async postulerAnnonce(announcement) {
+    // MODIFICATION ICI : Pour l'envoi de fichiers
+    async postulerAnnonce(announcement, formData) {
       this.isLoading = true;
       try {
         const response = await axios.post(
-          `/espace-etudiant/annonces/${announcement}/postuler-a-une-offre`,
-          null,
-          this.authHeaders(),
+          `/etudiant/annonces/${announcement}/postuler-a-une-offre`,
+          formData,
+          this.multipartHeaders() // Utilisation des headers multipart
         );
-        this.annonces = response.data.data;
+        
+        // Mise à jour des données si nécessaire
+        if (response.data.data) {
+          // Traiter la réponse
+        }
+        
+        return response.data;
       } catch (error) {
         console.error("Erreur lors de la postulation à l'annonce:", error);
+        throw error; // Important pour la gestion d'erreur dans le composant
+      } finally {
+        this.isLoading = false;
       }
-      this.isLoading = false;
     },
   },
 });
