@@ -7,6 +7,10 @@ export const useFiliereStore = defineStore("filiere", {
     isLoading: false,
   }),
 
+   getters: {
+    nombreFiliere: (state) => state.filieres.length,
+  },
+
   actions: {
     authHeaders() {
       const token = localStorage.getItem("gest-ecole-token");

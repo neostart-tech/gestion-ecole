@@ -203,6 +203,7 @@
                 </svg>
               </button>
 
+
               <NuxtLink
                 class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
                 :to="`/personnel/${data.value.slug}/modifier-un-utilisateur`"
@@ -218,6 +219,26 @@
                     d="M4 20h4l10-10-4-4L4 16v4z"
                     stroke-width="2"
                     stroke-linejoin="round"
+                  />
+                </svg>
+              </NuxtLink>
+
+              <NuxtLink
+                :to="`/personnel/${data.value.slug}/emploi-du-temps`"
+                class="p-2 rounded-lg text-purple-600 hover:bg-purple-100 dark:text-purple-400 dark:hover:bg-purple-900/30 transition-colors duration-200"
+                title="Voir dans le calendrier"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.8"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
                 </svg>
               </NuxtLink>

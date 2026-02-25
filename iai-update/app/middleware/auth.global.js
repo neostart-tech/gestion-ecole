@@ -1,15 +1,23 @@
-import  { useLoginStore } from '~~/stores/login'
+import { useLoginStore } from "~~/stores/login";
+import { publicRoutes, authRoutes } from "~~/configuration/permissions";
 
 export default defineNuxtRouteMiddleware((to) => {
   if (process.server) return;
 
-  const authStore = useLoginStore()
+  const authStore = useLoginStore();
+  const isAuthenticated = authStore.isAuthenticated();
 
-  if (!authStore.isAuthenticated() && to.path !== '/login') {
-    return navigateTo('/login')
+  // Routes publiques - toujours accessibles
+  if (publicRoutes.includes(to.path)) {
+    // Si l'utilisateur est connecté et essaie d'aller sur login, rediriger
+    if (isAuthenticated && authRoutes.includes(to.path)) {
+      return navigateTo('/');
+    }
+    return;
   }
 
-  if (authStore.isAuthenticated() && to.path === '/login') {
-    return navigateTo('/')
+  // Routes protégées - nécessitent authentification
+  if (!isAuthenticated) {
+    return navigateTo('/login');
   }
-})
+});

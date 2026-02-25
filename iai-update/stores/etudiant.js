@@ -6,9 +6,16 @@ export const useEtudiantStore = defineStore("etudiant", {
     etudiants: [],
     isLoading: false,
     mesevaluations: [],
+    etudiantsnonBoursier:[],
     mesfichiers: [],
+    etudiant: null,
     mesNotes: [],
+    etudiantsDuGroupe: [],
   }),
+
+  getters: {
+    nombreEtudiant: (state) => state.etudiants.length,
+  },
 
   actions: {
     authHeaders() {
@@ -20,6 +27,67 @@ export const useEtudiantStore = defineStore("etudiant", {
         },
       };
     },
+
+    async fetchEtudiants() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          "/etudiants/liste",
+          this.authHeaders(),
+        );
+        this.etudiants = response.data.data;
+      } catch (error) {
+        console.error("Erreur lors du chargement des étudiants:", error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+      async fetchEtudiantsNonBoursier() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          "/etudiants/get-etudiant-non-boursier",
+          this.authHeaders(),
+        );
+        this.etudiantsnonBoursier = response.data.data;
+      } catch (error) {
+        console.error("Erreur lors du chargement des étudiants:", error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async fetchGroupEtudiants(id) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          `/groups/${id}/liste-des-etudiants`,
+          this.authHeaders(),
+        );
+
+        this.etudiants = response.data.data;
+      } catch (error) {
+        console.error("Erreur chargement des étudiants du groupe:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async fetchEtudiant(etudiant) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          `/etudiants/${etudiant}`,
+          this.authHeaders(),
+        );
+        this.etudiant = response.data.data;
+      } catch (error) {
+        console.error("Erreur lors du chargement de l'étudiant:", error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+ 
     async importEtudiants(payload) {
       this.isLoading = true;
       try {

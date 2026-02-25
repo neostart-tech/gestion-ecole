@@ -6,11 +6,16 @@ export const useUserStore = defineStore("user", {
     users: [],
     enseignants: [],
     surveillants: [],
+    programmes:[],
     surveillant: null,
     enseignant: null,
     user: null,
     isLoading: false,
   }),
+
+  getters: {
+    nombreEnseignant: (state) => state.enseignants.length,
+  },
 
   actions: {
     authHeaders() {
@@ -49,6 +54,22 @@ export const useUserStore = defineStore("user", {
         this.enseignants = response.data.data;
       } catch (error) {
         console.error("Erreur chargement des surveillants:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+     async userDisplayCalendar(user) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          `/users/${user}/emploi-du-temps`,
+          this.authHeaders(),
+        );
+
+        this.programmes = response.data.data;
+      } catch (error) {
+        console.error("Erreur chargement du programme de la salle:", error);
         throw error;
       } finally {
         this.isLoading = false;

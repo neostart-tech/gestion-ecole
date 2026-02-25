@@ -1445,7 +1445,7 @@ const checkAvailability = async () => {
 
   try {
     const response = await salleStore.checkAvailability({
-      salle: slug.value,
+      salle: form.value.salle,
       date: formattedDate,
       debut: form.value.debut,
       fin: form.value.fin,
@@ -1496,6 +1496,8 @@ const openCreateModal = () => {
 // Ouvrir modal d'édition depuis le calendrier
 const openEditModal = (event: any) => {
   selectedEvent.value = event;
+
+  console.log(selectedEvent.value)
   const extendedProps = event.extendedProps || {};
 
   const uvValue = findItemValue(
@@ -1508,9 +1510,17 @@ const openEditModal = (event: any) => {
     extendedProps.group_id || extendedProps.grade_slug,
     ["id", "slug", "nom"],
   );
+
+ 
   const teacherValue = findItemValue(
     userStore.enseignants,
     extendedProps.teacher_id || extendedProps.teacher_slug,
+    ["id", "slug", "nom"],
+  );
+
+   const salleValue = findItemValue(
+    salleStore.salles,
+    extendedProps.salle || extendedProps.salle_slug || extendedProps.salle_id,
     ["id", "slug", "nom"],
   );
 
@@ -1523,6 +1533,7 @@ const openEditModal = (event: any) => {
     uv_id: uvValue,
     type: extendedProps.type || "",
     grade: gradeValue,
+    salle:salleValue,
     teacher: teacherValue,
     details: extendedProps.details || "",
     recurrence_type: extendedProps.recurrence_type || "aucune",

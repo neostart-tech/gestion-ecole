@@ -351,7 +351,7 @@ import {
   TransitionRoot,
 } from "@headlessui/vue";
 
-import { useCalendarStore } from "../../stores/calendar";
+import { useCalendarStore } from "~~/stores/calendar";
 
 const calendarStore = useCalendarStore();
 const calendarRef = ref();
