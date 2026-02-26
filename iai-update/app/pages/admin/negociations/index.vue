@@ -1,16 +1,31 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 lg:p-8 transition-colors">
-    <!-- Breadcrumb personnalisé -->
-    <Breadcrumb
-      :items="[
-        { label: 'Tableau de bord', to: '/admin/dashboard' },
-        { label: 'Frais scolaires', to: '/admin/negociations' },
-        { label: 'Gestion des frais', to: null }
-      ]"
-      title="Gestion des frais étudiants"
-      title-class="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
-      spacing="mb-6"
-    />
+    <!-- En-tête avec Breadcrumb et bouton -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+      <!-- Breadcrumb -->
+      <Breadcrumb
+        :items="[
+          { label: 'Tableau de bord', to: '/admin/dashboard' },
+          { label: 'Frais scolaires', to: '/admin/negociations' },
+          { label: 'Gestion des frais', to: null }
+        ]"
+        title="Gestion des frais étudiants"
+        title-class="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
+        spacing="mb-0"
+      />
+
+      <!-- Bouton pour créer un échéancier -->
+      <NuxtLink
+        to="/admin/negociations/creer-une-negociation"
+        class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+        <span class="hidden sm:inline">Nouvel échéancier</span>
+        <span class="sm:hidden">Nouveau</span>
+      </NuxtLink>
+    </div>
 
     <!-- Cartes de statistiques -->
     <div v-if="!isPageLoading" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
