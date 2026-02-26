@@ -1,5 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 transition-colors">
+  <div
+    class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 transition-colors"
+  >
     <!-- Breadcrumb -->
     <Breadcrumb
       :items="[
@@ -12,7 +14,9 @@
     />
 
     <!-- Toolbar -->
-    <div class="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between mb-5">
+    <div
+      class="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between mb-5"
+    >
       <!-- Recherche -->
       <input
         v-model="searchQuery"
@@ -203,7 +207,6 @@
                 </svg>
               </button>
 
-
               <NuxtLink
                 class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
                 :to="`/personnel/${data.value.slug}/modifier-un-utilisateur`"
@@ -249,18 +252,7 @@
                 @click="confirmDelete(data.value)"
                 title="Supprimer"
               >
-                <svg
-                  class="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M3 6h18M8 6v14m8-14v14M5 6l1 14a2 2 0 002 2h8a2 2 0 002-2l1-14"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                  />
-                </svg>
+                <ButtonDelete />
               </button>
             </div>
           </template>
@@ -285,8 +277,18 @@
             class="text-gray-500 hover:text-red-600 dark:hover:text-red-400 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             @click="showEditModal = false"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -294,17 +296,34 @@
         <form @submit.prevent="submitUpdate" class="space-y-5">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nom *</label>
-              <input v-model="editForm.nom" class="input w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Nom *</label
+              >
+              <input
+                v-model="editForm.nom"
+                class="input w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              />
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Prénoms *</label>
-              <input v-model="editForm.prenom" class="input w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Prénoms *</label
+              >
+              <input
+                v-model="editForm.prenom"
+                class="input w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              />
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email *</label>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Email *</label
+              >
               <input
                 type="email"
                 v-model="editForm.email"
@@ -314,21 +333,41 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Téléphone *</label>
-              <input v-model="editForm.tel" class="input w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Téléphone *</label
+              >
+              <input
+                v-model="editForm.tel"
+                class="input w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              />
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Genre *</label>
-              <select v-model="editForm.genre" class="input w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Genre *</label
+              >
+              <select
+                v-model="editForm.genre"
+                class="input w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              >
                 <option value="Masculin">Masculin</option>
                 <option value="Féminin">Féminin</option>
               </select>
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type surveillant</label>
-              <select v-model="editForm.supervisor_type" class="input w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Type surveillant</label
+              >
+              <select
+                v-model="editForm.supervisor_type"
+                class="input w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
                 <option value="non_surveillant">Non surveillant</option>
                 <option value="interne">Interne</option>
                 <option value="externe">Externe</option>
@@ -359,7 +398,11 @@
     <!-- VIEW USER DETAILS MODAL (Headless UI) -->
     <!-- USER DETAILS MODAL (SIMPLE) -->
     <TransitionRoot appear :show="showViewModal" as="template">
-      <Dialog as="div" class="relative z-50" @close="() => (showViewModal = false)">
+      <Dialog
+        as="div"
+        class="relative z-50"
+        @close="() => (showViewModal = false)"
+      >
         <TransitionChild
           as="template"
           enter="ease-out duration-300"
@@ -383,80 +426,192 @@
               leave-from="opacity-100 scale-100"
               leave-to="opacity-0 scale-95"
             >
-              <DialogPanel class="w-full max-w-2xl transform overflow-hidden rounded-xl bg-white dark:bg-gray-800 shadow-2xl transition-all">
+              <DialogPanel
+                class="w-full max-w-2xl transform overflow-hidden rounded-xl bg-white dark:bg-gray-800 shadow-2xl transition-all"
+              >
                 <!-- Header avec couleur personnalisée -->
-                <div class="px-6 py-6 flex items-center justify-between" style="background-color: #4F39F6;">
+                <div
+                  class="px-6 py-6 flex items-center justify-between"
+                  style="background-color: #4f39f6"
+                >
                   <div class="flex items-center gap-4">
                     <!-- Avatar -->
-                    <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
-                      <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                    <div
+                      class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0"
+                    >
+                      <svg
+                        class="w-6 h-6 text-white"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path
+                          d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                        />
                       </svg>
                     </div>
                     <!-- Info utilisateur -->
                     <div>
-                      <h2 class="text-xl font-bold text-white">{{ selectedUser.nom }} {{ selectedUser.prenom }}</h2>
-                      <p class="text-slate-200 text-sm">{{ selectedUser.email }}</p>
+                      <h2 class="text-xl font-bold text-white">
+                        {{ selectedUser.nom }} {{ selectedUser.prenom }}
+                      </h2>
+                      <p class="text-slate-200 text-sm">
+                        {{ selectedUser.email }}
+                      </p>
                     </div>
                   </div>
-                  <button @click="showViewModal = false" class="text-white hover:text-slate-200 transition-colors p-1 rounded-lg hover:bg-white/10">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  <button
+                    @click="showViewModal = false"
+                    class="text-white hover:text-slate-200 transition-colors p-1 rounded-lg hover:bg-white/10"
+                  >
+                    <svg
+                      class="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
                   </button>
                 </div>
 
                 <!-- Content -->
-                <div class="overflow-y-auto p-6" style="max-height: calc(90vh - 180px)">
+                <div
+                  class="overflow-y-auto p-6"
+                  style="max-height: calc(90vh - 180px)"
+                >
                   <!-- Infos générales -->
                   <div class="mb-6">
-                    <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-4">Informations personnelles</h3>
+                    <h3
+                      class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-4"
+                    >
+                      Informations personnelles
+                    </h3>
                     <div class="grid grid-cols-2 gap-4">
-                      <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50">
-                        <p class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Téléphone</p>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ selectedUser.tel || '—' }}</p>
+                      <div
+                        class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50"
+                      >
+                        <p
+                          class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1"
+                        >
+                          Téléphone
+                        </p>
+                        <p
+                          class="text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          {{ selectedUser.tel || "—" }}
+                        </p>
                       </div>
-                      <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50">
-                        <p class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Genre</p>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ selectedUser.genre || '—' }}</p>
+                      <div
+                        class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50"
+                      >
+                        <p
+                          class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1"
+                        >
+                          Genre
+                        </p>
+                        <p
+                          class="text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          {{ selectedUser.genre || "—" }}
+                        </p>
                       </div>
-                      <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50">
-                        <p class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Matricule</p>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ selectedUser.matricule || '—' }}</p>
+                      <div
+                        class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50"
+                      >
+                        <p
+                          class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1"
+                        >
+                          Matricule
+                        </p>
+                        <p
+                          class="text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          {{ selectedUser.matricule || "—" }}
+                        </p>
                       </div>
-                      <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50">
-                        <p class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Type surveillant</p>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white capitalize">{{ selectedUser.supervisor_type_value || '—' }}</p>
+                      <div
+                        class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50"
+                      >
+                        <p
+                          class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1"
+                        >
+                          Type surveillant
+                        </p>
+                        <p
+                          class="text-sm font-medium text-gray-900 dark:text-white capitalize"
+                        >
+                          {{ selectedUser.supervisor_type_value || "—" }}
+                        </p>
                       </div>
                     </div>
                   </div>
 
                   <!-- Biographie -->
                   <div v-if="selectedUser.biographie" class="mb-6">
-                    <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3">Biographie</h3>
-                    <div class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50 text-sm prose dark:prose-invert prose-sm max-w-none" v-html="selectedUser.biographie"></div>
+                    <h3
+                      class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3"
+                    >
+                      Biographie
+                    </h3>
+                    <div
+                      class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50 text-sm prose dark:prose-invert prose-sm max-w-none"
+                      v-html="selectedUser.biographie"
+                    ></div>
                   </div>
 
                   <!-- Rôles -->
                   <div>
-                    <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3">Rôles</h3>
-                    <div v-if="selectedUser.roles && selectedUser.roles.length > 0" class="space-y-2">
-                      <div v-for="role in selectedUser.roles" :key="role.id" class="bg-slate-50 dark:bg-slate-700/30 rounded-lg px-4 py-3 border border-slate-200 dark:border-slate-600/50 flex items-center gap-2">
-                        <svg class="w-4 h-4 text-slate-600 dark:text-slate-400 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
+                    <h3
+                      class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3"
+                    >
+                      Rôles
+                    </h3>
+                    <div
+                      v-if="selectedUser.roles && selectedUser.roles.length > 0"
+                      class="space-y-2"
+                    >
+                      <div
+                        v-for="role in selectedUser.roles"
+                        :key="role.id"
+                        class="bg-slate-50 dark:bg-slate-700/30 rounded-lg px-4 py-3 border border-slate-200 dark:border-slate-600/50 flex items-center gap-2"
+                      >
+                        <svg
+                          class="w-4 h-4 text-slate-600 dark:text-slate-400 flex-shrink-0"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path
+                            d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"
+                          />
                         </svg>
-                        <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ role.nom }}</span>
+                        <span
+                          class="text-sm font-semibold text-gray-900 dark:text-white"
+                          >{{ role.nom }}</span
+                        >
                       </div>
                     </div>
-                    <div v-else class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 text-sm text-gray-600 dark:text-gray-400 text-center border border-gray-200 dark:border-gray-600/50">
+                    <div
+                      v-else
+                      class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 text-sm text-gray-600 dark:text-gray-400 text-center border border-gray-200 dark:border-gray-600/50"
+                    >
                       Aucun rôle assigné
                     </div>
                   </div>
                 </div>
 
                 <!-- Footer -->
-                <div class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 flex justify-end gap-3">
-                  <button @click="showViewModal = false" class="px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <div
+                  class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 flex justify-end gap-3"
+                >
+                  <button
+                    @click="showViewModal = false"
+                    class="px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
                     Fermer
                   </button>
                 </div>
@@ -527,7 +682,9 @@
                 <!-- Contenu de la modale -->
                 <div class="space-y-4">
                   <!-- Sélection des rôles -->
-                  <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-4">
+                  <div
+                    class="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-4"
+                  >
                     <div class="flex items-center gap-3 mb-3">
                       <div
                         class="p-2 bg-indigo-100 dark:bg-indigo-800/30 rounded-lg"
@@ -553,13 +710,17 @@
                         <p
                           class="text-sm text-gray-600 dark:text-gray-400 mt-1"
                         >
-                          Sélectionnez les rôles à attribuer aux utilisateurs importés
+                          Sélectionnez les rôles à attribuer aux utilisateurs
+                          importés
                         </p>
                       </div>
                     </div>
-                    
+
                     <!-- Liste des rôles disponibles -->
-                    <div v-if="availableRoles.length > 0" class="ml-11 space-y-2 max-h-40 overflow-y-auto pr-2">
+                    <div
+                      v-if="availableRoles.length > 0"
+                      class="ml-11 space-y-2 max-h-40 overflow-y-auto pr-2"
+                    >
                       <div
                         v-for="role in availableRoles"
                         :key="role.id"
@@ -581,7 +742,9 @@
                       </div>
                     </div>
                     <div v-else class="ml-11">
-                      <p class="text-sm text-gray-500 dark:text-gray-400 italic">
+                      <p
+                        class="text-sm text-gray-500 dark:text-gray-400 italic"
+                      >
                         Aucun rôle disponible
                       </p>
                     </div>
@@ -613,8 +776,8 @@
                         <p
                           class="text-sm text-gray-600 dark:text-gray-400 mt-1"
                         >
-                          Le fichier doit être au format Excel (.xlsx) avec les colonnes : 
-                          Nom, Prénom, Email, Genre, Téléphone
+                          Le fichier doit être au format Excel (.xlsx) avec les
+                          colonnes : Nom, Prénom, Email, Genre, Téléphone
                         </p>
                       </div>
                     </div>
@@ -803,7 +966,9 @@
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       />
                     </svg>
-                    <span>{{ importLoading ? 'Importation...' : 'Importer' }}</span>
+                    <span>{{
+                      importLoading ? "Importation..." : "Importer"
+                    }}</span>
                   </button>
                 </div>
               </DialogPanel>
@@ -830,10 +995,11 @@ import {
   TransitionRoot,
   TransitionChild,
 } from "@headlessui/vue";
+import ButtonDelete from "~/components/ui/buttonDelete.vue";
 
 // Stores et utilitaires
 const userStore = useUserStore();
-const roleStore=useRoleStore();
+const roleStore = useRoleStore();
 const { $toastr } = useNuxtApp();
 
 // Références pour l'import/export
@@ -882,14 +1048,16 @@ const rolesOptions = computed(() =>
   availableRoles.value.map((r) => ({
     label: r.nom,
     value: r.id,
-  }))
+  })),
 );
 
 // Rows de la table
 const rows = computed(() => {
   // Filter by selected role if any
   const filtered = roleFilter.value
-    ? userStore.enseignants.filter((u) => (u.roles || []).some((r) => String(r.id) === String(roleFilter.value)))
+    ? userStore.enseignants.filter((u) =>
+        (u.roles || []).some((r) => String(r.id) === String(roleFilter.value)),
+      )
     : userStore.enseignants;
 
   return filtered.map((u, i) => ({
@@ -902,7 +1070,7 @@ const rows = computed(() => {
     genre: u.genre || "--",
     tel: u.tel || "--",
     supervisor_type: u.supervisor_type ?? "—",
-    supervisor_type_value:u.supervisor_type_value ?? "--",
+    supervisor_type_value: u.supervisor_type_value ?? "--",
     action: u.id, // Pour le template d'actions
   }));
 });
@@ -923,11 +1091,11 @@ const openImportModal = async () => {
     selectedRoles.value = [];
     selectedFile.value = null;
     importError.value = "";
-    
+
     // Charger les rôles disponibles
-     await roleStore.fetchRoles();
+    await roleStore.fetchRoles();
     availableRoles.value = roleStore.roles || [];
-    
+
     showImportModal.value = true;
   } catch (error) {
     console.error("Erreur chargement rôles:", error);
@@ -980,7 +1148,9 @@ const validateAndSetFile = (file) => {
 
   // Vérifier l'extension
   const validExtensions = [".xlsx", ".xls"];
-  const extension = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
+  const extension = file.name
+    .substring(file.name.lastIndexOf("."))
+    .toLowerCase();
 
   if (validExtensions.includes(extension)) {
     selectedFile.value = file;
@@ -1011,28 +1181,30 @@ const processImport = async () => {
   try {
     const formData = new FormData();
     formData.append("file", selectedFile.value);
-    
+
     // Ajouter les rôles sélectionnés si existants
     if (selectedRoles.value.length > 0) {
-      selectedRoles.value.forEach(roleId => {
+      selectedRoles.value.forEach((roleId) => {
         formData.append("roles[]", roleId);
       });
     }
 
     // Appeler l'API d'importation via le store
     await userStore.importUsers(formData);
-    
-    $toastr.success("Importation en cours... Les utilisateurs seront ajoutés sous peu.");
-    
+
+    $toastr.success(
+      "Importation en cours... Les utilisateurs seront ajoutés sous peu.",
+    );
+
     // Rafraîchir la liste après un délai
     setTimeout(async () => {
       await userStore.fetchUsers();
     }, 2000);
-    
+
     closeImportModal();
   } catch (error) {
     console.error("Erreur importation:", error);
-    
+
     if (error.data?.message) {
       importError.value = error.data.message;
     } else if (error.data?.errors) {
@@ -1043,7 +1215,8 @@ const processImport = async () => {
       });
       importError.value = errorMessages.join(". ");
     } else {
-      importError.value = "Erreur lors de l'importation. Vérifiez le format du fichier.";
+      importError.value =
+        "Erreur lors de l'importation. Vérifiez le format du fichier.";
     }
 
     $toastr.error(importError.value || "Erreur lors de l'importation");
@@ -1064,30 +1237,30 @@ const processExport = async () => {
 
     // Appeler l'API d'exportation via le store
     const blob = await userStore.exportUsers(filters);
-    
+
     // Créer un lien de téléchargement
     const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    
+
     // Nom du fichier
-    const date = new Date().toISOString().split('T')[0];
+    const date = new Date().toISOString().split("T")[0];
     const filename = `utilisateurs_administration_${date}.xlsx`;
-    
+
     link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     // Libérer l'URL
     window.URL.revokeObjectURL(url);
-    
+
     $toastr.success("Exportation terminée !");
   } catch (error) {
     console.error("Erreur lors de l'exportation:", error);
-    
+
     let errorMessage = "Erreur lors de l'exportation.";
-    
+
     if (error.statusCode === 404) {
       errorMessage = "Aucun utilisateur à exporter.";
     } else if (error.data?.message) {
@@ -1095,7 +1268,7 @@ const processExport = async () => {
     } else if (error.statusCode === 500) {
       errorMessage = "Erreur serveur lors de l'exportation.";
     }
-    
+
     $toastr.error(errorMessage);
   } finally {
     exportLoading.value = false;
@@ -1123,8 +1296,8 @@ const openViewModal = (user) => {
 };
 
 const confirmDelete = async (user) => {
-  const { $swal,$toastr } = useNuxtApp();
-  console.log(user)
+  const { $swal, $toastr } = useNuxtApp();
+  console.log(user);
   const result = await $swal.fire({
     title: "Supprimer ?",
     text: `Voulez-vous supprimer ${user.nom} ${user.prenom} ?`,
@@ -1139,7 +1312,7 @@ const confirmDelete = async (user) => {
   if (result.isConfirmed) {
     try {
       await userStore.deleteUser(user.slug);
-      
+
       // $swal.fire({
       //   icon: "success",
       //   title: "Supprimé",
@@ -1149,10 +1322,13 @@ const confirmDelete = async (user) => {
       // });
       // Rafraîchir la liste
       await userStore.fetchUsers();
-       $toastr.success("Utilisateur supprimé avec succès");
+      $toastr.success("Utilisateur supprimé avec succès");
     } catch (error) {
       console.error("Erreur suppression:", error);
-      $toastr.error(error?.response?.data?.message || "Impossible de supprimer l'utilisateur");
+      $toastr.error(
+        error?.response?.data?.message ||
+          "Impossible de supprimer l'utilisateur",
+      );
       // $swal.fire({
       //   icon: "error",
       //   title: "Erreur",
@@ -1165,10 +1341,10 @@ const confirmDelete = async (user) => {
 const submitUpdate = async () => {
   try {
     await userStore.updateUser(editForm.value.id, editForm.value);
-    
+
     // Fermer la modale et rafraîchir
     showEditModal.value = false;
-    
+
     const { $swal } = useNuxtApp();
     $swal.fire({
       icon: "success",
@@ -1177,12 +1353,12 @@ const submitUpdate = async () => {
       timer: 1500,
       showConfirmButton: false,
     });
-    
+
     // Rafraîchir la liste
     await userStore.fetchUsersEnseignant();
   } catch (error) {
     console.error("Erreur modification:", error);
-    
+
     const { $swal } = useNuxtApp();
     $swal.fire({
       icon: "error",
@@ -1198,10 +1374,10 @@ onMounted(async () => {
     loading.value = true;
     // Load roles list for filter
     try {
-     await roleStore.fetchRoles();
+      await roleStore.fetchRoles();
       availableRoles.value = roleStore.roles || [];
     } catch (err) {
-      console.warn('Impossible de charger les rôles:', err);
+      console.warn("Impossible de charger les rôles:", err);
     }
 
     await userStore.fetchUsersEnseignant();
@@ -1213,4 +1389,3 @@ onMounted(async () => {
   }
 });
 </script>
-

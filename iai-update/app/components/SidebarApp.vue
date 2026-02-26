@@ -48,6 +48,59 @@
 							/>
 						</svg>
 					</div>
+  <!-- Overlay mobile -->
+  <div
+    v-if="themeStore.isMobileSidebarOpen"
+    @click="closeMobileSidebar"
+    class="fixed inset-0 z-30 bg-black bg-opacity-50 lg:hidden backdrop-blur-sm"
+  ></div>
+
+
+<!-- Le délégué et le sous délégué peuvent enregistrer la liste des présences-->
+
+
+  <!-- Sidebar -->
+  <aside
+    :class="[
+      'fixed top-0 left-0 z-40 h-screen transition-all duration-300 bg-white dark:bg-gray-900 shadow-xl',
+      themeStore.isSidebarOpen ? 'w-80' : 'w-20',
+      themeStore.isMobileSidebarOpen
+        ? 'translate-x-0'
+        : '-translate-x-full lg:translate-x-0',
+    ]"
+  >
+    <!-- Zone Logo avec toggle -->
+    <div
+      class="h-20 flex items-center justify-between px-4 border-b border-gray-100 dark:border-gray-800"
+      :class="{ 'justify-center': !themeStore.isSidebarOpen }"
+    >
+      <div v-if="themeStore.isSidebarOpen" class="w-full">
+        <div
+          v-if="appLogo"
+          class="w-full h-16 flex items-center justify-center"
+        >
+          <img
+            :src="appLogo"
+            alt="Logo établissement"
+            class="max-h-16 object-contain"
+          />
+        </div>
+
+        <div v-else class="flex items-center space-x-3">
+          <!-- Logo SVG -->
+          <div
+            class="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-md"
+          >
+            <svg
+              class="w-6 h-6 text-white"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z"
+              />
+            </svg>
+          </div>
 
 					<!-- Texte -->
 					<div>
@@ -151,7 +204,7 @@
 							Mon espace
 						</h2>
 					</div>
-
+          
 					<ul class="space-y-1">
 						<li v-if="hasAnyRole(['etudiant'])">
 							<NuxtLink
@@ -275,6 +328,98 @@
 								>
 							</NuxtLink>
 						</li>
+
+          <ul class="space-y-1">
+            <li v-if="hasAnyRole(['etudiant'])">
+              <NuxtLink
+                to="/emploi-du-temps"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/emploi-du-temps'
+                    ? 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 text-amber-700 dark:text-amber-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/emploi-du-temps'
+                      ? 'bg-amber-100 dark:bg-amber-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fill-rule="evenodd"
+                      d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <span
+                  v-if="themeStore.isSidebarOpen"
+                  class="ml-3 font-medium flex-1"
+                  >Emploi du temps</span
+                >
+                <div
+                  v-if="
+                    themeStore.isSidebarOpen &&
+                    $route.path === '/emploi-du-temps'
+                  "
+                  class="w-1.5 h-1.5 bg-amber-600 rounded-full"
+                ></div>
+              </NuxtLink>
+            </li>
+            <!-- Dashboard - carte active -->
+            <li
+              v-if="
+                hasAnyRole([
+                  'directeur-general-adjoint',
+                  'directeur-general',
+                  'responsable-du-site',
+                  'responsable-marketing',
+                  'directeur-academique',
+                ])
+              "
+            >
+              <NuxtLink
+                to="/"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/'
+                    ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/'
+                      ? 'bg-blue-100 dark:bg-blue-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"
+                    />
+                  </svg>
+                </div>
+                <span
+                  v-if="themeStore.isSidebarOpen"
+                  class="ml-3 font-medium flex-1"
+                >
+                  Tableau de bord
+                </span>
+                <div
+                  v-if="themeStore.isSidebarOpen && $route.path === '/'"
+                  class="w-1.5 h-1.5 bg-blue-600 rounded-full"
+                ></div>
+              </NuxtLink>
+            </li>
+
 
 						<!-- Messages avec badge animé -->
 						<li
@@ -891,6 +1036,691 @@
 								</ul>
 							</vue-collapsible>
 						</li>
+            
+            <!-- Réclamations -->
+            <li
+              v-if="
+                hasAnyRole([
+                  'charge-de-la-clientele',
+                  'surveillant',
+                  'directeur-academique',
+                  'informaticien',
+                  'logiticien-academique'
+                ])
+              "
+            >
+              <NuxtLink
+                to="/reclamations"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/reclamations'
+                    ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/reclamations'
+                      ? 'bg-blue-100 dark:bg-blue-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fill-rule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                  >Réclamations</span
+                >
+
+                <span
+                  v-if="reclamationStore.reclamationsEnAttenteCount > 0"
+                  class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full"
+                >
+                  {{ reclamationStore.reclamationsEnAttenteCount }}
+                </span>
+              </NuxtLink>
+            </li>
+            <li
+              v-if="
+                hasAnyRole([
+                  'charge-de-la-clientele',
+                  'surveillant',
+                  'enseignant',
+                  'directeur-academique',
+                  'informaticien',
+                ])
+              "
+            > 
+              <NuxtLink
+                to="/presences/liste-des-presences"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/presences/liste-des-presences'
+                    ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/presences/liste-des-presences'
+                      ? 'bg-blue-100 dark:bg-blue-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fill-rule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                  >Présences</span
+                >
+
+                <span
+                  v-if="reclamationStore.reclamationsEnAttenteCount > 0"
+                  class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full"
+                >
+                  {{ reclamationStore.reclamationsEnAttenteCount }}
+                </span>
+              </NuxtLink>
+            </li>
+            <li v-if="hasAnyRole(['etudiant'])">
+              <NuxtLink
+                to="/etudiant/annonces"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/etudiant/annonces'
+                    ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/etudiant/annonces'
+                      ? 'bg-blue-100 dark:bg-blue-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                    <path
+                      fill-rule="evenodd"
+                      d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                  >Annonces</span
+                >
+              </NuxtLink>
+            </li>
+            <!-- Mes paiements -->
+            <!-- <li v-if="hasAnyRole(['etudiant'])">
+              <NuxtLink
+                to="/etudiant/mes-paiements"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/etudiant/mes-paiements'
+                    ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/etudiant/mes-paiements'
+                      ? 'bg-blue-100 dark:bg-blue-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                    <path
+                      fill-rule="evenodd"
+                      d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                  >Mes paiements</span
+                >
+              </NuxtLink>
+            </li> -->
+            <li v-if="hasAnyRole(['etudiant'])">
+              <NuxtLink
+                to="/etudiant/mes-notes"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/etudiant/mes-notes'
+                    ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/etudiant/mes-paiements'
+                      ? 'bg-blue-100 dark:bg-blue-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                    <path
+                      fill-rule="evenodd"
+                      d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                  >Mes notes</span
+                >
+              </NuxtLink>
+            </li>
+          </ul>
+        </section>
+
+        <!-- SECTION ADMINISTRATION ACADÉMIQUE -->
+        <section v-if="showAdminAcademiqueSection" class="mb-6">
+          <div class="flex items-center px-2 mb-2">
+            <div class="w-1 h-5 bg-amber-500 rounded-full"></div>
+            <h2
+              v-if="themeStore.isSidebarOpen"
+              class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400"
+            >
+              Administration académique
+            </h2>
+          </div>
+
+          <ul class="space-y-1">
+            <!-- Emploi du temps -->
+            <li
+              v-if="
+                hasAnyRole([
+                  'directeur-academique',
+                  'logiticien-academique',
+                  'surveillant',
+                  'professeur',
+                  'charge-de-la-clientele',
+                  'responsable-marketing',
+                ])
+              "
+            >
+              <NuxtLink
+                to="/emploi-du-temps"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/emploi-du-temps'
+                    ? 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 text-amber-700 dark:text-amber-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/emploi-du-temps'
+                      ? 'bg-amber-100 dark:bg-amber-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fill-rule="evenodd"
+                      d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <span
+                  v-if="themeStore.isSidebarOpen"
+                  class="ml-3 font-medium flex-1"
+                  >Emploi du temps</span
+                >
+                <div
+                  v-if="
+                    themeStore.isSidebarOpen &&
+                    $route.path === '/emploi-du-temps'
+                  "
+                  class="w-1.5 h-1.5 bg-amber-600 rounded-full"
+                ></div>
+              </NuxtLink>
+            </li>
+            <li
+              v-if="
+                hasAnyRole([
+                  'directeur-academique',
+                  'logiticien-academique',
+                  'surveillant',
+                  'professeur',
+                  'charge-de-la-clientele',
+                  'responsable-marketing',
+                ])
+              "
+            >
+              <NuxtLink
+                to="/emploi-du-temps/exporter"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/emploi-du-temps/exporter'
+                    ? 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 text-amber-700 dark:text-amber-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/emploi-du-temps/exporter'
+                      ? 'bg-amber-100 dark:bg-amber-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fill-rule="evenodd"
+                      d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <span
+                  v-if="themeStore.isSidebarOpen"
+                  class="ml-3 font-medium flex-1"
+                  >Exporter emploi du temps</span
+                >
+                <div
+                  v-if="
+                    themeStore.isSidebarOpen &&
+                    $route.path === '/emploi-du-temps/exporter'
+                  "
+                  class="w-1.5 h-1.5 bg-amber-600 rounded-full"
+                ></div>
+              </NuxtLink>
+            </li>
+
+            <!-- Présences à valider avec badge -->
+            <!-- <li
+              v-if="
+                hasAnyRole([
+                  'directeur-academique',
+                  'logiticien-academique',
+                  'surveillant',
+                ])
+              "
+            >
+              <NuxtLink
+                to="/presences-validation"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/presences-validation'
+                    ? 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 text-amber-700 dark:text-amber-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/presences-validation'
+                      ? 'bg-amber-100 dark:bg-amber-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                    />
+                    <path
+                      fill-rule="evenodd"
+                      d="M5 11h10v2H5v-2z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <span
+                  v-if="themeStore.isSidebarOpen"
+                  class="ml-3 font-medium flex items-center justify-between flex-1"
+                >
+                  Présences à valider
+                  <span
+                    class="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full"
+                  >
+                    3
+                  </span>
+                </span>
+              </NuxtLink>
+            </li> -->
+
+            <!-- Années scolaires -->
+
+            <!-- Filières & Parcours (Dropdown) -->
+            <li
+              class="space-y-1"
+              v-if="
+                hasAnyRole([
+                  'directeur-academique',
+                  'directeur-general-adjoint',
+                ])
+              "
+            >
+              <button
+                type="button"
+                class="flex items-center justify-between w-full px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  activeDropdown === 'filieres'
+                    ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleDropdown('filieres')"
+              >
+                <div class="flex items-center">
+                  <div
+                    :class="[
+                      'p-1 rounded-lg',
+                      activeDropdown === 'filieres'
+                        ? 'bg-amber-100 dark:bg-amber-900/30'
+                        : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                    ]"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"
+                      />
+                    </svg>
+                  </div>
+                  <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                    >Filières & Parcours</span
+                  >
+                </div>
+                <svg
+                  v-if="themeStore.isSidebarOpen"
+                  class="w-4 h-4 transition-transform duration-200"
+                  :class="{ 'rotate-180': activeDropdown === 'filieres' }"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+
+              <vue-collapsible :isOpen="activeDropdown === 'filieres'">
+                <ul class="pl-11 space-y-1 mt-1">
+                  <li>
+                    <NuxtLink
+                      to="/filieres/liste"
+                      class="block px-3 py-2 text-sm rounded-lg transition-colors"
+                      :class="[
+                        $route.path === '/filieres/liste'
+                          ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-medium'
+                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
+                      ]"
+                      @click="toggleMobileMenu"
+                    >
+                      Liste des filières
+                    </NuxtLink>
+                  </li>
+                  <!-- Les autres liens commentés restent inchangés -->
+                </ul>
+              </vue-collapsible>
+            </li>
+
+            <!-- Matières & Évaluations (Dropdown) -->
+            <li
+              class="space-y-1"
+              v-if="
+                hasAnyRole([
+                  'directeur-academique',
+                  'directeur-general-adjoint',
+                ])
+              "
+            >
+              <button
+                type="button"
+                class="flex items-center justify-between w-full px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  activeDropdown === 'matieres'
+                    ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleDropdown('matieres')"
+              >
+                <div class="flex items-center">
+                  <div
+                    :class="[
+                      'p-1 rounded-lg',
+                      activeDropdown === 'matieres'
+                        ? 'bg-amber-100 dark:bg-amber-900/30'
+                        : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                    ]"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"
+                      />
+                    </svg>
+                  </div>
+                  <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                    >Matières & Évaluations</span
+                  >
+                </div>
+                <svg
+                  v-if="themeStore.isSidebarOpen"
+                  class="w-4 h-4 transition-transform duration-200"
+                  :class="{ 'rotate-180': activeDropdown === 'matieres' }"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+
+              <vue-collapsible :isOpen="activeDropdown === 'matieres'">
+                <ul class="pl-11 space-y-1 mt-1">
+                  <li>
+                    <NuxtLink
+                      to="/ues/liste"
+                      class="block px-3 py-2 text-sm rounded-lg transition-colors"
+                      :class="[
+                        $route.path === '/ues/liste'
+                          ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-medium'
+                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
+                      ]"
+                      @click="toggleMobileMenu"
+                    >
+                      Liste des unités d'enseignement
+                    </NuxtLink>
+                  </li>
+                  <li>
+                    <NuxtLink
+                      to="/uvs/liste"
+                      class="block px-3 py-2 text-sm rounded-lg transition-colors"
+                      :class="[
+                        $route.path === '/uvs/liste'
+                          ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-medium'
+                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
+                      ]"
+                      @click="toggleMobileMenu"
+                    >
+                      Liste des matières
+                    </NuxtLink>
+                  </li>
+                  <li>
+                    <NuxtLink
+                      to="/evaluations/liste"
+                      class="block px-3 py-2 text-sm rounded-lg transition-colors"
+                      :class="[
+                        $route.path === '/evaluations/liste'
+                          ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-medium'
+                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
+                      ]"
+                      @click="toggleMobileMenu"
+                    >
+                      Liste des évaluations
+                    </NuxtLink>
+                  </li>
+                </ul>
+              </vue-collapsible>
+            </li>
+
+            <!-- Gestion des salles -->
+            <li
+              v-if="
+                hasAnyRole([
+                  'directeur-academique',
+                  'logiticien-academique',
+                  'responsable-des-achats-et-de-la-logistique',
+                ])
+              "
+            >
+              <NuxtLink
+                to="/salles"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/salles'
+                    ? 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 text-amber-700 dark:text-amber-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/salles'
+                      ? 'bg-amber-100 dark:bg-amber-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
+                    />
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                  >Gestion des salles</span
+                >
+              </NuxtLink>
+            </li>
+
+            <!-- Gestion des groupes -->
+            <li
+              v-if="
+                hasAnyRole([
+                  'directeur-academique',
+                  'surveillant',
+                  'logiticien-academique',
+                ])
+              "
+            >
+              <NuxtLink
+                to="/groupes"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/groupes'
+                    ? 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 text-amber-700 dark:text-amber-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/groupes'
+                      ? 'bg-amber-100 dark:bg-amber-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"
+                    />
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                  >Gestion des groupes</span
+                >
+              </NuxtLink>
+            </li>
+            <li
+              v-if="
+                hasAnyRole([
+                  'directeur-academique',
+                  'surveillant',
+                  'logiticien-academique',
+                ])
+              "
+            >
+              <NuxtLink
+                to="/admin/liste-des-etudiants"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/admin/liste-des-etudiants'
+                    ? 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 text-amber-700 dark:text-amber-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/admin/liste-des-etudiants'
+                      ? 'bg-amber-100 dark:bg-amber-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"
+                    />
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                  >Liste des etudiants</span
+                >
+              </NuxtLink>
+            </li>
+          </ul>
+        </section>
 
 						<!-- Gestion des salles -->
 						<li

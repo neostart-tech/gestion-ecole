@@ -19,7 +19,6 @@
     >
       <!-- Recherche avec icône -->
 
-
       <div class="relative w-full lg:w-64">
         <input
           v-model="searchQuery"
@@ -62,7 +61,6 @@
       </div>
 
       <!-- Filtre par statut -->
- 
 
       <div class="flex flex-col sm:flex-row gap-3">
         <!-- Sélecteur de colonnes -->
@@ -183,7 +181,6 @@
           }"
         >
           <!-- Image avec tooltip -->
-       
 
           <!-- Titre avec design amélioré -->
           <template #nom="data">
@@ -240,10 +237,6 @@
             </div>
           </template>
 
-       
-        
-
-      
           <template #action="data">
             <div class="flex justify-center gap-1">
               <!-- View -->
@@ -300,19 +293,7 @@
                 @click="confirmDelete(data.value)"
                 title="Supprimer"
               >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1.5"
-                    d="M3 6h18M8 6v14m8-14v14M5 6l1 14a2 2 0 002 2h8a2 2 0 002-2l1-14"
-                  />
-                </svg>
+                <ButtonDelete />
               </button>
             </div>
           </template>
@@ -376,12 +357,13 @@ import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
 import Breadcrumb from "~/components/Breadcrumb.vue";
 import Dropdown from "primevue/dropdown";
-import {useEvenementStore} from "~~/stores/evenement"
+import { useEvenementStore } from "~~/stores/evenement";
 
 import { useBlogStore } from "~~/stores/blog";
+import ButtonDelete from "~/components/ui/buttonDelete.vue";
 
 const blogStore = useBlogStore();
-const evenementStore=useEvenementStore();
+const evenementStore = useEvenementStore();
 const { $toastr } = useNuxtApp();
 
 // Références
@@ -400,7 +382,7 @@ const columns = ref([
     sortable: true,
     visible: true,
   },
-   {
+  {
     field: "date_fin_detail",
     title: "Date fin",
     sortable: true,
@@ -420,19 +402,14 @@ const filteredRows = computed(() => {
     details: event.details || "Admin",
     date_debut_detail: event.date_debut_detail,
     date_fin_detail: event.date_fin_detail,
- 
   }));
-
 
   return rows;
 });
 
-
-
 const clearSearch = () => {
   searchQuery.value = "";
 };
-
 
 const confirmDelete = async (event) => {
   const { $swal } = useNuxtApp();
@@ -475,7 +452,6 @@ const formatDate = (dateString) => {
     year: "numeric",
   });
 };
-
 
 const getInitials = (name) => {
   if (!name) return "A";

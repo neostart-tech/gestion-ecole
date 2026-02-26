@@ -144,7 +144,6 @@
                 <span
                   class="ml-3 text-sm font-medium text-green-700 dark:text-green-300"
                 >
-                  
                 </span>
               </div>
 
@@ -162,12 +161,11 @@
                 <span
                   class="ml-3 text-sm font-medium text-red-700 dark:text-red-300"
                 >
-                  
                 </span>
               </div>
             </div>
           </template>
-11
+          11
           <!-- Actions -->
           <template #action="data">
             <div class="flex justify-center gap-3">
@@ -222,18 +220,7 @@
                 @click="confirmDelete(data.value)"
                 title="Supprimer"
               >
-                <svg
-                  class="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M3 6h18M8 6v14m8-14v14M5 6l1 14a2 2 0 002 2h8a2 2 0 002-2l1-14"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                  />
-                </svg>
+                <ButtonDelete />
               </button>
             </div>
           </template>
@@ -717,12 +704,20 @@
                       <span
                         :class="[
                           'text-xs font-semibold px-2 py-1 rounded',
-                          selectedAnnonce.status === 'Publié' || selectedAnnonce.published === 1 || selectedAnnonce.published === true
+                          selectedAnnonce.status === 'Publié' ||
+                          selectedAnnonce.published === 1 ||
+                          selectedAnnonce.published === true
                             ? 'bg-green-100 text-green-800'
                             : 'bg-yellow-100 text-yellow-800',
                         ]"
                       >
-                        {{ selectedAnnonce.status === 'Publié' || selectedAnnonce.published === 1 || selectedAnnonce.published === true ? 'Publié' : 'Brouillon' }}
+                        {{
+                          selectedAnnonce.status === "Publié" ||
+                          selectedAnnonce.published === 1 ||
+                          selectedAnnonce.published === true
+                            ? "Publié"
+                            : "Brouillon"
+                        }}
                       </span>
                     </div>
                   </div>
@@ -855,6 +850,7 @@ import {
   TransitionRoot,
   TransitionChild,
 } from "@headlessui/vue";
+import ButtonDelete from "~/components/ui/buttonDelete.vue";
 
 const annonceStore = useAnnonceStore();
 const advertiserStore = useAdvertiserStore();
@@ -940,7 +936,8 @@ const rows = computed(() => {
   return filtered.map((a, i) => ({
     ...a,
     index: i + 1,
-    title: a.title?.slice(0, 30) + "..." || a.titre?.slice(0, 30) + "..." || "--",
+    title:
+      a.title?.slice(0, 30) + "..." || a.titre?.slice(0, 30) + "..." || "--",
     title_detail: a.title || a.titre || "--",
     advertiser: a.advertiser?.nom || "--",
     advertiser_id: a.advertiser?.slug || null,
@@ -1021,7 +1018,7 @@ const onTypeContratChange = () => {
 
 const togglePublish = async (annonceData) => {
   const { $swal } = useNuxtApp();
-  
+
   const result = await $swal.fire({
     title: "Publier l'opportunité ?",
     text: `Voulez-vous publier "${annonceData.title_detail || annonceData.title}" ? Cette action est irréversible.`,

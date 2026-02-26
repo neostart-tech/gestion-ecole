@@ -4,7 +4,8 @@ import axios from "axios";
 export const useBourseStore = defineStore("bourse", {
   state: () => ({
     bourses: [],
-    boursesetudiants: [],
+    boursesetudiants: [], // Étudiants d'une bourse spécifique
+    boursesParEtudiant: [], // ✅ NOUVEAU : Bourses d'un étudiant spécifique
     bourseDetail: null,
     isLoading: false,
     error: null,
@@ -16,6 +17,21 @@ export const useBourseStore = defineStore("bourse", {
     listeEtudiantsBoursiers: (state) => state.boursesetudiants,
     
     nombreEtudiantsBoursiers: (state) => state.boursesetudiants.length,
+    
+    // ✅ NOUVEAU : Getter pour les bourses formatées d'un étudiant
+    boursesEtudiantFormatted: (state) => {
+      return state.boursesParEtudiant.map(b => ({
+        ...b,
+        display_name: b.bourse?.nom || b.nom,
+        valeur_formatted: b.type === 'pourcentage' 
+          ? `${b.valeur}%` 
+          : new Intl.NumberFormat('fr-FR', { 
+              style: 'currency', 
+              currency: 'XOF',
+              minimumFractionDigits: 0 
+            }).format(b.valeur)
+      }))
+    },
   },
 
   actions: {
@@ -42,6 +58,54 @@ export const useBourseStore = defineStore("bourse", {
       } catch (error) {
         this.error = error.response?.data?.message || "Erreur lors du chargement des bourses";
         console.error("Erreur lors du chargement des bourses:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    // ✅ NOUVELLE MÉTHODE : Récupérer les bourses d'un étudiant spécifique
+    async fetchBoursesByEtudiant(etudiantId) {
+      this.isLoading = true;
+      this.error = null;
+      try {
+        // Utilisation de la route /bourse/{etudiant}/etudiant
+        const response = await axios.get(
+          `/bourse/${etudiantId}/etudiant`,
+          this.authHeaders()
+        );
+        
+        // Stocker dans boursesParEtudiant
+        this.boursesParEtudiant = response.data.data || response.data;
+        
+        return this.boursesParEtudiant;
+      } catch (error) {
+        this.error = error.response?.data?.message || "Erreur lors du chargement des bourses de l'étudiant";
+        console.error("Erreur lors du chargement des bourses de l'étudiant:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    // ✅ NOUVELLE MÉTHODE : Version avec pagination/filtres
+    async fetchBoursesByEtudiantWithParams(etudiantId, params = {}) {
+      this.isLoading = true;
+      this.error = null;
+      try {
+        const response = await axios.get(
+          `/bourse/${etudiantId}/etudiant`,
+          {
+            ...this.authHeaders(),
+            params: params // Pour pagination, année scolaire, etc.
+          }
+        );
+        
+        this.boursesParEtudiant = response.data.data || response.data;
+        return this.boursesParEtudiant;
+      } catch (error) {
+        this.error = error.response?.data?.message || "Erreur lors du chargement des bourses de l'étudiant";
+        console.error("Erreur:", error);
         throw error;
       } finally {
         this.isLoading = false;
@@ -120,6 +184,11 @@ export const useBourseStore = defineStore("bourse", {
         
         await this.fetchBourses();
         
+        // Si l'étudiant concerné est celui dont on a chargé les bourses, rafraîchir
+        if (payload.etudiant_id && this.boursesParEtudiant.length > 0) {
+          // Optionnel : rafraîchir la liste des bourses de l'étudiant
+          // await this.fetchBoursesByEtudiant(payload.etudiant_id);
+        }
         
         return response.data;
       } catch (error) {
@@ -142,7 +211,12 @@ export const useBourseStore = defineStore("bourse", {
         );
         
         await this.fetchBourses();
-      
+        
+        // Si l'étudiant concerné est celui dont on a chargé les bourses, rafraîchir
+        if (payload.etudiant_id && this.boursesParEtudiant.length > 0) {
+          // Optionnel : rafraîchir la liste des bourses de l'étudiant
+          // await this.fetchBoursesByEtudiant(payload.etudiant_id);
+        }
         
         return response.data;
       } catch (error) {
@@ -195,7 +269,6 @@ export const useBourseStore = defineStore("bourse", {
           this.bourseDetail = null;
         }
         
-        // Si on était sur les étudiants de cette bourse, vider la liste
         this.boursesetudiants = [];
         
         return response.data;
@@ -208,9 +281,15 @@ export const useBourseStore = defineStore("bourse", {
       }
     },
 
+    // ✅ NOUVELLE MÉTHODE : Vider le cache des bourses d'un étudiant
+    clearBoursesEtudiant() {
+      this.boursesParEtudiant = [];
+    },
+
     resetState() {
       this.bourses = [];
       this.boursesetudiants = [];
+      this.boursesParEtudiant = []; // ✅ Ajouté
       this.bourseDetail = null;
       this.isLoading = false;
       this.error = null;
