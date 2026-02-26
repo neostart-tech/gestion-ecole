@@ -178,18 +178,7 @@
                 @click="deleteItem(value)"
                 class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
               >
-                <svg
-                  class="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M3 6h18M8 6v14m8-14v14M5 6l1 14a2 2 0 002 2h8a2 2 0 002-2l1-14"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                  />
-                </svg>
+                <ButtonDelete />
               </button>
             </div>
           </template>
@@ -418,6 +407,7 @@ import {
 } from "@headlessui/vue";
 import Breadcrumb from "~/components/Breadcrumb.vue";
 import { useSalleStore } from "~~/stores/salle";
+import ButtonDelete from "~/components/ui/buttonDelete.vue";
 
 const { $toastr, $swal } = useNuxtApp();
 const salleStore = useSalleStore();
@@ -513,8 +503,6 @@ const deleteItem = async (p) => {
     $toastr.success("Salle supprimée avec succes");
   }
 };
-
-
 
 onMounted(async () => {
   await salleStore.fetchSalles();

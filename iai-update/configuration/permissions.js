@@ -4,6 +4,8 @@ export const rolePermissions = {
   'responsable-du-site': ['*'], // Accès à tout
   'admin': ['*'], // Accès à tout
   'directeur-general-adjoint': ['*'], // Accès à tout
+    'directeur-general': ['*'], // Accès à tout
+
   
   // Rôles académiques
   'directeur-academique': [

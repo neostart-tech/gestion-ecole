@@ -203,6 +203,7 @@
               v-if="
                 hasAnyRole([
                   'directeur-general-adjoint',
+                  'directeur-general',
                   'responsable-du-site',
                   'responsable-marketing',
                   'directeur-academique',

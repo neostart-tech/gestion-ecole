@@ -113,7 +113,7 @@
             <div class="flex justify-center gap-3">
               <!-- Edit -->
               <NuxtLink
-               :to="`/ues/ue-${value.slug}`"
+                :to="`/ues/ue-${value.slug}`"
                 class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
               >
                 <svg
@@ -135,25 +135,13 @@
                 @click="deleteItem(value)"
                 class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
               >
-                <svg
-                  class="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M3 6h18M8 6v14m8-14v14M5 6l1 14a2 2 0 002 2h8a2 2 0 002-2l1-14"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                  />
-                </svg>
+                <ButtonDelete/>
               </button>
             </div>
           </template>
         </Vue3Datatable>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -165,9 +153,10 @@ import "@bhplugin/vue3-datatable/dist/style.css";
 import Breadcrumb from "~/components/Breadcrumb.vue";
 import { useUeStore } from "../../../stores/unite-enseignement";
 import { useRouter } from "vue-router";
+import ButtonDelete from "~/components/ui/buttonDelete.vue";
 
 const { $toastr, $swal } = useNuxtApp();
-const router=useRouter()
+const router = useRouter();
 const ueStore = useUeStore();
 
 const searchQuery = ref("");
@@ -189,7 +178,7 @@ const visibleColumns = computed(() => columns.value.filter((c) => c.visible));
 
 const rows = computed(() =>
   ueStore.ues.map((ue) => ({
-    id:ue.id,
+    id: ue.id,
     slug: ue.slug,
     nom: ue.nom,
     code: ue.code,
@@ -210,25 +199,23 @@ const deleteItem = async (ue) => {
   });
 
   if (res.isConfirmed) {
-    try{
+    try {
       await ueStore.deleteUe(ue.slug);
-    await ueStore.fetchUe();
-    $toastr.success("Unité d'enseignement supprimée avec succes");
-    }catch(error){
-      $toastr.error(error?.response?.data?.message)
+      await ueStore.fetchUe();
+      $toastr.success("Unité d'enseignement supprimée avec succes");
+    } catch (error) {
+      $toastr.error(error?.response?.data?.message);
     }
   }
 };
 
-const openAddModal=()=>{
-navigateTo('/ues/ajouter')
-}
+const openAddModal = () => {
+  navigateTo("/ues/ajouter");
+};
 
-const openEditModal=(ue)=>{
-router.push(`ues/ue-${ue.id}`)
-}
-
-
+const openEditModal = (ue) => {
+  router.push(`ues/ue-${ue.id}`);
+};
 
 onMounted(async () => {
   await ueStore.fetchUe();

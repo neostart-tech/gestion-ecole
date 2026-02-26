@@ -73,7 +73,7 @@
 
         <!-- Ajouter -->
         <NuxtLink
-        to="/evaluations/ajouter-une-evaluation"
+          to="/evaluations/ajouter-une-evaluation"
           class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
         >
           <svg
@@ -262,18 +262,7 @@
                 class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
                 title="Supprimer"
               >
-                <svg
-                  class="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M3 6h18M8 6v14m8-14v14M5 6l1 14a2 2 0 002 2h8a2 2 0 002-2l1-14"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                  />
-                </svg>
+                <ButtonDelete />
               </button>
             </div>
           </template>
@@ -922,13 +911,13 @@ import Breadcrumb from "~/components/Breadcrumb.vue";
 
 import { useEvaluationStore } from "~~/stores/evaluations";
 import { useUserStore } from "~~/stores/user";
-
+import ButtonDelete from "~/components/ui/buttonDelete.vue";
 
 const { $toastr, $swal } = useNuxtApp();
 
 const userStore = useUserStore();
 const evaluationStore = useEvaluationStore();
-const router=useRouter();
+const router = useRouter();
 const searchQuery = ref("");
 const loading = ref(true);
 const showModal = ref(false);
@@ -963,7 +952,6 @@ const form = ref({
   is_online: false,
   published: false,
 });
-
 
 const columns = ref([
   { field: "type", title: "Type", visible: true },
@@ -1059,7 +1047,6 @@ const togglePublish = async (evaluation) => {
   }
 };
 
-
 const surveillantsOptions = computed(() => {
   return userStore.enseignants.map((e) => ({
     label: `${e.nom} ${e.prenom} (${e.supervisor_type || "Non défini"})`,
@@ -1067,46 +1054,35 @@ const surveillantsOptions = computed(() => {
   }));
 });
 
-
-
 const openDetailModal = (evaluation) => {
   selectedEvent.value = evaluation;
   showDetailModal.value = true;
 };
 
-const openEditModal= async(evaluation)=>{
-  try{
-  await evaluationStore.checkEvaluation(evaluation.slug);
-  navigateTo(`/evaluations/${evaluation.slug}/modifier-une-evaluation`)
-  }catch(error){
+const openEditModal = async (evaluation) => {
+  try {
+    await evaluationStore.checkEvaluation(evaluation.slug);
+    navigateTo(`/evaluations/${evaluation.slug}/modifier-une-evaluation`);
+  } catch (error) {
     console.error("Erreur lors de l'ouverture du modal d'ajout:", error);
     $toastr.error(error.response?.data?.message || "Une erreur est survenue");
   }
-
-}
+};
 
 const closeDetailModal = () => {
   showDetailModal.value = false;
   selectedEvent.value = null;
 };
 
-
-
-
-
 const calculateDuration = () => {
   if (form.value.debut && form.value.fin) {
-    const [startH, startM] = form.value.debut.split(':').map(Number);
-    const [endH, endM] = form.value.fin.split(':').map(Number);
+    const [startH, startM] = form.value.debut.split(":").map(Number);
+    const [endH, endM] = form.value.fin.split(":").map(Number);
     const startMinutes = startH * 60 + startM;
     const endMinutes = endH * 60 + endM;
     form.value.duration_minutes = Math.max(0, endMinutes - startMinutes);
   }
 };
-
-
-
-
 
 // Méthodes pour formater les dates et heures
 const formatDate = (dateString) => {
@@ -1150,8 +1126,6 @@ const deleteItem = async (evaluation) => {
     }
   }
 };
-
-
 
 watch([() => form.value.debut, () => form.value.fin], () => {
   calculateDuration();
