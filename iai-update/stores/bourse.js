@@ -4,8 +4,8 @@ import axios from "axios";
 export const useBourseStore = defineStore("bourse", {
   state: () => ({
     bourses: [],
-    boursesetudiants: [], // Étudiants d'une bourse spécifique
-    boursesParEtudiant: [], // ✅ NOUVEAU : Bourses d'un étudiant spécifique
+    boursesetudiants: [], 
+    boursesParEtudiant: [], 
     bourseDetail: null,
     isLoading: false,
     error: null,
@@ -18,7 +18,6 @@ export const useBourseStore = defineStore("bourse", {
     
     nombreEtudiantsBoursiers: (state) => state.boursesetudiants.length,
     
-    // ✅ NOUVEAU : Getter pour les bourses formatées d'un étudiant
     boursesEtudiantFormatted: (state) => {
       return state.boursesParEtudiant.map(b => ({
         ...b,
@@ -64,7 +63,6 @@ export const useBourseStore = defineStore("bourse", {
       }
     },
 
-    // ✅ NOUVELLE MÉTHODE : Récupérer les bourses d'un étudiant spécifique
     async fetchBoursesByEtudiant(etudiantId) {
       this.isLoading = true;
       this.error = null;

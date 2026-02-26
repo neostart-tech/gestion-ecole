@@ -1814,7 +1814,7 @@ onMounted(async () => {
     fixSalleStore();
     await loadSelectData();
     showCalendar.value = true;
-    $toastr.succes('Donnée chargée avec succes')
+    $toastr.success('Donnée chargée avec succes')
   } catch (error) {
     console.error("Erreur lors du chargement:", error);
   }  finally {

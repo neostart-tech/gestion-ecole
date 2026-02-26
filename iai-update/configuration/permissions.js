@@ -156,7 +156,7 @@ export const rolePermissions = {
 export const publicRoutes = [
   '/login',
   '/register',
-  '/forgot-password',
+  '/mot-de-passe-oublie',
   '/reset-password',
   '/notifications/*'
 ];
@@ -165,6 +165,6 @@ export const publicRoutes = [
 export const authRoutes = [
   '/login',
   '/register',
-  '/forgot-password',
+  '/mot-de-passe-oublie',
   '/notifications/*'
 ];
