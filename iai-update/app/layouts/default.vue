@@ -3,6 +3,7 @@
 	<div
 		class="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100"
 	>
+		<AppLogo />
 		<SidebarApp />
 		<HeaderApp />
 		<SettingsPanel />
@@ -10,7 +11,7 @@
 		<!-- Main content -->
 		<main
 			:class="[
-				'pt-16 transition-all duration-300 mt-14',
+				'pt-16 transition-all duration-300 mt-10',
 				themeStore.isSidebarOpen ? 'lg:ml-80' : 'lg:ml-20',
 				'ml-0',
 			]"

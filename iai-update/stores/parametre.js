@@ -1,167 +1,178 @@
 import { defineStore } from "pinia";
 import axios from "axios";
+import config from "~~/config";
 
 export const useParametreStore = defineStore("parametre", {
-  state: () => ({
-    parametres: [],
-    isLoading: false,
-    error: null,
-    lastUpdated: null,
-  }),
+	state: () => ({
+		parametres: [],
+		isLoading: false,
+		error: null,
+		lastUpdated: null,
+		logoName: null,
+	}),
 
-  getters: {
-    parametresByKey: (state) => {
-      return state.parametres.reduce((acc, param) => {
-        // Garder la clé originale sans modification
-        acc[param.key] = param;
-        return acc;
-      }, {});
-    },
+	getters: {
+		parametresByKey: (state) => {
+			return state.parametres.reduce((acc, param) => {
+				// Garder la clé originale sans modification
+				acc[param.key] = param;
+				return acc;
+			}, {});
+		},
 
-    getParamValue: (state) => (key) => {
-      const param = state.parametres.find((p) => p.key === key);
-      return param ? param.value : null;
-    },
+		getParamValue: (state) => (key) => {
+			const param = state.parametres.find((p) => p.key === key);
+			return param ? param.value : null;
+		},
 
-    getAppLogo: (state) => {
-      const param = state.parametres.find(
-        (p) => p.key === "logo_etablissement",
-      );
+		getAppLogo: (state) => {
+			// Récupère le nom du fichier du logo depuis les paramètres
+			const logoName = state.parametres.find(
+				(p) => p.key === "logo_etablissement",
+			)?.value;
+			if (!logoName) {
+				return null;
+			}
+			// Détermine l'URL de stockage appropriée
+			const storageUrl =
+				process.env.NODE_ENV === "development"
+					? config.app_dev_storage_url
+					: config.app_prod_storage_url;
+			// Construit l'URL complète
+			return `${storageUrl}/storage/${logoName}`;
+		},
 
-      return param ? param.value : null;
-    },
+		getAppName: (state) => {
+			const param = state.parametres.find(
+				(p) => p.key === "nom_de_etablissement",
+			);
 
-    getAppName: (state) => {
-      const param = state.parametres.find(
-        (p) => p.key === "nom_de_etablissement",
-      );
+			return param ? param.value : null;
+		},
 
-      return param ? param.value : null;
-    },
+		getSelectOptions: (state) => (key) => {
+			const param = state.parametres.find((p) => p.key === key);
+			if (!param || param.type !== "select" || !param.options) return [];
 
-    getSelectOptions: (state) => (key) => {
-      const param = state.parametres.find((p) => p.key === key);
-      if (!param || param.type !== "select" || !param.options) return [];
+			return param.options
+				.split(",")
+				.map((option) => {
+					const [value, label] = option.split("|");
+					return {
+						value: value.trim(),
+						label: label ? label.trim() : value.trim(),
+					};
+				})
+				.filter((opt) => opt.value);
+		},
+	},
 
-      return param.options
-        .split(",")
-        .map((option) => {
-          const [value, label] = option.split("|");
-          return {
-            value: value.trim(),
-            label: label ? label.trim() : value.trim(),
-          };
-        })
-        .filter((opt) => opt.value);
-    },
-  },
+	actions: {
+		authHeaders() {
+			const token = localStorage.getItem("gest-ecole-token");
+			return {
+				headers: {
+					Authorization: token ? `Bearer ${token}` : "",
+				},
+			};
+		},
 
-  actions: {
-    authHeaders() {
-      const token = localStorage.getItem("gest-ecole-token");
-      return {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-        },
-      };
-    },
+		async fetchParametres() {
+			this.isLoading = true;
+			this.error = null;
 
-    async fetchParametres() {
-      this.isLoading = true;
-      this.error = null;
+			try {
+				const response = await axios.get(
+					"/parametre/configuration",
+					this.authHeaders(),
+				);
 
-      try {
-        const response = await axios.get(
-          "/parametre/configuration",
-          this.authHeaders(),
-        );
+				if (response.data && response.data.data) {
+					this.parametres = response.data.data;
+				} else if (Array.isArray(response.data)) {
+					this.parametres = response.data;
+				} else {
+					console.error("Format de réponse inattendu:", response.data);
+					this.parametres = [];
+				}
 
-        if (response.data && response.data.data) {
-          this.parametres = response.data.data;
-        } else if (Array.isArray(response.data)) {
-          this.parametres = response.data;
-        } else {
-          console.error("Format de réponse inattendu:", response.data);
-          this.parametres = [];
-        }
+				this.lastUpdated = new Date().toISOString();
+				return response.data;
+			} catch (error) {
+				console.error("Erreur chargement:", error);
+				this.error = error.response?.data?.message || "Erreur de chargement";
+				throw error;
+			} finally {
+				this.isLoading = false;
+			}
+		},
 
-        this.lastUpdated = new Date().toISOString();
-        return response.data;
-      } catch (error) {
-        console.error("Erreur chargement:", error);
-        this.error = error.response?.data?.message || "Erreur de chargement";
-        throw error;
-      } finally {
-        this.isLoading = false;
-      }
-    },
+		async updateParametres(formData) {
+			this.isLoading = true;
+			this.error = null;
 
-    async updateParametres(formData) {
-      this.isLoading = true;
-      this.error = null;
+			try {
+				const data = new FormData();
+				data.append("_method", "PUT");
 
-      try {
-        const data = new FormData();
-        data.append("_method", "PUT");
+				// Ajouter toutes les valeurs
+				Object.entries(formData).forEach(([key, value]) => {
+					if (key === "_delete_files") return;
 
-        // Ajouter toutes les valeurs
-        Object.entries(formData).forEach(([key, value]) => {
-          if (key === "_delete_files") return;
+					if (value instanceof File) {
+						data.append(`config_value[${key}]`, value);
+					} else if (value !== null && value !== undefined) {
+						// Important: pour les booléens, on envoie toujours 1 ou 0
+						if (typeof value === "boolean") {
+							data.append(`config_value[${key}]`, value ? "1" : "0");
+						} else {
+							data.append(`config_value[${key}]`, String(value));
+						}
+					}
+				});
 
-          if (value instanceof File) {
-            data.append(`config_value[${key}]`, value);
-          } else if (value !== null && value !== undefined) {
-            // Important: pour les booléens, on envoie toujours 1 ou 0
-            if (typeof value === "boolean") {
-              data.append(`config_value[${key}]`, value ? "1" : "0");
-            } else {
-              data.append(`config_value[${key}]`, String(value));
-            }
-          }
-        });
+				// Ajouter les fichiers à supprimer
+				if (formData._delete_files) {
+					Object.entries(formData._delete_files).forEach(
+						([key, shouldDelete]) => {
+							if (shouldDelete) {
+								data.append(`delete_file[${key}]`, "1");
+							}
+						},
+					);
+				}
 
-        // Ajouter les fichiers à supprimer
-        if (formData._delete_files) {
-          Object.entries(formData._delete_files).forEach(
-            ([key, shouldDelete]) => {
-              if (shouldDelete) {
-                data.append(`delete_file[${key}]`, "1");
-              }
-            },
-          );
-        }
+				console.log("Envoi des données:", Object.fromEntries(data));
 
-        console.log("Envoi des données:", Object.fromEntries(data));
+				const response = await axios.post(
+					"/parametre/parametre/modification",
+					data,
+					{
+						headers: {
+							Authorization: `Bearer ${localStorage.getItem("gest-ecole-token")}`,
+							"Content-Type": "multipart/form-data",
+						},
+					},
+				);
 
-        const response = await axios.post(
-          "/parametre/parametre/modification",
-          data,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("gest-ecole-token")}`,
-              "Content-Type": "multipart/form-data",
-            },
-          },
-        );
+				console.log("Réponse reçue:", response.data);
 
-        console.log("Réponse reçue:", response.data);
+				if (response.data && response.data.data) {
+					this.parametres = response.data.data;
+				} else if (Array.isArray(response.data)) {
+					this.parametres = response.data;
+				}
 
-        if (response.data && response.data.data) {
-          this.parametres = response.data.data;
-        } else if (Array.isArray(response.data)) {
-          this.parametres = response.data;
-        }
-
-        this.lastUpdated = new Date().toISOString();
-        return response.data;
-      } catch (error) {
-        console.error("Erreur mise à jour:", error);
-        console.error("Détails de l'erreur:", error.response?.data);
-        this.error = error.response?.data?.message || "Erreur de mise à jour";
-        throw error;
-      } finally {
-        this.isLoading = false;
-      }
-    },
-  },
+				this.lastUpdated = new Date().toISOString();
+				return response.data;
+			} catch (error) {
+				console.error("Erreur mise à jour:", error);
+				console.error("Détails de l'erreur:", error.response?.data);
+				this.error = error.response?.data?.message || "Erreur de mise à jour";
+				throw error;
+			} finally {
+				this.isLoading = false;
+			}
+		},
+	},
 });
