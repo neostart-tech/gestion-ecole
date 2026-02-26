@@ -136,7 +136,6 @@
                   />
                 </svg>
               </button>
-            
 
               <!-- Edit -->
               <button
@@ -157,7 +156,7 @@
                   />
                 </svg>
               </button>
-               <NuxtLink
+              <NuxtLink
                 :to="`/groupes/calendrier/${value.slug}-programme`"
                 class="p-2 rounded-lg text-purple-600 hover:bg-purple-100 dark:text-purple-400 dark:hover:bg-purple-900/30 transition-colors duration-200"
                 title="Voir dans le calendrier"
@@ -176,8 +175,8 @@
                   />
                 </svg>
               </NuxtLink>
-                <NuxtLink
-               :to="`/groupes/etudiants/${value.slug}`"
+              <NuxtLink
+                :to="`/groupes/etudiants/${value.slug}`"
                 class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
                 title="Voir les détails"
               >
@@ -218,18 +217,7 @@
                 class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
                 title="Supprimer"
               >
-                <svg
-                  class="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M3 6h18M8 6v14m8-14v14M5 6l1 14a2 2 0 002 2h8a2 2 0 002-2l1-14"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                  />
-                </svg>
+                <ButtonDelete />
               </button>
             </div>
           </template>
@@ -741,8 +729,9 @@
                   type="submit"
                   class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
                 >
-
-                 {{groupeStore.isLoading ? "Enrégistrement...": 'Enregistrer'}}
+                  {{
+                    groupeStore.isLoading ? "Enrégistrement..." : "Enregistrer"
+                  }}
                 </button>
               </div>
             </form>
@@ -768,6 +757,7 @@ import Breadcrumb from "~/components/Breadcrumb.vue";
 import { useFiliereStore } from "~~/stores/filiere";
 import { useGroupeStore } from "~~/stores/group";
 import { useNiveauStore } from "~~/stores/niveau";
+import ButtonDelete from "~/components/ui/buttonDelete.vue";
 
 const { $toastr, $swal } = useNuxtApp();
 const filiereStore = useFiliereStore();
@@ -911,8 +901,6 @@ const deleteItem = async (groupe) => {
     }
   }
 };
-
-
 
 onMounted(async () => {
   try {

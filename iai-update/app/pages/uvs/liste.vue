@@ -160,18 +160,7 @@
                 @click="deleteItem(value)"
                 class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
               >
-                <svg
-                  class="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M3 6h18M8 6v14m8-14v14M5 6l1 14a2 2 0 002 2h8a2 2 0 002-2l1-14"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                  />
-                </svg>
+                <ButtonDelete />
               </button>
             </div>
           </template>
@@ -363,9 +352,7 @@
                         <div class="relative">
                           <div
                             class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm"
-                          >
-                           
-                          </div>
+                          ></div>
                           <div
                             class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"
                           ></div>
@@ -456,7 +443,6 @@
                 <div
                   class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center"
                 >
-                
                   <div class="flex gap-3">
                     <button
                       type="button"
@@ -465,7 +451,6 @@
                     >
                       Fermer
                     </button>
-                  
                   </div>
                 </div>
               </DialogPanel>
@@ -627,6 +612,7 @@ import { useFiliereStore } from "../../../stores/filiere";
 import { useUvStore } from "~~/stores/unite-valeur";
 import { useUserStore } from "~~/stores/user";
 import { usePeriodeStore } from "~~/stores/periode";
+import ButtonDelete from "~/components/ui/buttonDelete.vue";
 
 const { $toastr, $swal } = useNuxtApp();
 const filiereStore = useFiliereStore();

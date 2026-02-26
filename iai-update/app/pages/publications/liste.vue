@@ -461,19 +461,7 @@
                 @click="confirmDelete(data.value)"
                 title="Supprimer"
               >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1.5"
-                    d="M3 6h18M8 6v14m8-14v14M5 6l1 14a2 2 0 002 2h8a2 2 0 002-2l1-14"
-                  />
-                </svg>
+                <ButtonDelete />
               </button>
             </div>
           </template>
@@ -539,6 +527,7 @@ import Breadcrumb from "~/components/Breadcrumb.vue";
 import Dropdown from "primevue/dropdown";
 
 import { useBlogStore } from "~~/stores/blog";
+import ButtonDelete from "~/components/ui/buttonDelete.vue";
 
 const blogStore = useBlogStore();
 const { $toastr } = useNuxtApp();
@@ -559,7 +548,6 @@ const editForm = ref({
   image_file: null,
   status: "draft",
 });
-
 
 // Options pour le filtre de statut
 const statusOptions = [
@@ -604,8 +592,6 @@ const filteredRows = computed(() => {
 
   return rows;
 });
-
-
 
 const clearSearch = () => {
   searchQuery.value = "";
