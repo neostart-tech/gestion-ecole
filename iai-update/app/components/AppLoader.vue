@@ -22,54 +22,14 @@
 		<!-- Contenu principal centré -->
 		<div class="relative h-full flex flex-col items-center justify-center p-4 sm:p-8">
 			<!-- Logo animé élégant -->
-			<div class="relative mb-8 sm:mb-12">
-				<!-- Cercles concentriques animés -->
-				<div class="relative">
-					<!-- Cercle extérieur subtil -->
-					<div class="absolute inset-0 animate-spin-slow">
-						<div class="w-40 h-40 sm:w-48 sm:h-48 rounded-full border border-gray-300/30 dark:border-gray-600/30"></div>
-					</div>
-					
-					<!-- Cercle de lumière -->
-					<div class="absolute inset-0 animate-pulse-slow">
-						<div class="w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-gradient-to-br from-primary-500/10 to-primary-600/5 blur-xl"></div>
-					</div>
-
-					<!-- Logo principal -->
-					<div class="relative w-32 h-32 sm:w-40 sm:h-40 rounded-2xl bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-2xl flex items-center justify-center border border-gray-200/50 dark:border-gray-700/50">
-						<!-- Forme abstraite élégante -->
-						<div class="relative w-20 h-20 sm:w-24 sm:h-24">
-							<!-- Forme principale (lettre D stylisée) -->
-							<div class="absolute inset-0 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl transform rotate-3 shadow-lg"></div>
-							
-							<!-- Détail intérieur -->
-							<div class="absolute inset-2 bg-gradient-to-br from-white to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-lg"></div>
-							
-							<!-- Accent de couleur -->
-							<div class="absolute -top-1 -right-1 w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-400 to-blue-500 rounded-full animate-pulse"></div>
-							
-							<!-- Ligne décorative -->
-							<div class="absolute -bottom-2 -left-2 w-10 h-1 bg-gradient-to-r from-primary-400 to-transparent rounded-full"></div>
-						</div>
-
-						<!-- Points animés orbitaux -->
-						<div class="absolute inset-0 animate-orbit">
-							<div
-								v-for="dot in 3"
-								:key="dot"
-								:style="{
-									animationDelay: `${dot * 0.5}s`,
-									transform: `rotate(${dot * 120}deg) translateX(60px)`
-								}"
-								class="absolute top-1/2 left-1/2 w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary-400"
-							></div>
-						</div>
-					</div>
-
-					<!-- Reflet subtil -->
-					<div class="absolute -inset-4 bg-gradient-to-br from-primary-500/5 to-transparent rounded-3xl blur-2xl"></div>
-				</div>
-			</div>
+			<div class="loader">
+    <div class="loader__bar"></div>
+    <div class="loader__bar"></div>
+    <div class="loader__bar"></div>
+    <div class="loader__bar"></div>
+    <div class="loader__bar"></div>
+    <div class="loader__ball"></div>
+  </div>
 
 			<!-- Contenu textuel raffiné -->
 			<div class="text-center space-y-6 max-w-md">
@@ -405,4 +365,341 @@ defineExpose({
 	opacity: 0;
 	transform: scale(1.05);
 }
+
+.loader {
+    position: relative;
+    width: 75px;
+    height: 100px;
+  }
+
+  .loader__bar {
+    position: absolute;
+    bottom: 0;
+    width: 10px;
+    height: 50%;
+    background: rgb(0, 0, 0);
+    transform-origin: center bottom;
+    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  .loader__bar:nth-child(1) {
+    left: 0px;
+    transform: scale(1, 0.2);
+    -webkit-animation: barUp1 4s infinite;
+    animation: barUp1 4s infinite;
+  }
+
+  .loader__bar:nth-child(2) {
+    left: 15px;
+    transform: scale(1, 0.4);
+    -webkit-animation: barUp2 4s infinite;
+    animation: barUp2 4s infinite;
+  }
+
+  .loader__bar:nth-child(3) {
+    left: 30px;
+    transform: scale(1, 0.6);
+    -webkit-animation: barUp3 4s infinite;
+    animation: barUp3 4s infinite;
+  }
+
+  .loader__bar:nth-child(4) {
+    left: 45px;
+    transform: scale(1, 0.8);
+    -webkit-animation: barUp4 4s infinite;
+    animation: barUp4 4s infinite;
+  }
+
+  .loader__bar:nth-child(5) {
+    left: 60px;
+    transform: scale(1, 1);
+    -webkit-animation: barUp5 4s infinite;
+    animation: barUp5 4s infinite;
+  }
+
+  .loader__ball {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    width: 10px;
+    height: 10px;
+    background: rgb(44, 143, 255);
+    border-radius: 50%;
+    -webkit-animation: ball624 4s infinite;
+    animation: ball624 4s infinite;
+  }
+
+  @keyframes ball624 {
+    0% {
+      transform: translate(0, 0);
+    }
+
+    5% {
+      transform: translate(8px, -14px);
+    }
+
+    10% {
+      transform: translate(15px, -10px);
+    }
+
+    17% {
+      transform: translate(23px, -24px);
+    }
+
+    20% {
+      transform: translate(30px, -20px);
+    }
+
+    27% {
+      transform: translate(38px, -34px);
+    }
+
+    30% {
+      transform: translate(45px, -30px);
+    }
+
+    37% {
+      transform: translate(53px, -44px);
+    }
+
+    40% {
+      transform: translate(60px, -40px);
+    }
+
+    50% {
+      transform: translate(60px, 0);
+    }
+
+    57% {
+      transform: translate(53px, -14px);
+    }
+
+    60% {
+      transform: translate(45px, -10px);
+    }
+
+    67% {
+      transform: translate(37px, -24px);
+    }
+
+    70% {
+      transform: translate(30px, -20px);
+    }
+
+    77% {
+      transform: translate(22px, -34px);
+    }
+
+    80% {
+      transform: translate(15px, -30px);
+    }
+
+    87% {
+      transform: translate(7px, -44px);
+    }
+
+    90% {
+      transform: translate(0, -40px);
+    }
+
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+
+  @-webkit-keyframes barUp1 {
+    0% {
+      transform: scale(1, 0.2);
+    }
+
+    40% {
+      transform: scale(1, 0.2);
+    }
+
+    50% {
+      transform: scale(1, 1);
+    }
+
+    90% {
+      transform: scale(1, 1);
+    }
+
+    100% {
+      transform: scale(1, 0.2);
+    }
+  }
+
+  @keyframes barUp1 {
+    0% {
+      transform: scale(1, 0.2);
+    }
+
+    40% {
+      transform: scale(1, 0.2);
+    }
+
+    50% {
+      transform: scale(1, 1);
+    }
+
+    90% {
+      transform: scale(1, 1);
+    }
+
+    100% {
+      transform: scale(1, 0.2);
+    }
+  }
+
+  @-webkit-keyframes barUp2 {
+    0% {
+      transform: scale(1, 0.4);
+    }
+
+    40% {
+      transform: scale(1, 0.4);
+    }
+
+    50% {
+      transform: scale(1, 0.8);
+    }
+
+    90% {
+      transform: scale(1, 0.8);
+    }
+
+    100% {
+      transform: scale(1, 0.4);
+    }
+  }
+
+  @keyframes barUp2 {
+    0% {
+      transform: scale(1, 0.4);
+    }
+
+    40% {
+      transform: scale(1, 0.4);
+    }
+
+    50% {
+      transform: scale(1, 0.8);
+    }
+
+    90% {
+      transform: scale(1, 0.8);
+    }
+
+    100% {
+      transform: scale(1, 0.4);
+    }
+  }
+
+  @-webkit-keyframes barUp3 {
+    0% {
+      transform: scale(1, 0.6);
+    }
+
+    100% {
+      transform: scale(1, 0.6);
+    }
+  }
+
+  @keyframes barUp3 {
+    0% {
+      transform: scale(1, 0.6);
+    }
+
+    100% {
+      transform: scale(1, 0.6);
+    }
+  }
+
+  @-webkit-keyframes barUp4 {
+    0% {
+      transform: scale(1, 0.8);
+    }
+
+    40% {
+      transform: scale(1, 0.8);
+    }
+
+    50% {
+      transform: scale(1, 0.4);
+    }
+
+    90% {
+      transform: scale(1, 0.4);
+    }
+
+    100% {
+      transform: scale(1, 0.8);
+    }
+  }
+
+  @keyframes barUp4 {
+    0% {
+      transform: scale(1, 0.8);
+    }
+
+    40% {
+      transform: scale(1, 0.8);
+    }
+
+    50% {
+      transform: scale(1, 0.4);
+    }
+
+    90% {
+      transform: scale(1, 0.4);
+    }
+
+    100% {
+      transform: scale(1, 0.8);
+    }
+  }
+
+  @-webkit-keyframes barUp5 {
+    0% {
+      transform: scale(1, 1);
+    }
+
+    40% {
+      transform: scale(1, 1);
+    }
+
+    50% {
+      transform: scale(1, 0.2);
+    }
+
+    90% {
+      transform: scale(1, 0.2);
+    }
+
+    100% {
+      transform: scale(1, 1);
+    }
+  }
+
+  @keyframes barUp5 {
+    0% {
+      transform: scale(1, 1);
+    }
+
+    40% {
+      transform: scale(1, 1);
+    }
+
+    50% {
+      transform: scale(1, 0.2);
+    }
+
+    90% {
+      transform: scale(1, 0.2);
+    }
+
+    100% {
+      transform: scale(1, 1);
+    }
+  }
 </style>
