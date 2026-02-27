@@ -67,7 +67,7 @@ export const useNegociationStore = defineStore('negociation', {
       this.error = null
       
       try {
-        const response = await axios.get(`/admin/negociations/${id}`, this.authHeaders)
+        const response = await axios.get(`/negociations/${id}`, this.authHeaders)
         this.currentNegociation = response.data
         return response.data
       } catch (error) {
