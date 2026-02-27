@@ -194,12 +194,12 @@
                       </div>
                     </label>
 
-                    <a
-                      href="/mot-de-passe-oublie"
+                    <NuxtLink
+                      to="/mot-de-passe-oublie"
                       class="text-sm text-[#00b3d4] hover:text-[#202a51] hover:underline transition-all duration-200 font-medium"
                     >
                       Mot de passe oublié?
-                    </a>
+                    </NuxtLink>
                   </div>
 
                   <!-- Submit Button -->
@@ -370,7 +370,7 @@ const appLogo = computed(() => {
   const logo = parametreStore.getAppLogo;
   if (!logo) return null;
 
-  return `${file_url}/storage/${logo}`;
+  return logo;
 });
 const appName = computed(() => {
   const name = parametreStore.getAppName;

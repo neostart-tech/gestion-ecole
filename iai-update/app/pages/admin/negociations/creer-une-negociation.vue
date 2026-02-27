@@ -473,12 +473,13 @@
                           dateFormat="dd/mm/yy"
                         />
                       </div>
-
-                      <Button
-                        @click="removeEcheance(index)"
-                        icon="pi pi-trash"
-                        class="p-button-rounded p-button-text p-button-danger"
-                      />
+<Button
+    @click="removeEcheance(index)"
+    class="p-button-danger"
+    type="button"
+>
+    <ButtonDelete/>
+</Button>
                     </div>
                   </template>
                 </Card>
@@ -651,6 +652,7 @@ import Message from 'primevue/message'
 import Tag from 'primevue/tag'
 import Dialog from 'primevue/dialog'
 import ProgressSpinner from 'primevue/progressspinner'
+import ButtonDelete from '~/components/ui/buttonDelete.vue'
 
 const { $toastr } = useNuxtApp()
 
@@ -691,7 +693,7 @@ const form = reactive({
 
 // Options
 const typePaiementOptions = [
-  { label: 'Tranches globales', value: 'tranches_globales' },
+  // { label: 'Tranches globales', value: 'tranches_globales' },
   { label: 'Négociation', value: 'negociation' }
 ]
 
@@ -1101,7 +1103,7 @@ async function submitForm() {
         $toastr.error(errors[key][0])
       })
     } else {
-      $toastr.error(error.response?.data?.message || 'Erreur lors de la création')
+      $toastr.error(error.response?.data.error || 'Erreur lors de la création')
     }
   } finally {
     isSubmitting.value = false
