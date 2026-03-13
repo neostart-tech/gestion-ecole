@@ -135,7 +135,53 @@
                   <span class="text-xs text-gray-500 dark:text-gray-400">
                     {{ event.extendedProps.group }}
                   </span>
+
+                   <div>
+    <h3 class="font-medium text-gray-900 dark:text-white">
+      {{ event.title }}
+    </h3>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+      {{ formatEventTime(event.start, event.end) }}
+    </p>
+    <div class="flex items-center gap-2 mt-2">
+      <span
+        class="text-xs px-2 py-1 rounded-full"
+        :class="getEventTypeClass(event.extendedProps.type)"
+      >
+        {{ event.extendedProps.type }}
+      </span>
+      <span class="text-xs text-gray-500 dark:text-gray-400">
+        {{ event.extendedProps.group }}
+      </span>
+    </div>
+    
+    <!--Lien de réunion pour mobile -->
+    <div v-if="event.extendedProps.lien_reunion" class="mt-3">
+      <a
+        :href="event.extendedProps.lien_reunion"
+        target="_blank"
+        class="inline-flex items-center gap-1.5 text-sm text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 bg-purple-50 dark:bg-purple-900/20 px-3 py-1.5 rounded-lg"
+        @click.stop
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+        <span>Rejoindre le cours en ligne</span>
+      </a>
+    </div>
+    
+    <!--  Badge pour cours en ligne sans lien -->
+    <div v-else-if="event.extendedProps.est_virtuelle" class="mt-2">
+      <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+        Cours en ligne
+      </span>
+    </div>
+  </div>
                 </div>
+
               </div>
               <div class="flex gap-2">
                 <button
@@ -611,33 +657,100 @@
                 </div>
 
                 <!-- Salle -->
-                <div class="flex items-start">
-                  <div class="w-8 flex-shrink-0">
-                    <svg
-                      class="w-5 h-5 text-gray-500 dark:text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                      />
-                    </svg>
-                  </div>
-                  <div class="flex-1">
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                      Salle
-                    </p>
-                    <p class="font-medium text-gray-900 dark:text-white">
-                      {{
-                        selectedEvent?.extendedProps?.salle || "Non spécifié"
-                      }}
-                    </p>
-                  </div>
-                </div>
+            <!-- Salle avec lien de réunion si virtuelle -->
+<div class="flex items-start">
+  <div class="w-8 flex-shrink-0">
+    <svg
+      class="w-5 h-5 text-gray-500 dark:text-gray-400"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+      />
+    </svg>
+  </div>
+  <div class="flex-1">
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
+      Salle
+    </p>
+    <div class="flex flex-col gap-2">
+      <p class="font-medium text-gray-900 dark:text-white">
+        {{ selectedEvent?.extendedProps?.salle || "Non spécifié" }}
+      </p>
+
+      <!-- Lien de réunion pour les salles virtuelles -->
+      <div
+        v-if="selectedEvent?.extendedProps?.lien_reunion"
+        class="mt-1"
+      >
+        <a
+          :href="selectedEvent.extendedProps.lien_reunion"
+          target="_blank"
+          class="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 rounded-lg text-sm hover:bg-purple-200 dark:hover:bg-purple-800/40 transition-colors"
+          @click.stop
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+            />
+          </svg>
+          <span>Rejoindre le cours en ligne</span>
+          <svg
+            class="w-3 h-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+            />
+          </svg>
+        </a>
+      </div>
+
+      <!-- Badge virtuelle si pas de lien -->
+      <div
+        v-else-if="selectedEvent?.extendedProps?.est_virtuelle"
+        class="mt-1"
+      >
+        <span
+          class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
+        >
+          <svg
+            class="w-3 h-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+            />
+          </svg>
+          Cours en ligne
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
 
                 <!-- Enseignant -->
                 <div class="flex items-start">
@@ -1250,6 +1363,9 @@ const calendarEvents = computed(() => {
             teacher_id: evt.teacher?.id || evt.teacher_id || "",
             teacher_slug: evt.teacher?.slug || evt.teacher_slug || "",
             group: evt.group || evt.grade || "",
+            lien_reunion: evt?.lien_reunion_formate || evt?.lien_reunion || null,
+            est_virtuelle: evt?.type === 'virtuelle' || evt?.est_virtuelle || false,
+            plateforme: evt?.plateforme || null,
             group_id: evt.group_id,
             grade_id: evt.grade?.id || evt.group_id || "",
             grade_slug: evt.grade?.slug || evt.grade_slug || "",
@@ -1781,6 +1897,34 @@ const TypeOptions = computed(() => {
     },
   ];
 });
+
+const getPlateformeLabel = (plateforme: string | null): string => {
+  const plateformes: Record<string, string> = {
+    zoom: "Zoom",
+    teams: "Microsoft Teams",
+    meet: "Google Meet",
+    whatsapp: "WhatsApp",
+    discord: "Discord",
+    autres: "Autre",
+  };
+
+  return plateformes[plateforme || ""] || plateforme || "Non spécifiée";
+};
+
+/**
+ * Copier le lien de réunion
+ */
+const copyLienReunion = async (lien: string) => {
+  if (!lien) return;
+
+  try {
+    await navigator.clipboard.writeText(lien);
+    $toastr.success("Lien copié dans le presse-papier");
+  } catch (error) {
+    console.error("Erreur de copie:", error);
+    $toastr.error("Impossible de copier le lien");
+  }
+};
 
 // Chargement initial
 onMounted(async () => {

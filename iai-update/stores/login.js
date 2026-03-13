@@ -5,6 +5,15 @@ export const useLoginStore = defineStore("login", {
     isLoading: false,
   }),
   actions: {
+    authHeaders() {
+      const token = localStorage.getItem("gest-ecole-token");
+
+      return {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      };
+    },
     async loginUser(credentials) {
       this.isLoading = true;
       try {
@@ -46,6 +55,17 @@ export const useLoginStore = defineStore("login", {
       this.isLoading = true;
       try {
         const response = await axios.post("/reset-password/store", payload);
+        return response.data;
+      } catch (error) {
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+      async changePassword(payload) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post("/change-password", payload,this.authHeaders());
         return response.data;
       } catch (error) {
         throw error;

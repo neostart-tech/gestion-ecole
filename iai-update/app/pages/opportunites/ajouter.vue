@@ -289,13 +289,13 @@ const forceEditorRerender = () => {
 
 // Configuration de TinyMCE
 const editorConfig = {
-  apiKey: 'zg2zugks07aopv32g7tny5709pnqww29mxbvn1oa8x7d78c7',
+  apiKey: 'ktf8z0z55enm2wd9xyeoo6qzzoy7w9b629e51wii9y8lw4dx',
   height: 400,
   menubar: false,
   plugins: [
-    'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+    'advlist', 'autolink', 'lists', 'link', 'charmap', 'preview',
     'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-    'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+    'insertdatetime', 'table', 'code', 'help', 'wordcount'
   ],
   toolbar: 'undo redo | blocks | ' +
     'bold italic forecolor | alignleft aligncenter ' +

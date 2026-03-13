@@ -4,6 +4,7 @@
   >
     <div class="max-w-7xl mx-auto">
       <!-- En-tête amélioré -->
+      <!-- En-tête amélioré -->
       <div
         class="flex flex-col md:flex-row md:items-center justify-between mb-8"
       >
@@ -63,6 +64,251 @@
         </div>
       </div>
 
+      <!-- Carte d'information de la salle (physique ou virtuelle) -->
+      <div v-if="salleStore.salle" class="mb-6">
+        <!-- Bandeau principal -->
+        <div
+          class="rounded-xl overflow-hidden border"
+          :class="
+            salleStore.salle.est_virtuelle
+              ? 'border-purple-200 dark:border-purple-800'
+              : 'border-green-200 dark:border-green-800'
+          "
+        >
+          <!-- En-tête avec couleur selon le type -->
+          <div
+            class="px-6 py-4 flex items-center gap-3"
+            :class="
+              salleStore.salle.est_virtuelle
+                ? 'bg-purple-50 dark:bg-purple-900/20'
+                : 'bg-green-50 dark:bg-green-900/20'
+            "
+          >
+            <!-- Icône -->
+            <div
+              class="p-2 rounded-lg"
+              :class="
+                salleStore.salle.est_virtuelle
+                  ? 'bg-purple-100 dark:bg-purple-800'
+                  : 'bg-green-100 dark:bg-green-800'
+              "
+            >
+              <svg
+                v-if="salleStore.salle.est_virtuelle"
+                class="w-6 h-6 text-purple-600 dark:text-purple-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                />
+              </svg>
+              <svg
+                v-else
+                class="w-6 h-6 text-green-600 dark:text-green-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                />
+              </svg>
+            </div>
+
+            <!-- Titre et type -->
+            <div class="flex-1">
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                {{ salleStore.salle.nom }}
+              </h2>
+              <p class="text-sm text-gray-600 dark:text-gray-400">
+                {{
+                  salleStore.salle.est_virtuelle
+                    ? "Salle virtuelle · Cours en ligne"
+                    : "Salle physique"
+                }}
+              </p>
+            </div>
+
+            <!-- Badge capacité -->
+            <div class="text-right">
+              <span class="text-sm text-gray-500 dark:text-gray-400"
+                >Capacité</span
+              >
+              <p class="text-lg font-bold text-gray-900 dark:text-white">
+                {{
+                  salleStore.salle.effectif ||
+                  (salleStore.salle.est_virtuelle ? "∞" : "—")
+                }}
+                <span class="text-sm font-normal text-gray-500">personnes</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Informations spécifiques pour les salles virtuelles -->
+          <div
+            v-if="salleStore.salle.est_virtuelle"
+            class="px-6 py-4 bg-white dark:bg-gray-800 border-t border-purple-200 dark:border-purple-800"
+          >
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Plateforme -->
+              <div class="flex items-center gap-3">
+                <div class="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                  <svg
+                    class="w-5 h-5 text-purple-600 dark:text-purple-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    Plateforme
+                  </p>
+                  <p class="font-medium text-gray-900 dark:text-white">
+                    {{ getPlateformeLabel(salleStore.salle.plateforme) }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Lien permanent -->
+              <div
+                class="flex items-center gap-3 md:col-span-2"
+                v-if="salleStore.salle.lien_reunion_formate"
+              >
+                <div class="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                  <svg
+                    class="w-5 h-5 text-purple-600 dark:text-purple-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                    />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    Lien de réunion permanent
+                  </p>
+                  <div class="flex items-center gap-2 mt-1">
+                    <a
+                      :href="salleStore.salle.lien_reunion_formate"
+                      target="_blank"
+                      class="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 font-medium truncate max-w-md"
+                    >
+                      {{ salleStore.salle.lien_reunion_formate }}
+                    </a>
+                    <button
+                      @click="copyLienReunion"
+                      class="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                      title="Copier le lien"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Instructions (si présentes) -->
+              <div
+                v-if="salleStore.salle.instructions"
+                class="md:col-span-2 mt-2 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg"
+              >
+                <p class="text-sm text-gray-700 dark:text-gray-300">
+                  <span class="font-medium">Instructions :</span>
+                  {{ salleStore.salle.instructions }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Informations pour les salles physiques -->
+          <div
+            v-else
+            class="px-6 py-4 bg-white dark:bg-gray-800 border-t border-green-200 dark:border-green-800"
+          >
+            <div class="flex items-center gap-4">
+              <div class="flex items-center gap-2">
+                <svg
+                  class="w-5 h-5 text-gray-500 dark:text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                <span class="text-gray-700 dark:text-gray-300"
+                  >Salle physique</span
+                >
+              </div>
+              <div class="flex items-center gap-2">
+                <svg
+                  class="w-5 h-5 text-gray-500 dark:text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                  />
+                </svg>
+                <span class="text-gray-700 dark:text-gray-300"
+                  >Capacité:
+                  {{
+                    salleStore.salle.effectif || "Non définie"
+                  }}
+                  personnes</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- Calendrier -->
       <ClientOnly>
         <div
@@ -96,72 +342,84 @@
           </p>
         </div>
         <div v-else class="divide-y divide-gray-200 dark:divide-gray-700">
-          <div
-            v-for="event in filteredEvents"
-            :key="event.id"
-            class="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer"
-            @click="openEventModal(event)"
-          >
-            <div class="flex items-start justify-between">
-              <div>
-                <h3 class="font-medium text-gray-900 dark:text-white">
-                  {{ event.title }}
-                </h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  {{ formatEventTime(event.start, event.end) }}
-                </p>
-                <div class="flex items-center gap-2 mt-2">
-                  <span
-                    class="text-xs px-2 py-1 rounded-full"
-                    :class="getEventTypeClass(event.extendedProps.type)"
-                  >
-                    {{ event.extendedProps.type }}
-                  </span>
-                  <span class="text-xs text-gray-500 dark:text-gray-400">
-                    {{ event.extendedProps.group }}
-                  </span>
-                </div>
-              </div>
-              <div class="flex gap-2">
-                <button
-                  @click.stop="openEditModal(event)"
-                  class="p-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded"
-                >
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                </button>
-                <button
-                  @click.stop="confirmDelete(event)"
-                  class="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
-                >
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
+      <div
+  v-for="event in filteredEvents"
+  :key="event.id"
+  class="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer"
+  @click="openEventModal(event)"
+>
+  <div class="flex items-start justify-between">
+    <!-- Colonne de gauche : Infos de l'événement -->
+    <div class="flex-1 pr-4">
+      <h3 class="font-medium text-gray-900 dark:text-white">
+        {{ event.title }}
+      </h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        {{ formatEventTime(event.start, event.end) }}
+      </p>
+      <div class="flex items-center gap-2 mt-2">
+        <span
+          class="text-xs px-2 py-1 rounded-full"
+          :class="getEventTypeClass(event.extendedProps.type)"
+        >
+          {{ event.extendedProps.type }}
+        </span>
+        <span class="text-xs text-gray-500 dark:text-gray-400">
+          {{ event.extendedProps.group }}
+        </span>
+      </div>
+
+      <!--  Lien de réunion pour mobile (À AJOUTER ICI) -->
+      <div v-if="event.extendedProps.lien_reunion" class="mt-3">
+        <a
+          :href="event.extendedProps.lien_reunion"
+          target="_blank"
+          class="inline-flex items-center gap-1.5 text-sm text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 bg-purple-50 dark:bg-purple-900/20 px-3 py-1.5 rounded-lg"
+          @click.stop
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          <span>Rejoindre le cours en ligne</span>
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+      </div>
+
+      <div v-else-if="event.extendedProps.est_virtuelle" class="mt-2">
+        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          Cours en ligne
+        </span>
+      </div>
+    </div>
+
+    <!-- Colonne de droite : Boutons d'action -->
+    <div class="flex gap-2">
+      <button
+        @click.stop="openEditModal(event)"
+        class="p-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded"
+        title="Modifier"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+      </button>
+      <button
+        @click.stop="confirmDelete(event)"
+        class="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
+        title="Supprimer"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
         </div>
       </div>
     </div>
@@ -596,6 +854,7 @@
                 </div>
 
                 <!-- Salle -->
+                <!-- Salle avec lien de réunion si virtuelle -->
                 <div class="flex items-start">
                   <div class="w-8 flex-shrink-0">
                     <svg
@@ -616,11 +875,79 @@
                     <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
                       Salle
                     </p>
-                    <p class="font-medium text-gray-900 dark:text-white">
-                      {{
-                        selectedEvent?.extendedProps?.salle || "Non spécifié"
-                      }}
-                    </p>
+                    <div class="flex flex-col gap-2">
+                      <p class="font-medium text-gray-900 dark:text-white">
+                        {{
+                          selectedEvent?.extendedProps?.salle || "Non spécifié"
+                        }}
+                      </p>
+
+                      <!-- Lien de réunion pour les salles virtuelles -->
+                      <div
+                        v-if="selectedEvent?.extendedProps?.lien_reunion"
+                        class="mt-1"
+                      >
+                        <a
+                          :href="selectedEvent.extendedProps.lien_reunion"
+                          target="_blank"
+                          class="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 rounded-lg text-sm hover:bg-purple-200 dark:hover:bg-purple-800/40 transition-colors"
+                          @click.stop
+                        >
+                          <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                            />
+                          </svg>
+                          <span>Rejoindre le cours en ligne</span>
+                          <svg
+                            class="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                            />
+                          </svg>
+                        </a>
+                      </div>
+
+                      <!-- Badge virtuelle si pas de lien -->
+                      <div
+                        v-else-if="selectedEvent?.extendedProps?.est_virtuelle"
+                        class="mt-1"
+                      >
+                        <span
+                          class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
+                        >
+                          <svg
+                            class="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                            />
+                          </svg>
+                          Cours en ligne
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -672,7 +999,7 @@
                   </div>
                   <div class="flex-1">
                     <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                      Groupe
+                      Groupe 
                     </p>
                     <p class="font-medium text-gray-900 dark:text-white">
                       {{
@@ -681,6 +1008,8 @@
                     </p>
                   </div>
                 </div>
+
+                
 
                 <!-- Récurrence -->
                 <div
@@ -1190,7 +1519,7 @@ const generateRecurringEvents = (
 };
 
 /**
- * 🔁 Conversion des données du store vers le format FullCalendar
+ *  Conversion des données du store vers le format FullCalendar
  */
 const calendarEvents = computed(() => {
   const events: any[] = [];
@@ -1241,6 +1570,9 @@ const calendarEvents = computed(() => {
             uv_slug: evt.uv?.slug || evt.uv_slug || "",
             salle: evt.salle?.nom || evt.salle || "",
             teacher: evt.teacher?.nom || evt.teacher || "",
+            lien_reunion: evt?.lien_reunion_formate || evt?.lien_reunion || null,
+            est_virtuelle: evt.est_virtuelle || false,
+            plateforme: evt.plateforme || null,
             teacher_id: evt.teacher?.id || evt.teacher_id || "",
             teacher_slug: evt.teacher?.slug || evt.teacher_slug || "",
             group: evt.group || evt.grade || "",
@@ -1781,6 +2113,31 @@ const TypeOptions = computed(() => {
   ];
 });
 
+const getPlateformeLabel = (plateforme: string | null): string => {
+  const plateformes: Record<string, string> = {
+    zoom: "Zoom",
+    teams: "Microsoft Teams",
+    meet: "Google Meet",
+    whatsapp: "WhatsApp",
+    discord: "Discord",
+    autres: "Autre",
+  };
+
+  return plateformes[plateforme || ""] || plateforme || "Non spécifiée";
+};
+
+const copyLienReunion = async () => {
+  if (!salleStore.salle?.lien_reunion_formate) return;
+
+  try {
+    await navigator.clipboard.writeText(salleStore.salle.lien_reunion_formate);
+    $toastr.success("Lien copié dans le presse-papier");
+  } catch (error) {
+    console.error("Erreur de copie:", error);
+    $toastr.error("Impossible de copier le lien");
+  }
+};
+
 // Chargement initial
 onMounted(async () => {
   try {
@@ -1790,7 +2147,7 @@ onMounted(async () => {
     fixSalleStore();
     await loadSelectData();
     showCalendar.value = true;
-    $toastr.succes('Donnée chargée avec succes')
+    $toastr.succes("Donnée chargée avec succes");
   } catch (error) {
     console.error("Erreur lors du chargement:", error);
   }

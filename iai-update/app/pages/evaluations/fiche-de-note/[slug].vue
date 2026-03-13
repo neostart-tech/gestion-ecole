@@ -565,7 +565,7 @@
                         <p
                           class="text-2xl font-bold text-yellow-900 dark:text-yellow-100"
                         >
-                          {{ selectedNote?.notation || "Non noté" }}
+                          {{ selectedNote?.notation?.note || "Non noté" }}
                           <span
                             v-if="selectedNote?.notation?.note"
                             class="text-lg"

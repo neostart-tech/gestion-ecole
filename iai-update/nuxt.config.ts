@@ -3,7 +3,7 @@ import Aura from "@primeuix/themes/aura";
 
 export default defineNuxtConfig({
 	compatibilityDate: "2025-07-15",
-	ssr: true,
+	ssr: false,
 	devtools: { enabled: false },
 	modules: ["@pinia/nuxt", "@primevue/nuxt-module"],
 
@@ -11,7 +11,7 @@ export default defineNuxtConfig({
 		dirs: ["stores"],
 	},
 
-	css: ["~/assets/css/main.css", "~/assets/css/calendar.css"],
+	css: ["~/assets/css/main.css", "~/assets/css/calendar.css",'~/assets/css/calendarstyle.css'],
 
 	// Ajoutez les plugins
 	plugins: ["~/plugins/theme.client.ts", "~/plugins/toastr.client.js"],

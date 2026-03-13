@@ -567,7 +567,7 @@ const mesCours = computed(() => presenceStore.mesCours || []);
 // Options pour le dropdown des cours
 const coursOptions = computed(() => {
   return mesCours.value.map((cours) => ({
-    label: `${cours.uv?.nom || "Sans titre"} - ${cours.group?.nom || "Groupe"} (${formatDateShort(cours.debut)} - ${cours.salle?.nom || "Salle"})`,
+    label: `${cours.uv?.nom || "Sans titre"} - ${cours.group?.niveau?.libelle} ${cours.group?.nom || "Groupe"} (${formatDateShort(cours.debut)} - ${cours.salle?.nom || "Salle"})`,
     value: cours.id,
     details: cours,
   }));
@@ -593,6 +593,7 @@ const onCoursChange = async () => {
 };
 
 // Charger les étudiants du groupe lié au cours - MODIFIÉ pour charger même si non modifiable
+// Charger les étudiants du groupe lié au cours
 const chargerEtudiants = async () => {
   if (!selectedCours.value) {
     $toastr?.warning("Veuillez sélectionner un cours");
@@ -609,21 +610,52 @@ const chargerEtudiants = async () => {
   try {
     await etudiantStore.fetchGroupEtudiants(groupeId);
 
-    // Initialiser les étudiants avec tous les champs nécessaires
-    etudiantStore.etudiants = etudiantStore.etudiants.map((etudiant) => ({
-      ...etudiant,
-      statut: "absent",
-      heureArrivee: "",
-      commentaire: "",
-      sanction: null,
-    }));
+    // Récupérer les présences existantes depuis le cours sélectionné
+    const presencesExistantes = selectedCours.value.presences || [];
+    
+    // Créer un map des présences par etudiant_id
+    const mapPresences = {};
+    presencesExistantes.forEach(presence => {
+      mapPresences[presence.etudiant_id] = presence;
+    });
 
+    // Initialiser les étudiants avec les présences existantes
+    const etudiantsAvecPresences = etudiantStore.etudiants.map((etudiant) => {
+      const presenceExistante = mapPresences[etudiant.id];
+      
+      if (presenceExistante) {
+        return {
+          ...etudiant,
+          statut: presenceExistante.statut || "absent",
+          heureArrivee: presenceExistante.heure_arrivee || "",
+          commentaire: presenceExistante.commentaire || "",
+          sanction: presenceExistante.sanction || null,
+          presence_id: presenceExistante.id
+        };
+      } else {
+        return {
+          ...etudiant,
+          statut: "absent",
+          heureArrivee: "",
+          commentaire: "",
+          sanction: null,
+        };
+      }
+    });
+
+    // Mettre à jour le store avec les étudiants (avec leurs présences)
+    etudiantStore.etudiants = etudiantsAvecPresences;
     etudiantsCharges.value = true;
-
     searchQuery.value = "";
     
-    // Message différent selon le mode
-    if (isModifiable.value) {
+    const nbPresences = presencesExistantes.length;
+    
+    if (nbPresences > 0) {
+      $toastr?.info(
+        `${etudiantsCharges.value} étudiants chargés avec ${nbPresences} présence(s) existante(s)`,
+        { timeout: 3000 }
+      );
+    } else if (isModifiable.value) {
       $toastr?.success(
         `${etudiantStore.etudiants.length} étudiants chargés pour ${selectedCours.value.uv?.nom}`,
       );
@@ -637,7 +669,6 @@ const chargerEtudiants = async () => {
     console.error(error);
   }
 };
-
 // Étudiants du cours
 const etudiantsDuCours = computed(() => etudiantStore.etudiants || []);
 

@@ -81,11 +81,11 @@ export const useSalleStore = defineStore("salle", {
       }
     },
 
-    async updateSalle(payload) {
+    async updateSalle(salle,payload) {
       this.isLoading = true;
       try {
         const response = await axios.put(
-          `/salles/ajouter-une-salle`,
+          `/salles/${salle}/modifier-une-salle`,
           payload,
           this.authHeaders(),
         );

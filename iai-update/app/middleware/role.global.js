@@ -12,8 +12,7 @@ export default defineNuxtRouteMiddleware((to) => {
 
 	const publicRoutes = [
 		"/login",
-		"/register",
-		"/forgot-password",
+		"/mot-de-passe-oublie",
 		"/reset-password",
 		"/unauthorized",
 	];
@@ -24,33 +23,29 @@ export default defineNuxtRouteMiddleware((to) => {
 	const userData = JSON.parse(localStorage.getItem("user") || "{}");
 	const userRoles = userData?.roles || [];
 
+	// Liste des rôles autorisés à voir la page d'accueil (/)
+	const rolesWithHomeAccess = [
+		"responsable-du-site",
+		"admin",
+		"directeur-general-adjoint",
+		"directeur-general"
+	];
+
 	// Vérifier si l'utilisateur a un rôle avec accès total
 	const hasFullAccess = userRoles.some((role) =>
-		[
-			"responsable-du-site",
-			"admin",
-			"directeur-general-adjoint",
-			"directeur-general",
-		].includes(role.slug),
+		rolesWithHomeAccess.includes(role.slug)
 	);
 
 	// REDIRECTION SPÉCIALE POUR LA PAGE D'ACCUEIL (/)
 	if (to.path === "/") {
-		// Si l'utilisateur n'a pas accès total, rediriger vers sa page spécifique
+		// Si l'utilisateur n'a pas accès total, rediriger vers sa page par défaut
 		if (!hasFullAccess) {
-			// Étudiant
-			if (userRoles.some((role) => role.slug === "etudiant")) {
-				return navigateTo("/emploi-du-temps");
-			}
-
-			// Professeur
-			if (userRoles.some((role) => role.slug === "enseignant")) {
-				return navigateTo("/emploi-du-temps");
-			}
-
-			// Autres rôles sans accès total
-			// Vous pouvez ajouter d'autres redirections ici
+			// Redirection par défaut pour tous les utilisateurs sans accès total
+			return navigateTo("/emploi-du-temps");
 		}
+		
+		// Si l'utilisateur a accès total, on le laisse voir /
+		return;
 	}
 
 	if (hasFullAccess) {
@@ -80,16 +75,8 @@ export default defineNuxtRouteMiddleware((to) => {
 		$toastr.error(
 			`Accès refusé car vous n'avez pas la permission d'accéder à cette page!`,
 		);
-		// console.log(`Accès refusé pour ${to.path} - redirection`);
 
-		// Rediriger vers la page appropriée selon le rôle
-		if (userRoles.some((role) => role.slug === "etudiant")) {
-			return navigateTo("/emploi-du-temps");
-		}
-		if (userRoles.some((role) => role.slug === "enseignant")) {
-			return navigateTo("/emploi-du-temps");
-		}
-
-		return navigateTo("/unauthorized");
+		// Rediriger vers la page par défaut pour tous les utilisateurs
+		return navigateTo("/emploi-du-temps");
 	}
 });

@@ -6,10 +6,10 @@
       <Breadcrumb
         :items="[
           { label: 'Tableau de bord', to: '/admin/dashboard' },
-          { label: 'Frais scolaires', to: '/admin/negociations' },
-          { label: 'Gestion des frais', to: null }
+          { label: 'Negociation des paiements', to: '/admin/negociations' },
+          { label: 'Gestion des negociations', to: null }
         ]"
-        title="Gestion des frais étudiants"
+        title="Gestion des négociations de paiement"
         title-class="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
         spacing="mb-0"
       />
@@ -439,6 +439,7 @@
             <template #actions="data">
               <div class="flex items-center gap-2">
                 <NuxtLink
+                title="détail"
                   :to="`/admin/negociations/detail-de-la-negociation-${getDetailId(data.value)}-information`"
                   class="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 text-indigo-700 dark:text-indigo-300 rounded-lg hover:from-indigo-100 hover:to-indigo-200 dark:hover:from-indigo-900/30 dark:hover:to-indigo-800/30 transition-all text-xs sm:text-sm font-medium group"
                 >
@@ -446,17 +447,18 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
-                  <span class="hidden sm:inline">Détails</span>
+                  <span class="hidden sm:inline"></span>
                 </NuxtLink>
 
                 <button
                   @click="openRecuModal(data.value)"
+                  title="recu"
                   class="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 bg-gradient-to-r from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 text-emerald-700 dark:text-emerald-300 rounded-lg hover:from-emerald-100 hover:to-emerald-200 dark:hover:from-emerald-900/30 dark:hover:to-emerald-800/30 transition-all text-xs sm:text-sm font-medium group"
                 >
                   <svg class="w-3 h-3 sm:w-4 sm:h-4 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  <span class="hidden sm:inline">Reçu</span>
+                  <span class="hidden sm:inline"></span>
                 </button>
               </div>
             </template>
@@ -523,7 +525,7 @@
               <div ref="recuContent" class="recu-pdf-container">
                 <div class="recu-pdf">
                   <div class="recu-header">
-                    <h1>ESCEN University</h1>
+                    <h1>{{appName}}</h1>
                     <p class="recu-subtitle">Reçu de paiement officiel</p>
                     <div class="recu-matricule">N° REC-{{ selectedItem.id }}-{{ formatDateForRef(new Date()) }}</div>
                   </div>
@@ -655,12 +657,15 @@ import "@bhplugin/vue3-datatable/dist/style.css"
 import Breadcrumb from "~/components/Breadcrumb.vue"
 import { useNegociationStore } from '~~/stores/negociation'
 import { useAnneScolaireStore } from '~~/stores/annee-scolaire'
+import { useParametreStore } from '~~/stores/parametre'
 
 const { $toastr } = useNuxtApp()
 
 // Stores
 const negociationStore = useNegociationStore()
 const anneeStore = useAnneScolaireStore()
+const parametreStore=useParametreStore()
+
 
 // États
 const activeTab = ref('frais')
@@ -800,6 +805,14 @@ const getStatutActuel = (negociation) => {
   
   return 'en_cours'
 }
+
+const logoUrl = computed(() => {
+  const url = parametreStore.getAppLogo
+  return url
+})
+
+const appName = computed(() => parametreStore.getAppName)
+
 
 const getStatutActuelLabel = (negociation) => {
   const labels = {
@@ -976,7 +989,8 @@ onMounted(async () => {
   try {
     await Promise.all([
       negociationStore.fetchNegociations(),
-      anneeStore.fetchAnneeScolaire()
+      anneeStore.fetchAnneeScolaire(),
+      parametreStore.fetchParametres()
     ])
     annees.value = anneeStore.annneescolaires || []
   } catch (error) {
@@ -1178,10 +1192,30 @@ const downloadRecu = async () => {
 }
 
 .recu-header {
-  background: #1e293b;
-  color: white;
-  padding: 30px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  padding: 35px 30px 25px;
   text-align: center;
+  border-bottom: 1px solid #eef2f6;
+  position: relative;
+}
+
+.recu-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 10%;
+  width: 80%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+}
+
+
+.recu-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
 }
 
 .recu-header h1 {
@@ -1189,10 +1223,13 @@ const downloadRecu = async () => {
   font-weight: bold;
   margin: 0 0 8px 0;
 }
-
 .recu-subtitle {
-  color: #a5b4fc;
+  color: #64748b;
+  font-size: 15px;
+  font-weight: 500;
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .recu-matricule {

@@ -34,6 +34,39 @@ export const useEvaluationStore = defineStore("evaluation", {
         this.isLoading = false;
       }
     },
+     async fetchEvaluationsForTeacher() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          "evaluations/get-liste-enseignant-evaluations",
+          this.authHeaders(),
+        );
+
+        this.evaluations = response.data.data;
+      } catch (error) {
+        console.error("Erreur chargement evaluations:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+     async fetchEvaluationsForStudent() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          "evaluations/get-liste-etudiant-evaluations",
+          this.authHeaders(),
+        );
+
+        this.evaluations = response.data.data;
+      } catch (error) {
+        console.error("Erreur chargement evaluations:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
 
     async addEvaluation(payload) {
       this.isLoading = true;

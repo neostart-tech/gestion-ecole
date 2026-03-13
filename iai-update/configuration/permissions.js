@@ -1,237 +1,254 @@
 // Configuration des permissions par rôle
 export const rolePermissions = {
-	// Rôles administratifs
-	"responsable-du-site": ["*"], // Accès à tout
-	admin: ["*"], // Accès à tout
-	"directeur-general-adjoint": ["*"], // Accès à tout
-	"directeur-general": ["*"], // Accès à tout
+  // Rôles administratifs
+  admin: ["*"], // Accès à tout
+  "directeur-general-adjoint": ["*"], // Accès à tout
+  "directeur-general": ["*"], // Accès à tout
 
-	// Rôles académiques
-	"directeur-academique": [
-		"/",
-		"/profile/*",
-		"/messages/*",
-		"/reclamations/*",
-		"/presences/*",
-		"/emploi-du-temps/*",
-		"/filieres/*",
-		"/ues/*",
-		"/uvs/*",
-		"/evaluations/*",
-		"/salles/*",
-		"/groupes/*",
-		"/admin/liste-des-etudiants",
-		"/annee-scolaire/*",
-		"/personnel/*",
-		"/publications/*",
-		"/notifications/*",
-		"admin/*",
-		"année-scolaire/*",
-		"periodes/*",
-		"parcours/*",
-		"annonces/*",
-		"statistiques/*",
-	],
+  // Rôles académiques
+  "directeur-academique": [
+    "/",
+    "/profile/*",
+    "/messages/*",
+    "/reclamations/*",
+    "/presences/*",
+    "/emploi-du-temps/*",
+    "/filieres/*",
+    "/ues/*",
+    "/uvs/*",
+    "/evaluations/*",
+    "/salles/*",
+    "/groupes/*",
+    "/admin/liste-des-etudiants",
+    "/annee-scolaire/*",
+    "/notifications/*",
+    "admin/*",
+    "année-scolaire/*",
+    "periodes/*",
+    "parcours/*",
+    "statistiques/*",
+    "/chat/*",
+    "/evaluations/professeur/mes-examens",
+  ],
 
-	"logiticien-academique": [
-		"/",
-		"/profile/*",
-		"/messages/*",
-		"/presences/*",
-		"/emploi-du-temps/*",
-		"/salles/*",
-		"/groupes/*",
-		"/admin/liste-des-etudiants",
-		"/evenements/*",
-		"/notifications/*",
-	],
+  "logiticien-academique": [
+    "/",
+    "/profile/*",
+    "/messages/*",
+    "/presences/*",
+    "/emploi-du-temps/*",
+    "/salles/*",
+    "/groupes/*",
+    "/admin/liste-des-etudiants",
+    "/evenements/*",
+    "/notifications/*",
+    "/chat/*",
+    "/evaluations/professeur/mes-examens",
+  ],
 
-	surveillant: [
-		"/",
-		"/profile/*",
-		"/reclamations/*",
-		"/presences/*",
-		"/emploi-du-temps/*",
-		"/groupes/*",
-		"/admin/liste-des-etudiants",
-		"/notifications/*",
-	],
+  surveillant: [
+    "/",
+    "/profile/*",
+    "/reclamations/*",
+    "/presences/*",
+    "/emploi-du-temps/*",
+    "/groupes/*",
+    "/admin/liste-des-etudiants",
+    "/notifications/*",
+    "/chat/*",
+  ],
 
-	enseignant: [
-		"/",
-		"/profile/*",
-		"/emploi-du-temps/*",
-		"/presences/*",
-		"/notifications/*",
-		"/statistiques/*",
-	],
+  enseignant: [
+    "/",
+    "/profile/*",
+    "/emploi-du-temps/*",
+    "/presences/*",
+    "/notifications/*",
+    "/statistiques/*",
+    "/chat/*",
+    "/evaluations/professeur/mes-examens",
+    "/evaluations/examen-en-ligne/*",
+  ],
 
-	// Rôles financiers
-	"responsable-administratif-et-financier": [
-		"/",
-		"/profile/*",
-		"/messages/*",
-		"/finance/*",
-		"/frais-de-scolarite/*",
-		"/bourses/*",
-		"/personnel/*",
-		"/notifications/*",
-	],
+  // Rôles financiers
+  "responsable-administratif-et-financier": [
+    "/",
+    "/profile/*",
+    "/messages/*",
+    "/finance/*",
+    "/frais-de-scolarite/*",
+    "/bourses/*",
+    "/personnel/*",
+    "/notifications/*",
+    "/chat/*",
+  ],
 
-	"directeur-des-affaires-financieres": [
-		"/",
-		"/profile/*",
-		"/messages/*",
-		"/finance/*",
-		"/frais-de-scolarite/*",
-		"/bourses/*",
-		"/personnel/*",
-		"/notifications/*",
-	],
+  "directeur-des-affaires-financieres": [
+    "/",
+    "/profile/*",
+    "/messages/*",
+    "/finance/*",
+    "/frais-de-scolarite/*",
+    "/bourses/*",
+    "/personnel/*",
+    "/notifications/*",
+    "/chat/*",
+  ],
 
-	// Rôles logistiques
-	"responsable-des-achats-et-de-la-logistique": [
-		"/",
-		"/profile/*",
-		"/messages/*",
-		"/salles/*",
-		"/evenements/*",
-		"/notifications/*",
-	],
+  // Rôles logistiques
+  "responsable-des-achats-et-de-la-logistique": [
+    "/",
+    "/profile/*",
+    "/messages/*",
+    "/salles/*",
+    "/evenements/*",
+    "/notifications/*",
+    "/chat/*",
+  ],
 
-	// Rôles communication
-	"charge-de-la-clientele": [
-		"/",
-		"/profile/*",
-		"/messages/*",
-		"/reclamations/*",
-		"/presences/*",
-		"/publications/*",
-		"/emploi-du-temps/*",
-		"/notifications/*",
-	],
+  // Rôles communication
+  "charge-de-la-clientele": [
+    "/",
+    "/profile/*",
+    "/messages/*",
+    "/reclamations/*",
+    "/presences/*",
+    "/publications/*",
+    "/emploi-du-temps/*",
+    "/notifications/*",
+    "/chat/*",
+  ],
 
-	"responsable-marketing": [
-		"/profile/*",
-		"/emploi-du-temps/*",
-		"/publications/*",
-		"/evenements/*",
-		"/partenaires/*",
-		"/opportunites/*",
-		"/notifications/*",
-	],
+  "responsable-marketing": [
+    "/profile/*",
+    "/emploi-du-temps/*",
+    "/publications/*",
+    "/evenements/*",
+    "/partenaires/*",
+    "/opportunites/*",
+    "/notifications/*",
+    "/info-urgente/*",
+    "/chat/*",
+  ],
 
-	// Rôles techniques
-	informaticien: [
-		"/",
-		"/profile/*",
-		"/reclamations/*",
-		"/presences/*",
-		"/personnel/*",
-		"/logs",
-		"/notifications/*",
-	],
+  // Rôles techniques
+  informaticien: [
+    "/",
+    "/profile/*",
+    "/reclamations/*",
+    "/presences/*",
+    "/personnel/*",
+    "/logs",
+    "/notifications/*",
+    "/chat/*",
+  ],
 
-	// Rôles administratifs/support
-	secretaires: [
-		"/",
-		"/profile/*",
-		"/messages/*",
-		"/reclamations/*",
-		"/presences/*",
-		"/emploi-du-temps/*",
-		"/admin/liste-des-etudiants",
-		"/notifications/*",
-	],
+  // Rôles administratifs/support
+  secretaires: [
+    "/",
+    "/profile/*",
+    "/messages/*",
+    "/reclamations/*",
+    "/presences/*",
+    "/emploi-du-temps/*",
+    "/admin/liste-des-etudiants",
+    "/notifications/*",
+    "/chat/*",
+  ],
 
-	"charge-de-la-reprographie": [
-		"/",
-		"/profile/*",
-		"/messages/*",
-		"/evenements/*",
-		"/notifications/*",
-	],
+  "charge-de-la-reprographie": [
+    "/",
+    "/profile/*",
+    "/messages/*",
+    "/evenements/*",
+    "/notifications/*",
+    "/chat/*",
+  ],
 
-	// Rôles pédagogiques
-	"titulaire-dune-classe": [
-		"/",
-		"/profile/*",
-		"/emploi-du-temps/*",
-		"/presences/*",
-		"/groupes/*",
-		"/notifications/*",
-	],
+  // Rôles pédagogiques
+  "titulaire-dune-classe": [
+    "/",
+    "/profile/*",
+    "/emploi-du-temps/*",
+    "/presences/*",
+    "/groupes/*",
+    "/notifications/*",
+    "/chat/*",
+  ],
 
-	// Rôles étudiants/communautaires
-	"membre-du-comite-etudiant": [
-		"/",
-		"/profile/*",
-		"/messages/*",
-		"/emploi-du-temps/*",
-		"/evenements/*",
-		"/notifications/*",
-	],
+  // Rôles étudiants/communautaires
+  "membre-du-comite-etudiant": [
+    "/",
+    "/profile/*",
+    "/messages/*",
+    "/emploi-du-temps/*",
+    "/evenements/*",
+    "/notifications/*",
+    "/chat/*",
+  ],
 
-	// Rôles parents
-	parent: [
-		"/",
-		"/profile/*",
-		"/emploi-du-temps/*",
-		"/presences/*",
-		"/messages/*",
-		"/notifications/*",
-	],
+  // Rôles parents
+  parent: [
+    "/",
+    "/profile/*",
+    "/emploi-du-temps/*",
+    "/presences/*",
+    "/messages/*",
+    "/notifications/*",
+    "/chat/*",
+  ],
 
-	// Rôles commerciaux
-	"collaborateur-commercial": [
-		"/",
-		"/profile/*",
-		"/messages/*",
-		"/partenaires/*",
-		"/opportunites/*",
-		"/notifications/*",
-	],
+  // Rôles commerciaux
+  "collaborateur-commercial": [
+    "/",
+    "/profile/*",
+    "/messages/*",
+    "/partenaires/*",
+    "/opportunites/*",
+    "/notifications/*",
+    "/chat/*",
+  ],
 
-	// Étudiants
-	etudiant: [
-		"/",
-		"/profile/*",
-		"/etudiant/*",
-		"/emploi-du-temps/*",
-		"/messages/*",
-		"/notifications/*",
-	],
+  // Étudiants
+  etudiant: [
+    "/profile/*",
+    "/etudiant/*",
+    "/emploi-du-temps/*",
+    "/messages/*",
+    "/notifications/*",
+    "/chat/*",
+    "/presences/*",
+    "/evaluations/etudiant/mes-examens",
+    "/evaluations/examen-en-ligne/*",
+  ],
 
-	// Utilisateur simple
-	"utilisateur-de-la-plateforme": [
-		"/",
-		"/profile/*",
-		"/messages/*",
-		"/notifications/*",
-	],
+  // Utilisateur simple
+  "utilisateur-de-la-plateforme": [
+    "/",
+    "/profile/*",
+    "/messages/*",
+    "/notifications/*",
+    "/chat/*",
+  ],
 
-	"stagiaire-academie": [
-		"/",
-		"/profile/*",
-		"/messages/*",
-		"/presences/*",
-		"/notifications/*",
-	],
+  "stagiaire-academie": [
+    "/",
+    "/profile/*",
+    "/messages/*",
+    "/presences/*",
+    "/notifications/*",
+    "/chat/*",
+  ],
 };
 
 // Routes publiques (accessibles sans authentification)
 export const publicRoutes = [
-	"/login",
-	"/register",
-	"/mot-de-passe-oublie",
-	"/reset-password",
-	"/notifications/*",
+  "/login",
+  "/register",
+  "/mot-de-passe-oublie",
+  "/reset-password",
+  "/notifications/*",
 ];
 
 // Routes interdites pour les utilisateurs connectés (comme login)
-export const authRoutes = [
-	"/login",
-	"/register",
-	"/mot-de-passe-oublie",
-	"/notifications/*",
-];
+export const authRoutes = ["/login", "/register", "/mot-de-passe-oublie"];

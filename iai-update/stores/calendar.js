@@ -54,7 +54,6 @@ export const useCalendarStore = defineStore("calendar", {
           params: params,
           responseType: "blob", 
         });
-
         return response; 
       } catch (error) {
         console.error("Erreur export calendrier:", error);
@@ -63,5 +62,23 @@ export const useCalendarStore = defineStore("calendar", {
         this.isLoading = false;
       }
     },
+
+     async getEmploiDuTempsData(params) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get("/emploi-du-temps/data", {
+          ...this.authHeaders(),
+          params: params
+        });
+        return response;
+      } catch (error) {
+        console.error("Erreur récupération données PDF:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+  
   },
 });

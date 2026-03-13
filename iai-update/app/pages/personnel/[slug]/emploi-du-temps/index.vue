@@ -1,19 +1,19 @@
 <template>
   <!-- LOADING GLOBAL -->
-	<div
-		v-if="isPageLoading"
-		class="fixed inset-0 z-50 flex items-center justify-center bg-white/70 dark:bg-gray-900/70"
-	>
-		<div class="loader">
-    <div class="loader__bar"></div>
-    <div class="loader__bar"></div>
-    <div class="loader__bar"></div>
-    <div class="loader__bar"></div>
-    <div class="loader__bar"></div>
-    <div class="loader__ball"></div>
+  <div
+    v-if="isPageLoading"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-white/70 dark:bg-gray-900/70"
+  >
+    <div class="loader">
+      <div class="loader__bar"></div>
+      <div class="loader__bar"></div>
+      <div class="loader__bar"></div>
+      <div class="loader__bar"></div>
+      <div class="loader__bar"></div>
+      <div class="loader__ball"></div>
+    </div>
   </div>
-	</div>
-  
+
   <div
     class="min-h-screen p-4 md:p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800"
   >
@@ -118,7 +118,7 @@
             @click="openEventModal(event)"
           >
             <div class="flex items-start justify-between">
-              <div>
+              <div class="flex-1 pr-4">
                 <h3 class="font-medium text-gray-900 dark:text-white">
                   {{ event.title }}
                 </h3>
@@ -136,7 +136,56 @@
                     {{ event.extendedProps.group }}
                   </span>
                 </div>
+
+                <!-- 👇 AJOUTER ICI : Lien de réunion pour mobile -->
+                <div v-if="event.extendedProps.lien_reunion" class="mt-3">
+                  <a
+                    :href="event.extendedProps.lien_reunion"
+                    target="_blank"
+                    class="inline-flex items-center gap-1.5 text-sm text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 bg-purple-50 dark:bg-purple-900/20 px-3 py-1.5 rounded-lg"
+                    @click.stop
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <span>Rejoindre le cours en ligne</span>
+                  </a>
+                </div>
+
+                <!-- 👇 OU AJOUTER : Badge pour cours en ligne sans lien -->
+                <div v-else-if="event.extendedProps.est_virtuelle" class="mt-2">
+                  <span
+                    class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
+                  >
+                    <svg
+                      class="w-3 h-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                    Cours en ligne
+                  </span>
+                </div>
               </div>
+
+              <!-- Boutons d'action -->
               <div class="flex gap-2">
                 <button
                   @click.stop="openEditModal(event)"
@@ -313,7 +362,7 @@
                     </FloatLabel>
                   </div>
 
-                   <div>
+                  <div>
                     <FloatLabel variant="on">
                       <Dropdown
                         v-model="form.salle"
@@ -328,9 +377,6 @@
                       <label for="on_label">Sélectionnez une salle</label>
                     </FloatLabel>
                   </div>
-
-                  
-                  
 
                   <!-- Type -->
                   <div>
@@ -613,6 +659,7 @@
                 </div>
 
                 <!-- Salle -->
+                <!-- Salle avec lien de réunion si virtuelle -->
                 <div class="flex items-start">
                   <div class="w-8 flex-shrink-0">
                     <svg
@@ -633,14 +680,81 @@
                     <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
                       Salle
                     </p>
-                    <p class="font-medium text-gray-900 dark:text-white">
-                      {{
-                        selectedEvent?.extendedProps?.salle || "Non spécifié"
-                      }}
-                    </p>
+                    <div class="flex flex-col gap-2">
+                      <p class="font-medium text-gray-900 dark:text-white">
+                        {{
+                          selectedEvent?.extendedProps?.salle || "Non spécifié"
+                        }}
+                      </p>
+
+                      <!-- Lien de réunion pour les salles virtuelles -->
+                      <div
+                        v-if="selectedEvent?.extendedProps?.lien_reunion"
+                        class="mt-1"
+                      >
+                        <a
+                          :href="selectedEvent.extendedProps.lien_reunion"
+                          target="_blank"
+                          class="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 rounded-lg text-sm hover:bg-purple-200 dark:hover:bg-purple-800/40 transition-colors"
+                          @click.stop
+                        >
+                          <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                            />
+                          </svg>
+                          <span>Rejoindre le cours en ligne</span>
+                          <svg
+                            class="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                            />
+                          </svg>
+                        </a>
+                      </div>
+
+                      <!-- Badge virtuelle si pas de lien -->
+                      <div
+                        v-else-if="selectedEvent?.extendedProps?.est_virtuelle"
+                        class="mt-1"
+                      >
+                        <span
+                          class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
+                        >
+                          <svg
+                            class="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                            />
+                          </svg>
+                          Cours en ligne
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-
                 <!-- Enseignant -->
                 <div class="flex items-start">
                   <div class="w-8 flex-shrink-0">
@@ -1084,8 +1198,6 @@ const generateRecurringEvents = (
     isInitialEvent: true,
   });
 
- 
-
   // 2. GÉNÉRER LES RÉCURRENCES
   let recurrenceEndDate: Date | null = null;
 
@@ -1206,8 +1318,6 @@ const generateRecurringEvents = (
 const calendarEvents = computed(() => {
   const events: any[] = [];
 
- 
-
   programmesArray.value.forEach((event: any, index: number) => {
     try {
       const startDate = parseDateTime(event.debut);
@@ -1223,7 +1333,6 @@ const calendarEvents = computed(() => {
         startDate,
         endDate,
       );
-
 
       recurringEvents.forEach((evt: any) => {
         const backgroundColor = getEventColor(evt.type);
@@ -1250,6 +1359,11 @@ const calendarEvents = computed(() => {
             teacher: evt.teacher?.nom || evt.teacher || "",
             teacher_id: evt.teacher?.id || evt.teacher_id || "",
             teacher_slug: evt.teacher?.slug || evt.teacher_slug || "",
+            lien_reunion:
+              evt?.lien_reunion_formate || evt?.lien_reunion || null,
+            est_virtuelle:
+              evt?.type === "virtuelle" || evt?.est_virtuelle || false,
+            plateforme: evt?.plateforme || null,
             group: evt.group || evt.grade || "",
             group_id: evt.group_id,
             grade_id: evt.grade?.id || evt.group_id || "",
@@ -1531,7 +1645,7 @@ const openEditModal = (event: any) => {
     ["id", "slug", "nom"],
   );
 
-   const salleValue = findItemValue(
+  const salleValue = findItemValue(
     salleStore.salles,
     extendedProps.salle || extendedProps.salle_slug,
     ["id", "slug", "nom"],
@@ -1547,7 +1661,7 @@ const openEditModal = (event: any) => {
     type: extendedProps.type || "",
     grade: gradeValue,
     teacher: teacherValue,
-    salle:salleValue,
+    salle: salleValue,
     details: extendedProps.details || "",
     recurrence_type: extendedProps.recurrence_type || "aucune",
     recurrence_days: extendedProps.recurrence_days
@@ -1814,12 +1928,12 @@ onMounted(async () => {
     fixSalleStore();
     await loadSelectData();
     showCalendar.value = true;
-    $toastr.success('Donnée chargée avec succes')
+    $toastr.success("Donnée chargée avec succes");
   } catch (error) {
     console.error("Erreur lors du chargement:", error);
-  }  finally {
-			isPageLoading.value = false;
-		}
+  } finally {
+    isPageLoading.value = false;
+  }
 });
 
 // Charger les données pour les select
@@ -1833,6 +1947,34 @@ const loadSelectData = async () => {
   } catch (error) {
     console.error("Erreur lors du chargement des données:", error);
     $toastr.error("Erreur lors du chargement des données:", error);
+  }
+};
+
+const getPlateformeLabel = (plateforme: string | null): string => {
+  const plateformes: Record<string, string> = {
+    zoom: "Zoom",
+    teams: "Microsoft Teams",
+    meet: "Google Meet",
+    whatsapp: "WhatsApp",
+    discord: "Discord",
+    autres: "Autre",
+  };
+
+  return plateformes[plateforme || ""] || plateforme || "Non spécifiée";
+};
+
+/**
+ * Copier le lien de réunion
+ */
+const copyLienReunion = async (lien: string) => {
+  if (!lien) return;
+
+  try {
+    await navigator.clipboard.writeText(lien);
+    $toastr.success("Lien copié dans le presse-papier");
+  } catch (error) {
+    console.error("Erreur de copie:", error);
+    $toastr.error("Impossible de copier le lien");
   }
 };
 
@@ -1855,346 +1997,6 @@ const fixSalleStore = () => {
     }
   }
 };
-
-
 </script>
 
 
-<style scoped>
-  .loader {
-    position: relative;
-    width: 75px;
-    height: 100px;
-  }
-
-  .loader__bar {
-    position: absolute;
-    bottom: 0;
-    width: 10px;
-    height: 50%;
-    background: rgb(0, 0, 0);
-    transform-origin: center bottom;
-    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
-  }
-
-  .loader__bar:nth-child(1) {
-    left: 0px;
-    transform: scale(1, 0.2);
-    -webkit-animation: barUp1 4s infinite;
-    animation: barUp1 4s infinite;
-  }
-
-  .loader__bar:nth-child(2) {
-    left: 15px;
-    transform: scale(1, 0.4);
-    -webkit-animation: barUp2 4s infinite;
-    animation: barUp2 4s infinite;
-  }
-
-  .loader__bar:nth-child(3) {
-    left: 30px;
-    transform: scale(1, 0.6);
-    -webkit-animation: barUp3 4s infinite;
-    animation: barUp3 4s infinite;
-  }
-
-  .loader__bar:nth-child(4) {
-    left: 45px;
-    transform: scale(1, 0.8);
-    -webkit-animation: barUp4 4s infinite;
-    animation: barUp4 4s infinite;
-  }
-
-  .loader__bar:nth-child(5) {
-    left: 60px;
-    transform: scale(1, 1);
-    -webkit-animation: barUp5 4s infinite;
-    animation: barUp5 4s infinite;
-  }
-
-  .loader__ball {
-    position: absolute;
-    bottom: 10px;
-    left: 0;
-    width: 10px;
-    height: 10px;
-    background: rgb(44, 143, 255);
-    border-radius: 50%;
-    -webkit-animation: ball624 4s infinite;
-    animation: ball624 4s infinite;
-  }
-
-  @keyframes ball624 {
-    0% {
-      transform: translate(0, 0);
-    }
-
-    5% {
-      transform: translate(8px, -14px);
-    }
-
-    10% {
-      transform: translate(15px, -10px);
-    }
-
-    17% {
-      transform: translate(23px, -24px);
-    }
-
-    20% {
-      transform: translate(30px, -20px);
-    }
-
-    27% {
-      transform: translate(38px, -34px);
-    }
-
-    30% {
-      transform: translate(45px, -30px);
-    }
-
-    37% {
-      transform: translate(53px, -44px);
-    }
-
-    40% {
-      transform: translate(60px, -40px);
-    }
-
-    50% {
-      transform: translate(60px, 0);
-    }
-
-    57% {
-      transform: translate(53px, -14px);
-    }
-
-    60% {
-      transform: translate(45px, -10px);
-    }
-
-    67% {
-      transform: translate(37px, -24px);
-    }
-
-    70% {
-      transform: translate(30px, -20px);
-    }
-
-    77% {
-      transform: translate(22px, -34px);
-    }
-
-    80% {
-      transform: translate(15px, -30px);
-    }
-
-    87% {
-      transform: translate(7px, -44px);
-    }
-
-    90% {
-      transform: translate(0, -40px);
-    }
-
-    100% {
-      transform: translate(0, 0);
-    }
-  }
-
-  @-webkit-keyframes barUp1 {
-    0% {
-      transform: scale(1, 0.2);
-    }
-
-    40% {
-      transform: scale(1, 0.2);
-    }
-
-    50% {
-      transform: scale(1, 1);
-    }
-
-    90% {
-      transform: scale(1, 1);
-    }
-
-    100% {
-      transform: scale(1, 0.2);
-    }
-  }
-
-  @keyframes barUp1 {
-    0% {
-      transform: scale(1, 0.2);
-    }
-
-    40% {
-      transform: scale(1, 0.2);
-    }
-
-    50% {
-      transform: scale(1, 1);
-    }
-
-    90% {
-      transform: scale(1, 1);
-    }
-
-    100% {
-      transform: scale(1, 0.2);
-    }
-  }
-
-  @-webkit-keyframes barUp2 {
-    0% {
-      transform: scale(1, 0.4);
-    }
-
-    40% {
-      transform: scale(1, 0.4);
-    }
-
-    50% {
-      transform: scale(1, 0.8);
-    }
-
-    90% {
-      transform: scale(1, 0.8);
-    }
-
-    100% {
-      transform: scale(1, 0.4);
-    }
-  }
-
-  @keyframes barUp2 {
-    0% {
-      transform: scale(1, 0.4);
-    }
-
-    40% {
-      transform: scale(1, 0.4);
-    }
-
-    50% {
-      transform: scale(1, 0.8);
-    }
-
-    90% {
-      transform: scale(1, 0.8);
-    }
-
-    100% {
-      transform: scale(1, 0.4);
-    }
-  }
-
-  @-webkit-keyframes barUp3 {
-    0% {
-      transform: scale(1, 0.6);
-    }
-
-    100% {
-      transform: scale(1, 0.6);
-    }
-  }
-
-  @keyframes barUp3 {
-    0% {
-      transform: scale(1, 0.6);
-    }
-
-    100% {
-      transform: scale(1, 0.6);
-    }
-  }
-
-  @-webkit-keyframes barUp4 {
-    0% {
-      transform: scale(1, 0.8);
-    }
-
-    40% {
-      transform: scale(1, 0.8);
-    }
-
-    50% {
-      transform: scale(1, 0.4);
-    }
-
-    90% {
-      transform: scale(1, 0.4);
-    }
-
-    100% {
-      transform: scale(1, 0.8);
-    }
-  }
-
-  @keyframes barUp4 {
-    0% {
-      transform: scale(1, 0.8);
-    }
-
-    40% {
-      transform: scale(1, 0.8);
-    }
-
-    50% {
-      transform: scale(1, 0.4);
-    }
-
-    90% {
-      transform: scale(1, 0.4);
-    }
-
-    100% {
-      transform: scale(1, 0.8);
-    }
-  }
-
-  @-webkit-keyframes barUp5 {
-    0% {
-      transform: scale(1, 1);
-    }
-
-    40% {
-      transform: scale(1, 1);
-    }
-
-    50% {
-      transform: scale(1, 0.2);
-    }
-
-    90% {
-      transform: scale(1, 0.2);
-    }
-
-    100% {
-      transform: scale(1, 1);
-    }
-  }
-
-  @keyframes barUp5 {
-    0% {
-      transform: scale(1, 1);
-    }
-
-    40% {
-      transform: scale(1, 1);
-    }
-
-    50% {
-      transform: scale(1, 0.2);
-    }
-
-    90% {
-      transform: scale(1, 0.2);
-    }
-
-    100% {
-      transform: scale(1, 1);
-    }
-  }
-</style>

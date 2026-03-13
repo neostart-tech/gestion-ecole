@@ -53,9 +53,8 @@
               </p>
             </div>
           </div>
-
+<!-- 
           <div class="flex gap-2">
-            <!-- Bouton Modifier -->
             <button
               @click="openEditModal"
               class="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
@@ -76,7 +75,7 @@
               Modifier
             </button>
 
-            <!-- Bouton Désactiver -->
+          
             <button
               @click="openDisableModal"
               class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
@@ -96,7 +95,7 @@
               </svg>
               Désactiver le compte
             </button>
-          </div>
+          </div> -->
         </div>
       </div>
 

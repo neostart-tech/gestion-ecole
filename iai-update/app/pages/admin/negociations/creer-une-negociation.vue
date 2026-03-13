@@ -792,6 +792,7 @@ const canSubmit = computed(() => {
     return form.echeances.length > 0 &&
       form.echeances.every(e => e.libelle?.trim() && e.montant > 0 && e.date_limite)
   }
+
   
   return form.frequence_paiement 
 })
