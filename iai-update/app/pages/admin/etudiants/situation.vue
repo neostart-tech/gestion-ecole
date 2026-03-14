@@ -1,0 +1,1158 @@
+<!-- pages/admin/etudiants/situation.vue -->
+
+<template>
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 lg:p-8 transition-colors">
+    <!-- En-tête avec Breadcrumb -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+      <Breadcrumb
+        :items="[
+          { label: 'Tableau de bord', to: '/admin/dashboard' },
+          { label: 'Gestion des étudiants', to: '/admin/etudiants' },
+          { label: 'Situation des étudiants', to: null }
+        ]"
+        title="Situation des étudiants"
+        title-class="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
+        spacing="mb-0"
+      />
+
+      <!-- Boutons d'action -->
+      <div class="flex items-center gap-2">
+        <button
+          @click="rafraichir"
+          class="p-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+          :disabled="store.isPageLoading"
+          title="Rafraîchir"
+        >
+          <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" :class="{ 'animate-spin': store.isPageLoading }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
+        
+        <!-- Bouton Export Excel -->
+        <!-- <button
+          @click="exporterExcel"
+          :disabled="store.isExporting"
+          type="button"
+          class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+        >
+          <svg v-if="store.isExporting" class="w-5 h-5 animate-spin" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+          </svg>
+          <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          <span class="hidden sm:inline">Exporter CSV</span>
+        </button> -->
+      </div>
+    </div>
+
+    <!-- Loading initial -->
+    <div v-if="store.isPageLoading" class="space-y-6">
+      <!-- Skeleton pour les cartes -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div v-for="i in 4" :key="i" class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+          <div class="flex items-start justify-between">
+            <div class="space-y-2">
+              <div class="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+              <div class="h-8 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+            </div>
+            <div class="p-3 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse w-12 h-12"></div>
+          </div>
+          <div class="mt-3 space-y-2">
+            <div class="h-3 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+            <div class="h-3 w-28 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skeleton pour le tableau -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="space-y-4">
+          <div v-for="i in 5" :key="i" class="flex gap-4">
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 animate-pulse"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 animate-pulse"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 animate-pulse"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <template v-else>
+      <!-- Cartes KPI -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div
+          v-for="(kpi, index) in kpis"
+          :key="index"
+          class="group bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-700"
+        >
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <span class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ kpi.label }}</span>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ kpi.value }}</p>
+            </div>
+            <div :class="['p-3 rounded-xl', kpi.bgColor]">
+              <svg class="w-6 h-6" :class="kpi.iconColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="kpi.icon" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Barre de progression pour le taux de collecte -->
+          <div v-if="kpi.progress !== undefined" class="mt-3">
+            <div class="flex items-center justify-between text-xs mb-1">
+              <span class="text-gray-500 dark:text-gray-400">Progression</span>
+              <span class="font-medium text-gray-700 dark:text-gray-300">{{ kpi.progress }}%</span>
+            </div>
+            <div class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div
+                class="h-full bg-gradient-to-r from-emerald-500 to-green-500 rounded-full transition-all duration-500"
+                :style="{ width: kpi.progress + '%' }"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Détails pour les autres cartes -->
+          <div v-else class="mt-3 space-y-1">
+            <div v-for="(detail, idx) in kpi.details" :key="idx" class="flex items-center justify-between text-xs">
+              <span class="text-gray-500 dark:text-gray-400">{{ detail.label }}</span>
+              <span :class="['font-medium', detail.color]">{{ detail.value }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte principale avec tableau -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+        <!-- Barre de filtres et recherche -->
+        <div class="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+          <!-- Ligne 1: Recherche et actions -->
+          <div class="flex flex-col md:flex-row gap-4 mb-4">
+            <!-- Recherche -->
+            <div class="relative flex-1">
+              <input
+                v-model="searchQuery"
+                type="search"
+                placeholder="Rechercher par nom, prénom, matricule, email..."
+                class="w-full px-4 py-2.5 pl-10 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
+              />
+              <svg class="w-4 h-4 text-gray-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <button
+                v-if="searchQuery"
+                @click="searchQuery = ''"
+                class="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Actions groupées -->
+            <div class="flex items-center gap-3">
+              <!-- Compteur de résultats -->
+              <div class="px-3 py-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-sm whitespace-nowrap">
+                <span class="font-bold text-indigo-600 dark:text-indigo-400">{{ filteredData.length }}</span>
+                <span class="text-gray-600 dark:text-gray-400 ml-1">étudiant(s)</span>
+              </div>
+
+              <!-- Sélecteur de colonnes -->
+              <client-only>
+                <VDropdown placement="bottom-end">
+                  <button
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    <span class="hidden sm:inline">Colonnes</span>
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                  </button>
+
+                  <template #popper>
+                    <div class="w-56 p-3 rounded-lg shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                      <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-1">Colonnes affichées</p>
+                      <div
+                        v-for="col in columns"
+                        :key="col.field"
+                        class="flex items-center gap-2 py-1.5 px-1 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg"
+                      >
+                        <input
+                          type="checkbox"
+                          v-model="col.visible"
+                          :disabled="col.field === 'actions'"
+                          class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        />
+                        <span class="text-sm text-gray-700 dark:text-gray-300">
+                          {{ col.title }}
+                        </span>
+                      </div>
+                    </div>
+                  </template>
+                </VDropdown>
+              </client-only>
+            </div>
+          </div>
+
+          <!-- Ligne 2: Filtres groupés -->
+          <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <div class="flex flex-wrap gap-3 flex-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Filtrer par:</span>
+                
+                <!-- Filtre Filière -->
+                <select
+                  v-model="store.filtres.filiere_id"
+                  @change="appliquerFiltres"
+                  class="px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 min-w-[180px]"
+                >
+                  <option v-for="opt in store.filtreOptions.filieres" :key="opt.value" :value="opt.value">
+                    {{ opt.label }}
+                  </option>
+                </select>
+
+                <!-- Filtre Niveau -->
+                <select
+                  v-model="store.filtres.niveau_id"
+                  @change="appliquerFiltres"
+                  class="px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 min-w-[180px]"
+                >
+                  <option v-for="opt in store.filtreOptions.niveaux" :key="opt.value" :value="opt.value">
+                    {{ opt.label }}
+                  </option>
+                </select>
+
+                <!-- Filtre Statut -->
+                <select
+                  v-model="store.filtres.statut"
+                  @change="appliquerFiltres"
+                  class="px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 min-w-[150px]"
+                >
+                  <option v-for="opt in store.filtreOptions.statuts" :key="opt.value" :value="opt.value">
+                    {{ opt.label }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Bouton réinitialiser -->
+            <button
+              v-if="hasActiveFilters || searchQuery"
+              @click="reinitialiserFiltres"
+              class="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all inline-flex items-center gap-2 whitespace-nowrap"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span class="hidden sm:inline">Réinitialiser tous les filtres</span>
+              <span class="sm:hidden">Réinitialiser</span>
+            </button>
+          </div>
+
+          <!-- Filtres actifs (tags) -->
+          <div v-if="hasActiveFilters || searchQuery" class="flex flex-wrap items-center gap-2 mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Filtres actifs:</span>
+            
+            <div class="flex flex-wrap gap-2">
+              <span v-if="searchQuery" class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-medium">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                "{{ searchQuery }}"
+                <button @click="searchQuery = ''" class="ml-1 hover:text-indigo-900 dark:hover:text-indigo-100">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </span>
+              
+              <span v-if="store.filtres.filiere_id" class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-medium">
+                <span>Filière: {{ getFiliereLabel(store.filtres.filiere_id) }}</span>
+                <button @click="store.filtres.filiere_id = null; appliquerFiltres()" class="hover:text-indigo-900 dark:hover:text-indigo-100">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </span>
+
+              <span v-if="store.filtres.niveau_id" class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-medium">
+                <span>Niveau: {{ getNiveauLabel(store.filtres.niveau_id) }}</span>
+                <button @click="store.filtres.niveau_id = null; appliquerFiltres()" class="hover:text-indigo-900 dark:hover:text-indigo-100">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </span>
+
+              <span v-if="store.filtres.statut" class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-medium">
+                <span>Statut: {{ getStatutLabel(store.filtres.statut) }}</span>
+                <button @click="store.filtres.statut = null; appliquerFiltres()" class="hover:text-indigo-900 dark:hover:text-indigo-100">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tableau avec Vue3Datatable -->
+        <div class="p-4 sm:p-6">
+          <Vue3Datatable
+            :columns="visibleColumns"
+            :rows="filteredData"
+            :total="filteredData.length"
+            :page-size="pageSize"
+            :page="currentPage"
+            @update:page="currentPage = $event"
+            skin="bh-table-striped bh-table-hover"
+            class="w-full"
+            sortable
+            :search="searchQuery"
+            @update:search="searchQuery = $event"
+          >
+            <!-- Template pour la colonne étudiant -->
+            <template #nom_complet="data">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-medium">
+                  {{ getInitials(data.value) }}
+                </div>
+                <div class="min-w-0">
+                  <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {{ data.value.nom }} {{ data.value.prenom }}
+                  </p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ data.value.matricule }}
+                  </p>
+                </div>
+              </div>
+            </template>
+
+            <!-- Template pour la colonne filière/niveau -->
+            <template #filiere_nom="data">
+              <div>
+                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ data.value.filiere }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ data.value.niveau }}</p>
+              </div>
+            </template>
+
+            <!-- Template pour les montants -->
+            <template #montant_total_formatted="data">
+              <p class="text-sm font-mono text-gray-900 dark:text-white">{{ data.value.montant_total_formatted }}</p>
+            </template>
+
+            <template #montant_paye_formatted="data">
+              <p class="text-sm font-mono text-emerald-600 dark:text-emerald-400">{{ data.value.montant_paye_formatted }}</p>
+            </template>
+
+            <template #montant_restant_formatted="data">
+              <p class="text-sm font-mono" :class="data.value.montant_restant > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-gray-500'">
+                {{ data.value.montant_restant_formatted }}
+              </p>
+            </template>
+
+            <!-- Template pour la progression -->
+            <template #progression="data">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium min-w-[40px]" :class="getTauxColor(data.value.progression)">
+                  {{ data.value.progression }}%
+                </span>
+                <div class="w-16 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div
+                    class="h-full rounded-full transition-all duration-300"
+                    :class="getProgressBarColor(data.value.progression)"
+                    :style="{ width: data.value.progression + '%' }"
+                  ></div>
+                </div>
+              </div>
+            </template>
+
+            <!-- Template pour le statut -->
+            <template #statut_libelle="data">
+              <span class="inline-flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full" :class="getStatutDotClass(data.value.statut)"></span>
+                <span class="text-xs font-medium" :class="getStatutTextClass(data.value.statut)">
+                  {{ data.value.statut_libelle }}
+                  <span v-if="data.value.en_retard" class="ml-1 text-red-600 dark:text-red-400">
+                    ({{ data.value.jours_retard_max }}j)
+                  </span>
+                </span>
+              </span>
+            </template>
+
+            <!-- Template pour les actions -->
+            <template #actions="data">
+              <div class="flex items-center gap-2">
+                <button
+                  @click="voirDetails(data.value)"
+                  class="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all"
+                  title="Voir détails"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </button>
+
+                <button
+                  @click="voirEcheances(data.value)"
+                  class="p-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-all"
+                  title="Voir échéances"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </button>
+
+                <button
+                  @click="openRecuModal(data.value)"
+                  class="p-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-all"
+                  title="Reçu"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </button>
+              </div>
+            </template>
+          </Vue3Datatable>
+
+          <!-- Pied du tableau avec infos -->
+          <div class="mt-4 flex flex-col sm:flex-row justify-between items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+            <div>
+              Affichage de 
+              <span class="font-medium">{{ ((currentPage - 1) * pageSize) + 1 }}</span>
+              à
+              <span class="font-medium">{{ Math.min(currentPage * pageSize, filteredData.length) }}</span>
+              sur
+              <span class="font-medium">{{ filteredData.length }}</span>
+              étudiants
+            </div>
+
+            <!-- Sélecteur de nombre d'éléments par page -->
+            <div class="flex items-center gap-2">
+              <span>Afficher</span>
+              <select
+                v-model="pageSize"
+                @change="currentPage = 1"
+                class="px-2 py-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+              >
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+              <span>lignes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- Modal des détails étudiant -->
+    <TransitionRoot appear :show="showDetailsModal" as="template">
+      <Dialog as="div" class="relative z-50" @close="closeDetailsModal">
+        <div class="fixed inset-0 bg-black/60" />
+
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+          <DialogPanel class="w-full max-w-4xl rounded-xl bg-white dark:bg-gray-800 p-6 max-h-[90vh] overflow-y-auto">
+            <DialogTitle class="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span>Détails de l'étudiant</span>
+              </div>
+              <button @click="closeDetailsModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </DialogTitle>
+
+            <div v-if="selectedEtudiant" class="space-y-6">
+              <!-- Informations personnelles -->
+              <div>
+                <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Informations personnelles</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="flex items-start gap-2">
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400 min-w-[100px]">Matricule:</span>
+                    <span class="text-sm text-gray-900 dark:text-white font-mono">{{ selectedEtudiant.matricule }}</span>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400 min-w-[100px]">Nom complet:</span>
+                    <span class="text-sm text-gray-900 dark:text-white">{{ selectedEtudiant.nom }} {{ selectedEtudiant.prenom }}</span>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400 min-w-[100px]">Email:</span>
+                    <span class="text-sm text-gray-900 dark:text-white">{{ selectedEtudiant.email || 'Non renseigné' }}</span>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400 min-w-[100px]">Téléphone:</span>
+                    <span class="text-sm text-gray-900 dark:text-white">{{ selectedEtudiant.telephone || 'Non renseigné' }}</span>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400 min-w-[100px]">Date naissance:</span>
+                    <span class="text-sm text-gray-900 dark:text-white">{{ selectedEtudiant.date_naissance ? formatDate(selectedEtudiant.date_naissance) : 'Non renseigné' }}</span>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400 min-w-[100px]">Lieu naissance:</span>
+                    <span class="text-sm text-gray-900 dark:text-white">{{ selectedEtudiant.lieu_naissance || 'Non renseigné' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Informations académiques -->
+              <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Informations académiques</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="flex items-start gap-2">
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400 min-w-[100px]">Filière:</span>
+                    <span class="text-sm text-gray-900 dark:text-white">{{ selectedEtudiant.filiere }}</span>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400 min-w-[100px]">Niveau:</span>
+                    <span class="text-sm text-gray-900 dark:text-white">{{ selectedEtudiant.niveau }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Résumé financier -->
+              <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Situation financière</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">À payer</p>
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">{{ selectedEtudiant.montant_total_a_payer_formatted }}</p>
+                  </div>
+                  <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4">
+                    <p class="text-xs text-emerald-600 dark:text-emerald-400">Payé</p>
+                    <p class="text-lg font-bold text-emerald-600 dark:text-emerald-400">{{ selectedEtudiant.montant_paye_formatted }}</p>
+                  </div>
+                  <div class="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4">
+                    <p class="text-xs text-amber-600 dark:text-amber-400">Restant</p>
+                    <p class="text-lg font-bold text-amber-600 dark:text-amber-400">{{ selectedEtudiant.montant_restant_formatted }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Statut -->
+             <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+  <div class="flex items-center gap-4">
+    <span class="px-3 py-1.5 text-sm font-medium rounded-full" :class="getStatutClass(selectedEtudiant.statut)">
+      {{ selectedEtudiant.statut_libelle }}
+    </span>
+    <span v-if="selectedEtudiant.en_retard" class="flex items-center gap-1.5 text-sm text-red-600 dark:text-red-400">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      {{ selectedEtudiant.jours_retard_max }} jours de retard
+    </span>
+    <span v-if="selectedEtudiant.prochaine_echeance" class="flex items-center gap-1.5 text-sm text-blue-600 dark:text-blue-400">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      Prochaine échéance: {{ selectedEtudiant.prochaine_echeance_formatted }}
+    </span>
+  </div>
+</div>
+
+              <!-- Frais négociés -->
+              <div v-if="selectedEtudiant.frais_negocies" class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Frais négociés</h3>
+                <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-4">
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <p class="text-xs text-indigo-600 dark:text-indigo-400">Montant initial</p>
+                      <p class="text-sm font-medium text-gray-900 dark:text-white">{{ formatMontant(selectedEtudiant.frais_negocies.montant_initial) }}</p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-indigo-600 dark:text-indigo-400">Bourse</p>
+                      <p class="text-sm font-medium text-gray-900 dark:text-white">{{ selectedEtudiant.frais_negocies.bourse || 0 }}% ({{ selectedEtudiant.frais_negocies.type_bourse || 'Standard' }})</p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-indigo-600 dark:text-indigo-400">Montant après bourse</p>
+                      <p class="text-sm font-medium text-gray-900 dark:text-white">{{ formatMontant(selectedEtudiant.frais_negocies.montant_apres_bourse) }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Boutons d'action -->
+              <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <button
+                  @click="voirEcheances(selectedEtudiant)"
+                  class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center gap-2"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Voir les échéances
+                </button>
+                <button
+                  @click="openRecuModal(selectedEtudiant)"
+                  class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Voir le reçu
+                </button>
+              </div>
+            </div>
+          </DialogPanel>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+
+    <!-- Modal des échéances -->
+    <TransitionRoot appear :show="showEcheancesModal" as="template">
+      <Dialog as="div" class="relative z-50" @close="closeEcheancesModal">
+        <div class="fixed inset-0 bg-black/60" />
+
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+          <DialogPanel class="w-full max-w-4xl rounded-xl bg-white dark:bg-gray-800 p-6 max-h-[80vh] overflow-y-auto">
+            <DialogTitle class="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>Échéances de {{ selectedEtudiant?.nom }} {{ selectedEtudiant?.prenom }}</span>
+              </div>
+              <button @click="closeEcheancesModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </DialogTitle>
+
+            <div v-if="selectedEtudiant" class="space-y-4">
+              <!-- Tableau des échéances -->
+              <table class="w-full">
+                <thead class="bg-gray-50 dark:bg-gray-700/50">
+                  <tr>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Libellé</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Date limite</th>
+                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Montant</th>
+                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Payé</th>
+                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Reste</th>
+                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400">Statut</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                  <tr v-for="echeance in selectedEtudiant.echeances" :key="echeance.libelle" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ echeance.libelle }}</td>
+                    <td class="px-4 py-3 text-sm" :class="isDateDepassee(echeance.date_limite) ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'">
+                      {{ echeance.date_limite_formatted }}
+                    </td>
+                    <td class="px-4 py-3 text-sm text-right font-mono text-gray-900 dark:text-white">{{ echeance.montant_formatted }}</td>
+                    <td class="px-4 py-3 text-sm text-right font-mono text-emerald-600">{{ echeance.paye_formatted }}</td>
+                    <td class="px-4 py-3 text-sm text-right font-mono" :class="echeance.reste > 0 ? 'text-amber-600' : 'text-gray-500'">
+                      {{ echeance.reste_formatted }}
+                    </td>
+                    <td class="px-4 py-3 text-sm text-center">
+                      <span class="inline-flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full" :class="getEcheanceStatutClass(echeance)"></span>
+                        <span class="text-xs" :class="getEcheanceTextClass(echeance)">
+                          {{ getEcheanceStatutLabel(echeance) }}
+                        </span>
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- Détails des retards -->
+              <div v-if="selectedEtudiant.details_retards && selectedEtudiant.details_retards.length > 0" class="mt-4">
+                <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Détails des retards</h4>
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
+                  <div v-for="retard in selectedEtudiant.details_retards" :key="retard.libelle" class="flex justify-between items-center py-2 border-b border-red-100 dark:border-red-800 last:border-0">
+                    <div>
+                      <p class="text-sm font-medium text-gray-900 dark:text-white">{{ retard.libelle }}</p>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">Date limite: {{ retard.date_limite }}</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-sm font-bold text-red-600 dark:text-red-400">{{ retard.montant_restant_formatted }}</p>
+                      <p class="text-xs text-red-500">{{ retard.jours_retard }} jours de retard</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Récapitulatif -->
+              <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex justify-end gap-6">
+                  <div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Total à payer</p>
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">{{ selectedEtudiant.montant_total_a_payer_formatted }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Total payé</p>
+                    <p class="text-lg font-bold text-emerald-600">{{ selectedEtudiant.montant_paye_formatted }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Reste à payer</p>
+                    <p class="text-lg font-bold text-amber-600">{{ selectedEtudiant.montant_restant_formatted }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </DialogPanel>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+
+    <!-- Modal de reçu -->
+    <TransitionRoot appear :show="showRecuModal" as="template">
+      <Dialog as="div" class="relative z-50" @close="closeRecuModal">
+        <div class="fixed inset-0 bg-black/60" />
+
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+          <DialogPanel class="w-full max-w-4xl rounded-xl bg-white dark:bg-gray-800 p-6 max-h-[90vh] overflow-y-auto">
+            <DialogTitle class="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>Reçu de paiement</span>
+              </div>
+              <button @click="closeRecuModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </DialogTitle>
+
+            <div v-if="selectedEtudiant" class="space-y-4">
+              <!-- Contenu du reçu -->
+              <div ref="recuContent" class="bg-white p-8" style="font-family: Arial, Helvetica, sans-serif; color: #333; line-height: 1.5;">
+                <!-- En-tête -->
+                <div style="text-align: center; margin-bottom: 2rem; border-bottom: 2px solid #4f46e5; padding-bottom: 1rem;">
+                  <h1 style="font-size: 24px; font-weight: bold; color: #1e293b; margin: 0 0 0.5rem 0;">{{ appName }}</h1>
+                  <p style="font-size: 14px; color: #64748b; margin: 0;">Reçu de paiement officiel</p>
+                  <p style="font-size: 12px; color: #94a3b8; margin-top: 0.5rem;">N° REC-{{ selectedEtudiant.matricule }}-{{ new Date().toISOString().split('T')[0].replace(/-/g, '') }}</p>
+                </div>
+
+                <!-- Informations étudiant -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                  <div>
+                    <p style="font-size: 12px; color: #64748b; margin: 0 0 0.25rem 0;">Étudiant</p>
+                    <p style="font-weight: 600; color: #1e293b; margin: 0;">{{ selectedEtudiant.nom }} {{ selectedEtudiant.prenom }}</p>
+                    <p style="font-size: 12px; color: #64748b; margin: 0;">Matricule: {{ selectedEtudiant.matricule }}</p>
+                  </div>
+                  <div>
+                    <p style="font-size: 12px; color: #64748b; margin: 0 0 0.25rem 0;">Filière / Niveau</p>
+                    <p style="font-weight: 600; color: #1e293b; margin: 0;">{{ selectedEtudiant.filiere }}</p>
+                    <p style="font-size: 12px; color: #64748b; margin: 0;">{{ selectedEtudiant.niveau }}</p>
+                  </div>
+                </div>
+
+                <!-- Tableau des paiements -->
+                <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin: 1.5rem 0 1rem 0;">Détail des paiements</h3>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; border: 1px solid #e2e8f0;">
+                  <thead>
+                    <tr style="background-color: #f8fafc;">
+                      <th style="padding: 0.75rem; text-align: left; font-size: 12px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0;">Échéance</th>
+                      <th style="padding: 0.75rem; text-align: left; font-size: 12px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0;">Date</th>
+                      <th style="padding: 0.75rem; text-align: right; font-size: 12px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0;">Montant</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="paiement in paiementsDeLEtudiant" :key="paiement.id" style="border-bottom: 1px solid #e2e8f0;">
+                      <td style="padding: 0.75rem; font-size: 13px;">{{ paiement.libelle }}</td>
+                      <td style="padding: 0.75rem; font-size: 13px;">{{ formatDate(paiement.date) }}</td>
+                      <td style="padding: 0.75rem; text-align: right; font-size: 13px; font-family: monospace;">{{ formatMontant(paiement.montant) }}</td>
+                    </tr>
+                    <tr v-if="paiementsDeLEtudiant.length === 0">
+                      <td colspan="3" style="padding: 1rem; text-align: center; font-size: 13px; color: #94a3b8;">Aucun paiement enregistré</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <!-- Récapitulatif -->
+                <div style="display: flex; justify-content: flex-end; gap: 2rem; padding-top: 1rem; border-top: 2px solid #e2e8f0;">
+                  <div>
+                    <p style="font-size: 12px; color: #64748b; margin: 0 0 0.25rem 0;">Total payé</p>
+                    <p style="font-size: 18px; font-weight: bold; color: #059669; margin: 0;">{{ selectedEtudiant.montant_paye_formatted }}</p>
+                  </div>
+                  <div>
+                    <p style="font-size: 12px; color: #64748b; margin: 0 0 0.25rem 0;">Reste à payer</p>
+                    <p style="font-size: 18px; font-weight: bold; color: #d97706; margin: 0;">{{ selectedEtudiant.montant_restant_formatted }}</p>
+                  </div>
+                </div>
+
+                <!-- Signature -->
+                <div style="display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #e2e8f0;">
+                  <div>
+                    <p style="font-size: 12px; color: #64748b; margin: 0 0 0.25rem 0;">Date d'émission</p>
+                    <p style="font-weight: 500; color: #1e293b; margin: 0;">{{ formatDate(new Date()) }}</p>
+                  </div>
+                  <div style="text-align: right;">
+                    <p style="font-size: 12px; color: #64748b; margin: 0 0 0.25rem 0;">Cachet et signature</p>
+                    <div style="width: 200px; height: 50px; border-bottom: 2px dashed #cbd5e1; margin-top: 0.5rem;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Boutons d'action -->
+              <div class="flex justify-end gap-3 pt-4">
+                <button
+                  @click="closeRecuModal"
+                  class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  Fermer
+                </button>
+                <button
+                  @click="downloadRecu"
+                  :disabled="isDownloadingRecu"
+                  class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2"
+                >
+                  <svg v-if="isDownloadingRecu" class="w-4 h-4 animate-spin" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                  </svg>
+                  <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  {{ isDownloadingRecu ? 'Téléchargement...' : 'Télécharger le reçu' }}
+                </button>
+              </div>
+            </div>
+          </DialogPanel>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  TransitionRoot,
+} from '@headlessui/vue'
+import Vue3Datatable from "@bhplugin/vue3-datatable"
+import "@bhplugin/vue3-datatable/dist/style.css"
+import Breadcrumb from "~/components/Breadcrumb.vue"
+import { useEtudiantSituationStore } from '~~/stores/etudiant-situation'
+import { useParametreStore } from '~~/stores/parametre'
+import { useDebounce } from '@vueuse/core'
+
+// Stores
+const store = useEtudiantSituationStore()
+const parametreStore = useParametreStore()
+
+// États locaux
+const currentPage = ref(1)
+const pageSize = ref(10)
+const searchQuery = ref('')
+const showDetailsModal = ref(false)
+const showEcheancesModal = ref(false)
+const showRecuModal = ref(false)
+const selectedEtudiant = ref(null)
+const recuContent = ref(null)
+const isDownloadingRecu = ref(false)
+
+// Debounce pour la recherche
+const debouncedSearch = useDebounce(searchQuery, 300)
+
+// Configuration des colonnes du tableau avec propriété visible
+const columns = ref([
+  { field: "nom_complet", title: "Étudiant", width: "200px", sortable: true, visible: true },
+  { field: "filiere_nom", title: "Filière / Niveau", width: "180px", sortable: true, visible: true },
+  { field: "montant_total_formatted", title: "À payer", width: "120px", class: "text-right", sortable: true, visible: true },
+  { field: "montant_paye_formatted", title: "Payé", width: "120px", class: "text-right", sortable: true, visible: true },
+  { field: "montant_restant_formatted", title: "Restant", width: "120px", class: "text-right", sortable: true, visible: true },
+  { field: "progression", title: "Progression", width: "120px", class: "text-center", sortable: true, visible: true },
+  { field: "statut_libelle", title: "Statut", width: "120px", class: "text-center", sortable: true, visible: true },
+  { field: "actions", title: "Actions", width: "120px", class: "text-center", sortable: false, visible: true },
+])
+
+// Colonnes visibles uniquement
+const visibleColumns = computed(() => {
+  return columns.value.filter(col => col.visible)
+})
+
+// Données filtrées
+const filteredData = computed(() => {
+  let result = store.etudiantsFiltres
+
+  if (debouncedSearch.value) {
+    const search = debouncedSearch.value.toLowerCase().trim()
+    result = result.filter(e => 
+      e.nom?.toLowerCase().includes(search) ||
+      e.prenom?.toLowerCase().includes(search) ||
+      e.matricule?.toLowerCase().includes(search) ||
+      e.email?.toLowerCase().includes(search)
+    )
+  }
+
+  return result
+})
+
+// Computed - KPIs calculés à partir des données du store
+const kpis = computed(() => {
+  const stats = store.statistiquesFiltrees
+  
+  return [
+    {
+      label: 'Total étudiants',
+      value: stats.total,
+      icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z',
+      bgColor: 'bg-blue-100 dark:bg-blue-900/30',
+      iconColor: 'text-blue-600 dark:text-blue-400',
+      details: [
+        { label: 'Soldé', value: stats.par_statut.solde, color: 'text-emerald-600' },
+        { label: 'En cours', value: stats.par_statut.en_cours, color: 'text-amber-600' },
+        { label: 'En retard', value: stats.par_statut.en_retard, color: 'text-red-600' }
+      ]
+    },
+    {
+      label: 'Montant total',
+      value: formatMontant(stats.montants.total_a_payer),
+      icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+      bgColor: 'bg-purple-100 dark:bg-purple-900/30',
+      iconColor: 'text-purple-600 dark:text-purple-400',
+      details: [
+        { label: 'Payé', value: formatMontant(stats.montants.total_paye), color: 'text-emerald-600' },
+        { label: 'Restant', value: formatMontant(stats.montants.total_restant), color: 'text-amber-600' }
+      ]
+    },
+    {
+      label: 'Étudiants en retard',
+      value: stats.retards.total_etudiants_retard,
+      icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
+      bgColor: 'bg-red-100 dark:bg-red-900/30',
+      iconColor: 'text-red-600 dark:text-red-400',
+      details: [
+        { label: 'Montant impayé', value: formatMontant(stats.retards.montant_total_impaye), color: 'text-red-600' },
+        { label: 'Jours retard moy.', value: stats.retards.jours_retard_moyen + 'j', color: 'text-amber-600' }
+      ]
+    },
+    {
+      label: 'Taux de collecte',
+      value: stats.montants.total_a_payer > 0 
+        ? Math.round((stats.montants.total_paye / stats.montants.total_a_payer) * 100) + '%'
+        : '0%',
+      icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+      bgColor: 'bg-emerald-100 dark:bg-emerald-900/30',
+      iconColor: 'text-emerald-600 dark:text-emerald-400',
+      progress: stats.montants.total_a_payer > 0 
+        ? Math.round((stats.montants.total_paye / stats.montants.total_a_payer) * 100)
+        : 0
+    }
+  ]
+})
+
+const hasActiveFilters = computed(() => {
+  return store.filtres.filiere_id || store.filtres.niveau_id || store.filtres.statut
+})
+
+const appName = computed(() => parametreStore.getAppName || 'Établissement')
+
+const paiementsDeLEtudiant = computed(() => {
+  if (!selectedEtudiant.value || !selectedEtudiant.value.paiements) return []
+  
+  return selectedEtudiant.value.paiements.sort((a, b) => new Date(b.date) - new Date(a.date))
+})
+
+// Méthodes
+onMounted(async () => {
+  await store.loadInitialData()
+  await parametreStore.fetchParametres()
+})
+
+const appliquerFiltres = () => {
+  currentPage.value = 1
+}
+
+const reinitialiserFiltres = () => {
+  store.resetFiltres()
+  searchQuery.value = ''
+  currentPage.value = 1
+}
+
+const rafraichir = async () => {
+  await store.refreshData()
+}
+
+const exporterExcel = async () => {
+  await store.exporterCSV()
+}
+
+const getFiliereLabel = (id) => {
+  const filiere = store.filieres.find(f => f.id == id)
+  return filiere?.nom || id
+}
+
+const getNiveauLabel = (id) => {
+  const niveau = store.niveaux.find(n => n.id == id)
+  return niveau?.libelle || id
+}
+
+const getStatutLabel = (statut) => {
+  const labels = {
+    solde: 'Soldé',
+    en_cours: 'En cours',
+    en_retard: 'En retard',
+    aucun_frais: 'Aucun frais'
+  }
+  return labels[statut] || statut
+}
+
+const getStatutClass = (statut) => {
+  const classes = {
+    solde: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400',
+    en_cours: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+    en_retard: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+    aucun_frais: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400'
+  }
+  return classes[statut] || classes.aucun_frais
+}
+
+const getInitials = (etudiant) => {
+  if (!etudiant) return '?'
+  return ((etudiant.nom?.[0] || '') + (etudiant.prenom?.[0] || '')).toUpperCase()
+}
+
+const getTauxColor = (taux) => {
+  if (taux >= 80) return 'text-emerald-600 dark:text-emerald-400'
+  if (taux >= 50) return 'text-amber-600 dark:text-amber-400'
+  return 'text-red-600 dark:text-red-400'
+}
+
+const getProgressBarColor = (taux) => {
+  if (taux >= 80) return 'bg-emerald-500'
+  if (taux >= 50) return 'bg-amber-500'
+  return 'bg-red-500'
+}
+
+const getStatutDotClass = (statut) => {
+  const classes = {
+    solde: 'bg-emerald-500',
+    en_cours: 'bg-amber-500',
+    en_retard: 'bg-red-500',
+    aucun_frais: 'bg-gray-500'
+  }
+  return classes[statut] || 'bg-gray-500'
+}
+
+const getStatutTextClass = (statut) => {
+  const classes = {
+    solde: 'text-emerald-700 dark:text-emerald-300',
+    en_cours: 'text-amber-700 dark:text-amber-300',
+    en_retard: 'text-red-700 dark:text-red-300',
+    aucun_frais: 'text-gray-700 dark:text-gray-300'
+  }
+  return classes[statut] || 'text-gray-700 dark:text-gray-300'
+}
+
+const formatMontant = (montant) => {
+  if (montant === undefined || montant === null) return '0 FCFA'
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'XOF',
+    minimumFractionDigits: 0
+  }).format(montant).replace('XOF', 'FCFA')
+}
+
+const formatDate = (date) => {
+  if (!date) return ''
+  return new Date(date).toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  })
+}
+
+const isDateDepassee = (date) => {
+  return new Date(date) < new Date()
+}
+
+const getEcheanceStatutClass = (echeance) => {
+  if (echeance.statut === 'paye') return 'bg-emerald-500'
+  if (echeance.statut === 'en_retard') return 'bg-red-500'
+  return 'bg-amber-500'
+}
+
+const getEcheanceTextClass = (echeance) => {
+  if (echeance.statut === 'paye') return 'text-emerald-700 dark:text-emerald-300'
+  if (echeance.statut === 'en_retard') return 'text-red-700 dark:text-red-300'
+  return 'text-amber-700 dark:text-amber-300'
+}
+
+const getEcheanceStatutLabel = (echeance) => {
+  if (echeance.statut === 'paye') return 'Payé'
+  if (echeance.statut === 'en_retard') return 'En retard'
+  if (echeance.statut === 'en_attente') return 'En attente'
+  return echeance.statut || 'En cours'
+}
+
+const voirDetails = (etudiant) => {
+  selectedEtudiant.value = etudiant
+  showDetailsModal.value = true
+}
+
+const closeDetailsModal = () => {
+  showDetailsModal.value = false
+  selectedEtudiant.value = null
+}
+
+const voirEcheances = (etudiant) => {
+  selectedEtudiant.value = etudiant
+  showEcheancesModal.value = true
+}
+
+const closeEcheancesModal = () => {
+  showEcheancesModal.value = false
+  selectedEtudiant.value = null
+}
+
+const openRecuModal = (etudiant) => {
+  selectedEtudiant.value = etudiant
+  showRecuModal.value = true
+}
+
+const closeRecuModal = () => {
+  showRecuModal.value = false
+  selectedEtudiant.value = null
+}
+
+const downloadRecu = async () => {
+  if (!recuContent.value) return
+  
+  isDownloadingRecu.value = true
+  
+  try {
+    const html2pdfModule = await import('html2pdf.js')
+    const html2pdf = html2pdfModule.default
+    
+    const opt = {
+      margin: [0.5, 0.5, 0.5, 0.5],
+      filename: `recu_${selectedEtudiant.value?.matricule || 'etudiant'}_${new Date().toISOString().split('T')[0]}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { 
+        scale: 2, 
+        logging: false, 
+        backgroundColor: '#ffffff',
+        useCORS: true
+      },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    }
+    
+    await html2pdf().set(opt).from(recuContent.value).save()
+  } catch (error) {
+    console.error('Erreur téléchargement reçu:', error)
+  } finally {
+    isDownloadingRecu.value = false
+  }
+}
+</script>

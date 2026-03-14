@@ -1,9 +1,9 @@
 <template>
   <div class="min-h-screen bg-gray-50 p-4 md:p-6">
-    <!-- ===================== Breadcrumb ===================== -->
+    <!-- Breadcrumb -->
     <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
       <NuxtLink
-        to="/admin/partenaires"
+        to="/partenaires/liste"
         class="cursor-pointer hover:text-indigo-600 transition-colors"
       >
         Partenaires
@@ -14,13 +14,12 @@
       >
     </div>
 
-    <!-- ===================== Titre ===================== -->
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl md:text-3xl font-semibold text-gray-900">
         Ajouter un partenaire
       </h1>
-      <button
-        @click="goBack"
+      <NuxtLink
+        to="/partenaires/liste"
         class="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
       >
         <svg
@@ -37,64 +36,76 @@
           />
         </svg>
         Retour
-      </button>
+      </NuxtLink>
     </div>
 
-    <!-- ===================== Formulaire ===================== -->
     <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-      <form @submit.prevent="saveAdvertiser" class="space-y-4">
-        <FloatLabel variant="on">
-          <InputText
-            id="nom"
-            v-model="form.nom"
-            autocomplete="off"
-            class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
-          />
-          <label for="nom">Nom</label>
-        </FloatLabel>
+      <form @submit.prevent="saveAdvertiser" class="space-y-6">
+        <!-- Logo avec drag & drop -->
+        <ImageUpload
+          v-model="form.logo"
+          label="Logo du partenaire"
+          :error="uploadError"
+          @error="uploadError = $event"
+        />
 
-        <FloatLabel variant="on">
-          <InputText
-            id="email"
-            v-model="form.email"
-            autocomplete="off"
-            class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
-          />
-          <label for="email">Email</label>
-        </FloatLabel>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FloatLabel variant="on">
+            <InputText
+              id="nom"
+              v-model="form.nom"
+              autocomplete="off"
+              class="w-full px-4 py-2 rounded-lg border bg-white border-gray-300 focus:ring-2 focus:ring-indigo-500"
+              :class="{ 'border-red-500': errors.nom }"
+            />
+            <label for="nom">Nom *</label>
+            <p v-if="errors.nom" class="mt-1 text-xs text-red-500">{{ errors.nom }}</p>
+          </FloatLabel>
 
-        <FloatLabel variant="on">
-          <InputText
-            id="ville"
-            v-model="form.ville"
-            autocomplete="off"
-            class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
-          />
-          <label for="ville">Ville</label>
-        </FloatLabel>
+          <FloatLabel variant="on">
+            <InputText
+              id="email"
+              v-model="form.email"
+              autocomplete="off"
+              type="email"
+              class="w-full px-4 py-2 rounded-lg border bg-white border-gray-300 focus:ring-2 focus:ring-indigo-500"
+              :class="{ 'border-red-500': errors.email }"
+            />
+            <label for="email">Email *</label>
+            <p v-if="errors.email" class="mt-1 text-xs text-red-500">{{ errors.email }}</p>
+          </FloatLabel>
 
-        <FloatLabel variant="on">
-          <InputText
-            id="site"
-            v-model="form.site"
-            autocomplete="off"
-            class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
-          />
-          <label for="site">Site web</label>
-        </FloatLabel>
+          <FloatLabel variant="on">
+            <InputText
+              id="ville"
+              v-model="form.ville"
+              autocomplete="off"
+              class="w-full px-4 py-2 rounded-lg border bg-white border-gray-300 focus:ring-2 focus:ring-indigo-500"
+            />
+            <label for="ville">Ville</label>
+          </FloatLabel>
 
-        <FloatLabel variant="on">
-          <!-- <Textarea
-                  id="details"
-                  v-model="form.details"
-                  rows="4"
-                  class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
-                /> -->
+          <FloatLabel variant="on">
+            <InputText
+              id="site"
+              v-model="form.site"
+              autocomplete="off"
+              type="url"
+              class="w-full px-4 py-2 rounded-lg border bg-white border-gray-300 focus:ring-2 focus:ring-indigo-500"
+            />
+            <label for="site">Site web</label>
+          </FloatLabel>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Description
+          </label>
           <Editor
             api-key="ktf8z0z55enm2wd9xyeoo6qzzoy7w9b629e51wii9y8lw4dx"
             v-model="form.details"
             :init="{
-              height: 250,
+              height: 400,
               menubar: false,
               plugins: 'lists link image media table wordcount',
               toolbar:
@@ -103,27 +114,25 @@
                 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
             }"
           />
-        </FloatLabel>
+        </div>
 
-        <div class="flex justify-end gap-3">
-          <button
-            type="button"
-            @click="closeModal"
-            class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <NuxtLink
+            to="/partenaires/liste"
+            class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors"
           >
             Annuler
-          </button>
-
+          </NuxtLink>
           <button
             :disabled="advertiserStore.isLoading"
             type="submit"
-            class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
           >
-            {{
-              advertiserStore.isLoading
-                ? "Enrégistrement en cours..."
-                : "Enregistrer"
-            }}
+            <svg v-if="advertiserStore.isLoading" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ advertiserStore.isLoading ? "Enregistrement..." : "Enregistrer" }}
           </button>
         </div>
       </form>
@@ -132,32 +141,65 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import Editor from "@tinymce/tinymce-vue";
+import ImageUpload from "~/components/ImageUpload.vue";
 import { useAdvertiserStore } from "~~/stores/adverstiser";
 
 const advertiserStore = useAdvertiserStore();
-const { $swal, $toastr } = useNuxtApp();
+const { $toastr } = useNuxtApp();
 
 const form = ref({
-  id: null,
-  slug: null,
   nom: "",
   email: "",
   ville: "",
   site: "",
   details: "",
+  logo: null
 });
 
+const errors = ref({});
+const uploadError = ref("");
+
+const validateForm = () => {
+  errors.value = {};
+  
+  if (!form.value.nom?.trim()) {
+    errors.value.nom = "Le nom est requis";
+  }
+  
+  if (!form.value.email?.trim()) {
+    errors.value.email = "L'email est requis";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.email)) {
+    errors.value.email = "Email invalide";
+  }
+  
+  return Object.keys(errors.value).length === 0;
+};
+
 const saveAdvertiser = async () => {
+  if (!validateForm()) return;
+  
   try {
-    await advertiserStore.addAdvertiser(form.value);
+    const formData = new FormData();
+    formData.append('nom', form.value.nom);
+    formData.append('email', form.value.email);
+    formData.append('ville', form.value.ville || '');
+    formData.append('site', form.value.site || '');
+    formData.append('details', form.value.details || '');
+    
+    if (form.value.logo instanceof File) {
+      formData.append('logo', form.value.logo);
+    }
 
+    await advertiserStore.addAdvertiser(formData);
     $toastr.success(advertiserStore.message);
-
     navigateTo("/partenaires/liste");
   } catch (error) {
     console.log(error);
+    if (error.response?.data?.errors) {
+      errors.value = error.response.data.errors;
+    }
     $toastr.error(error.response?.data?.message || "Une erreur est survenue");
   }
 };

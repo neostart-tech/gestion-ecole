@@ -174,5 +174,23 @@ export const useEtudiantStore = defineStore("etudiant", {
         this.isLoading = false;
       }
     },
+
+     async fetchEtudiantEvaluations() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          "/espace-etudiant/mes-notes",
+          this.authHeaders(),
+        );
+        this.mesNotes = response.data.data;
+      } catch (error) {
+        console.error(
+          "Erreur lors du chargement des notes de l'étudiant:",
+          error,
+        );
+      } finally {
+        this.isLoading = false;
+      }
+    },
   },
 });

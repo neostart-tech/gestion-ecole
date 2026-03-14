@@ -44,6 +44,7 @@ export const useFraisStore = defineStore("frais de scolarité", {
         const response = await axios.post(
           "/frais/payer",
           payload,
+          this.authHeaders()
         );
 
         this.frais.push(response.data.data ?? response.data);

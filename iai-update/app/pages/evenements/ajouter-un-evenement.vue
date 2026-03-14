@@ -212,7 +212,7 @@ import Editor from "@tinymce/tinymce-vue";
 import { useEvenementStore } from "~~/stores/evenement";
 
 // Clé API TinyMCE
-const tinymceApiKey = "zg2zugks07aopv32g7tny5709pnqww29mxbvn1oa8x7d78c7";
+const tinymceApiKey = "ktf8z0z55enm2wd9xyeoo6qzzoy7w9b629e51wii9y8lw4dx";
 const evenementStore = useEvenementStore();
 const { $toastr } = useNuxtApp();
 

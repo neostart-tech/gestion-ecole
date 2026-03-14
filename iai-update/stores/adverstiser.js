@@ -12,10 +12,11 @@ export const useAdvertiserStore = defineStore("advertiser", {
   actions: {
     authHeaders() {
       const token = localStorage.getItem("gest-ecole-token");
-
+      
       return {
         headers: {
           Authorization: token ? `Bearer ${token}` : "",
+          'Content-Type': 'multipart/form-data', // Important pour l'upload de fichiers
         },
       };
     },
@@ -56,10 +57,16 @@ export const useAdvertiserStore = defineStore("advertiser", {
       this.isLoading = true;
 
       try {
+        // Si c'est du FormData, ne pas définir Content-Type (axios le fera automatiquement)
+        const config = this.authHeaders();
+        if (advertiserData instanceof FormData) {
+          delete config.headers['Content-Type']; // Laissez axios définir la boundary
+        }
+
         const response = await axios.post(
           "/partenaires/ajouter",
           advertiserData,
-          this.authHeaders(),
+          config,
         );
 
         this.advertisers = [...this.advertisers, response.data.data];
@@ -69,7 +76,6 @@ export const useAdvertiserStore = defineStore("advertiser", {
       } catch (error) {
         console.error("Erreur ajout d'un annonceur:", error);
         this.message = error.response?.data?.message || "Erreur inconnue";
-
         throw error;
       } finally {
         this.isLoading = false;
@@ -79,12 +85,35 @@ export const useAdvertiserStore = defineStore("advertiser", {
     async updateAdvertiser(advertiserData, slug) {
       this.isLoading = true;
       try {
-        const response = await axios.put(
-          `/partenaires/${slug}/update`,
-          advertiserData,
-          this.authHeaders(),
-        );
-        this.advertisers = response.data.data;
+        const config = this.authHeaders();
+        
+        // Si c'est du FormData, on utilise POST avec _method=PUT
+        if (advertiserData instanceof FormData) {
+          delete config.headers['Content-Type'];
+          advertiserData.append('_method', 'PUT'); // Pour Laravel
+          
+          const response = await axios.post(
+            `/partenaires/${slug}/update`,
+            advertiserData,
+            config,
+          );
+          
+          // Mettre à jour l'annonceur dans la liste
+          const index = this.advertisers.findIndex(a => a.slug === slug);
+          if (index !== -1) {
+            this.advertisers[index] = response.data.data;
+          }
+          this.advertiser = response.data.data;
+        } else {
+          // Si c'est un objet normal, on utilise PUT
+          const response = await axios.put(
+            `/partenaires/${slug}/update`,
+            advertiserData,
+            config,
+          );
+          this.advertisers = response.data.data;
+        }
+        
         this.message = "Partenaire mis à jour avec succès";
       } catch (error) {
         console.error("Erreur modification d'un annonceur:", error);
@@ -93,17 +122,17 @@ export const useAdvertiserStore = defineStore("advertiser", {
       this.isLoading = false;
     },
 
-    async deleteAdvertiser(advertiserId) {
+    async deleteAdvertiser(advertiserSlug) {
       this.isLoading = true;
       try {
         const response = await axios.delete(
-          `/partenaires/${advertiserId}/delete`,
+          `/partenaires/${advertiserSlug}/delete`,
           this.authHeaders(),
         );
         this.advertisers = this.advertisers.filter(
-          (advertiser) => advertiser.id !== advertiserId,
+          (advertiser) => advertiser.slug !== advertiserSlug,
         );
-        this.message = "Partenaire supprimé avec succes";
+        this.message = "Partenaire supprimé avec succès";
       } catch (error) {
         this.message = error.response?.data?.message || "Erreur inconnue";
         console.error("Erreur lors de la suppression d'un annonceur:", error);

@@ -4,8 +4,8 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
       <Breadcrumb
         :items="[
-          { label: 'Partenaires', to: '/' },
-          { label: 'Liste', to: '/partenaires' },
+          { label: 'Partenaires', to: '/partenaires/liste' },
+          { label: 'Liste', to: '/partenaires/liste' },
           { label: advertiserStore.advertiser?.nom || 'Détail', to: null }
         ]"
         title="Détail du partenaire"
@@ -100,62 +100,67 @@
 
     <!-- Content -->
     <div v-else-if="advertiserStore.advertiser" class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-      <!-- Header avec badge statut -->
+      <!-- Header avec logo et infos -->
+         <pre class="hidden">{{ console.log('Advertiser data:', advertiserStore.advertiser) }}</pre>
+
       <div class="border-b border-gray-200 dark:border-gray-700 pb-6 mb-6">
-        <div class="flex items-center justify-between flex-wrap gap-4">
-          <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-            {{ advertiserStore.advertiser.nom }}
-          </h1>
-          
-          <!-- Badge statut (optionnel) -->
-          <span 
-            v-if="advertiserStore.advertiser.statut"
-            :class="[
-              'px-3 py-1 text-sm font-medium rounded-full',
-              advertiserStore.advertiser.statut === 'actif' 
-                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-            ]"
-          >
-            {{ advertiserStore.advertiser.statut }}
-          </span>
-        </div>
-        
-        <!-- Contact info -->
-        <div class="mt-4 flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
-          <div v-if="advertiserStore.advertiser.email" class="flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        <div class="flex items-start gap-6">
+          <!-- Logo -->
+          <div v-if="advertiserStore.advertiser.logo_url" class="flex-shrink-0">
+            <img
+              :src="advertiserStore.advertiser.logo_url"
+              :alt="advertiserStore.advertiser.nom"
+              class="w-24 h-24 rounded-lg object-cover border-2 border-gray-200 dark:border-gray-700"
+            />
+          </div>
+          <div v-else class="flex-shrink-0 w-24 h-24 rounded-lg bg-gray-100 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 flex items-center justify-center">
+            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <a :href="`mailto:${advertiserStore.advertiser.email}`" class="hover:text-indigo-600 dark:hover:text-indigo-400">
-              {{ advertiserStore.advertiser.email }}
-            </a>
           </div>
           
-          <div v-if="advertiserStore.advertiser.tel" class="flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-            </svg>
-            <a :href="`tel:${advertiserStore.advertiser.tel}`" class="hover:text-indigo-600 dark:hover:text-indigo-400">
-              {{ advertiserStore.advertiser.tel }}
-            </a>
-          </div>
-          
-          <div v-if="advertiserStore.advertiser.site" class="flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m0 0c1.657 0 3 4.03 3 9s-1.343 9-3 9z" />
-            </svg>
-            <a :href="advertiserStore.advertiser.site" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">
-              {{ advertiserStore.advertiser.site.replace(/^https?:\/\//, '') }}
-            </a>
-          </div>
-          
-          <div v-if="advertiserStore.advertiser.ville" class="flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            {{ advertiserStore.advertiser.ville }}
+          <div class="flex-1">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              {{ advertiserStore.advertiser.nom }}
+            </h1>
+            
+            <!-- Contact info -->
+            <div class="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
+              <div v-if="advertiserStore.advertiser.email" class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <a :href="`mailto:${advertiserStore.advertiser.email}`" class="hover:text-indigo-600 dark:hover:text-indigo-400">
+                  {{ advertiserStore.advertiser.email }}
+                </a>
+              </div>
+              
+              <div v-if="advertiserStore.advertiser.tel" class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                <a :href="`tel:${advertiserStore.advertiser.tel}`" class="hover:text-indigo-600 dark:hover:text-indigo-400">
+                  {{ advertiserStore.advertiser.tel }}
+                </a>
+              </div>
+              
+              <div v-if="advertiserStore.advertiser.site" class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m0 0c1.657 0 3 4.03 3 9s-1.343 9-3 9z" />
+                </svg>
+                <a :href="advertiserStore.advertiser.site" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">
+                  {{ advertiserStore.advertiser.site.replace(/^https?:\/\//, '') }}
+                </a>
+              </div>
+              
+              <div v-if="advertiserStore.advertiser.ville" class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                {{ advertiserStore.advertiser.ville }}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -165,18 +170,6 @@
         class="prose prose-lg max-w-none dark:prose-invert"
         v-html="advertiserStore.advertiser.details"
       ></div>
-      
-      <!-- Métadonnées (dates) -->
-      <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-        <div class="flex flex-wrap gap-4 text-xs text-gray-500 dark:text-gray-400">
-          <div v-if="advertiserStore.advertiser.created_at">
-            Créé le: {{ new Date(advertiserStore.advertiser.created_at).toLocaleDateString('fr-FR') }}
-          </div>
-          <div v-if="advertiserStore.advertiser.updated_at">
-            Modifié le: {{ new Date(advertiserStore.advertiser.updated_at).toLocaleDateString('fr-FR') }}
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- Not found -->
@@ -203,7 +196,7 @@
           Le partenaire que vous recherchez n'existe pas ou a été supprimé.
         </p>
         <NuxtLink
-          to="/partenaires"
+          to="/partenaires/liste"
           class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
           Retour à la liste
@@ -212,17 +205,16 @@
     </div>
   </div>
 </template>
-
 <script setup>
-import { useRoute, useRouter } from 'vue-router';
-import { useAdvertiserStore } from '~~/stores/adverstiser';
-import { onMounted, watch } from 'vue';
+import { useRoute, useRouter } from "vue-router";
+import { useAdvertiserStore } from "~~/stores/adverstiser";
+import { onMounted, watch } from "vue";
 import Breadcrumb from "~/components/Breadcrumb.vue";
 
 const route = useRoute();
 const router = useRouter();
 const advertiserStore = useAdvertiserStore();
-const {$swal,$toastr}=useNuxtApp();
+const { $swal, $toastr } = useNuxtApp();
 
 const loadAdvertiser = async () => {
   const slug = route.params.slug;
@@ -248,10 +240,13 @@ const confirmDelete = async (advertiser) => {
     try {
       await advertiserStore.deleteAdvertiser(advertiser.slug);
       await $toastr.success("Partenaire supprimé avec succès");
-      router.push('/partenaires/liste');
+      router.push("/partenaires/liste");
     } catch (error) {
       console.error(error);
-      $toastr.error(error.response?.data?.message || "Une erreur est survenue lors de la suppression");
+      $toastr.error(
+        error.response?.data?.message ||
+          "Une erreur est survenue lors de la suppression",
+      );
     }
   }
 };
@@ -261,9 +256,12 @@ onMounted(async () => {
 });
 
 // Recharger si le slug change
-watch(() => route.params.slug, async (newSlug) => {
-  if (newSlug) {
-    await advertiserStore.getAdvertiser(newSlug);
-  }
-});
+watch(
+  () => route.params.slug,
+  async (newSlug) => {
+    if (newSlug) {
+      await advertiserStore.getAdvertiser(newSlug);
+    }
+  },
+);
 </script>

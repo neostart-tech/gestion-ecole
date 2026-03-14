@@ -175,9 +175,9 @@
                 :init="{
                   height: 250,
                   menubar: false,
-                  plugins: 'lists link image media table wordcount',
+                  plugins: 'lists link table wordcount',
                   toolbar:
-                    'undo redo | bold italic underline | bullist numlist | link image media | removeformat',
+                    'undo redo | bold italic underline | bullist numlist | removeformat',
                   content_style:
                     'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
                 }"

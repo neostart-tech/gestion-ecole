@@ -1,4 +1,17 @@
 <template>
+   <div
+    v-if="isPageLoading"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-white/70 dark:bg-gray-900/70"
+  >
+    <div class="loader">
+      <div class="loader__bar"></div>
+      <div class="loader__bar"></div>
+      <div class="loader__bar"></div>
+      <div class="loader__bar"></div>
+      <div class="loader__bar"></div>
+      <div class="loader__ball"></div>
+    </div>
+  </div>
   <div
     class="min-h-screen p-4 md:p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800"
   >
@@ -137,7 +150,7 @@
                   </div>
                   <div class="flex-1">
                     <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                      UV / Matière
+                      Matières
                     </p>
                     <p class="font-medium text-gray-900 dark:text-white">
                       {{ selectedEvent?.uv }}
@@ -173,6 +186,7 @@
                 </div>
 
                 <!-- Salle -->
+                <!-- Salle avec lien de réunion si virtuelle -->
                 <div class="flex items-start">
                   <div class="w-8 flex-shrink-0">
                     <svg
@@ -193,9 +207,74 @@
                     <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
                       Salle
                     </p>
-                    <p class="font-medium text-gray-900 dark:text-white">
-                      {{ selectedEvent?.salle }}
-                    </p>
+                    <div class="flex flex-col gap-2">
+                      <p class="font-medium text-gray-900 dark:text-white">
+                        {{ selectedEvent?.salle }}
+                      </p>
+
+                      <!-- Lien de réunion pour les salles virtuelles -->
+                      <div v-if="selectedEvent?.lien_reunion" class="mt-1">
+                        <a
+                          :href="selectedEvent.lien_reunion"
+                          target="_blank"
+                          class="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 rounded-lg text-sm hover:bg-purple-200 dark:hover:bg-purple-800/40 transition-colors"
+                          @click.stop
+                        >
+                          <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                            />
+                          </svg>
+                          <span>Rejoindre le cours en ligne</span>
+                          <svg
+                            class="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                            />
+                          </svg>
+                        </a>
+                      </div>
+
+                      <!-- Badge virtuelle si pas de lien -->
+                      <div
+                        v-else-if="selectedEvent?.est_virtuelle"
+                        class="mt-1"
+                      >
+                        <span
+                          class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
+                        >
+                          <svg
+                            class="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                            />
+                          </svg>
+                          Cours en ligne
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -358,7 +437,8 @@ const calendarRef = ref();
 const showCalendar = ref(false);
 const showEventModal = ref(false);
 const selectedEvent = ref<any>(null);
-
+const isPageLoading = ref(true);
+const { $toastr } = useNuxtApp();
 /**
  * Convertit les jours de récurrence en format RRule
  */
@@ -587,6 +667,11 @@ const calendarEvents = computed(() => {
             details: evt.details,
             type: evt.type,
             plageHoraire: formatEventTime(evt.start, evt.end),
+            lien_reunion:
+              evt?.lien_reunion_formate || evt?.lien_reunion || null,
+            est_virtuelle:
+              evt?.type === "virtuelle" || evt?.est_virtuelle || false,
+            plateforme: evt?.plateforme || null,
             title: evt.title,
             recurrence_type: evt.recurrence_type,
             recurrence_days: evt.recurrence_days,
@@ -624,6 +709,30 @@ const getEventColor = (type: string, color: string | undefined) => {
   return type === "Évaluation"
     ? "#f97316" // Orange
     : "#3b82f6"; // Bleu
+};
+
+const getPlateformeLabel = (plateforme: string | null): string => {
+  const plateformes: Record<string, string> = {
+    zoom: "Zoom",
+    teams: "Microsoft Teams",
+    meet: "Google Meet",
+    whatsapp: "WhatsApp",
+    discord: "Discord",
+    autres: "Autre",
+  };
+
+  return plateformes[plateforme || ""] || plateforme || "Non spécifiée";
+};
+
+const copyLienReunion = async (lien: string) => {
+  if (!lien) return;
+  try {
+    await navigator.clipboard.writeText(lien);
+    $toastr.success("Lien copié dans le presse-papier");
+  } catch (error) {
+    console.error("Erreur de copie:", error);
+    $toastr.error("Impossible de copier le lien");
+  }
 };
 
 /**
@@ -838,8 +947,16 @@ const calendarOptions = computed<CalendarOptions>(() => ({
 
  */
 onMounted(async () => {
-  await calendarStore.loadAuthCalendar();
-  showCalendar.value = true;
+  try {
+    isPageLoading.value = true;
+    await calendarStore.loadAuthCalendar();
+    showCalendar.value = true;
+    $toastr.success('Donnée chargé avec succes');
+  } catch (error: any) {
+    $toastr.error(error.response.data.message);
+  } finally {
+    isPageLoading.value = false;
+  }
 });
 
 /**
