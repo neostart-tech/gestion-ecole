@@ -500,6 +500,34 @@
                 <label for="on_label">Code</label>
               </FloatLabel>
 
+              <FloatLabel variant="on">
+                <InputNumber
+                  v-model="form.volume_horaire"
+                  inputId="integeronly"
+                  fluid
+                />
+                <label for="on_label">Volume Horaire</label>
+              </FloatLabel>
+              <FloatLabel variant="on">
+                <InputNumber
+                  v-model="form.coefficient"
+                  inputId="integeronly"
+                  fluid
+                />
+                <label for="on_label">Coefficient</label>
+              </FloatLabel>
+
+               <Dropdown
+                v-model="form.filiere_id"
+                :options="FilieresOptions"
+                optionLabel="label"
+                optionValue="value"
+                filter
+                showClear
+                placeholder="Sélectionner une filiere"
+                class="w-full"
+              />
+
               <!-- <input
                 v-model="form.code"
                 placeholder="Code"
@@ -525,15 +553,6 @@
                 class="w-full px-4 py-2 rounded-lg border uppercase bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
               /> -->
 
-              <FloatLabel variant="on">
-                <InputNumber
-                  v-model="form.volume_horaire"
-                  inputId="integeronly"
-                  fluid
-                />
-                <label for="on_label">Volume Horaire</label>
-              </FloatLabel>
-
               <!-- <input
                 v-model="form.coefficient"
                 placeholder="Coefficient"
@@ -541,25 +560,7 @@
                 class="w-full px-4 py-2 rounded-lg border uppercase bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
               /> -->
 
-              <FloatLabel variant="on">
-                <InputNumber
-                  v-model="form.coefficient"
-                  inputId="integeronly"
-                  fluid
-                />
-                <label for="on_label">Coefficient</label>
-              </FloatLabel>
-
-              <Dropdown
-                v-model="form.filiere_id"
-                :options="FilieresOptions"
-                optionLabel="label"
-                optionValue="value"
-                filter
-                showClear
-                placeholder="Sélectionner une filiere"
-                class="w-full"
-              />
+             
 
               <MultiSelect
                 v-model="form.enseignant_id"

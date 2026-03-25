@@ -24,7 +24,12 @@ export const useExamStore = defineStore("exam", {
       total: 0,
       answered: 0,
       percentage: 0
-    }
+    },
+    
+    questionsComplexData: {},
+    questionsStructuredData: {},
+    questionsMultiParts: {},
+    questionsGuidedWriting: {}
   }),
 
   getters: {
@@ -86,6 +91,22 @@ export const useExamStore = defineStore("exam", {
       return state.submissions.find(s => s.question_id === questionId);
     },
     
+    getComplexDataForQuestion: (state) => (questionId) => {
+      return state.questionsComplexData[questionId] || null;
+    },
+    
+    getStructuredDataForQuestion: (state) => (questionId) => {
+      return state.questionsStructuredData[questionId] || null;
+    },
+    
+    getMultiPartsForQuestion: (state) => (questionId) => {
+      return state.questionsMultiParts[questionId] || null;
+    },
+    
+    getGuidedWritingForQuestion: (state) => (questionId) => {
+      return state.questionsGuidedWriting[questionId] || null;
+    },
+    
     // ========== SESSION ==========
     isExamActive: (state) => {
       return state.currentSession?.status === 'en_cours';
@@ -105,10 +126,23 @@ export const useExamStore = defineStore("exam", {
       };
     },
     
-    // ========== SCORES ==========
-    totalPoints: (state) => {
-      return state.questions.reduce((sum, q) => sum + (q.points || 0), 0);
-    },
+   // Version plus robuste avec gestion des erreurs
+totalPoints: (state) => {
+  return state.questions.reduce((sum, q) => {
+    if (q.points === null || q.points === undefined) return sum;
+    
+    // Si c'est déjà un nombre
+    if (typeof q.points === 'number') return sum + q.points;
+    
+    // Si c'est une chaîne, la convertir
+    if (typeof q.points === 'string') {
+      const parsed = parseFloat(q.points);
+      return sum + (isNaN(parsed) ? 0 : parsed);
+    }
+    
+    return sum;
+  }, 0);
+},
     
     obtainedPoints: (state) => {
       return state.submissions.reduce((sum, s) => sum + (s.points_obtenus || 0), 0);
@@ -131,14 +165,12 @@ export const useExamStore = defineStore("exam", {
       };
     },
 
-    // ========== GESTION DES ERREURS ==========
     handleError(error, defaultMessage) {
       console.error(defaultMessage, error);
       this.error = error.response?.data?.message || defaultMessage;
       throw error;
     },
 
-    // ========== CHARGEMENT DE L'EXAMEN COMPLET ==========
     async loadExam(evaluationId) {
       this.isLoading = true;
       this.error = null;
@@ -166,6 +198,8 @@ export const useExamStore = defineStore("exam", {
         const questionsResponses = await Promise.all(questionsPromises);
         this.questions = questionsResponses.flatMap(res => res.data.data);
         
+        this.extractComplexDataFromQuestions();
+        
         // Mettre à jour la progression
         this.updateProgress();
         
@@ -181,40 +215,61 @@ export const useExamStore = defineStore("exam", {
       }
     },
 
-    // Dans stores/exam.js
-async fetchAllSubmissions(evaluationId) {
-  this.isLoading = true;
-  try {
-    const response = await axios.get(
-      `/exam/${evaluationId}/submissions/all`, // À adapter selon votre API
-      this.authHeaders()
-    );
-    
-    this.submissions = response.data.data;
-    return this.submissions;
-  } catch (error) {
-    this.handleError(error, "Erreur chargement des soumissions");
-  } finally {
-    this.isLoading = false;
-  }
-},
+    extractComplexDataFromQuestions() {
+      this.questionsComplexData = {};
+      this.questionsStructuredData = {};
+      this.questionsMultiParts = {};
+      this.questionsGuidedWriting = {};
+      
+      this.questions.forEach(question => {
+        if (question.complex_data) {
+          this.questionsComplexData[question.id] = question.complex_data;
+        }
+        if (question.structured_data) {
+          this.questionsStructuredData[question.id] = question.structured_data;
+        }
+        if (question.multi_parts) {
+          this.questionsMultiParts[question.id] = question.multi_parts;
+        }
+        if (question.guided_writing) {
+          this.questionsGuidedWriting[question.id] = question.guided_writing;
+        }
+      });
+    },
 
-async fetchAllSessions(evaluationId) {
-  this.isLoading = true;
-  try {
-    const response = await axios.get(
-      `/evaluations/${evaluationId}/sessions`,
-      this.authHeaders()
-    );
-    
-    return response.data.data.sessions || [];
-  } catch (error) {
-    this.handleError(error, "Erreur chargement des sessions");
-    return [];
-  } finally {
-    this.isLoading = false;
-  }
-},
+    async fetchAllSubmissions(evaluationId) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          `/exam/${evaluationId}/all-submissions`,
+          this.authHeaders()
+        );
+        
+        this.submissions = response.data.data;
+        return this.submissions;
+      } catch (error) {
+        this.handleError(error, "Erreur chargement des soumissions");
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async fetchAllSessions(evaluationId) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          `/evaluations/${evaluationId}/sessions`,
+          this.authHeaders()
+        );
+        
+        return response.data.data.sessions || [];
+      } catch (error) {
+        this.handleError(error, "Erreur chargement des sessions");
+        return [];
+      } finally {
+        this.isLoading = false;
+      }
+    },
 
     // ========== GESTION DES PARTIES ==========
     async fetchParts(evaluationId) {
@@ -310,85 +365,117 @@ async fetchAllSessions(evaluationId) {
       }
     },
 
-  // Dans stores/exam.js
-async fetchQuestions(partId) {
-  this.isLoading = true;
-  try {
-    const response = await axios.get(
-      `/exam-parts/${partId}/questions`,
-      this.authHeaders()
-    );
-    
-    // Les options sont incluses grâce au ->with('options') dans le contrôleur
-    const newQuestions = response.data.data;
-    
-    // Mettre à jour les questions
-    newQuestions.forEach(newQ => {
-      const index = this.questions.findIndex(q => q.id === newQ.id);
-      if (index !== -1) {
-        this.questions[index] = newQ;
-      } else {
-        this.questions.push(newQ);
-      }
-    });
-    
-    return newQuestions;
-  } catch (error) {
-    this.handleError(error, "Erreur chargement questions");
-  } finally {
-    this.isLoading = false;
-  }
-},
-
-  // Dans stores/exam.js - vérifiez cette méthode
-async addQuestion(questionData) {
-  this.isLoading = true;
-  try {
-    const response = await axios.post(
-      "/exam-questions",
-      questionData,  // Les options sont DANS questionData
-      this.authHeaders()
-    );
-    
-    const newQuestion = response.data.data;
-    this.questions.push(newQuestion);
-    
-    return newQuestion;
-  } catch (error) {
-    this.handleError(error, "Erreur création question");
-  } finally {
-    this.isLoading = false;
-  }
-},
-
     // Dans stores/exam.js
-async updateQuestion(questionId, questionData) {
-  this.isLoading = true;
-  try {
-    const response = await axios.put(
-      `/exam-questions/${questionId}`,
-      questionData,  // Les options sont incluses
-      this.authHeaders()
-    );
+    async fetchQuestions(partId) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          `/exam-parts/${partId}/questions`,
+          this.authHeaders()
+        );
+        
+        const newQuestions = response.data.data;
+        
+        // Mettre à jour les questions
+        newQuestions.forEach(newQ => {
+          const index = this.questions.findIndex(q => q.id === newQ.id);
+          if (index !== -1) {
+            this.questions[index] = newQ;
+          } else {
+            this.questions.push(newQ);
+          }
+        });
+        
+        this.extractComplexDataFromQuestions();
+        
+        return newQuestions;
+      } catch (error) {
+        this.handleError(error, "Erreur chargement questions");
+      } finally {
+        this.isLoading = false;
+      }
+    },
 
-    const index = this.questions.findIndex(q => q.id === questionId);
-    if (index !== -1) {
-      this.questions[index] = response.data.data;
-    }
+    async addQuestion(questionData) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          "/exam-questions",
+          questionData,
+          this.authHeaders()
+        );
+        
+        const newQuestion = response.data.data;
+        this.questions.push(newQuestion);
+        
+        if (newQuestion.complex_data) {
+          this.questionsComplexData[newQuestion.id] = newQuestion.complex_data;
+        }
+        if (newQuestion.structured_data) {
+          this.questionsStructuredData[newQuestion.id] = newQuestion.structured_data;
+        }
+        if (newQuestion.multi_parts) {
+          this.questionsMultiParts[newQuestion.id] = newQuestion.multi_parts;
+        }
+        if (newQuestion.guided_writing) {
+          this.questionsGuidedWriting[newQuestion.id] = newQuestion.guided_writing;
+        }
+        
+        return newQuestion;
+      } catch (error) {
+        this.handleError(error, "Erreur création question");
+      } finally {
+        this.isLoading = false;
+      }
+    },
 
-    return response.data;
-  } catch (error) {
-    this.handleError(error, "Erreur mise à jour question");
-  } finally {
-    this.isLoading = false;
-  }
-},
+    async updateQuestion(questionId, questionData) {
+      this.isLoading = true;
+      try {
+        const response = await axios.put(
+          `/exam-questions/${questionId}`,
+          questionData,
+          this.authHeaders()
+        );
+
+        const index = this.questions.findIndex(q => q.id === questionId);
+        if (index !== -1) {
+          this.questions[index] = response.data.data;
+          
+          const updatedQuestion = response.data.data;
+          if (updatedQuestion.complex_data) {
+            this.questionsComplexData[questionId] = updatedQuestion.complex_data;
+          }
+          if (updatedQuestion.structured_data) {
+            this.questionsStructuredData[questionId] = updatedQuestion.structured_data;
+          }
+          if (updatedQuestion.multi_parts) {
+            this.questionsMultiParts[questionId] = updatedQuestion.multi_parts;
+          }
+          if (updatedQuestion.guided_writing) {
+            this.questionsGuidedWriting[questionId] = updatedQuestion.guided_writing;
+          }
+        }
+
+        return response.data;
+      } catch (error) {
+        this.handleError(error, "Erreur mise à jour question");
+      } finally {
+        this.isLoading = false;
+      }
+    },
 
     async deleteQuestion(questionId) {
       this.isLoading = true;
       try {
         await axios.delete(`/exam-questions/${questionId}`, this.authHeaders());
         this.questions = this.questions.filter(q => q.id !== questionId);
+        
+        delete this.questionsComplexData[questionId];
+        delete this.questionsStructuredData[questionId];
+        delete this.questionsMultiParts[questionId];
+        delete this.questionsGuidedWriting[questionId];
+        
       } catch (error) {
         this.handleError(error, "Erreur suppression question");
       } finally {
@@ -640,6 +727,37 @@ async updateQuestion(questionId, questionData) {
       }
     },
 
+    async submitComplexResponse(evaluationId, questionId, reponse, etudiantId) {
+      this.isSubmitting = true;
+      try {
+        const response = await axios.post(
+          `/exam/${evaluationId}/submit-complex`,
+          {
+            question_id: questionId,
+            reponse: reponse,
+            etudiant_id: etudiantId
+          },
+          this.authHeaders()
+        );
+
+        const submission = response.data.data;
+        const index = this.submissions.findIndex(s => s.question_id === questionId);
+        
+        if (index !== -1) {
+          this.submissions[index] = submission;
+        } else {
+          this.submissions.push(submission);
+        }
+
+        this.updateProgress();
+        return submission;
+      } catch (error) {
+        this.handleError(error, "Erreur soumission complexe");
+      } finally {
+        this.isSubmitting = false;
+      }
+    },
+
     async submitAllExam(evaluationId, etudiantId) {
       this.isSubmitting = true;
       try {
@@ -669,7 +787,6 @@ async updateQuestion(questionId, questionData) {
       }
     },
 
-    // ========== CORRECTION ==========
     async gradeSubmission(submissionId, points, commentaire) {
       this.isLoading = true;
       try {
@@ -744,6 +861,11 @@ async updateQuestion(questionId, questionData) {
       this.currentSession = null;
       this.progress = { total: 0, answered: 0, percentage: 0 };
       this.error = null;
+      
+      this.questionsComplexData = {};
+      this.questionsStructuredData = {};
+      this.questionsMultiParts = {};
+      this.questionsGuidedWriting = {};
     },
 
     // ========== AUTO-SAVE TIMER ==========
@@ -762,7 +884,11 @@ async updateQuestion(questionId, questionData) {
         unsavedQuestions.forEach(question => {
           const submission = this.submissions.find(s => s.question_id === question.id);
           if (submission?.reponse) {
-            this.saveResponse(evaluationId, question.id, submission.reponse, etudiantId);
+            if (['complex_data', 'structured_data', 'multi_parts', 'guided_writing'].includes(question.type)) {
+              this.submitComplexResponse(evaluationId, question.id, submission.reponse, etudiantId);
+            } else {
+              this.saveResponse(evaluationId, question.id, submission.reponse, etudiantId);
+            }
           }
         });
       }, intervalSeconds * 1000);

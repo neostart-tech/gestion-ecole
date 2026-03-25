@@ -74,9 +74,33 @@
         <!-- Ajouter -->
         <button
           @click="openAddModal"
-          class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          :disabled="filiereStore.isLoading"
+          class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-indigo-400"
         >
           <svg
+            v-if="filiereStore.isLoading"
+            class="w-5 h-5 animate-spin"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            ></path>
+          </svg>
+
+          <svg
+            v-else
             class="w-5 h-5"
             viewBox="0 0 24 24"
             fill="none"
@@ -88,7 +112,8 @@
               stroke-linecap="round"
             />
           </svg>
-          Ajouter
+
+          {{ filiereStore.isLoading ? "Enregistrement..." : "Ajouter" }}
         </button>
       </div>
     </div>
@@ -136,7 +161,7 @@
                 title="supprimer"
                 class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
               >
-               <ButtonDelete/>
+                <ButtonDelete />
               </button>
             </div>
           </template>
@@ -192,7 +217,8 @@
 
                 <button
                   type="submit"
-                  class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+                  :disabled="filiereStore.isLoading"
+                  class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-indigo-400 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   Enregistrer
                 </button>
@@ -298,8 +324,6 @@ const deleteItem = async (filiere) => {
     $toastr.success("Filiere supprimée avec succes");
   }
 };
-
-
 
 onMounted(async () => {
   await filiereStore.fetchFilieres();

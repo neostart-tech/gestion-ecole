@@ -138,7 +138,7 @@
           <!-- Template pour la colonne Groupe -->
           <template #group.nom="data">
             <span class="text-sm font-medium text-gray-900 dark:text-white">
-              {{ data.value?.group?.nom || "Non spécifiée" }}
+             {{ data.value?.group?.niveau?.libelle || "Non spécifiée" }} {{ data.value?.group?.nom || "Non spécifiée" }}
             </span>
           </template>
 
@@ -152,14 +152,14 @@
           <!-- Template pour la colonne Date -->
           <template #date="data">
             <span class="text-sm text-gray-600 dark:text-gray-400">
-              {{ formatDate(data.value) }}
+              {{ formatDate(data.value.date) }}
             </span>
           </template>
 
           <!-- Template pour la colonne Durée -->
           <template #duration_minutes="data">
             <span class="text-sm text-gray-600 dark:text-gray-400">
-              {{ formatDuration(data.value) }}
+              {{ formatDuration(data.value.duration_minutes) }}
             </span>
           </template>
 
@@ -221,19 +221,27 @@
                 class="p-2 rounded-lg text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors duration-200"
                 title="Voir les soummissions des étudiants"
               >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
+         <svg
+  class="w-4 h-4"
+  fill="none"
+  stroke="currentColor"
+  viewBox="0 0 24 24"
+>
+  <!-- Document avec personnes -->
+  <path
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="2"
+    d="M9 12h6m-6 4h6m2-10H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"
+  />
+  <circle cx="12" cy="8" r="2" stroke="currentColor" />
+  <path
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="2"
+    d="M8 18c.5-1 2-2 4-2s3.5 1 4 2"
+  />
+</svg>
               </NuxtLink>
             </div>
           </template>
@@ -767,31 +775,7 @@
                         </div>
                       </div>
 
-                      <div
-                        class="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-violet-100 dark:border-violet-700/30"
-                      >
-                        <p
-                          class="text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >
-                          Anonymat
-                        </p>
-                        <div class="mt-1">
-                          <span
-                            :class="[
-                              selectedEvent.has_anonymat === 1
-                                ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300'
-                                : 'bg-gray-100 dark:bg-gray-700/30 text-gray-800 dark:text-gray-300',
-                              'px-3 py-1 rounded-full text-sm font-medium',
-                            ]"
-                          >
-                            {{
-                              selectedEvent.has_anonymat === 1
-                                ? "Activé"
-                                : "Désactivé"
-                            }}
-                          </span>
-                        </div>
-                      </div>
+                     
 
                       <div
                         class="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-violet-100 dark:border-violet-700/30"

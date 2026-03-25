@@ -11,7 +11,7 @@ export default defineNuxtConfig({
 		dirs: ["stores"],
 	},
 
-	css: ["~/assets/css/main.css", "~/assets/css/calendar.css",'~/assets/css/calendarstyle.css'],
+	css: ["~/assets/css/main.css", "~/assets/css/calendar.css",'~/assets/css/calendarstyle.css','flag-icons/css/flag-icons.min.css'],
 
 	// Ajoutez les plugins
 	plugins: ["~/plugins/theme.client.ts", "~/plugins/toastr.client.js"],

@@ -48,6 +48,8 @@
 
         <!-- Boutons d'action -->
         <div class="flex items-center space-x-4 mt-4 md:mt-0">
+                        <Can action="create-cours">
+
           <button
             @click="openCreateModal"
             class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
@@ -67,6 +69,7 @@
             </svg>
             Nouveau cours
           </button>
+          </Can>
 
           <!-- Indicateur de chargement -->
           <div v-if="salleStore.isLoading" class="flex items-center space-x-2">
@@ -879,6 +882,8 @@
 
               <!-- Boutons d'action -->
               <div class="mt-8 flex justify-end gap-3">
+                              <Can action="update-cours">
+
                 <button
                   type="button"
                   @click="openEditModalFromDetail(selectedEvent)"
@@ -899,6 +904,9 @@
                   </svg>
                   Modifier
                 </button>
+                </Can>
+                              <Can action="delete-cours">
+
                 <button
                   type="button"
                   @click="confirmDelete(selectedEvent)"
@@ -919,6 +927,7 @@
                   </svg>
                   Supprimer
                 </button>
+                </Can>
                 <button
                   type="button"
                   @click="closeEventModal"

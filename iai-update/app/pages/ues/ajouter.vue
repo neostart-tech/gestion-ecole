@@ -172,11 +172,11 @@
                   </NuxtLink>
                   <button
                     type="submit"
-                    :disabled="loading"
+                    :disabled="useStore.isLoading"
                     class="px-6 py-3 bg-indigo-600 dark:bg-indigo-500 text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed text-center"
                   >
                     <span
-                      v-if="loading"
+                      v-if="useStore.isLoading"
                       class="flex items-center justify-center gap-2"
                     >
                       <svg

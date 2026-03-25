@@ -28,7 +28,16 @@ export default defineNuxtRouteMiddleware((to) => {
 		"responsable-du-site",
 		"admin",
 		"directeur-general-adjoint",
-		"directeur-general"
+		"directeur-general",
+		"informaticien",
+		"secretaires",
+		"surveillant",
+		"charge-de-la-clientele",
+		"responsable-marketing",
+		"collaborateur-commercial",
+		"stagiaire",
+		"logiticien-academique",
+		'directeur-academique'
 	];
 
 	// Vérifier si l'utilisateur a un rôle avec accès total

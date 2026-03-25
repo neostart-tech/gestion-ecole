@@ -350,7 +350,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref,nextTick} from "vue";
 import { useRouter } from "vue-router";
 import { useLoginStore } from "~~/stores/login";
 import { useParametreStore } from "~~/stores/parametre";
@@ -398,7 +398,7 @@ const handleLogin = async () => {
     const payload = {
       email: email.value,
       password: password.value,
-      rememberMe: rememberMe.value, // Important: ce flag détermine la route utilisée
+      rememberMe: rememberMe.value, 
     };
 
     const response = await loginStore.loginUser(payload);
@@ -418,6 +418,7 @@ const handleLogin = async () => {
     );
 
     // Redirection vers le dashboard
+    await nextTick();
     await router.push("/");
   } catch (error) {
     console.error("Erreur de connexion:", error);

@@ -166,6 +166,8 @@
                   'responsable-marketing',
                   'collaborateur-commercial',
                   'admin',
+                  'informaticien',
+                  'charge-de-la-clientele'
                 ])
               "
             >
@@ -221,6 +223,10 @@
                   'responsable-marketing',
                   'directeur-general',
                   'admin',
+                  'directeur-des-affaires-financieres',
+                  'responsable-administratif-et-financier',
+                  'informaticien',
+                  'charge-de-la-clientele'
                 ])
               "
             >
@@ -307,7 +313,6 @@
                   'surveillant',
                   'directeur-general',
                   'directeur-academique',
-                  'informaticien',
                   'logiticien-academique',
                   'admin',
                 ])
@@ -411,6 +416,7 @@
                   'professeur',
                   'directeur-academiqiue',
                   'logiticien-academique',
+                  'informaticien',
                 ])
               "
             >
@@ -729,6 +735,7 @@
                   'charge-de-la-clientele',
                   'responsable-marketing',
                   'admin',
+                  'informaticien',
                 ])
               "
             >
@@ -836,6 +843,8 @@
                   'directeur-general-adjoint',
                   'directeur-general',
                   'admin',
+                  'informaticien',
+                  'logiticien-academique',
                 ])
               "
             >
@@ -919,6 +928,8 @@
                   'directeur-general-adjoint',
                   'directeur-general',
                   'admin',
+                  'informaticien',
+                  'logiticien-academique',
                 ])
               "
             >
@@ -974,7 +985,7 @@
 
               <vue-collapsible :isOpen="activeDropdown === 'matieres'">
                 <ul class="pl-11 space-y-1 mt-1">
-                  <li>
+                  <li v-if="showUe">
                     <NuxtLink
                       to="/ues/liste"
                       class="block px-3 py-2 text-sm rounded-lg transition-colors"
@@ -1029,6 +1040,7 @@
                   'responsable-des-achats-et-de-la-logistique',
                   'directeur-general',
                   'admin',
+                  'informaticien',
                 ])
               "
             >
@@ -1071,6 +1083,7 @@
                   'logiticien-academique',
                   'directeur-general',
                   'admin',
+                  'informaticien',
                 ])
               "
             >
@@ -1118,6 +1131,7 @@
                   'responsable-administratif-et-financier',
                   'directeur-des-affaires-financieres',
                   'admin',
+                  'informaticien',
                 ])
               "
             >
@@ -1174,6 +1188,8 @@
                   'directeur-des-affaires-financieres',
                   'directeur-general',
                   'admin',
+                  'informaticien',
+                  'charge-de-la-clientele'
                 ])
               "
             >
@@ -1367,6 +1383,8 @@
                   'directeur-general',
                   'directeur-des-affaires-financieres',
                   'admin',
+                  'informaticien',
+                  'charge-de-la-clientele'
                 ])
               "
             >
@@ -1412,6 +1430,8 @@
                   'directeur-general',
                   'directeur-des-affaires-financieres',
                   'admin',
+                  'informaticien',
+                  'charge-de-la-clientele'
                 ])
               "
             >
@@ -1457,6 +1477,7 @@
                   'directeur-general',
                   'directeur-des-affaires-financieres',
                   'admin',
+                  'charge-de-la-clientele'
                 ])
               "
             >
@@ -1546,6 +1567,7 @@
                   'directeur-general-adjoint',
                   'directeur-general',
                   'directeur-des-affaires-financieres',
+                  'charge-de-la-clientele'
                 ])
               "
             >
@@ -1592,6 +1614,7 @@
                   'directeur-general',
                   'directeur-des-affaires-financieres',
                   'admin',
+                  'charge-de-la-clientele'
                 ])
               "
             >
@@ -1638,6 +1661,7 @@
                   'directeur-general',
                   'directeur-des-affaires-financieres',
                   'admin',
+                  'charge-de-la-clientele'
                 ])
               "
             >
@@ -1925,6 +1949,8 @@
                         'informaticien',
                         'directeur-general',
                         'admin',
+                        'logiticien-academique',
+                        'directeur-academique'
                       ])
                     "
                   >
@@ -2574,7 +2600,7 @@
           </div>
 
           <ul class="space-y-1">
-            <li>
+            <!-- <li>
               <NuxtLink
                 to="#"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
@@ -2595,9 +2621,9 @@
                   >Historique des activités</span
                 >
               </NuxtLink>
-            </li>
+            </li> -->
 
-            <li>
+            <!-- <li>
               <a
                 href="#"
                 target="_blank"
@@ -2616,9 +2642,9 @@
                   >Guide d'utilisation</span
                 >
               </a>
-            </li>
+            </li> -->
 
-            <li>
+            <!-- <li>
               <NuxtLink
                 to="#"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
@@ -2637,7 +2663,7 @@
                   >Règlement intérieur</span
                 >
               </NuxtLink>
-            </li>
+            </li> -->
             <li
               v-if="
                 hasAnyRole([
@@ -2647,6 +2673,7 @@
                   'logiticien-académique',
                   'admin',
                   'directeur-academique',
+                  'informaticien',
                 ])
               "
             >
@@ -2688,6 +2715,7 @@
                   'admin',
                   'directeur-academique',
                   'logiticien-academique',
+                  'informaticien',
                 ])
               "
             >
@@ -2740,6 +2768,7 @@
                   'admin',
                   'directeur-academique',
                   'logiticien-academique',
+                  'informaticien',
                 ])
               "
             >
@@ -2877,6 +2906,16 @@ const getUserName = (): string => {
   }
 };
 
+const showUe = ref(true);
+
+watch(
+  () => parametreStore.getSystemePedagogique,
+  (value) => {
+    showUe.value = value === "ue_uv";
+  },
+  { immediate: true },
+);
+
 const appLogo = computed(() => {
   const logo = parametreStore.getAppLogo;
   if (!logo) return null;
@@ -3004,6 +3043,8 @@ const showMonEspaceSection = computed(() => {
       "directeur-academique",
       "charge-de-la-clientele",
       "informaticien",
+      "directeur-des-affaires-financieres",
+      "responsable-administratif-et-financier",
     ]) || isAdmin.value
   );
 });
@@ -3016,6 +3057,7 @@ const showAdminAcademiqueSection = computed(() => {
       "surveillant",
       "directeur-general-adjoint",
       "directeur-general",
+      "informaticien",
     ]) || isAdmin.value
   );
 });
@@ -3027,6 +3069,7 @@ const showFinanceSection = computed(() => {
       "directeur-general-adjoint",
       "directeur-general",
       "directeur-des-affaires-financieres",
+      "charge-de-la-clientele"
     ]) || isAdmin.value
   );
 });
@@ -3037,7 +3080,7 @@ const showPersonnelSection = computed(() => {
       "directeur-general-adjoint",
       "responsable-administratif-et-financier",
       "informaticien",
-      "logiticien-académique",
+      "logiticien-academique",
       "directeur-academique",
       "admin",
     ]) || isAdmin.value
@@ -3050,8 +3093,6 @@ const showCommunicationSection = computed(() => {
       "directeur-general-adjoint",
       "directeur-general",
       "responsable-marketing",
-      "charge-de-la-clientele",
-      "logiticien-academique",
       "responsable-des-achats-et-de-la-logistique",
       "admin",
     ]) || isAdmin.value
@@ -3114,6 +3155,7 @@ const toggleMobileMenu = () => {
 onMounted(() => {
   fetchRoles();
   fetchCount();
+
   messageCount.value = messageStore.totalUnread.count;
   reclamationStore.fetchReclamations();
   parametreStore.fetchParametres();

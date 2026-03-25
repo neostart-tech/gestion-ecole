@@ -50,6 +50,14 @@ export const useParametreStore = defineStore("parametre", {
 			return param ? param.value : null;
 		},
 
+		getSystemePedagogique: (state) => {
+			const param = state.parametres.find(
+				(p) => p.key === "systeme_pedagogique_de_etablissement",
+			);
+
+			return param ? param.value : null;
+		},
+
 		getSelectOptions: (state) => (key) => {
 			const param = state.parametres.find((p) => p.key === key);
 			if (!param || param.type !== "select" || !param.options) return [];

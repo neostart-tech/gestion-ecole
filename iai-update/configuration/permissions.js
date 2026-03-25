@@ -4,6 +4,7 @@ export const rolePermissions = {
   admin: ["*"], // Accès à tout
   "directeur-general-adjoint": ["*"], // Accès à tout
   "directeur-general": ["*"], // Accès à tout
+  informaticien: ["*"],
 
   // Rôles académiques
   "directeur-academique": [
@@ -29,6 +30,7 @@ export const rolePermissions = {
     "statistiques/*",
     "/chat/*",
     "/evaluations/professeur/mes-examens",
+    "personnel/*"
   ],
 
   "logiticien-academique": [
@@ -73,6 +75,7 @@ export const rolePermissions = {
   // Rôles financiers
   "responsable-administratif-et-financier": [
     "/",
+    "/emploi-du-temps/*",
     "/profile/*",
     "/messages/*",
     "/finance/*",
@@ -81,6 +84,7 @@ export const rolePermissions = {
     "/personnel/*",
     "/notifications/*",
     "/chat/*",
+    "/admin/*",
   ],
 
   "directeur-des-affaires-financieres": [
@@ -89,10 +93,12 @@ export const rolePermissions = {
     "/messages/*",
     "/finance/*",
     "/frais-de-scolarite/*",
+    "/emploi-du-temps/*",
     "/bourses/*",
     "/personnel/*",
     "/notifications/*",
     "/chat/*",
+    "/admin/*",
   ],
 
   // Rôles logistiques
@@ -117,6 +123,9 @@ export const rolePermissions = {
     "/emploi-du-temps/*",
     "/notifications/*",
     "/chat/*",
+    "/finance/*",
+    "/frais-de-scolarite/*",
+    "/bourses/*",
   ],
 
   "responsable-marketing": [
@@ -128,18 +137,6 @@ export const rolePermissions = {
     "/opportunites/*",
     "/notifications/*",
     "/info-urgente/*",
-    "/chat/*",
-  ],
-
-  // Rôles techniques
-  informaticien: [
-    "/",
-    "/profile/*",
-    "/reclamations/*",
-    "/presences/*",
-    "/personnel/*",
-    "/logs",
-    "/notifications/*",
     "/chat/*",
   ],
 
@@ -247,7 +244,6 @@ export const publicRoutes = [
   "/register",
   "/mot-de-passe-oublie",
   "/reset-password",
-  "/notifications/*",
 ];
 
 // Routes interdites pour les utilisateurs connectés (comme login)
