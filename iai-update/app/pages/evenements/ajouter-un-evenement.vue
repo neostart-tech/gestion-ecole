@@ -1,352 +1,300 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-4 md:p-6">
-    <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
-      <NuxtLink
-        to="/admin/evenements"
-        class="cursor-pointer hover:text-indigo-600 transition-colors"
-      >
-        Évènements
-      </NuxtLink>
-      <span>/</span>
-      <span class="text-gray-900 font-medium cursor-default"
-        >Ajouter un évènement</span
-      >
-    </div>
-
-    <!-- Titre -->
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl md:text-3xl font-semibold text-gray-900">
-        Ajouter un évènement
-      </h1>
-      <button
-        @click="goBack"
-        class="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-      >
-        <svg
-          class="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M10 19l-7-7m0 0l7-7m-7 7h18"
-          />
+  <div class="min-h-screen bg-gray-50">
+    <div class="max-w-4xl mx-auto px-4 py-8 md:py-12">
+      
+      <!-- Breadcrumb -->
+      <div class="flex items-center gap-2 text-sm text-gray-500 mb-8 font-medium">
+        <NuxtLink to="/evenements/liste" class="hover:text-[#7C86FF] transition-colors">Événements</NuxtLink>
+        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7" />
         </svg>
-        Retour
-      </button>
-    </div>
+        <span class="text-gray-700">Ajouter un événement</span>
+      </div>
 
-    <!-- Formulaire d'ajout -->
-    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-      <form @submit.prevent="submitForm" class="space-y-6">
-        <!-- Titre de la publication -->
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
         <div>
-          <label
-            for="titre"
-            class="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Nom de l'événement <span class="text-rose-500">*</span>
-          </label>
-          <input
-            type="text"
-            id="titre"
-            v-model="form.nom"
-            required
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-            placeholder="Entrez le titre de l'évènement"
-            :class="{ 'border-rose-500': errors.nom }"
-          />
-          <p v-if="errors.nom" class="mt-1 text-sm text-rose-600">
-            {{ errors.nom }}
-          </p>
+          <h1 class="text-2xl md:text-3xl font-semibold text-gray-800 tracking-tight">Ajouter un événement</h1>
+          <p class="text-gray-500 mt-1">Créez et publiez une nouvelle annonce d'événement.</p>
         </div>
-
-        <!-- Dates de l'évènement -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Date de début -->
-          <div>
-            <label
-              for="date_debut"
-              class="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Date de début de l'évènement <span class="text-rose-500">*</span>
-            </label>
-            <div class="relative">
-              <input
-                type="date"
-                id="date_debut"
-                v-model="form.start_date"
-                required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                :class="{ 'border-rose-500': errors.start_date }"
-              />
-            </div>
-            <p v-if="errors.start_date" class="mt-1 text-sm text-rose-600">
-              {{ errors.start_date }}
-            </p>
-          </div>
-
-          <!-- Date de fin -->
-          <div>
-            <label
-              for="date_fin"
-              class="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Date de fin de l'évènement
-            </label>
-            <div class="relative">
-              <input
-                type="date"
-                id="date_fin"
-                v-model="form.end_date"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                :class="{ 'border-rose-500': errors.end_date }"
-              />
-            </div>
-            <p v-if="errors.end_date" class="mt-1 text-sm text-rose-600">
-              {{ errors.end_date }}
-            </p>
-            <p class="mt-1 text-xs text-gray-500">
-              Laisser vide si l'évènement dure un seul jour
-            </p>
-          </div>
-        </div>
-
-        <!-- Contenu de la publication avec TinyMCE -->
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <label class="block text-sm font-medium text-gray-700">
-              Contenu de la publication <span class="text-rose-500">*</span>
-            </label>
-          </div>
-
-          <!-- TinyMCE Editor -->
-          <div :class="{ 'border-rose-500 rounded-lg': errors.details }">
-            <Editor
-              v-model="form.details"
-              :api-key="tinymceApiKey"
-              :init="editorConfig"
-              class="tinymce-editor"
-            />
-          </div>
-          <p v-if="errors.details" class="mt-1 text-sm text-rose-600">
-            {{ errors.details }}
-          </p>
-          <p class="mt-1 text-xs text-gray-500">
-            Utilisez l'éditeur pour formater votre contenu avec des images, des
-            liens, etc.
-          </p>
-        </div>
-
-        <div
-          class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200"
+        <button 
+          @click="goBack" 
+          class="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-600 rounded-lg font-medium hover:bg-gray-50 hover:border-[#7C86FF]/30 transition-all text-sm"
         >
-          <button
-            type="button"
-            @click="goBack"
-            class="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-          >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            :disabled="isSubmitting"
-            class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <svg
-              v-if="isSubmitting"
-              class="animate-spin h-5 w-5 text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-              ></circle>
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            <svg
-              v-else
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            {{
-              isSubmitting
-                ? "Enrégistrement en cours..."
-                : "Enrégistrer l'évènement"
-            }}
-          </button>
-        </div>
-      </form>
-    </div>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Retour à la liste
+        </button>
+      </div>
 
-  
+      <!-- Form Card -->
+      <div class="border border-gray-200 rounded-2xl bg-white">
+        <form @submit.prevent="submitForm" class="p-6 md:p-8 space-y-8">
+          
+          <!-- Section 01 : Informations de base -->
+          <div class="space-y-5">
+            <div class="flex items-center gap-2 pb-2 border-b border-gray-100">
+              <div class="w-6 h-6 rounded-full bg-[#7C86FF]/10 text-[#7C86FF] flex items-center justify-center text-xs font-semibold">1</div>
+              <h2 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Informations Générales</h2>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Nom de l'événement <span class="text-red-400">*</span>
+              </label>
+              <input
+                v-model="form.nom"
+                type="text"
+                required
+                class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7C86FF]/20 focus:border-[#7C86FF] transition-all text-gray-800 placeholder:text-gray-400"
+                placeholder="Ex: Conférence sur l'IA 2026"
+              />
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Date de début <span class="text-red-400">*</span>
+                </label>
+                <input
+                  v-model="form.start_date"
+                  type="date"
+                  required
+                  class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7C86FF]/20 focus:border-[#7C86FF] transition-all text-gray-800"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Date de fin <span class="text-gray-400 text-xs font-normal">(Optionnel)</span>
+                </label>
+                <input
+                  v-model="form.end_date"
+                  type="date"
+                  class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7C86FF]/20 focus:border-[#7C86FF] transition-all text-gray-800"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 02 : Paramètres de visibilité -->
+          <div class="space-y-5">
+            <div class="flex items-center gap-2 pb-2 border-b border-gray-100">
+              <div class="w-6 h-6 rounded-full bg-[#7C86FF]/10 text-[#7C86FF] flex items-center justify-center text-xs font-semibold">2</div>
+              <h2 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Ciblage & Visibilité</h2>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-3">
+                Visibilité & Diffusion <span class="text-red-400">*</span>
+              </label>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <button 
+                  type="button" 
+                  v-for="d in destinations" :key="d.value"
+                  @click="form.destination = d.value"
+                  class="px-4 py-3 rounded-lg border transition-all text-sm font-medium text-left"
+                  :class="form.destination === d.value 
+                    ? 'border-[#7C86FF] bg-[#7C86FF]/5 text-[#7C86FF]' 
+                    : 'border-gray-200 text-gray-500 hover:border-gray-300 hover:bg-gray-50'"
+                >
+                  <div class="flex items-center gap-2">
+                    <div 
+                      class="w-3 h-3 rounded-full"
+                      :class="form.destination === d.value ? 'bg-[#7C86FF]' : 'bg-gray-300'"
+                    ></div>
+                    {{ d.label }}
+                  </div>
+                </button>
+              </div>
+              <p class="text-xs text-gray-400 mt-2">
+                Précisez si l'événement doit être visible par les utilisateurs internes ou sur le site public.
+              </p>
+            </div>
+          </div>
+
+          <!-- Section 03 : Media & Contenu -->
+          <div class="space-y-5">
+            <div class="flex items-center gap-2 pb-2 border-b border-gray-100">
+              <div class="w-6 h-6 rounded-full bg-[#7C86FF]/10 text-[#7C86FF] flex items-center justify-center text-xs font-semibold">3</div>
+              <h2 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Médias & Contenu</h2>
+            </div>
+
+            <!-- Image Upload -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Image de couverture <span class="text-gray-400 text-xs font-normal">(Optionnel)</span>
+              </label>
+              <div 
+                @click="$refs.imageInput.click()"
+                class="relative cursor-pointer overflow-hidden rounded-xl border border-gray-200 hover:border-[#7C86FF]/50 transition-all aspect-video flex items-center justify-center bg-gray-50"
+              >
+                <img v-if="imagePreview" :src="imagePreview" class="w-full h-full object-cover" />
+                <div v-else class="text-center p-6">
+                  <div class="w-12 h-12 rounded-full bg-white border border-gray-200 mx-auto mb-3 flex items-center justify-center text-gray-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <p class="text-sm font-medium text-gray-500">Cliquez pour ajouter une image</p>
+                  <p class="text-xs text-gray-400 mt-1">PNG, JPG ou GIF (Max. 5Mo)</p>
+                </div>
+                <input type="file" ref="imageInput" class="hidden" accept="image/*" @change="handleImage" />
+              </div>
+            </div>
+
+            <!-- Rich Content -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Détails de l'événement <span class="text-red-400">*</span>
+              </label>
+              <div class="min-h-[300px] border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-[#7C86FF]/20 focus-within:border-[#7C86FF] transition-all">
+                <ClientOnly>
+                  <EditorTinyMCE v-model="form.details" />
+                  <template #fallback>
+                    <div class="h-64 flex items-center justify-center bg-gray-50 text-gray-400 font-medium">
+                      Chargement de l'éditeur...
+                    </div>
+                  </template>
+                </ClientOnly>
+              </div>
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-100">
+            <button
+              type="button"
+              @click="goBack"
+              class="px-6 py-2.5 rounded-lg border border-gray-200 text-gray-600 font-medium hover:bg-gray-50 hover:border-gray-300 transition-all"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              :disabled="isSubmitting"
+              class="px-6 py-2.5 rounded-lg bg-[#7C86FF] text-white font-medium hover:bg-[#6B76F0] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              <svg v-if="isSubmitting" class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>{{ isSubmitting ? 'Enregistrement en cours...' : "Enregistrer l'événement" }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import Editor from "@tinymce/tinymce-vue";
+import { ref } from "vue";
 import { useEvenementStore } from "~~/stores/evenement";
+import EditorTinyMCE from "~/components/EditorTinyMCE.vue";
 
-// Clé API TinyMCE
-const tinymceApiKey = "ktf8z0z55enm2wd9xyeoo6qzzoy7w9b629e51wii9y8lw4dx";
 const evenementStore = useEvenementStore();
 const { $toastr } = useNuxtApp();
+const isSubmitting = ref(false);
 
-// Configuration de l'éditeur TinyMCE
-const editorConfig = {
-  height: 400,
-  menubar: true,
-  plugins: [
-    "advlist",
-    "autolink",
-    "lists",
-    "link",
-    "image",
-    "charmap",
-    "preview",
-    "anchor",
-    "searchreplace",
-    "visualblocks",
-    "code",
-    "fullscreen",
-    "insertdatetime",
-    "media",
-    "table",
-    "code",
-    "help",
-    "wordcount",
-    "emoticons",
-  ],
-  toolbar:
-    "undo redo | blocks | " +
-    "bold italic forecolor | alignleft aligncenter " +
-    "alignright alignjustify | bullist numlist outdent indent | " +
-    "removeformat | link image | emoticons | help",
-  content_style:
-    "body { font-family:Helvetica,Arial,sans-serif; font-size:16px }",
-  images_upload_url: "/api/upload", // URL d'upload d'images
-  automatic_uploads: true,
-  file_picker_types: "image",
-  promotion: false,
-  branding: false,
-  emoticons_database: "emojis",
-  emoticons_append: {
-    custom_mind_explode: {
-      keywords: ["brain", "mind", "explode", "blown"],
-      char: "🤯",
-    },
-  },
-};
-
-// État du formulaire
 const form = ref({
   nom: "",
   start_date: "",
   end_date: "",
   details: "",
+  type: "internal",
+  destination: "intranet", // Changé de 'all' à 'intranet' par défaut
 });
 
-// Gestion des erreurs
-const errors = ref({});
-const isSubmitting = ref(false);
+const imageFile = ref(null);
+const imagePreview = ref(null);
 
-// Formater la date
-const formatDate = (dateString) => {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  return date.toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-};
+// Destinations mises à jour
+const destinations = [
+  { label: 'Intranet', value: 'intranet' },
+  { label: 'Site web', value: 'website' },
+  { label: 'Public', value: 'all' }
+];
 
-// Validation du formulaire
-const validateForm = () => {
-  errors.value = {};
-  let isValid = true;
-
-  if (!form.value.nom.trim()) {
-    errors.value.nom = "Le nom est requis";
-    isValid = false;
-  }
-
-  if (!form.value.start_date) {
-    errors.value.start_date = "La date de début est requise";
-    isValid = false;
-  }
-
-  if (form.value.end_date && form.value.end_date < form.value.end_date) {
-    errors.value.end_date = "La date de fin doit être après la date de début";
-    isValid = false;
-  }
-
-  if (!form.value.details.trim()) {
-    errors.value.details = "Le contenu est requis";
-    isValid = false;
-  }
-
-  return isValid;
-};
-
-// Soumettre le formulaire
-const submitForm = async () => {
-  if (!validateForm()) {
+const handleImage = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    $toastr.warning("Fichier trop lourd (Max 5Mo)");
     return;
+  }
+  
+  imageFile.value = file;
+  const reader = new FileReader();
+  reader.onload = (ev) => imagePreview.value = ev.target.result;
+  reader.readAsDataURL(file);
+};
+
+const submitForm = async () => {
+  if (!form.value.nom.trim() || !form.value.details.trim() || !form.value.start_date) {
+    return $toastr.warning("Veuillez remplir tous les champs obligatoires");
   }
 
   isSubmitting.value = true;
-
   try {
-    // Préparer les données
-    const eventData = {
-      nom: form.value.nom,
-      start_date: form.value.start_date,
-      end_date: form.value.end_date,
-      details: form.value.details,
-    };
-    await evenementStore.createEvenement(eventData);
-    await evenementStore.fetchEvenements();
-    $toastr.success("Evénement enrégistré avec succes");
-    try {
-    } catch (error) {}
+    const fd = new FormData();
+    fd.append("nom", form.value.nom);
+    fd.append("start_date", form.value.start_date);
+    fd.append("end_date", form.value.end_date || "");
+    fd.append("details", form.value.details);
+    fd.append("type", form.value.destination === 'intranet' ? 'internal' : 'public');
+    fd.append("destination", form.value.destination);
+    
+    if (imageFile.value) {
+      fd.append("image", imageFile.value);
+    }
+
+    await evenementStore.createEvenement(fd);
+    $toastr.success("Événement enregistré avec succès !");
     navigateTo("/evenements/liste");
   } catch (error) {
-    console.error("Erreur:", error);
-    alert("Une erreur est survenue lors de l'événement.");
+    console.error("Erreur saving event:", error);
+    $toastr.error("Erreur lors de l'enregistrement de l'événement.");
   } finally {
     isSubmitting.value = false;
   }
 };
 
-// Navigation
-const goBack = () => {
-  navigateTo("/evenements/liste");
-};
-
-onMounted(() => {});
+const goBack = () => navigateTo("/evenements/liste");
 </script>
+
+<style scoped>
+/* Styles pour l'éditeur TinyMCE avec la couleur personnalisée */
+:deep(.tox-tinymce) {
+  border: none !important;
+}
+
+:deep(.tox-editor-header) {
+  border-bottom: 1px solid #e5e7eb !important;
+  background-color: #fafafa !important;
+}
+
+:deep(.tox .tox-edit-area__iframe) {
+  background-color: white !important;
+}
+
+:deep(.tox .tox-toolbar__primary) {
+  background-color: #fafafa !important;
+}
+
+:deep(.tox .tox-button--primary) {
+  background-color: #7C86FF !important;
+}
+
+:deep(.tox .tox-button--primary:hover) {
+  background-color: #6B76F0 !important;
+}
+
+:deep(.tox .tox-collection__item--active) {
+  background-color: #7C86FF20 !important;
+}
+
+:deep(.tox .tox-statusbar) {
+  border-top: 1px solid #e5e7eb !important;
+}
+</style>

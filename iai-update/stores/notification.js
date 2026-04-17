@@ -5,6 +5,7 @@ export const useNotificationStore = defineStore("notification", {
   state: () => ({
     notifications: [],
     unreadNotifications: [],
+    isLoading: false,
   }),
 
   actions: {

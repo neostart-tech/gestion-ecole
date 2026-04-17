@@ -192,5 +192,21 @@ export const useEtudiantStore = defineStore("etudiant", {
         this.isLoading = false;
       }
     },
+    async reinscrire(etudiantId, data) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          `/etudiants/${etudiantId}/reinscrire`,
+          data,
+          this.authHeaders(),
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Erreur réinscription:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
   },
 });

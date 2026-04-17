@@ -13,6 +13,7 @@ export const useExamStore = defineStore("exam", {
     // Soumissions et session
     submissions: [],
     currentSession: null,
+    examStats: {},
     
     // États de chargement
     isLoading: false,
@@ -127,22 +128,31 @@ export const useExamStore = defineStore("exam", {
     },
     
    // Version plus robuste avec gestion des erreurs
-totalPoints: (state) => {
-  return state.questions.reduce((sum, q) => {
-    if (q.points === null || q.points === undefined) return sum;
-    
-    // Si c'est déjà un nombre
-    if (typeof q.points === 'number') return sum + q.points;
-    
-    // Si c'est une chaîne, la convertir
-    if (typeof q.points === 'string') {
-      const parsed = parseFloat(q.points);
-      return sum + (isNaN(parsed) ? 0 : parsed);
-    }
-    
-    return sum;
-  }, 0);
-},
+    totalPoints: (state) => {
+      return state.questions.reduce((sum, q) => {
+        let questionPoints = 0;
+        
+        // Points de base de la question
+        if (q.points !== null && q.points !== undefined) {
+          if (typeof q.points === 'number') {
+            questionPoints = q.points;
+          } else if (typeof q.points === 'string') {
+            const parsed = parseFloat(q.points);
+            questionPoints = isNaN(parsed) ? 0 : parsed;
+          }
+        }
+
+        // Ajout des points de justification si activée
+        if (q.config?.requireJustification && q.config?.justificationPoints) {
+          const jPoints = parseFloat(q.config.justificationPoints);
+          if (!isNaN(jPoints)) {
+            questionPoints += jPoints;
+          }
+        }
+        
+        return sum + questionPoints;
+      }, 0);
+    },
     
     obtainedPoints: (state) => {
       return state.submissions.reduce((sum, s) => sum + (s.points_obtenus || 0), 0);
@@ -241,14 +251,47 @@ totalPoints: (state) => {
       this.isLoading = true;
       try {
         const response = await axios.get(
-          `/exam/${evaluationId}/all-submissions`,
+          `/exam/${evaluationId}/submissions/all`,
           this.authHeaders()
         );
         
-        this.submissions = response.data.data;
-        return this.submissions;
+        this.submissions = response.data.data.etudiants || [];
+        this.examStats = response.data.data.stats || {};
+        this.questions = response.data.data.questions || [];
+
+        if (response.data.data.has_anonymat !== undefined) {
+          if (!this.currentEvaluation) this.currentEvaluation = {};
+          this.currentEvaluation.has_anonymat = response.data.data.has_anonymat;
+        }
+        
+        return response.data;
       } catch (error) {
-        this.handleError(error, "Erreur chargement des soumissions");
+        this.handleError(error, "Erreur chargement soumissions");
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async fetchSubmittedSubmissions(evaluationId) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          `/exam/${evaluationId}/submissions/submitted`,
+          this.authHeaders()
+        );
+        
+        this.submissions = response.data.data.etudiants || [];
+        this.examStats = response.data.data.stats || {};
+        this.questions = response.data.data.questions || [];
+
+        if (response.data.data.has_anonymat !== undefined) {
+          if (!this.currentEvaluation) this.currentEvaluation = {};
+          this.currentEvaluation.has_anonymat = response.data.data.has_anonymat;
+        }
+        
+        return response.data;
+      } catch (error) {
+        this.handleError(error, "Erreur chargement soumissions envoyées");
       } finally {
         this.isLoading = false;
       }
@@ -808,6 +851,61 @@ totalPoints: (state) => {
         return submission;
       } catch (error) {
         this.handleError(error, "Erreur notation");
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async suggestGrade(submissionId) {
+      try {
+        const response = await axios.post(
+          `/exam-submissions/${submissionId}/suggest-grade`,
+          {},
+          this.authHeaders()
+        );
+        return response.data;
+      } catch (error) {
+        this.handleError(error, "Erreur lors de la suggestion IA");
+      }
+    },
+
+    async generateQuestionsAI(payload) {
+      try {
+        const response = await axios.post(
+          '/exam-questions/generate-ai',
+          payload,
+          this.authHeaders()
+        );
+        return response.data;
+      } catch (error) {
+        this.handleError(error, "Erreur génération IA");
+      }
+    },
+
+    async refineQuestionAI(payload) {
+      try {
+        const response = await axios.post(
+          '/exam-questions/refine-ai',
+          payload,
+          this.authHeaders()
+        );
+        return response.data;
+      } catch (error) {
+        this.handleError(error, "Erreur aide IA");
+      }
+    },
+
+    async finalizeGrade(evaluationId, etudiantId) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          `/exam/${evaluationId}/finalize-grade/${etudiantId}`,
+          {},
+          this.authHeaders()
+        );
+        return response.data;
+      } catch (error) {
+        this.handleError(error, "Erreur finalisation de la note");
       } finally {
         this.isLoading = false;
       }

@@ -2,6 +2,42 @@
   <div
     class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800 p-3 sm:p-4 md:p-6 lg:p-8 transition-colors"
   >
+    <!-- ========== LOADING SKELETON ========== -->
+    <div v-if="examStore.isLoading" class="animate-pulse space-y-8">
+      <!-- Breadcrumb Skeleton -->
+      <div class="flex items-center gap-4 mb-6">
+        <div class="h-10 w-48 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+      </div>
+
+      <!-- Stats Skeleton -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div v-for="i in 4" :key="i" class="h-32 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-4">
+          <div class="flex justify-between items-start">
+            <div class="space-y-3">
+              <div class="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div class="h-8 w-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            </div>
+            <div class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Skeleton -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column -->
+        <div class="lg:col-span-1 space-y-6">
+          <div class="h-96 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700"></div>
+          <div class="h-64 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700"></div>
+        </div>
+        <!-- Right Column -->
+        <div class="lg:col-span-2">
+          <div class="h-[600px] bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <div v-else class="animate-fade-in">
     <!-- ========== BREADCRUMB ========== -->
     <Breadcrumb
       :items="[
@@ -106,19 +142,45 @@
     </div>
 
     <!-- ========== GRILLE PRINCIPALE ========== -->
+    <!-- Alerte Examen Verrouillé (Lecture Seule) -->
+    <div v-if="isExamLocked" class="bg-amber-50 border-l-4 border-amber-400 p-4 mb-6 rounded-r-2xl shadow-sm animate-pulse-subtle">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-amber-700 font-medium">
+            L'évaluation a démarré ou est terminée. L'interface est en mode <span class="uppercase font-bold">Lecture Seule</span> pour garantir l'intégrité des réponses. Toute modification est désactivée.
+          </p>
+        </div>
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
       <!-- ========== COLONNE GAUCHE ========== -->
       <div class="lg:col-span-1 space-y-4 sm:space-y-6">
         <!-- CARD: Création d'une partie -->
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden backdrop-blur-sm">
           <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-5 py-4">
-            <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-              <div class="p-1 bg-white/20 rounded-lg">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
+            <h2 class="text-lg font-semibold text-white flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <div class="p-1 bg-white/20 rounded-lg">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+                {{ isExamLocked ? "Consulter la partie" : (editingPart ? "Modifier la partie" : "Ajouter une partie") }}
               </div>
-              Ajouter une partie
+              <button 
+                v-if="editingPart" 
+                @click="resetPartForm"
+                class="text-[10px] bg-white/20 hover:bg-white/30 px-2 py-1 rounded transition-colors"
+                title="Fermer la vue"
+              >
+                {{ isExamLocked ? "Fermer" : "Annuler" }}
+              </button>
             </h2>
           </div>
 
@@ -193,11 +255,15 @@
 
               <button
                 type="submit"
+                v-if="canEdit"
                 :disabled="examStore.isLoading"
                 class="w-full px-4 py-3 text-sm bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl hover:from-indigo-700 hover:to-indigo-800 transition-all font-medium shadow-lg shadow-indigo-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {{ examStore.isLoading ? "Création..." : "Créer la partie" }}
+                {{ examStore.isLoading ? (editingPart ? "Mise à jour..." : "Création...") : (editingPart ? "Mettre à jour la partie" : "Créer la partie") }}
               </button>
+              <div v-else class="p-3 text-center bg-gray-100 dark:bg-gray-700/50 rounded-xl text-xs text-gray-500 italic">
+                Mode lecture seule activé
+              </div>
             </form>
           </div>
         </div>
@@ -265,16 +331,32 @@
 
                     <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
+                        v-if="canEdit"
                         @click.stop="editPart(part)"
                         class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                        title="Modifier"
                       >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                         </svg>
                       </button>
                       <button
+                        v-else
+                        @click.stop="editPart(part)"
+                        class="p-2 rounded-lg text-indigo-600 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors"
+                        title="Voir les détails"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      </button>
+
+                      <button
+                        v-if="canEdit"
                         @click.stop="deletePart(part.id)"
                         class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                        title="Supprimer"
                       >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -309,7 +391,7 @@
                     >
                       <span class="font-medium text-gray-500 dark:text-gray-400 w-5">{{ qIndex + 1 }}</span>
                       <span class="flex-1 truncate text-gray-700 dark:text-gray-300">{{ stripHtml(q.content).substring(0, 40) }}...</span>
-                      <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-600 dark:text-gray-400">{{ q.points }} pts</span>
+                      <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-600 dark:text-gray-400">{{ getQuestionTotalPoints(q).toFixed(2) }} pts</span>
                     </div>
                     <div v-if="getQuestionsForPart(part.id).length > 2" class="p-3 text-center">
                       <span class="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
@@ -368,15 +450,25 @@
           v-else
           class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden"
         >
-          <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 px-6 py-4">
+          <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 px-6 py-4 flex items-center justify-between">
             <h2 class="text-lg font-semibold text-white flex items-center gap-2">
               <div class="p-1 bg-white/20 rounded-lg">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              {{ editingQuestion ? "Modifier" : "Ajouter" }} une question
+              {{ isExamLocked ? "Consulter" : (editingQuestion ? "Modifier" : "Ajouter") }} une question
             </h2>
+            <button
+              v-if="!editingQuestion && canEdit"
+              @click="openAIModal"
+              class="flex items-center gap-2 px-4 py-1.5 bg-white/20 hover:bg-white/30 text-white rounded-xl text-xs font-bold transition-all border border-white/30"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              Générer par IA
+            </button>
           </div>
 
           <div class="p-6 space-y-6">
@@ -432,9 +524,20 @@
 
             <!-- Énoncé TinyMCE -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Énoncé de la question <span class="text-red-500">*</span>
-              </label>
+              <div class="flex items-center justify-between mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Énoncé de la question <span class="text-red-500">*</span>
+                </label>
+                <button
+                  type="button"
+                  @click="openRefineModal"
+                  :disabled="!questionForm.content"
+                  class="flex items-center gap-1 px-3 py-1 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-400 rounded-lg text-[10px] font-bold hover:bg-purple-200 disabled:opacity-50 transition-colors"
+                >
+                   <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                   Aide IA
+                </button>
+              </div>
               <Editor
                 api-key="ktf8z0z55enm2wd9xyeoo6qzzoy7w9b629e51wii9y8lw4dx"
                 v-model="questionForm.content"
@@ -462,13 +565,19 @@
                     min="0"
                     max="20"
                     step="0.5"
-                    @input="validatePoints"
+                    @input="handlePointsInput"
                     class="w-full px-4 py-2.5 text-sm rounded-xl border bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                    :class="{ 'border-red-500 dark:border-red-500': pointsError }"
+                    :class="{ 'border-red-500 dark:border-red-500 bg-red-50 dark:bg-red-900/10': pointsError }"
                   />
+                  <div v-if="questionForm.points > 20" class="absolute -bottom-6 left-0 text-[10px] text-red-500 font-medium whitespace-nowrap">
+                    Maximum 20 points autorisé
+                  </div>
                 </div>
                 <span v-if="pointsError" class="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-lg">
                   {{ pointsError }}
+                </span>
+                <span v-else-if="questionForm.points > 0" class="text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 rounded-lg font-medium">
+                  {{ questionForm.points }} pts valides
                 </span>
               </div>
             </div>
@@ -482,6 +591,7 @@
                   Options de réponse
                 </label>
                 <button
+                  v-if="canEdit"
                   type="button"
                   @click="addOption"
                   class="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 flex items-center gap-1 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg"
@@ -503,13 +613,15 @@
                     <input
                       v-model="option.text"
                       type="text"
+                      :disabled="isExamLocked"
                       :placeholder="`Option ${index + 1}`"
-                      class="w-full px-4 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 pr-12"
+                      class="w-full px-4 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 pr-12 disabled:opacity-75"
                     />
                     <button
                       type="button"
                       @click="toggleCorrect(index)"
-                      class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full transition-all"
+                      :disabled="isExamLocked"
+                      class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full transition-all disabled:opacity-100"
                       :class="
                         option.isCorrect
                           ? 'text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30'
@@ -527,7 +639,7 @@
                   <button
                     type="button"
                     @click="removeOption(index)"
-                    v-if="questionForm.options.length > 2"
+                    v-if="questionForm.options.length > 2 && canEdit"
                     class="p-2 text-gray-400 hover:text-red-600 transition-colors"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -543,7 +655,8 @@
                   <input
                     type="checkbox"
                     v-model="questionForm.requireJustification"
-                    class="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                    :disabled="isExamLocked"
+                    class="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 disabled:opacity-50"
                   />
                   <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Demander une justification
@@ -562,7 +675,8 @@
                       </label>
                       <select
                         v-model="questionForm.justificationType"
-                        class="w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                        :disabled="isExamLocked"
+                        class="w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 disabled:opacity-50"
                       >
                         <option value="text">Texte libre</option>
                         <option value="textarea">Zone de texte longue</option>
@@ -577,8 +691,9 @@
                       <input
                         v-model="questionForm.expectedKeywords"
                         type="text"
+                        :disabled="isExamLocked"
                         placeholder="ex: justifier, expliquer, démontrer"
-                        class="w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                        class="w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 disabled:opacity-50"
                       />
                     </div>
 
@@ -588,6 +703,7 @@
                       </label>
                       <input
                         v-model.number="questionForm.justificationPoints"
+                        :disabled="isExamLocked"
                         type="number"
                         min="0"
                         max="10"
@@ -616,8 +732,9 @@
                 <input
                   v-model="questionForm.expectedAnswer"
                   type="text"
+                  :disabled="isExamLocked"
                   placeholder="ex: Hypertext Preprocessor"
-                  class="w-full px-4 py-2.5 text-sm rounded-xl border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
+                  class="w-full px-4 py-2.5 text-sm rounded-xl border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
                 />
               </div>
               <div class="flex items-center gap-4">
@@ -625,7 +742,8 @@
                   <input
                     type="checkbox"
                     v-model="questionForm.caseSensitive"
-                    class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                    :disabled="isExamLocked"
+                    class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 disabled:opacity-50"
                   />
                   <span class="text-sm text-gray-600 dark:text-gray-400">Respecter la casse</span>
                 </label>
@@ -676,8 +794,9 @@
                   <input
                     v-model.number="questionForm.minWords"
                     type="number"
+                    :disabled="isExamLocked"
                     min="0"
-                    class="w-full px-4 py-2.5 text-sm rounded-xl border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
+                    class="w-full px-4 py-2.5 text-sm rounded-xl border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
                   />
                 </div>
                 <div>
@@ -687,8 +806,9 @@
                   <input
                     v-model.number="questionForm.maxWords"
                     type="number"
+                    :disabled="isExamLocked"
                     min="0"
-                    class="w-full px-4 py-2.5 text-sm rounded-xl border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
+                    class="w-full px-4 py-2.5 text-sm rounded-xl border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
                   />
                 </div>
               </div>
@@ -699,7 +819,8 @@
                   <input
                     type="checkbox"
                     v-model="questionForm.useEvaluationGrid"
-                    class="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                    :disabled="isExamLocked"
+                    class="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 disabled:opacity-50"
                   />
                   <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Utiliser une grille d'évaluation
@@ -720,18 +841,21 @@
                       <input
                         v-model="critere.name"
                         type="text"
+                        :disabled="isExamLocked"
                         :placeholder="`Critère ${idx + 1}`"
-                        class="flex-1 px-3 py-1.5 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                        class="flex-1 px-3 py-1.5 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 disabled:opacity-50"
                       />
                       <input
                         v-model.number="critere.points"
                         type="number"
+                        :disabled="isExamLocked"
                         min="0"
                         step="0.5"
                         placeholder="Pts"
-                        class="w-20 px-3 py-1.5 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                        class="w-20 px-3 py-1.5 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 disabled:opacity-50"
                       />
                       <button
+                        v-if="canEdit"
                         @click="removeEvaluationCriteria(idx)"
                         class="p-1.5 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg"
                       >
@@ -742,6 +866,7 @@
                       </button>
                     </div>
                     <button
+                      v-if="canEdit"
                       @click="addEvaluationCriteria"
                       class="text-sm text-emerald-600 hover:text-emerald-700 flex items-center gap-1 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg"
                     >
@@ -763,8 +888,9 @@
                   <input
                     type="radio"
                     v-model="questionForm.correctAnswer"
+                    :disabled="isExamLocked"
                     value="true"
-                    class="w-4 h-4 text-emerald-600 focus:ring-emerald-500"
+                    class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 disabled:opacity-75"
                   />
                   <span class="text-sm text-gray-700 dark:text-gray-300">Vrai</span>
                 </label>
@@ -772,8 +898,9 @@
                   <input
                     type="radio"
                     v-model="questionForm.correctAnswer"
+                    :disabled="isExamLocked"
                     value="false"
-                    class="w-4 h-4 text-emerald-600 focus:ring-emerald-500"
+                    class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 disabled:opacity-75"
                   />
                   <span class="text-sm text-gray-700 dark:text-gray-300">Faux</span>
                 </label>
@@ -804,7 +931,8 @@
                       </label>
                       <select
                         v-model="questionForm.justificationType"
-                        class="w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                        :disabled="isExamLocked"
+                        class="w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 disabled:opacity-50"
                       >
                         <option value="text">Texte libre</option>
                         <option value="textarea">Zone de texte longue</option>
@@ -816,6 +944,7 @@
                       </label>
                       <input
                         v-model.number="questionForm.justificationPoints"
+                        :disabled="isExamLocked"
                         type="number"
                         min="0"
                         max="10"
@@ -856,7 +985,8 @@
         <div class="flex items-center gap-2">
           <button 
             @click="decrementerColonnes"
-            class="p-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
+            :disabled="isExamLocked"
+            class="p-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all disabled:opacity-50"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
@@ -865,14 +995,16 @@
           <input
             type="range"
             v-model.number="tableauConfig.colonnes"
+            :disabled="isExamLocked"
             min="2"
             max="8"
-            class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 disabled:opacity-50"
             @input="ajusterColonnes"
           />
           <button 
             @click="incrementerColonnes"
-            class="p-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
+            :disabled="isExamLocked"
+            class="p-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all disabled:opacity-50"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -894,7 +1026,8 @@
         <div class="flex items-center gap-2">
           <button 
             @click="decrementerLignes"
-            class="p-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
+            :disabled="isExamLocked"
+            class="p-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all disabled:opacity-50"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
@@ -903,14 +1036,16 @@
           <input
             type="range"
             v-model.number="tableauConfig.lignes"
+            :disabled="isExamLocked"
             min="1"
             max="15"
-            class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 disabled:opacity-50"
             @input="ajusterLignes"
           />
           <button 
             @click="incrementerLignes"
-            class="p-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
+            :disabled="isExamLocked"
+            class="p-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all disabled:opacity-50"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -1443,6 +1578,8 @@
 
 
 
+
+
             <!-- Boutons finaux -->
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
               <button
@@ -1455,7 +1592,7 @@
               <button
                 type="button"
                 @click="addQuestion"
-                :disabled="!canSaveQuestion || examStore.isLoading"
+                :disabled="!canSaveQuestion || examStore.isLoading || isExamLocked"
                 class="px-8 py-3 text-sm rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-medium transition-all shadow-lg shadow-emerald-500/25 hover:from-emerald-700 hover:to-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {{ examStore.isLoading ? "Enregistrement..." : editingQuestion ? "Mettre à jour" : "Ajouter la question" }}
@@ -1466,10 +1603,10 @@
 
         <!-- Liste des questions -->
         <div
-          v-if="selectedPart && getQuestionsForPart(selectedPart.id).length"
+          v-if="selectedPart"
           class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden"
         >
-          <div class="bg-gradient-to-r from-amber-600 to-amber-700 px-6 py-4">
+          <div class="bg-gradient-to-r from-amber-600 to-amber-700 px-6 py-4 flex items-center justify-between">
             <h2 class="text-lg font-semibold text-white flex items-center gap-2">
               <div class="p-1 bg-white/20 rounded-lg">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1479,6 +1616,16 @@
               </div>
               Questions ({{ getQuestionsForPart(selectedPart.id).length }})
             </h2>
+            <button
+              v-if="canEdit"
+              @click="openAIModal"
+              class="flex items-center gap-2 px-4 py-1.5 bg-white/20 hover:bg-white/30 text-white rounded-xl text-xs font-bold transition-all backdrop-blur-md border border-white/30"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              Générer par IA
+            </button>
           </div>
 
           <div class="p-6">
@@ -1498,7 +1645,7 @@
                       <span class="text-xs px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full">
                         {{ getTypeLabel(question.type) }}
                       </span>
-                      <span class="text-xs text-gray-500 dark:text-gray-400">{{ question.points }} pts</span>
+                      <span class="text-xs text-gray-500 dark:text-gray-400">{{ getQuestionTotalPoints(question).toFixed(2) }} pts</span>
                       <span
                         v-if="question.requireJustification"
                         class="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full"
@@ -1511,7 +1658,9 @@
                 </div>
 
                 <div class="flex items-center justify-end sm:justify-start gap-1">
+                  <!-- Toujours autoriser la vue de la question dans le formulaire -->
                   <button
+                    v-if="canEdit"
                     @click="editQuestion(question)"
                     class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
                     title="Modifier"
@@ -1521,6 +1670,19 @@
                     </svg>
                   </button>
                   <button
+                    v-else
+                    @click="editQuestion(question)"
+                    class="p-2 rounded-lg text-indigo-600 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors"
+                    title="Voir l'énoncé complet"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </button>
+
+                  <button
+                    v-if="canEdit"
                     @click="deleteQuestion(question.id)"
                     class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
                     title="Supprimer"
@@ -1848,6 +2010,226 @@
         </div>
       </Dialog>
     </TransitionRoot>
+
+    <!-- Toast -->
+    <!-- Toast -->
+    <Toast position="top-right" />
+
+    <!-- ========== MODALS IA (DÉPLACÉS ICI POUR MEILLEUR RENDU) ========== -->
+    <ClientOnly>
+      <TransitionRoot appear :show="showAIModal" as="template">
+        <Dialog as="div" @close="showAIModal = false" class="relative z-50">
+          <TransitionChild
+            as="template"
+            enter="duration-300 ease-out"
+            enter-from="opacity-0"
+            enter-to="opacity-100"
+            leave="duration-200 ease-in"
+            leave-from="opacity-100"
+            leave-to="opacity-0"
+          >
+            <div class="fixed inset-0 bg-black/70 backdrop-blur-md" />
+          </TransitionChild>
+
+          <div class="fixed inset-0 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+              <TransitionChild
+                as="template"
+                enter="duration-300 ease-out"
+                enter-from="opacity-0 scale-95"
+                enter-to="opacity-100 scale-100"
+                leave="duration-200 ease-in"
+                leave-from="opacity-100 scale-100"
+                leave-to="opacity-0 scale-95"
+              >
+                <DialogPanel class="w-full max-w-3xl transform overflow-hidden rounded-3xl bg-white dark:bg-gray-800 shadow-2xl transition-all">
+                  <!-- En-tête -->
+                  <div class="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-5">
+                    <div class="flex items-center justify-between">
+                      <DialogTitle as="h3" class="text-xl font-bold text-white flex items-center gap-3">
+                        <div class="p-2 bg-white/20 rounded-xl animate-pulse">
+                          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                        </div>
+                        Génération assistée par IA (Gemini)
+                      </DialogTitle>
+                      <button @click="showAIModal = false" class="text-white/80 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <line x1="18" y1="6" x2="6" y2="18"/>
+                          <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Configuration -->
+                  <div class="p-6 space-y-6">
+                    <div v-if="!aiQuestions.length" class="space-y-4">
+                      <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Sur quel sujet porteront les questions ?</label>
+                        <textarea
+                          v-model="aiConfig.topic"
+                          rows="3"
+                          placeholder="Ex: Les fondamentaux du développement Web moderne avec Vue.js et Tailwind CSS..."
+                          class="w-full px-4 py-3 rounded-2xl border bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 transition-all"
+                        ></textarea>
+                      </div>
+
+                      <div class="grid grid-cols-2 gap-4">
+                        <div>
+                          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Nombre de questions</label>
+                          <select
+                            v-model="aiConfig.count"
+                            class="w-full px-4 py-3 rounded-2xl border bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500"
+                          >
+                            <option :value="3">3 questions</option>
+                            <option :value="5">5 questions</option>
+                            <option :value="10">10 questions</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Difficulté</label>
+                          <select
+                            v-model="aiConfig.difficulty"
+                            class="w-full px-4 py-3 rounded-2xl border bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500"
+                          >
+                            <option value="débutant">Débutant</option>
+                            <option value="intermédiaire">Intermédiaire</option>
+                            <option value="avancé">Avancé / Expert</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <button
+                        @click="generateWithAI"
+                        :disabled="isGeneratingAI || !aiConfig.topic"
+                        class="w-full py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-lg shadow-xl shadow-purple-500/30 hover:shadow-2xl hover:scale-[1.01] transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+                      >
+                        <svg v-if="isGeneratingAI" class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        {{ isGeneratingAI ? "L'IA réfléchit..." : "Générer les questions" }}
+                      </button>
+                    </div>
+
+                    <!-- Résultats de l'IA -->
+                    <div v-else class="space-y-4">
+                      <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-gray-800 dark:text-white">Questions suggérées par l'IA :</h4>
+                        <button @click="aiQuestions = []" class="text-sm text-purple-600 hover:underline">Recommencer</button>
+                      </div>
+                      
+                      <div class="max-h-[50vh] overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+                        <div
+                          v-for="(q, index) in aiQuestions"
+                          :key="index"
+                          class="p-4 rounded-2xl border-2 border-gray-100 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-700 transition-all bg-gray-50 dark:bg-gray-900/40"
+                        >
+                          <div class="flex justify-between items-start gap-4 mb-3">
+                            <div class="flex-1">
+                              <span class="text-[10px] px-2 py-0.5 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded-full font-bold uppercase">{{ getTypeLabel(q.type) }}</span>
+                              <h5 class="font-semibold text-gray-800 dark:text-white mt-1">{{ q.content }}</h5>
+                            </div>
+                            <button
+                              @click="useAIQuestion(q)"
+                              class="px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-bold hover:bg-purple-700 transition-colors shadow-lg shadow-purple-500/20"
+                            >
+                              Utiliser
+                            </button>
+                          </div>
+                          
+                          <div v-if="q.options" class="flex flex-wrap gap-2">
+                            <div
+                              v-for="(opt, idx) in q.options"
+                              :key="idx"
+                              class="text-[10px] px-2 py-1 rounded-lg border"
+                              :class="opt.is_correct ? 'bg-green-50 border-green-200 text-green-700 dark:bg-green-900/20 dark:border-green-800' : 'bg-white border-gray-200 text-gray-500 dark:bg-gray-800 dark:border-gray-700'"
+                            >
+                              {{ opt.text }}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </DialogPanel>
+              </TransitionChild>
+            </div>
+          </div>
+        </Dialog>
+      </TransitionRoot>
+
+      <TransitionRoot appear :show="showRefineModal" as="template">
+        <Dialog as="div" @close="showRefineModal = false" class="relative z-50">
+          <TransitionChild as="template" enter="duration-300 ease-out" enter-from="opacity-0" enter-to="opacity-100" leave="duration-200 ease-in" leave-from="opacity-100" leave-to="opacity-0">
+            <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" />
+          </TransitionChild>
+          <div class="fixed inset-0 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4 text-center">
+              <TransitionChild as="template" enter="duration-300 ease-out" enter-from="opacity-0 scale-95" enter-to="opacity-100 scale-100" leave="duration-200 ease-in" leave-from="opacity-100 scale-100" leave-to="opacity-0 scale-95">
+                <DialogPanel class="w-full max-w-2xl transform overflow-hidden rounded-3xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-2xl transition-all border border-purple-100 dark:border-purple-900/30">
+                  <DialogTitle as="h3" class="text-xl font-bold leading-6 text-gray-900 dark:text-white flex items-center gap-2 mb-6">
+                    <span class="p-2 bg-purple-100 dark:bg-purple-900 rounded-xl text-purple-600 dark:text-purple-400">
+                      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                      </svg>
+                    </span>
+                    Suggestions de l'IA pour votre question
+                  </DialogTitle>
+
+                  <div v-if="isRefiningAI" class="flex flex-col items-center justify-center py-12 space-y-4">
+                    <div class="relative w-16 h-16">
+                       <div class="absolute inset-0 border-4 border-purple-200 rounded-full"></div>
+                       <div class="absolute inset-0 border-4 border-purple-600 rounded-full border-t-transparent animate-spin"></div>
+                    </div>
+                    <p class="text-purple-600 font-medium animate-pulse">L'IA analyse votre question...</p>
+                  </div>
+
+                  <div v-else-if="refineResult" class="space-y-6">
+                    <!-- Reformulation -->
+                    <div class="space-y-2">
+                      <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider">Reformulation suggérée</h4>
+                      <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-2xl border border-purple-100 dark:border-purple-800 text-gray-800 dark:text-gray-200 leading-relaxed shadow-sm">
+                        {{ refineResult.refined_content }}
+                      </div>
+                      <button @click="questionForm.content = refineResult.refined_content; showRefineModal = false" class="text-xs font-bold text-purple-600 hover:text-purple-700 flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                        Appliquer cette reformulation
+                      </button>
+                    </div>
+
+                    <!-- Leurre / Distracteurs -->
+                    <div v-if="refineResult.suggested_distractors && refineResult.suggested_distractors.length" class="space-y-2">
+                      <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider">Distracteurs suggérés</h4>
+                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div v-for="(d, i) in refineResult.suggested_distractors" :key="i" class="p-3 bg-white dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 text-xs font-medium text-gray-600 dark:text-gray-300">
+                          {{ d }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Explication -->
+                    <div class="space-y-2">
+                      <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider">Guide de correction</h4>
+                      <div class="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl border border-emerald-100 dark:border-emerald-800 text-sm text-emerald-800 dark:text-emerald-300 italic">
+                        "{{ refineResult.explanation }}"
+                      </div>
+                    </div>
+
+                    <div class="mt-8 flex justify-end">
+                      <button @click="showRefineModal = false" class="px-6 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white rounded-xl font-bold hover:bg-gray-200 transition-colors">Fermer</button>
+                    </div>
+                  </div>
+                </DialogPanel>
+              </TransitionChild>
+            </div>
+          </div>
+        </Dialog>
+      </TransitionRoot>
+    </ClientOnly>
+    </div>
   </div>
 </template>
 <script setup>
@@ -1869,7 +2251,15 @@ const evaluationId = route.params.slug;
 // ========== DONNÉES LOCALES ==========
 const selectedPart = ref(null);
 const editingQuestion = ref(null);
+const editingPart = ref(null);
 const selectedType = ref("qcm_unique");
+
+const isExamLocked = computed(() => {
+  if (!examStore.currentEvaluation?.debut) return false;
+  return new Date(examStore.currentEvaluation.debut) <= new Date();
+});
+
+const canEdit = computed(() => !isExamLocked.value);
 const pointsError = ref("");
 const totalPointsWarning = ref(false);
 
@@ -1951,15 +2341,114 @@ const currentCellule = ref({
   data: '',
   question: {
     type: 'qcm_unique',
-    options: [{ text: '', isCorrect: false }],
-    correctAnswer: 'true',
-    requireJustification: false,
-    justificationType: 'text',
-    expectedKeywords: '',
-    justificationPoints: 0,
-    points: 1
+    content: '',
+    options: [],
+    correctAnswer: 'true'
   }
 })
+
+// ========== AI STATES & METHODS ==========
+const showAIModal = ref(false);
+const isGeneratingAI = ref(false);
+const aiQuestions = ref([]);
+const aiConfig = reactive({
+  topic: "",
+  count: 5,
+  difficulty: "intermédiaire"
+});
+
+const openAIModal = () => {
+  if (!selectedPart.value) {
+    if (examStore.parts.length > 0) {
+      selectedPart.value = examStore.parts[0];
+    } else {
+      $toastr.error("Veuillez d'abord créer une partie.");
+      return;
+    }
+  }
+  showAIModal.value = true;
+};
+
+const generateWithAI = async () => {
+  if (!aiConfig.topic) return;
+  
+  isGeneratingAI.value = true;
+  try {
+    const result = await examStore.generateQuestionsAI({
+      topic: aiConfig.topic,
+      count: aiConfig.count,
+      difficulty: aiConfig.difficulty,
+      part_id: selectedPart.value.id
+    });
+    
+    if (result.success && result.questions) {
+      aiQuestions.value = result.questions;
+      $toastr.success(`${result.questions.length} suggestions générées !`);
+    } else {
+      $toastr.error("L'IA n'a pas pu générer de questions. Réessayez.");
+    }
+  } catch (err) {
+    $toastr.error("Erreur de connexion avec l'IA.");
+  } finally {
+    isGeneratingAI.value = false;
+  }
+};
+
+const useAIQuestion = (q) => {
+  // Remplir le formulaire avec les données de l'IA
+  selectedType.value = q.type;
+  questionForm.content = q.content;
+  questionForm.points = q.points || 2;
+  
+  if (q.options) {
+    questionForm.options = q.options.map(opt => ({
+      text: opt.text,
+      isCorrect: opt.is_correct
+    }));
+  }
+  
+  showAIModal.value = false;
+  $toastr.info("Question chargée dans le formulaire.");
+  // Scroll to form automatically
+  document.querySelector('.lg\\:col-span-2')?.scrollIntoView({ behavior: 'smooth' });
+};
+
+// --- Refinement ---
+const showRefineModal = ref(false);
+const isRefiningAI = ref(false);
+const refineResult = ref(null);
+
+const openRefineModal = async () => {
+  if (!questionForm.content) {
+    $toastr.warning("L'énoncé est vide.");
+    return;
+  }
+  
+  $toastr.info("Analyse de la question par l'IA...");
+  showRefineModal.value = true;
+  isRefiningAI.value = true;
+  refineResult.value = null;
+  
+  try {
+    const result = await examStore.refineQuestionAI({
+      content: questionForm.content,
+      type: selectedType.value,
+      options: isQCM.value ? questionForm.options : null
+    });
+    
+    if (result.success) {
+      refineResult.value = result;
+    } else {
+      $toastr.error("L'IA n'a pas pu analyser la question.");
+      showRefineModal.value = false;
+    }
+  } catch (err) {
+    $toastr.error("Erreur de connexion...");
+    showRefineModal.value = false;
+  } finally {
+    isRefiningAI.value = false;
+  }
+};
 
 // ========== WATCHER POUR SURVEILLER LES POINTS ==========
 watch(() => examStore.totalPoints, (newTotal) => {
@@ -1975,14 +2464,22 @@ watch(() => examStore.totalPoints, (newTotal) => {
 });
 
 // ========== FONCTIONS DE VALIDATION DES POINTS ==========
+const handlePointsInput = () => {
+  if (questionForm.points > 20) {
+    pointsError.value = "Le maximum est de 20 points";
+    // On ne force pas la valeur à 20 immédiatement pour laisser l'utilisateur corriger,
+    // mais on bloquera la sauvegarde via canSaveQuestion
+  } else if (questionForm.points < 0) {
+    pointsError.value = "Les points doivent être positifs";
+  } else {
+    pointsError.value = "";
+  }
+};
+
 const validateQuestionPoints = (value) => {
-  // Convertir en nombre avec une décimale
   let points = parseFloat(value) || 0;
-  
-  // Arrondir à 0.5 près
   points = Math.round(points * 2) / 2;
   
-  // Vérifier la limite
   if (points > 20) {
     pointsError.value = "Les points ne peuvent pas dépasser 20";
     return 20;
@@ -2123,11 +2620,22 @@ const hasCorrectOption = computed(() => {
 const canSaveQuestion = computed(() => {
   if (!questionForm.content.trim()) return false;
   
-  // Validation des points
-  const points = validateQuestionPoints(questionForm.points);
-  if (points > 20) return false;
+  // Validation stricte des points
+  if (questionForm.points > 20) {
+    return false;
+  }
+  
+  if (questionForm.points < 0) {
+    return false;
+  }
   
   if (isQCM.value && !hasCorrectOption.value) return false;
+  
+  // Vérifier également les points de justification si applicable
+  if (questionForm.requireJustification) {
+    const total = questionForm.points + (questionForm.justificationPoints || 0);
+    if (total > 20) return false;
+  }
   
   return true;
 });
@@ -2160,39 +2668,67 @@ const getQuestionsCountForPart = (partId) => {
   return getQuestionsForPart(partId).length;
 };
 
+const getQuestionTotalPoints = (q) => {
+  let qPoints = 0;
+  
+  if (q.points) {
+    const p = parseFloat(q.points);
+    qPoints += isNaN(p) ? 0 : p;
+  }
+  
+  if (q.config?.requireJustification && q.config?.justificationPoints) {
+    const j = parseFloat(q.config.justificationPoints);
+    qPoints += isNaN(j) ? 0 : j;
+  }
+  
+  return qPoints;
+};
+
 const getPartPoints = (partId) => {
-  return getQuestionsForPart(partId).reduce(
-    (sum, q) => sum + (q.points || 0),
-    0,
-  );
+  return getQuestionsForPart(partId).reduce((sum, q) => {
+    return sum + getQuestionTotalPoints(q);
+  }, 0);
 };
 
 // ========== MÉTHODES POUR LES PARTIES ==========
 const addPart = async () => {
-  if (!newPart.value.titre) return;
+  if (!newPart.value.titre || isExamLocked.value) return;
 
   try {
-    await examStore.addPart({
+    const partData = {
       evaluation_id: evaluationId,
       titre: newPart.value.titre,
       description: newPart.value.description,
       is_case_study: newPart.value.isCaseStudy,
       contexte: newPart.value.contexte,
-      order: examStore.parts.length + 1,
-    });
-
-    newPart.value = {
-      titre: "",
-      description: "",
-      isCaseStudy: false,
-      contexte: "",
     };
-    
-    $toastr.success('Partie créée avec succès');
+
+    if (editingPart.value) {
+      await examStore.updatePart(editingPart.value.id, partData);
+      $toastr.success('Partie mise à jour avec succès');
+    } else {
+      await examStore.addPart({
+        ...partData,
+        order: examStore.parts.length + 1,
+      });
+      $toastr.success('Partie créée avec succès');
+    }
+
+    resetPartForm();
   } catch (error) {
-    console.error("Erreur lors de l'ajout de la partie:", error);
-    $toastr.error('Erreur lors de la création');
+    console.error("Erreur lors de l'action sur la partie:", error);
+    $toastr.error('Erreur lors de l\'enregistrement');
   }
+};
+
+const resetPartForm = () => {
+  newPart.value = {
+    titre: "",
+    description: "",
+    isCaseStudy: false,
+    contexte: "",
+  };
+  editingPart.value = null;
 };
 
 const selectPart = (part) => {
@@ -2201,15 +2737,22 @@ const selectPart = (part) => {
 };
 
 const editPart = (part) => {
+  editingPart.value = part;
   newPart.value = {
     titre: part.titre,
     description: part.description,
     isCaseStudy: part.is_case_study || false,
     contexte: part.contexte || "",
   };
+  // Scroll to form automatically
+  document.querySelector('.lg\\:col-span-1')?.scrollIntoView({ behavior: 'smooth' });
 };
 
 const deletePart = async (partId) => {
+  if (isExamLocked.value) {
+    $toastr.error("Modification impossible : l'examen a déjà commencé ou est terminé.");
+    return;
+  }
   const result = await $swal.fire({
     title: 'Êtes-vous sûr ?',
     text: "Cette action est irréversible !",
@@ -2352,9 +2895,11 @@ const supprimerOptionPart = (part, index) => {
 
 const calculerTotalPointsMultiParts = () => {
   return multiParts.value.reduce((total, part) => {
-    let pointsPart = part.points || 0;
+    const p = parseFloat(part.points) || 0;
+    let pointsPart = p;
     if (part.requireJustification) {
-      pointsPart += (part.justificationPoints || 0);
+      const j = parseFloat(part.justificationPoints) || 0;
+      pointsPart += j;
     }
     return total + pointsPart;
   }, 0);
@@ -2379,7 +2924,8 @@ const supprimerCritere = (index) => {
 
 const calculerTotalPointsCritères = () => {
   return guidedWriting.value.criteres.reduce((total, critere) => {
-    return total + (critere.points || 0);
+    const p = parseFloat(critere.points) || 0;
+    return total + p;
   }, 0);
 };
 
@@ -2498,11 +3044,11 @@ const questionTypes = [
     label: "Texte long",
     icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>',
   },
-  {
-    value: "complex_data",
-    label: "Tableau",
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="21" x2="9" y2="9"></line><line x1="15" y1="21" x2="15" y2="9"></line></svg>',
-  },
+  // {
+  //   value: "complex_data",
+  //   label: "Tableau",
+  //   icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="21" x2="9" y2="9"></line><line x1="15" y1="21" x2="15" y2="9"></line></svg>',
+  // },
   // {
   //   value: "multi_parts",
   //   label: "Multi-parties",
@@ -2845,7 +3391,7 @@ const dupliquerColonne = (idx) => {
 
 // ========== MÉTHODES POUR LES QUESTIONS ==========
 const addQuestion = async () => {
-  if (!selectedPart.value || !canSaveQuestion.value) return;
+  if (!selectedPart.value || !canSaveQuestion.value || isExamLocked.value) return;
 
   // Formater les points
   questionForm.points = formatPoints(questionForm.points);
@@ -2888,6 +3434,10 @@ const addQuestion = async () => {
     points: questionForm.points,
     order: getQuestionsForPart(selectedPart.value.id).length + 1,
     config: {
+      requireJustification: questionForm.requireJustification,
+      justificationType: questionForm.justificationType,
+      justificationPoints: questionForm.justificationPoints,
+      expectedKeywords: questionForm.expectedKeywords,
       ...(selectedType.value === "texte_court" && {
         expectedAnswer: questionForm.expectedAnswer,
         caseSensitive: questionForm.caseSensitive,
@@ -2895,6 +3445,11 @@ const addQuestion = async () => {
       ...(selectedType.value === "texte_long" && {
         minWords: questionForm.minWords,
         maxWords: questionForm.maxWords,
+        useEvaluationGrid: questionForm.useEvaluationGrid,
+        evaluationCriteria: questionForm.evaluationCriteria,
+      }),
+      ...(selectedType.value === "vrai_faux" && {
+        correctAnswer: questionForm.correctAnswer,
       }),
     },
     options: optionsData,
@@ -2972,7 +3527,19 @@ const editQuestion = (question) => {
   if (question.type === "texte_long") {
     questionForm.minWords = question.config?.minWords || 50;
     questionForm.maxWords = question.config?.maxWords || 500;
+    questionForm.useEvaluationGrid = question.config?.useEvaluationGrid || false;
+    questionForm.evaluationCriteria = question.config?.evaluationCriteria || [{ name: 'Pertinence', points: 1 }];
   }
+
+  if (question.type === "vrai_faux") {
+    questionForm.correctAnswer = question.config?.correctAnswer || 'true';
+  }
+
+  // Restaurer les réglages de justification
+  questionForm.requireJustification = question.config?.requireJustification || false;
+  questionForm.justificationType = question.config?.justificationType || 'text';
+  questionForm.justificationPoints = question.config?.justificationPoints || 0;
+  questionForm.expectedKeywords = question.config?.expectedKeywords || '';
 
   // Charger les données complexes si présentes
   if (question.type === "complex_data" && question.complex_data) {
@@ -3021,6 +3588,10 @@ const editQuestion = (question) => {
 };
 
 const deleteQuestion = async (questionId) => {
+  if (isExamLocked.value) {
+    $toastr.error("Modification impossible : l'examen a déjà commencé ou est terminé.");
+    return;
+  }
   const result = await $swal.fire({
     title: 'Êtes-vous sûr ?',
     text: "Cette question sera définitivement supprimée !",

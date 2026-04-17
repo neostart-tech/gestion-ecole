@@ -93,5 +93,20 @@ export const useFraisStore = defineStore("frais de scolarité", {
         this.isLoading = false;
       }
     },
+
+    async duplicateAnnee(payload) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          "/frais/duplicate",
+          payload,
+          this.authHeaders()
+        );
+        await this.fetchFrais(); // Recharger la liste après duplication
+        return response.data;
+      } finally {
+        this.isLoading = false;
+      }
+    },
   },
 });

@@ -144,7 +144,7 @@ const getModePaiementLabel = (mode) => {
     especes: 'Espèces',
     banque: 'Banque',
     semoa: 'SEMOA',
-    caisse: 'Caisse'
+    caisse: 'Espèces'
   }
   return labels[mode] || mode
 }

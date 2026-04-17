@@ -297,24 +297,24 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
      * Effectuer un paiement
      */
     async effectuerPaiement(paiementData) {
-      // Validation minimale
-      if (!paiementData.etudiant_id) {
-        throw new Error("ID étudiant requis");
-      }
-      if (!paiementData.montant || paiementData.montant <= 0) {
-        throw new Error("Montant invalide");
-      }
-      if (!paiementData.mode_paiement) {
-        throw new Error("Mode de paiement requis");
-      }
+      if (!paiementData.etudiant_id) throw new Error("ID étudiant requis");
+      if (!paiementData.montant || paiementData.montant <= 0) throw new Error("Montant invalide");
 
       this.isLoading = true;
       this.error = null;
       
       try {
         const response = await axios.post(
-          `/paiements`,
-          paiementData,
+          `/paiements/store`, // Use the correct Laravel route naming if necessary, or just /paiements
+          {
+            etudiant_id: paiementData.etudiant_id,
+            montant: paiementData.montant,
+            mode_paiement: paiementData.mode_paiement,
+            nature_paiement: paiementData.nature_paiement || 'scolarite',
+            frais_retrait_mm: paiementData.frais_retrait_mm || 0,
+            reference: paiementData.reference || null,
+            commentaire: paiementData.commentaire || null
+          },
           this.authHeaders
         );
         

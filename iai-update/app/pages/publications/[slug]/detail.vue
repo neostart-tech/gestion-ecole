@@ -73,12 +73,12 @@
 
         <!-- Carte principale -->
         <article class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-          <!-- Image de couverture avec overlay pour le texte sur mobile -->
-          <div v-if="blog.image" class="relative w-full h-48 sm:h-64 md:h-80 lg:h-96 overflow-hidden bg-gray-100 dark:bg-gray-700">
+          <!-- Image de couverture adaptée dynamiquement -->
+          <div v-if="blog.image" class="relative w-full bg-gray-100 dark:bg-gray-700/50 flex justify-center">
             <img
               :src="blog.image"
               :alt="blog.title"
-              class="w-full h-full object-cover"
+              class="max-w-full h-auto max-h-[500px] object-contain shadow-md"
               loading="lazy"
             />
             

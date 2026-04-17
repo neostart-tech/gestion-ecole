@@ -65,14 +65,16 @@ export const useEvenementStore = defineStore("evenement", {
       }
     },
 
-    async createEvenement(formData) {
+    async createEvenement(payload) {
       this.isLoading = true;
       try {
+        const isFormData = payload instanceof FormData;
+        const config = isFormData ? this.multipartHeaders() : this.authHeaders();
 
         const response = await axios.post(
           "/evenements",
-          formData,
-          this.authHeaders(),
+          payload,
+          config,
         );
 
         const newEvenement = response.data.data || response.data;
@@ -90,15 +92,21 @@ export const useEvenementStore = defineStore("evenement", {
       }
     },
 
-    async updateEvenement(id, formData) {
+    async updateEvenement(id, payload) {
       this.isLoading = true;
       try {
+        const isFormData = payload instanceof FormData;
+        const config = isFormData ? this.multipartHeaders() : this.authHeaders();
+        const url = `/evenements/${id}/modifier`;
 
-        const response = await axios.put(
-          `/evenements/${id}/modifier`,
-          formData,
-          this.authHeaders(),
-        );
+        let response;
+        if (isFormData) {
+          // Si c'est du FormData, on passe par POST avec _method PUT pour Laravel
+          // Note: Le composant devrait déjà avoir ajouté fd.append('_method', 'PUT')
+          response = await axios.post(url, payload, config);
+        } else {
+          response = await axios.put(url, payload, config);
+        }
 
         const updatedEvenement = response.data.data || response.data;
         const index = this.evenements.findIndex((b) => b.id === id);

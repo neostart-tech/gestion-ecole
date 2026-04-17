@@ -574,7 +574,7 @@
 		},
 		{
 			title: "Filières",
-			value: stats.value.filieres,
+			value: filiereStore.nombreFiliere,
 			borderColor:
 				"border-gray-100 dark:border-gray-700 hover:border-emerald-200 dark:hover:border-emerald-700",
 			hoverColor:

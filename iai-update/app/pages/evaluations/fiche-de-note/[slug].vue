@@ -391,16 +391,17 @@
         >
           <template #notation="data">
             <div class="flex items-center gap-2">
-              <InputNumber
-                v-model="data.value.notation"
-                inputId="minmax-buttons"
-                mode="decimal"
-                showButtons
-                :min="0"
-                :max="20"
-                fluid
-              />
-              <!-- <span v-if="row.note" class="text-gray-500 text-sm">/20</span> -->
+              <div class="relative flex-1">
+                <InputNumber
+                  v-model="data.value.note"
+                  inputId="minmax-buttons"
+                  mode="decimal"
+                  showButtons
+                  :min="0"
+                  :max="20"
+                  fluid
+                />
+              </div>
             </div>
           </template>
           <!-- Actions -->
@@ -915,8 +916,8 @@ const ficheDeNoteStore = useFicheDeNoteStore();
 
 // Données de l'évaluation (première note pour les détails)
 const evaluationDetails = computed(() => {
-  if (notes.value.length > 0) {
-    return notes.value[0].raw;
+  if (notes.value.length > 0 && notes.value[0].evaluation) {
+    return notes.value[0].evaluation;
   }
   return null;
 });
@@ -952,13 +953,21 @@ const visibleColumns = computed(() => columns.value.filter((c) => c.visible));
 
 // Traiter les données des notes à partir du store ficheDeNote
 const notes = computed(() => {
-  return ficheDeNoteStore.fiches.map((note) => ({
-    ...note,
-    note: note.notation || "",
-    noteError: "",
-    nom_complet: `${note.etudiant?.prenom} ${note.etudiant?.nom}`,
-    raw: note,
-  }));
+  return ficheDeNoteStore.fiches.map((note) => {
+    const isManual = (note.notation !== null && note.notation !== undefined && note.notation !== "");
+    const hasOnline = (note.online_score !== null && note.online_score !== undefined);
+    
+    let displayNote = isManual ? note.notation : (hasOnline ? note.online_score : "");
+
+    return {
+      ...note,
+      note: displayNote,
+      is_prefilled: !isManual && hasOnline,
+      noteError: "",
+      nom_complet: `${note.etudiant?.prenom} ${note.etudiant?.nom}`,
+      raw: note,
+    };
+  });
 });
 
 // Rows filtrées

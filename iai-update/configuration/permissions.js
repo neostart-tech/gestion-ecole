@@ -217,6 +217,7 @@ export const rolePermissions = {
     "/presences/*",
     "/evaluations/etudiant/mes-examens",
     "/evaluations/examen-en-ligne/*",
+    '/actualites/*',
   ],
 
   // Utilisateur simple

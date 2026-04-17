@@ -81,11 +81,16 @@ export default defineNuxtRouteMiddleware((to) => {
 
 	if (!hasAccess) {
 		const { $toastr } = useNuxtApp();
+		// Éviter la boucle infinie si on est déjà sur la page par défaut
+		if (to.path === "/emploi-du-temps") {
+			return;
+		}
+
 		$toastr.error(
 			`Accès refusé car vous n'avez pas la permission d'accéder à cette page!`,
 		);
 
-		// Rediriger vers la page par défaut pour tous les utilisateurs
+		// Rediriger vers la page par défaut
 		return navigateTo("/emploi-du-temps");
 	}
 });

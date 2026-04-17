@@ -181,7 +181,8 @@
         <div
           v-for="(kpi, index) in kpis"
           :key="index"
-          class="group bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-700 animate-fade-in-up"
+          @click="navigateTo('/finance/recouvrement?tab=students')"
+          class="group bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-700 animate-fade-in-up cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-800"
           :style="{ animationDelay: index * 100 + 'ms' }"
         >
           <div class="flex items-start justify-between mb-4">
@@ -213,13 +214,146 @@
           <p class="text-2xl font-bold" :class="kpi.valueClass">
             {{ kpi.value }}
           </p>
-          <div class="mt-4 flex items-center gap-2 text-sm">
-            <span :class="kpi.trendClass">{{ kpi.trend }}</span>
-            <span class="text-gray-400">vs période précédente</span>
+          <!-- Indicateur visuel discret -->
+          <div class="mt-4 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+            <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7-7 7"/>
+            </svg>
           </div>
         </div>
       </template>
     </div>
+
+    <!-- Tableaux de Performance par Cycle (Chiffres Bruts) -->
+    <div v-if="!isLoading && macroCycles.length > 0" class="mb-8 animate-fade-in-up" style="animation-delay: 200ms">
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-50 dark:border-gray-700 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/50 transition-colors">
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-indigo-50 dark:bg-indigo-900/40 rounded-lg">
+              <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 00-4-4H5m11 2a4 4 0 01-4 4H12m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">Récapitulatif par Cycle</h2>
+              <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Analyse chiffrée détaillée du recouvrement</p>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-2">
+             <span class="px-2.5 py-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300 shadow-sm">
+                {{ dashboardStore.periodeAffichee }}
+             </span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50 dark:bg-gray-900/20">
+              <tr>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-700">Cycle / Niveau</th>
+                <th class="px-6 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-700">Inscriptions</th>
+                <th class="px-6 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-700">Scolarité</th>
+                <th class="px-6 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-700">Total Encaissé</th>
+                <th class="px-6 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-700">Prévisions</th>
+                <th class="px-6 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-700">Taux</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50 dark:divide-gray-700/50">
+              <template v-for="cycle in macroCycles" :key="cycle.nom">
+                <!-- Ligne de Cycle (Gris/Indig) -->
+                <tr class="bg-indigo-50/20 dark:bg-indigo-900/10 transition-colors">
+                  <td class="px-6 py-5 text-sm font-black text-indigo-900 dark:text-indigo-200 uppercase tracking-tight">
+                    <div class="flex items-center gap-2">
+                      <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                      {{ cycle.nom }}
+                    </div>
+                  </td>
+                  <td class="px-6 py-5 text-right text-sm font-bold text-gray-600 dark:text-gray-300 tabular-nums">
+                    {{ formatMontant(cycle.inscription) }}
+                  </td>
+                  <td class="px-6 py-5 text-right text-sm font-bold text-gray-600 dark:text-gray-300 tabular-nums">
+                    {{ formatMontant(cycle.scolarite) }}
+                  </td>
+                  <td class="px-6 py-5 text-right text-sm font-black text-emerald-600 dark:text-emerald-400 tabular-nums bg-emerald-50/30 dark:bg-emerald-900/10">
+                    {{ formatMontant(cycle.total) }}
+                  </td>
+                  <td class="px-6 py-5 text-right text-sm font-bold text-gray-500 dark:text-gray-400 tabular-nums">
+                    {{ formatMontant(cycle.previsions) }}
+                  </td>
+                  <td class="px-6 py-5 text-right">
+                    <div class="inline-flex items-center px-3 py-1 rounded-lg text-[11px] font-black border tracking-tighter" :class="getTauxColor(cycle.taux_recouvrement, true)">
+                       {{ cycle.taux_recouvrement }}%
+                    </div>
+                  </td>
+                </tr>
+                <!-- Détails par Niveau -->
+                <tr v-for="niv in cycle.details" :key="niv.nom" class="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors group">
+                  <td class="px-10 py-3 text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white">
+                    {{ niv.nom }}
+                  </td>
+                  <td class="px-6 py-3 text-right text-xs font-semibold text-gray-400 dark:text-gray-500 tabular-nums">
+                    {{ formatMontant(niv.inscription) }}
+                  </td>
+                  <td class="px-6 py-3 text-right text-xs font-semibold text-gray-400 dark:text-gray-500 tabular-nums">
+                    {{ formatMontant(niv.scolarite) }}
+                  </td>
+                  <td class="px-6 py-3 text-right text-sm font-bold text-emerald-500/80 dark:text-emerald-500/60 tabular-nums">
+                    {{ formatMontant(niv.total) }}
+                  </td>
+                  <td class="px-6 py-3 text-right text-xs font-semibold text-gray-400 dark:text-gray-500 tabular-nums">
+                    {{ formatMontant(niv.previsions) }}
+                  </td>
+                  <td class="px-6 py-3 text-right">
+                    <span class="text-[11px] font-bold text-gray-400">{{ niv.previsions > 0 ? Math.round((Number(niv.total) / Number(niv.previsions))*100) : (Number(niv.total) > 0 ? 100 : 0) }}%</span>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 Nouveaux Graphiques Analytiques -->
+    <div v-if="!isLoading && areNewChartsDataReady" class="mb-8 animate-fade-in-up" style="animation-delay: 300ms">
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+        <!-- Recouvrement par niveau (Bar + Ligne) -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm">
+          <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4 text-center">Recouvrement par niveau</h3>
+          <div class="h-[350px] relative w-full">
+            <canvas ref="recouvrementChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Retard de paiement en YTD (Bar horiz) -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm">
+          <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4 text-center">Retard de paiement en YTD</h3>
+          <div class="h-[350px] relative w-full">
+            <canvas ref="retardChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <!-- Répartition du CA par niveau (Camembert) -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm">
+          <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4 text-center">Répartition du CA par niveau</h3>
+          <div class="h-[350px] relative w-full flex justify-center">
+            <canvas ref="repartitionChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Nb d'inscrits et d'abandon par niveau (Stacked) -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm">
+          <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4 text-center">Nb d'inscrits et d'abandon par niveau</h3>
+          <div class="h-[350px] relative w-full">
+            <canvas ref="effectifsChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
 
     <!-- Graphiques principaux -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -414,7 +548,7 @@
               <div
                 v-for="statut in statutsListe"
                 :key="statut.label"
-                class="flex items-center justify-between animate-slide-in-right"
+                class="flex items-center justify-between p-2 rounded-lg transition-all animate-slide-in-right"
                 :style="{ animationDelay: statutsListe.indexOf(statut) * 100 + 'ms' }"
               >
                 <div class="flex items-center gap-2">
@@ -1014,11 +1148,21 @@ const dateFin = ref("");
 const graphView = ref("montant");
 const chartsInitialized = ref(false);
 
-// Refs pour les graphiques
 const evolutionChart = ref(null);
 const statutChart = ref(null);
+
+const recouvrementChart = ref(null);
+const retardChart = ref(null);
+const repartitionChart = ref(null);
+const effectifsChart = ref(null);
+
 let evolutionChartInstance = null;
 let statutChartInstance = null;
+
+let recouvrementChartInstance = null;
+let retardChartInstance = null;
+let repartitionChartInstance = null;
+let effectifsChartInstance = null;
 
 // Options de période
 const periodeOptions = [
@@ -1030,62 +1174,97 @@ const periodeOptions = [
 
 // KPIs calculés
 const kpis = computed(() => [
+  // --- SCOLARITE ---
   {
-    label: "Total à encaisser",
-    value: formatMontant(dashboardStore.montantTotalAPayer),
+    label: "Scolarité à encaisser",
+    value: formatMontant(dashboardStore.scolariteAPayer),
     periode: dashboardStore.periodeAffichee,
     icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
     bgColor: "bg-blue-100 dark:bg-blue-900/30",
     iconColor: "text-blue-600 dark:text-blue-400",
     valueClass: "text-gray-900 dark:text-white",
-    trend: "+12.5%",
-    trendClass: "text-emerald-600",
   },
   {
-    label: "Total déjà encaissé",
-    value: formatMontant(dashboardStore.montantCollecte),
+    label: "Scolarité déjà encaissée",
+    value: formatMontant(dashboardStore.scolariteCollecte),
     periode: dashboardStore.periodeAffichee,
     icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
     bgColor: "bg-emerald-100 dark:bg-emerald-900/30",
     iconColor: "text-emerald-600 dark:text-emerald-400",
     valueClass: "text-emerald-600",
-    trend: "+8.2%",
-    trendClass: "text-emerald-600",
   },
   {
-    label: "Total restant a encaisser",
-    value: formatMontant(dashboardStore.montantRestant),
+    label: "Scolarité restante",
+    value: formatMontant(dashboardStore.scolariteRestant),
     periode: dashboardStore.periodeAffichee,
     icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
     bgColor: "bg-amber-100 dark:bg-amber-900/30",
     iconColor: "text-amber-600 dark:text-amber-400",
     valueClass: "text-amber-600",
-    trend: "-5.3%",
-    trendClass: "text-red-600",
   },
   {
-    label: "Taux de collecte",
-    value: dashboardStore.tauxCollecte + "%",
+    label: "Taux recouv. (Scolarité)",
+    value: dashboardStore.scolariteTaux + "%",
     periode: dashboardStore.periodeAffichee,
     icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
     bgColor: "bg-purple-100 dark:bg-purple-900/30",
     iconColor: "text-purple-600 dark:text-purple-400",
     valueClass: "text-purple-600",
-    trend: "+2.1%",
-    trendClass: "text-emerald-600",
+  },
+  // --- INSCRIPTION ---
+  {
+    label: "Frais d'inscript. (Prévus)",
+    value: formatMontant(dashboardStore.inscriptionAPayer),
+    periode: dashboardStore.periodeAffichee,
+    icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+    bgColor: "bg-indigo-50 dark:bg-indigo-900/20",
+    iconColor: "text-indigo-500 dark:text-indigo-400",
+    valueClass: "text-gray-700 dark:text-gray-300",
+  },
+  {
+    label: "Inscript. Encaissées",
+    value: formatMontant(dashboardStore.inscriptionCollecte),
+    periode: dashboardStore.periodeAffichee,
+    icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
+    bgColor: "bg-teal-50 dark:bg-teal-900/20",
+    iconColor: "text-teal-500 dark:text-teal-400",
+    valueClass: "text-teal-600",
+  },
+  {
+    label: "Inscript. Restantes",
+    value: formatMontant(dashboardStore.inscriptionRestant),
+    periode: dashboardStore.periodeAffichee,
+    icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
+    bgColor: "bg-orange-50 dark:bg-orange-900/20",
+    iconColor: "text-orange-500 dark:text-orange-400",
+    valueClass: "text-orange-600",
+  },
+  {
+    label: "Taux recouv. (Inscript.)",
+    value: dashboardStore.inscriptionTaux + "%",
+    periode: dashboardStore.periodeAffichee,
+    icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
+    bgColor: "bg-pink-50 dark:bg-pink-900/20",
+    iconColor: "text-pink-500 dark:text-pink-400",
+    valueClass: "text-pink-600",
   },
 ]);
 
 // Données pour les graphiques
 const evolutionChartData = computed(() => {
+  // Mode comparaison multi-courbes (Montant)
+  if (graphView.value === "montant" && dashboardStore.statistiques?.series_graphique) {
+    return dashboardStore.statistiques.series_graphique;
+  }
+
+  // Mode simple (Nombre de paiements)
   if (!dashboardStore.evolutionPaiements?.length) return null;
   
-  const labels = dashboardStore.evolutionPaiements.map((item) => item.label);
-  const values = dashboardStore.evolutionPaiements.map((item) =>
-    graphView.value === "montant" ? item.montant : item.nombre,
-  );
-
-  return { labels, values };
+  return { 
+    labels: dashboardStore.evolutionPaiements.map((item) => item.label), 
+    encaissements: dashboardStore.evolutionPaiements.map((item) => item.montant),
+    nombre: dashboardStore.evolutionPaiements.map((item) => item.nombre)
+  };
 });
 
 const statutsListe = computed(() => {
@@ -1100,7 +1279,30 @@ const statutsListe = computed(() => {
   }));
 });
 
-// Vérifier si les données des graphiques sont prêtes
+const macroCycles = computed(() => {
+  const data = dashboardStore.statistiques?.encaissements_par_niveau || [];
+  const cycles = {};
+  
+  data.forEach(niv => {
+    const cycleName = niv.nom ? niv.nom.split(' ')[0] : 'Autre';
+    if (!cycles[cycleName]) {
+      cycles[cycleName] = { nom: cycleName, details: [], total: 0, previsions: 0, inscription: 0, scolarite: 0 };
+    }
+    cycles[cycleName].details.push(niv);
+    cycles[cycleName].total += Number(niv.total || 0);
+    cycles[cycleName].previsions += Number(niv.previsions || 0);
+    cycles[cycleName].inscription += Number(niv.inscription || 0);
+    cycles[cycleName].scolarite += Number(niv.scolarite || 0);
+  });
+  
+  return Object.values(cycles).map(c => {
+    c.taux_recouvrement = c.previsions > 0 ? Math.round((c.total / c.previsions)*100) : 0;
+    // Sort details to have Licence 1 before Licence 2
+    c.details.sort((a,b) => a.nom.localeCompare(b.nom));
+    return c;
+  });
+});
+
 const areChartDataReady = computed(() => {
   return (
     !isLoading.value &&
@@ -1111,6 +1313,15 @@ const areChartDataReady = computed(() => {
   );
 });
 
+const areNewChartsDataReady = computed(() => {
+  return (
+    !isLoading.value &&
+    dashboardStore.statistiques?.encaissements_par_niveau &&
+    dashboardStore.statistiques?.retards_par_niveau &&
+    dashboardStore.statistiques?.effectifs_par_niveau
+  );
+});
+
 // Méthodes
 onMounted(async () => {
   await chargerDonnees();
@@ -1118,9 +1329,9 @@ onMounted(async () => {
 
 // Observer les changements des données et initialiser les graphiques
 watch(
-  [areChartDataReady, chartsInitialized],
-  async ([ready, initialized]) => {
-    if (ready && !initialized) {
+  [areChartDataReady, areNewChartsDataReady, chartsInitialized],
+  async ([ready, newReady, initialized]) => {
+    if ((ready || newReady) && !initialized) {
       await nextTick();
       initializeCharts();
     }
@@ -1145,6 +1356,21 @@ watch(
   },
   { deep: true }
 );
+
+const router = useRouter();
+
+const filterByStatut = (statutKey) => {
+  if (!statutKey || statutKey === 'aucun_frais') return;
+  
+  toast.add({
+    severity: "info",
+    summary: "Filtrage",
+    detail: "Redirection vers la liste des étudiants...",
+    life: 2000,
+  });
+  
+  navigateTo(`/finance/recouvrement?tab=students&statut=${statutKey}`);
+};
 
 const chargerDonnees = async () => {
   isLoading.value = true;
@@ -1181,6 +1407,10 @@ const destroyCharts = () => {
     statutChartInstance.destroy();
     statutChartInstance = null;
   }
+  if (recouvrementChartInstance) { recouvrementChartInstance.destroy(); recouvrementChartInstance = null; }
+  if (retardChartInstance) { retardChartInstance.destroy(); retardChartInstance = null; }
+  if (repartitionChartInstance) { repartitionChartInstance.destroy(); repartitionChartInstance = null; }
+  if (effectifsChartInstance) { effectifsChartInstance.destroy(); effectifsChartInstance = null; }
 };
 
 const initializeCharts = () => {
@@ -1200,45 +1430,54 @@ const initializeCharts = () => {
       type: "line",
       data: {
         labels: evolutionChartData.value.labels,
-        datasets: [
+        datasets: graphView.value === "montant" && dashboardStore.statistiques?.series_graphique ? [
           {
-            label:
-              graphView.value === "montant"
-                ? "Montant (FCFA)"
-                : "Nombre de paiements",
-            data: evolutionChartData.value.values,
+            label: "Encaissements",
+            data: evolutionChartData.value.encaissements,
+            borderColor: "#10b981",
+            backgroundColor: "rgba(16, 185, 129, 0.1)",
+            tension: 0.4,
+            fill: true
+          },
+          {
+            label: "Prévisions",
+            data: evolutionChartData.value.previsions,
+            borderColor: "#4f46e5",
+            borderDash: [5, 5],
+            tension: 0.4,
+            fill: false
+          },
+          {
+            label: "Dépenses",
+            data: evolutionChartData.value.depenses,
+            borderColor: "#ef4444",
+            tension: 0.4,
+            fill: false
+          }
+        ] : [
+          {
+            label: "Nombre de paiements",
+            data: evolutionChartData.value.nombre,
             borderColor: "#4f46e5",
             backgroundColor: "rgba(79, 70, 229, 0.1)",
             tension: 0.4,
-            fill: true,
-            pointBackgroundColor: "#4f46e5",
-            pointBorderColor: "#ffffff",
-            pointBorderWidth: 2,
-            pointRadius: 4,
-            pointHoverRadius: 6,
-          },
+            fill: true
+          }
         ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: {
-          duration: 800,
-          easing: 'easeInOutQuart',
-        },
         plugins: {
-          legend: { display: false },
+          legend: { display: true, position: 'bottom' },
           tooltip: {
-            backgroundColor: "#1F2937",
-            titleColor: "#F9FAFB",
-            bodyColor: "#F3F4F6",
-            padding: 12,
-            cornerRadius: 8,
+            mode: 'index',
+            intersect: false,
             callbacks: {
               label: (context) => {
                 const value = context.raw;
                 return graphView.value === "montant"
-                  ? formatMontant(value)
+                  ? context.dataset.label + ": " + formatMontant(value)
                   : value + " paiements";
               },
             },
@@ -1247,23 +1486,11 @@ const initializeCharts = () => {
         scales: {
           y: {
             beginAtZero: true,
-            grid: {
-              color: "rgba(0, 0, 0, 0.05)",
-            },
             ticks: {
               callback: (value) =>
                 graphView.value === "montant"
-                  ? value.toLocaleString("fr-FR") + " FCFA"
+                  ? value.toLocaleString("fr-FR")
                   : value,
-              color: "#6B7280",
-              font: { size: 11 },
-            },
-          },
-          x: {
-            grid: { display: false },
-            ticks: {
-              color: "#6B7280",
-              font: { size: 11 },
             },
           },
         },
@@ -1323,37 +1550,150 @@ const initializeCharts = () => {
     });
   }
 
-  if (evolutionChartInstance || statutChartInstance) {
-    chartsInitialized.value = true;
-    console.log("Graphiques initialisés avec succès");
+  // --- NOUVEAUX GRAPHIQUES METIERS ---
+
+  const encaissementsData = dashboardStore.statistiques?.encaissements_par_niveau || [];
+  const retardsData = dashboardStore.statistiques?.retards_par_niveau || [];
+  const effectifsData = dashboardStore.statistiques?.effectifs_par_niveau || [];
+  
+  if (encaissementsData.length > 0) {
+    const labels = encaissementsData.map(n => n.nom);
+
+    // 1. Recouvrement par niveau (Bar + Ligne)
+    if (recouvrementChart.value) {
+      const ctx = recouvrementChart.value.getContext('2d');
+      if (ctx) ctx.clearRect(0, 0, recouvrementChart.value.width, recouvrementChart.value.height);
+
+      recouvrementChartInstance = new Chart(recouvrementChart.value, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { type: 'bar', label: 'CA', data: encaissementsData.map(n => n.previsions), backgroundColor: '#3b82f6', categoryPercentage: 0.8, barPercentage: 0.9 },
+            { type: 'bar', label: 'Recouvré', data: encaissementsData.map(n => n.total), backgroundColor: '#10b981', categoryPercentage: 0.8, barPercentage: 0.9 },
+            { type: 'bar', label: 'RAR', data: encaissementsData.map(n => n.rar), backgroundColor: '#84cc16', categoryPercentage: 0.8, barPercentage: 0.9 }, // yellow-green
+            { type: 'line', label: 'Taux', data: encaissementsData.map(n => n.taux_recouvrement), borderColor: '#6b7280', yAxisID: 'y1', tension: 0.1, datalabels: { align: 'top', color: '#ef4444', formatter: v => v+'%' } }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: {
+            x: { stacked: false },
+            y: { title: { display: true, text: 'Montant (FCFA)' }, beginAtZero: true },
+            y1: { type: 'linear', position: 'right', beginAtZero: true, max: 100, grid: { drawOnChartArea: false }, ticks: { callback: v => v+'%' } }
+          },
+          plugins: {
+            legend: { position: 'bottom' },
+            tooltip: { callbacks: { label: c => c.dataset.type === 'line' ? `Taux: ${c.raw}%` : `${c.dataset.label}: ${formatMontant(c.raw)}` } }
+          }
+        }
+      });
+    }
+
+    // 2. Retard de paiement YTD (Horizontal Bar)
+    if (retardChart.value && retardsData.length > 0) {
+      const ctx = retardChart.value.getContext('2d');
+      if (ctx) ctx.clearRect(0, 0, retardChart.value.width, retardChart.value.height);
+      
+      retardChartInstance = new Chart(retardChart.value, {
+        type: 'bar',
+        data: {
+          labels: retardsData.map(n => n.nom),
+          datasets: [{
+            label: 'Solde',
+            data: retardsData.map(n => n.montant_retard),
+            backgroundColor: '#3b82f6'
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom' },
+            tooltip: { 
+              callbacks: { 
+                label: c => `Solde: ${formatMontant(c.raw)}`,
+                afterLabel: c => `Étudiants en retard: ${retardsData[c.dataIndex].nombre_etudiants}` 
+              } 
+            }
+          }
+        }
+      });
+    }
+
+    // 3. Répartition CA (Pie)
+    if (repartitionChart.value) {
+      const ctx = repartitionChart.value.getContext('2d');
+      if (ctx) ctx.clearRect(0, 0, repartitionChart.value.width, repartitionChart.value.height);
+
+      repartitionChartInstance = new Chart(repartitionChart.value, {
+        type: 'pie',
+        data: {
+          labels,
+          datasets: [{
+            data: encaissementsData.map(n => n.previsions),
+            backgroundColor: encaissementsData.map((_, i) => getNiveauColor(i)),
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'right' },
+            tooltip: {
+              callbacks: {
+                label: c => {
+                  const total = c.dataset.data.reduce((a,b)=>a+b,0);
+                  const p = total > 0 ? Math.round((c.raw/total)*100) : 0;
+                  return `${c.label}: ${formatMontant(c.raw)} (${p}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 4. Effectifs / Abandons (Stacked)
+    if (effectifsChart.value && effectifsData.length > 0) {
+      const ctx = effectifsChart.value.getContext('2d');
+      if (ctx) ctx.clearRect(0, 0, effectifsChart.value.width, effectifsChart.value.height);
+
+      effectifsChartInstance = new Chart(effectifsChart.value, {
+        type: 'bar',
+        data: {
+          labels: effectifsData.map(n => n.nom),
+          datasets: [
+            { label: 'Actif', data: effectifsData.map(n => n.actifs), backgroundColor: '#3b82f6' },
+            { label: 'Abandon', data: effectifsData.map(n => n.abandons), backgroundColor: '#ef4444' }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: {
+            x: { stacked: true },
+            y: { stacked: true, beginAtZero: true }
+          },
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
   }
+
+  chartsInitialized.value = true;
 };
 
 const updateCharts = () => {
   console.log("Mise à jour des graphiques...");
   
-  // Mise à jour du graphique d'évolution
-  if (evolutionChartInstance && evolutionChartData.value) {
-    evolutionChartInstance.data.labels = evolutionChartData.value.labels;
-    evolutionChartInstance.data.datasets[0].data = evolutionChartData.value.values;
-    evolutionChartInstance.data.datasets[0].label =
-      graphView.value === "montant" ? "Montant (FCFA)" : "Nombre de paiements";
-    evolutionChartInstance.update();
-    console.log("Graphique évolution mis à jour");
-  }
+  if (evolutionChartInstance) { evolutionChartInstance.destroy(); evolutionChartInstance = null; }
+  if (statutChartInstance) { statutChartInstance.destroy(); statutChartInstance = null; }
+  if (recouvrementChartInstance) { recouvrementChartInstance.destroy(); recouvrementChartInstance = null; }
+  if (retardChartInstance) { retardChartInstance.destroy(); retardChartInstance = null; }
+  if (repartitionChartInstance) { repartitionChartInstance.destroy(); repartitionChartInstance = null; }
+  if (effectifsChartInstance) { effectifsChartInstance.destroy(); effectifsChartInstance = null; }
 
-  // Mise à jour du graphique des statuts
-  if (statutChartInstance && dashboardStore.graphiqueStatuts.length) {
-    statutChartInstance.data.labels = dashboardStore.graphiqueStatuts.map(
-      (s) => s.label,
-    );
-    statutChartInstance.data.datasets[0].data =
-      dashboardStore.graphiqueStatuts.map((s) => s.value);
-    statutChartInstance.data.datasets[0].backgroundColor =
-      dashboardStore.graphiqueStatuts.map((s) => s.color);
-    statutChartInstance.update();
-    console.log("Graphique statuts mis à jour");
-  }
+  initializeCharts();
 };
 
 const rafraichirDonnees = async () => {
@@ -1395,9 +1735,15 @@ const formatMontant = (montant) => {
     .replace("XOF", "FCFA");
 };
 
-const getTauxColor = (taux) => {
-  if (taux >= 80) return "text-emerald-600";
-  if (taux >= 50) return "text-amber-600";
+const getTauxColor = (taux, isBadge = false) => {
+  const t = parseFloat(taux) || 0;
+  if (isBadge) {
+    if (t >= 80) return 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800';
+    if (t >= 50) return 'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800';
+    return 'bg-red-50 text-red-700 border-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800';
+  }
+  if (t >= 80) return "text-emerald-600";
+  if (t >= 50) return "text-amber-600";
   return "text-red-600";
 };
 
@@ -1405,6 +1751,11 @@ const getProgressBarColor = (taux) => {
   if (taux >= 80) return "bg-emerald-500";
   if (taux >= 50) return "bg-amber-500";
   return "bg-red-500";
+};
+
+const getNiveauColor = (idx) => {
+  const palette = ['#3b82f6', '#4f46e5', '#9333ea', '#ec4899', '#f43f5e', '#f97316'];
+  return palette[idx % palette.length];
 };
 
 // Nettoyage à la destruction du composant

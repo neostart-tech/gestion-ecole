@@ -13,7 +13,24 @@
       spacing="mb-4"
     />
 
-    <!-- Toolbar -->
+    <!-- Message de blocage -->
+    <div v-if="isBlocked" class="bg-white dark:bg-gray-800 border-l-4 border-red-500 p-6 rounded-xl shadow-lg mt-10 animate-fade-in">
+      <div class="flex items-center gap-5">
+        <div class="p-4 bg-red-100 dark:bg-red-900/30 rounded-full flex-shrink-0">
+          <svg class="w-10 h-10 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Accès aux examens suspendu</h3>
+          <p class="text-gray-600 dark:text-gray-400 text-lg">Votre accès aux examens en ligne a été restreint par l'administration. Veuillez contacter le service administratif ou financier pour régulariser votre situation.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenu normal -->
+    <template v-else>
+      <!-- Toolbar -->
     <div
       class="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between mb-5"
     >
@@ -712,6 +729,7 @@
         </div>
       </Dialog>
     </TransitionRoot>
+    </template>
   </div>
 </template>
 
@@ -728,16 +746,27 @@ import {
 } from "@headlessui/vue";
 import Breadcrumb from "~/components/Breadcrumb.vue";
 import { useEvaluationStore } from "~~/stores/evaluations";
+import { useLoginStore } from "~~/stores/login";
 
 const { $toastr } = useNuxtApp();
 
 const evaluationStore = useEvaluationStore();
+const loginStore = useLoginStore();
 const searchQuery = ref("");
 const statusFilter = ref("");
 const loading = ref(true);
 const itemsPerPage = ref(10);
 const showDetailModal = ref(false);
 const selectedEvent = ref(null);
+
+const isBlocked = computed(() => {
+  try {
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    return userData?.statut === 'bloque';
+  } catch {
+    return false;
+  }
+});
 
 // Configuration des colonnes
 const columns = ref([
@@ -841,7 +870,12 @@ const closeDetailModal = () => {
 
 onMounted(async () => {
   try {
-    await evaluationStore.fetchEvaluationsForStudent();
+    // On rafraîchit les infos utilisateur pour être sûr d'avoir le dernier statut (actif/bloqué)
+    await loginStore.fetchUser();
+    
+    if (!isBlocked.value) {
+      await evaluationStore.fetchEvaluationsForStudent();
+    }
   } catch (error) {
     console.error("Erreur lors du chargement:", error);
     $toastr.error("Erreur lors du chargement des données");

@@ -358,6 +358,17 @@
               </div>
             </template>
 
+            <template #frequence="data">
+              <div class="flex flex-col">
+                <span class="text-xs font-medium text-gray-900 dark:text-white capitalize">
+                  {{ data.value.frequence_paiement || 'Annuel' }}
+                </span>
+                <span class="text-[10px] text-gray-500 dark:text-gray-400">
+                  {{ getNbEcheancesLabel(data.value.frequence_paiement) }}
+                </span>
+              </div>
+            </template>
+
             <template #montants="data">
               <div class="text-right space-y-0.5">
                 <p class="text-sm font-semibold text-green-600 dark:text-green-400">
@@ -881,6 +892,7 @@ const tabs = [
 // Colonnes pour les frais
 const fraisColumns = ref([
   { field: "etudiant", title: "Étudiant", visible: true },
+  { field: "frequence", title: "Fréquence", visible: true },
   { field: "niveau", title: "Niveau/Filière", visible: false },
   { field: "type_paiement", title: "Type", visible: false },
   { field: "montants", title: "Montant", visible: true },
@@ -1047,6 +1059,16 @@ const getStatutLabel = (statut) => {
   return labels[statut] || statut
 }
 
+const getNbEcheancesLabel = (frequence) => {
+  const labels = {
+    mensuel: '10 échéances',
+    bimestriel: '4 échéances',
+    trimestriel: '3 échéances',
+    annuel: '1 échéance'
+  }
+  return labels[frequence] || '1 échéance'
+}
+
 const formatMontant = (montant) => {
   if (montant === undefined || montant === null || isNaN(montant)) return '0 FCFA'
   
@@ -1119,7 +1141,7 @@ const getModePaiementLabel = (mode) => {
     especes: 'Espèces',
     banque: 'Banque',
     semoa: 'SEMOA',
-    caisse: 'Caisse',
+    caisse: 'Espèces',
     carte: 'Carte',
     virement: 'Virement',
     cheque: 'Chèque'

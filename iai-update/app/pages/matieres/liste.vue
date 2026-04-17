@@ -97,24 +97,26 @@
 				</div>
 
 				<!-- Bouton Ajouter -->
-				<button
-					class="flex items-center gap-2 px-4 py-2.5 bg-green-600 dark:bg-green-500 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors"
-				>
-					<svg
-						class="w-5 h-5"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
+				<Can action="create-uv">
+					<button
+						class="flex items-center gap-2 px-4 py-2.5 bg-green-600 dark:bg-green-500 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors"
 					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M12 4v16m8-8H4"
-						/>
-					</svg>
-					Ajouter UV
-				</button>
+						<svg
+							class="w-5 h-5"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M12 4v16m8-8H4"
+							/>
+						</svg>
+						Ajouter UV
+					</button>
+				</Can>
 			</div>
 
 			<!-- Tableau avec Vue3Datatable -->
@@ -146,44 +148,48 @@
 					<!-- Template pour les actions -->
 					<template #action="data">
 						<div class="flex space-x-3">
-							<button
-								@click="editItem(data.value)"
-								class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors"
-								title="Modifier"
-							>
-								<svg
-									class="w-5 h-5"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
+							<Can action="update-uv">
+								<button
+									@click="editItem(data.value)"
+									class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors"
+									title="Modifier"
 								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-									/>
-								</svg>
-							</button>
-							<button
-								@click="deleteItem(data.value)"
-								class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 transition-colors"
-								title="Supprimer"
-							>
-								<svg
-									class="w-5 h-5"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
+									<svg
+										class="w-5 h-5"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+										/>
+									</svg>
+								</button>
+							</Can>
+							<Can action="delete-uv">
+								<button
+									@click="deleteItem(data.value)"
+									class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 transition-colors"
+									title="Supprimer"
 								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-									/>
-								</svg>
-							</button>
+									<svg
+										class="w-5 h-5"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+										/>
+									</svg>
+								</button>
+							</Can>
 						</div>
 					</template>
 				</Vue3Datatable>
@@ -196,19 +202,28 @@
 	import { ref, computed, onMounted } from "vue";
 	import Vue3Datatable from "@bhplugin/vue3-datatable";
 	import "@bhplugin/vue3-datatable/dist/style.css";
+	import { useAccess } from "~/composables/useAccess";
 
+	const { can } = useAccess();
 	const searchQuery = ref("");
 	const showSelector = ref(false);
 
 	// Configuration des colonnes
-	const availableColumns = ref([
-		{ field: "id", title: "ID", width: "60px", isUnique: true },
-		{ field: "nom", title: "Nom" },
-		{ field: "code", title: "Code" },
-		{ field: "coef", title: "Coefficient", type: "number" },
-		{ field: "ue", title: "UE" },
-		{ field: "action", title: "Action", sort: false },
-	]);
+	const availableColumns = computed(() => {
+		const cols = [
+			{ field: "id", title: "ID", width: "60px", isUnique: true },
+			{ field: "nom", title: "Nom" },
+			{ field: "code", title: "Code" },
+			{ field: "coef", title: "Coefficient", type: "number" },
+			{ field: "ue", title: "UE" },
+		];
+
+		if (can("update-uv") || can("delete-uv")) {
+			cols.push({ field: "action", title: "Action", sort: false });
+		}
+
+		return cols;
+	});
 
 	const selectedColumns = ref([]);
 

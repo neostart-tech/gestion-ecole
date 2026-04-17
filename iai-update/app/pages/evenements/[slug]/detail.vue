@@ -64,9 +64,9 @@
         <!-- Carte principale -->
         <article class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
           <!-- Image de couverture si disponible -->
-          <div v-if="evenement.image" class="relative h-48 sm:h-64 lg:h-96 overflow-hidden">
+          <div v-if="evenement.image_url" class="relative h-48 sm:h-64 lg:h-96 overflow-hidden">
             <img 
-              :src="evenement.image" 
+              :src="evenement.image_url" 
               :alt="evenement.nom"
               class="w-full h-full object-cover"
             />

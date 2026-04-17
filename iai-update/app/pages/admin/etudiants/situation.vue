@@ -16,24 +16,22 @@
       />
 
       <!-- Boutons d'action -->
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-3">
         <button
           @click="rafraichir"
-          class="p-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+          class="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-750 text-gray-700 dark:text-gray-300 font-medium transition-all shadow-sm hover:shadow-md disabled:opacity-50"
           :disabled="store.isPageLoading"
-          title="Rafraîchir"
         >
-          <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" :class="{ 'animate-spin': store.isPageLoading }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5" :class="{ 'animate-spin': store.isPageLoading }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
+          <span class="hidden sm:inline">{{ store.isPageLoading ? 'Chargement...' : 'Rafraîchir' }}</span>
         </button>
         
-        <!-- Bouton Export Excel -->
-        <!-- <button
+        <button
           @click="exporterExcel"
           :disabled="store.isExporting"
-          type="button"
-          class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+          class="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
         >
           <svg v-if="store.isExporting" class="w-5 h-5 animate-spin" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
@@ -42,8 +40,8 @@
           <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
-          <span class="hidden sm:inline">Exporter CSV</span>
-        </button> -->
+          <span class="hidden sm:inline">Exporter</span>
+        </button>
       </div>
     </div>
 
@@ -228,7 +226,7 @@
                   </option>
                 </select>
 
-                <!-- Filtre Statut -->
+                <!-- Filtre Statut de Paiement -->
                 <select
                   v-model="store.filtres.statut"
                   @change="appliquerFiltres"
@@ -237,6 +235,17 @@
                   <option v-for="opt in store.filtreOptions.statuts" :key="opt.value" :value="opt.value">
                     {{ opt.label }}
                   </option>
+                </select>
+
+                <!-- Filtre Statut d'Accès -->
+                <select
+                  v-model="store.filtres.statut_acces"
+                  @change="appliquerFiltres"
+                  class="px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 min-w-[150px]"
+                >
+                  <option :value="null">Tous les accès</option>
+                  <option value="actif">Accès actifs</option>
+                  <option value="bloque">Accès bloqués</option>
                 </select>
               </div>
             </div>
@@ -304,6 +313,83 @@
 
         <!-- Tableau avec Vue3Datatable -->
         <div class="p-4 sm:p-6">
+          <!-- Barre d'actions groupées (Dock Intégré) -->
+          <!-- Indicateur de sélection externe -->
+          <div v-if="selectedIds.length > 0" class="mb-2 flex items-center gap-2 pl-2 animate-pulse-slow">
+            <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400">
+              {{ selectedIds.length }} Étudiant(s) sélectionné(s)
+            </span>
+          </div>
+
+          <Transition
+            enter-active-class="transition duration-500 ease-out"
+            enter-from-class="opacity-0 -translate-y-4"
+            enter-to-class="opacity-100 translate-y-0"
+            leave-active-class="transition duration-300 ease-in"
+            leave-from-class="opacity-100 translate-y-0"
+            leave-to-class="opacity-0 -translate-y-4"
+          >
+            <div v-if="selectedIds.length > 0" class="mb-6 flex flex-col md:flex-row items-center gap-4 px-4 py-3 md:px-6 md:py-4 rounded-3xl border border-indigo-100 bg-indigo-50/40 dark:bg-indigo-900/20 dark:border-indigo-800/50 backdrop-blur-md shadow-sm transition-all duration-300">
+              <div class="flex items-center justify-between w-full md:w-auto md:gap-8">
+                <!-- 
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-indigo-600 dark:bg-indigo-500 text-white rounded-full font-black text-lg md:text-xl shadow-lg shadow-indigo-600/30 ring-4 ring-white/30">
+                    {{ selectedIds.length }}
+                  </div>
+                  <div class="ml-3 md:ml-5 flex flex-col justify-center whitespace-nowrap">
+                    <span class="text-[10px] leading-none uppercase tracking-[0.25em] font-black text-indigo-600 dark:text-indigo-400 mb-2">Actions Collective</span>
+                    <span class="text-sm md:text-lg leading-none font-black text-gray-900 dark:text-white">{{ selectedIds.length }} étudiant(s) sélectionnés</span>
+                  </div>
+                </div>
+                
+                <div class="hidden md:block h-10 w-px bg-indigo-200/50 dark:bg-indigo-800/50"></div>
+                -->
+                
+                <div class="md:hidden">
+                  <button
+                    @click="selectedIds = []"
+                    class="p-2 text-gray-400 hover:text-red-500"
+                    title="Annuler"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 w-full md:w-auto justify-center md:justify-start">
+                <button
+                  @click="bulkAction('actif')"
+                  class="flex-1 md:flex-none flex items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-2.5 rounded-2xl transition-all duration-300 text-[10px] md:text-xs font-black group bg-indigo-600 hover:bg-indigo-700 text-white shadow-md active:scale-95"
+                >
+                  <div class="w-1.5 h-1.5 md:w-2 md:h-2 flex-shrink-0 rounded-full bg-white shadow-[0_0_8px_white] animate-pulse"></div>
+                  <span class="tracking-widest">ACTIVER</span>
+                </button>
+
+                <button
+                  @click="bulkAction('bloque')"
+                  class="flex-1 md:flex-none flex items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-2.5 rounded-2xl transition-all duration-300 text-[10px] md:text-xs font-black group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-red-500 hover:text-red-600 active:scale-95 transition-all text-center"
+                >
+                  <div class="w-1.5 h-1.5 md:w-2 md:h-2 flex-shrink-0 rounded-full bg-gray-400 group-hover:bg-red-500 transition-colors"></div>
+                  <span class="tracking-widest">BLOQUER</span>
+                </button>
+              </div>
+              
+              <div class="hidden md:flex flex-1"></div>
+
+              <button
+                @click="selectedIds = []"
+                class="hidden md:flex items-center gap-2 group px-4 py-2 text-gray-400 hover:text-red-500 transition-all font-black text-[10px] uppercase tracking-widest"
+              >
+                <svg class="w-4 h-4 transition-transform group-hover:rotate-180 duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>Annuler la sélection</span>
+              </button>
+            </div>
+          </Transition>
           <Vue3Datatable
             :columns="visibleColumns"
             :rows="filteredData"
@@ -316,6 +402,9 @@
             sortable
             :search="searchQuery"
             @update:search="searchQuery = $event"
+            :hasCheckbox="true"
+            @rowSelect="onRowSelect"
+            :rowClass="getRowClass"
           >
             <!-- Template pour la colonne étudiant -->
             <template #nom_complet="data">
@@ -326,6 +415,7 @@
                 <div class="min-w-0">
                   <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
                     {{ data.value.nom }} {{ data.value.prenom }}
+                    <span v-if="data.value.statut_global === 'bloque'" class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-600 text-white uppercase tracking-wider">Bloqué</span>
                   </p>
                   <p class="text-xs text-gray-500 dark:text-gray-400">
                     {{ data.value.matricule }}
@@ -380,7 +470,7 @@
                 <span class="text-xs font-medium" :class="getStatutTextClass(data.value.statut)">
                   {{ data.value.statut_libelle }}
                   <span v-if="data.value.en_retard" class="ml-1 text-red-600 dark:text-red-400">
-                    ({{ data.value.jours_retard_max }}j)
+                    ({{ formatRetard(data.value.jours_retard_max) }})
                   </span>
                 </span>
               </span>
@@ -388,37 +478,55 @@
 
             <!-- Template pour les actions -->
             <template #actions="data">
-              <div class="flex items-center gap-2">
+              <div class="flex items-center justify-center gap-1">
                 <button
                   @click="voirDetails(data.value)"
-                  class="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all"
+                  class="flex items-center justify-center w-9 h-9 text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-600 hover:text-white rounded-xl transition-all duration-300 group"
                   title="Voir détails"
                 >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 transform group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
                 </button>
 
-                <button
-                  @click="voirEcheances(data.value)"
-                  class="p-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-all"
-                  title="Voir échéances"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </button>
+                <div class="w-px h-6 bg-gray-100 dark:bg-gray-700/50 mx-1"></div>
 
-                <button
-                  @click="openRecuModal(data.value)"
-                  class="p-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-all"
-                  title="Reçu"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </button>
+                <div class="flex items-center gap-0.5">
+                  <button
+                    @click="voirEcheances(data.value)"
+                    class="flex items-center justify-center w-8 h-8 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-all"
+                    title="Échéances"
+                  >
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+
+                  <button
+                    @click="openRecuModal(data.value)"
+                    class="flex items-center justify-center w-8 h-8 text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/40 rounded-lg transition-all"
+                    title="Imprimer reçu"
+                  >
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                  </button>
+
+                  <div class="flex items-center ml-1" title="Statut d'accès (On: Actif / Off: Bloqué)">
+                    <button 
+                      @click="toggleBlocage(data.value)"
+                      class="relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                      :class="data.value.statut_global === 'actif' ? 'bg-indigo-600' : 'bg-gray-300 dark:bg-gray-600'"
+                    >
+                      <span 
+                        aria-hidden="true" 
+                        class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                        :class="data.value.statut_global === 'actif' ? 'translate-x-4' : 'translate-x-0'"
+                      ></span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </template>
           </Vue3Datatable>
@@ -552,7 +660,7 @@
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
-      {{ selectedEtudiant.jours_retard_max }} jours de retard
+      {{ formatRetard(selectedEtudiant.jours_retard_max) }} de retard
     </span>
     <span v-if="selectedEtudiant.prochaine_echeance" class="flex items-center gap-1.5 text-sm text-blue-600 dark:text-blue-400">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -831,8 +939,19 @@
   </div>
 </template>
 
+<style>
+/* Style pour forcer la mise en évidence des lignes sélectionnées */
+.bh-table-hover tr.row-selected {
+  background-color: rgba(79, 70, 229, 0.05) !important;
+}
+.dark .bh-table-hover tr.row-selected {
+  background-color: rgba(79, 70, 229, 0.1) !important;
+}
+</style>
+
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
 import {
   Dialog,
   DialogPanel,
@@ -845,6 +964,8 @@ import Breadcrumb from "~/components/Breadcrumb.vue"
 import { useEtudiantSituationStore } from '~~/stores/etudiant-situation'
 import { useParametreStore } from '~~/stores/parametre'
 import { useDebounce } from '@vueuse/core'
+import Swal from 'sweetalert2'
+import config from '~~/config'
 
 // Stores
 const store = useEtudiantSituationStore()
@@ -860,6 +981,7 @@ const showRecuModal = ref(false)
 const selectedEtudiant = ref(null)
 const recuContent = ref(null)
 const isDownloadingRecu = ref(false)
+const selectedIds = ref([]) // IDs des étudiants sélectionnés
 
 // Debounce pour la recherche
 const debouncedSearch = useDebounce(searchQuery, 300)
@@ -911,7 +1033,7 @@ const kpis = computed(() => {
       iconColor: 'text-blue-600 dark:text-blue-400',
       details: [
         { label: 'Soldé', value: stats.par_statut.solde, color: 'text-emerald-600' },
-        { label: 'En cours', value: stats.par_statut.en_cours, color: 'text-amber-600' },
+        { label: 'À jour', value: stats.par_statut.en_cours, color: 'text-amber-600' },
         { label: 'En retard', value: stats.par_statut.en_retard, color: 'text-red-600' }
       ]
     },
@@ -935,6 +1057,17 @@ const kpis = computed(() => {
       details: [
         { label: 'Montant impayé', value: formatMontant(stats.retards.montant_total_impaye), color: 'text-red-600' },
         { label: 'Jours retard moy.', value: stats.retards.jours_retard_moyen + 'j', color: 'text-amber-600' }
+      ]
+    },
+    {
+      label: 'Accès bloqués',
+      value: stats.par_statut?.bloques || 0,
+      icon: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z',
+      bgColor: 'bg-red-50 dark:bg-red-900/20',
+      iconColor: 'text-red-500 dark:text-red-400',
+      details: [
+        { label: 'Accès actifs', value: (stats.total || 0) - (stats.par_statut?.bloques || 0), color: 'text-emerald-600' },
+        { label: '% Bloqués', value: stats.total > 0 ? Math.round(((stats.par_statut?.bloques || 0) / stats.total) * 100) + '%' : '0%', color: 'text-gray-500' }
       ]
     },
     {
@@ -1001,9 +1134,8 @@ const getNiveauLabel = (id) => {
 const getStatutLabel = (statut) => {
   const labels = {
     solde: 'Soldé',
-    en_cours: 'En cours',
-    en_retard: 'En retard',
-    aucun_frais: 'Aucun frais'
+    en_cours: 'À jour',
+    en_retard: 'En retard'
   }
   return labels[statut] || statut
 }
@@ -1012,10 +1144,9 @@ const getStatutClass = (statut) => {
   const classes = {
     solde: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400',
     en_cours: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-    en_retard: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-    aucun_frais: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400'
+    en_retard: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
   }
-  return classes[statut] || classes.aucun_frais
+  return classes[statut] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400'
 }
 
 const getInitials = (etudiant) => {
@@ -1053,6 +1184,27 @@ const getStatutTextClass = (statut) => {
     aucun_frais: 'text-gray-700 dark:text-gray-300'
   }
   return classes[statut] || 'text-gray-700 dark:text-gray-300'
+}
+
+const formatRetard = (jours) => {
+  if (!jours || jours <= 0) return ''
+  
+  if (jours >= 365) {
+    const ans = Math.floor(jours / 365)
+    const reste = jours % 365
+    const mois = Math.floor(reste / 30)
+    if (ans >= 1 && mois > 0) return `${ans} an${ans > 1 ? 's' : ''} ${mois} mois`
+    return `${ans} an${ans > 1 ? 's' : ''}`
+  }
+  
+  if (jours >= 30) {
+    const mois = Math.floor(jours / 30)
+    const reste = jours % 30
+    if (mois >= 1 && reste > 0) return `${mois} mois ${reste} j`
+    return `${mois} mois`
+  }
+  
+  return `${jours} j`
 }
 
 const formatMontant = (montant) => {
@@ -1093,7 +1245,7 @@ const getEcheanceStatutLabel = (echeance) => {
   if (echeance.statut === 'paye') return 'Payé'
   if (echeance.statut === 'en_retard') return 'En retard'
   if (echeance.statut === 'en_attente') return 'En attente'
-  return echeance.statut || 'En cours'
+  return echeance.statut || 'À jour'
 }
 
 const voirDetails = (etudiant) => {
@@ -1153,6 +1305,97 @@ const downloadRecu = async () => {
     console.error('Erreur téléchargement reçu:', error)
   } finally {
     isDownloadingRecu.value = false
+  }
+}
+
+const toggleBlocage = async (etudiant) => {
+  const isCurrentlyBlocked = etudiant.statut_global === 'bloque'
+  const nouveauStatut = isCurrentlyBlocked ? 'actif' : 'bloque'
+  const actionText = isCurrentlyBlocked ? 'débloquer' : 'bloquer'
+  const confirmText = isCurrentlyBlocked ? 'Oui, débloquer' : 'Oui, bloquer'
+  
+  const result = await Swal.fire({
+    title: 'Confirmer l\'action',
+    text: `Voulez-vous vraiment ${actionText} cet étudiant ?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: confirmText,
+    cancelButtonText: 'Annuler',
+    confirmButtonColor: isCurrentlyBlocked ? '#10b981' : '#ef4444'
+  })
+
+  if (result.isConfirmed) {
+    try {
+      const response = await axios.put(`/etudiants/situation/${etudiant.id}/statut`, { 
+        statut: nouveauStatut 
+      }, store.authHeaders())
+
+      if (response.data.success) {
+        etudiant.statut_global = nouveauStatut
+        Swal.fire({
+          icon: 'success',
+          title: 'Succès',
+          text: response.data.message,
+          timer: 2000,
+          showConfirmButton: false
+        })
+        rafraichir()
+      }
+    } catch (error) {
+      console.error('Erreur mise à jour statut:', error)
+      Swal.fire('Erreur', 'Impossible de mettre à jour le statut', 'error')
+    }
+  }
+}
+
+const onRowSelect = (rows) => {
+  selectedIds.value = rows.map((r) => r.id)
+}
+
+const getRowClass = (row) => {
+  if (selectedIds.value.includes(row.id)) {
+    return '!bg-indigo-50/50 dark:!bg-indigo-900/10'
+  }
+  return ''
+}
+
+const bulkAction = async (nouveauStatut) => {
+  const isBlocking = nouveauStatut === 'bloque'
+  const actionText = isBlocking ? 'bloquer' : 'activer/débloquer'
+  const count = selectedIds.value.length
+
+  const result = await Swal.fire({
+    title: 'Action groupée',
+    text: `Voulez-vous vraiment ${actionText} les ${count} étudiants sélectionnés ?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Oui, confirmer',
+    cancelButtonText: 'Annuler',
+    confirmButtonColor: isBlocking ? '#ef4444' : '#10b981'
+  })
+
+  if (result.isConfirmed) {
+    store.isPageLoading = true
+    try {
+      const response = await store.bulkUpdateStatut(selectedIds.value, nouveauStatut)
+
+      if (response.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Action réussie',
+          text: response.message,
+          timer: 2000,
+          showConfirmButton: false
+        })
+        selectedIds.value = []
+        await rafraichir()
+      }
+    } catch (error) {
+      console.error('Erreur action groupée:', error)
+      Swal.fire('Erreur', 'Une erreur est survenue lors de l\'action groupée', 'error')
+    } finally {
+      store.isPageLoading = false
+    }
   }
 }
 </script>

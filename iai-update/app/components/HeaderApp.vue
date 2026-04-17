@@ -350,7 +350,7 @@
                   <div
                     v-for="notification in notifications.slice(0, 5)"
                     :key="notification.id"
-                    @click.stop="handleMarkAsRead(notification.id)"
+                    @click.stop="handleMarkAsRead(notification)"
                     :class="[
                       'p-3 sm:p-4 cursor-pointer transition-all hover:bg-gray-50 dark:hover:bg-gray-700/50 relative group',
                       !notification.read_at
@@ -670,17 +670,17 @@ const userInitials = computed(() => {
   const name = userInfo.value.name;
   if (!name || name === "Utilisateur") return "U";
   const parts = name.split(" ");
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase();
+  if (parts.length >= 2 && parts[0] && parts[1]) {
+    return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
   }
   return name.substring(0, 2).toUpperCase();
 });
 
-// Notifications
-const notifications = computed(() => {
-  return notificationStore.unreadNotifications?.length
-    ? notificationStore.unreadNotifications
-    : notificationStore.notifications || [];
+// Notifications typed to any[] to avoid inference issues with the store
+const notifications = computed((): any[] => {
+  const unread = (notificationStore.unreadNotifications as any[]) || [];
+  const all = (notificationStore.notifications as any[]) || [];
+  return unread.length ? unread : all;
 });
 
 const unreadCount = computed(() => {
@@ -824,10 +824,31 @@ const toggleProfileDropdown = () => {
 };
 
 // Actions sur les notifications
-const handleMarkAsRead = async (id: string) => {
+const handleMarkAsRead = async (notification: any) => {
   try {
-    await notificationStore.markNotificationAsRead(id);
+    await notificationStore.markNotificationAsRead(notification.id);
     await refreshNotifications();
+    
+    // Redirection si une URL est présente
+    if (notification.data && notification.data.url) {
+      // Si c'est une URL de publication, on ferme le menu des notifications
+      showNotifications.value = false;
+      
+      // Utilisation de navigateTo pour les liens internes ou window.location pour les liens complets
+      if (notification.data.url.startsWith('http')) {
+        // Si c'est le même domaine (en checkant le port 3000), on peut nettoyer l'URL pour navigateTo
+        const frontendUrl = 'http://localhost:3000';
+        if (notification.data.url.startsWith(frontendUrl)) {
+          const path = notification.data.url.replace(frontendUrl, '');
+          navigateTo(path);
+        } else {
+          window.location.href = notification.data.url;
+        }
+      } else {
+        navigateTo(notification.data.url);
+      }
+    }
+    
     $toastr.success("Notification marquée comme lue");
   } catch (error) {
     console.error(error);
@@ -953,7 +974,7 @@ onUnmounted(() => {
 });
 
 watch(
-  () => loginStore.isAuthenticated,
+  () => loginStore.isAuthenticated(),
   async (isAuth) => {
     if (isAuth) {
       await refreshNotifications();

@@ -2,9 +2,19 @@
   <div
     class="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 transition-colors duration-300"
   >
-    <!-- Loading state avec animation SVG -->
-   <div v-if="isLoading || paiementStore.isLoading" class=" inset-0 bg-white dark:bg-gray-900 z-50 flex justify-center items-center">
-     <Loading/>
+    <!-- Loading initial -->
+    <div v-if="isLoading" class="max-w-7xl mx-auto space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+        <div>
+          <div class="h-6 w-48 bg-gray-200 dark:bg-gray-700 rounded mb-2 animate-pulse"></div>
+          <div class="h-4 w-64 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+        </div>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 animate-pulse">
+        <div class="h-6 w-48 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+        <div class="h-12 w-full bg-gray-50 dark:bg-gray-700/50 rounded"></div>
+      </div>
     </div>
     <div v-else class="max-w-7xl mx-auto space-y-6">
       <!-- En-tête avec boutons PDF -->
@@ -76,7 +86,6 @@
           </template>
         </div>
       </div>
-      <
       <!-- Sélection étudiant -->
       <div
         class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
@@ -239,6 +248,12 @@
                     class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-xs font-medium text-gray-600 dark:text-gray-300 rounded-full"
                   >
                     {{ typeFraisLabel }}
+                  </span>
+                  <span
+                    v-if="paiementStore.infosEtudiant?.frais?.frequence_paiement"
+                    class="px-2 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-xs font-medium text-indigo-600 dark:text-indigo-400 rounded-full capitalize"
+                  >
+                    {{ getFrequenceLabel(paiementStore.infosEtudiant.frais.frequence_paiement) }}
                   </span>
                 </div>
 
@@ -503,12 +518,29 @@
                     :options="modesPaiement"
                     optionLabel="label"
                     optionValue="value"
+                    class="w-full text-xs premium-select-button"
+                  />
+                </div>
+
+                <!-- Frais de retrait (si Mobile Money) -->
+                <div v-if="paiementForm.mode_paiement === 'mobile_money'">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Frais de retrait
+                  </label>
+                  <InputNumber
+                    v-model="paiementForm.frais_retrait"
+                    :min="0"
+                    placeholder="Ex: 500"
                     class="w-full"
+                    :useGrouping="true"
+                    mode="currency"
+                    currency="XOF"
+                    locale="fr-FR"
                   />
                 </div>
 
                 <!-- Référence -->
-                <div class="lg:col-span-2">
+                <div>
                   <label
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                   >
@@ -518,6 +550,21 @@
                   <InputText
                     v-model="paiementForm.reference"
                     placeholder="N° de reçu, transaction..."
+                    class="w-full"
+                  />
+                </div>
+
+                <!-- Commentaire -->
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  >
+                    Commentaire
+                    <span class="text-xs text-gray-400">(optionnel)</span>
+                  </label>
+                  <InputText
+                    v-model="paiementForm.commentaire"
+                    placeholder="Saisir un commentaire..."
                     class="w-full"
                   />
                 </div>
@@ -801,8 +848,11 @@
                       <p class="font-medium text-gray-900 dark:text-white">
                         {{ item.libelle }}
                       </p>
-                      <p class="text-xs text-gray-500">
-                        {{ item.date_formatted }}
+                      <p class="text-xs text-gray-500 flex items-center gap-1.5 mt-0.5">
+                        {{ item.date_formatted }} <span class="text-gray-300">•</span> <span class="font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-tighter text-[10px]">{{ item.nature_paiement === 'inscription' ? 'Inscription' : 'Scolarité' }}</span>
+                      </p>
+                      <p v-if="item.commentaire" class="text-[10px] text-gray-500 italic mt-1 dark:bg-gray-700/50 p-1 rounded-md leading-tight">
+                        {{ item.commentaire }}
                       </p>
                     </div>
                     <div class="text-right">
@@ -910,32 +960,23 @@
       </div>
 
       <div
-        v-else-if="selectedEtudiant && !paiementStore.infosEtudiant"
-        class="text-center py-12"
+        v-else-if="selectedEtudiant && (!paiementStore.infosEtudiant || paiementStore.isLoading)"
+        class="space-y-6 animate-pulse pointer-events-none"
       >
-        <svg
-          class="w-12 h-12 text-indigo-600 mx-auto mb-4 animate-spin"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            class="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            stroke-width="4"
-          ></circle>
-          <path
-            class="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          ></path>
-        </svg>
-        <p class="text-gray-500 dark:text-gray-400">
-          Chargement des informations...
-        </p>
+        <!-- Skeleton Etudiant Profil -->
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 h-32 flex items-center gap-6">
+           <div class="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0"></div>
+           <div class="flex-1 space-y-3">
+              <div class="h-6 w-1/3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div class="h-4 w-1/2 bg-gray-200 dark:bg-gray-700 rounded"></div>
+           </div>
+        </div>
+        <!-- Skeleton Stats -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div v-for="i in 4" :key="i" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl h-24"></div>
+        </div>
+        <!-- Skeleton Content -->
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl h-[400px]"></div>
       </div>
 
       <div v-else class="text-center py-12">
@@ -1312,25 +1353,22 @@ const pdfPaiements = ref([]);
 const pdfTotalPaye = ref(0);
 const pdfResteAPayer = ref(0);
 
-// Formulaire de paiement
 const paiementForm = ref({
   etudiant_id: null,
   montant: null,
+  frais_retrait: null,
   mode_paiement: "especes",
   reference: "",
+  commentaire: "",
   payable_id: null,
   payable_type: null,
 });
 
 // Modes de paiement
 const modesPaiement = ref([
-  //   { value: "especes", label: "Espèces" },
+  { value: "especes", label: "Espèce" },
   { value: "banque", label: "Banque" },
-  //   { value: "semoa", label: "SEMOA" },
-  { value: "caisse", label: "Caisse" },
-  //   { value: "carte", label: "Carte" },
-  //   { value: "virement", label: "Virement" },
-  //   { value: "cheque", label: "Chèque" },
+  { value: "mobile_money", label: "Mobile Money" }
 ]);
 
 // App name
@@ -1410,6 +1448,16 @@ const typeFraisLabel = computed(() => {
   if (!paiementStore.infosEtudiant) return "";
   return paiementStore.hasFraisNegocie ? "Négociation" : "Standard";
 });
+
+const getFrequenceLabel = (frequence) => {
+  const labels = {
+    mensuel: 'Mensuel (10)',
+    bimestriel: 'Bimestriel (4)',
+    trimestriel: 'Trimestriel (3)',
+    annuel: 'Annuel (1)'
+  }
+  return labels[frequence] || frequence;
+};
 
 const typeFraisTitre = computed(() => {
   return paiementStore.hasFraisNegocie ? "Échéances" : "Tranches";
@@ -1590,6 +1638,8 @@ const repartirPaiementSurEcheances = async (montantTotal, echeanceId) => {
       montant: montantAEcheance,
       mode_paiement: paiementForm.value.mode_paiement,
       reference: paiementForm.value.reference || null,
+      commentaire: paiementForm.value.commentaire || null,
+      frais_retrait: paiementForm.value.frais_retrait || 0,
       payable_id: echeance.id,
       payable_type: paiementStore.hasFraisNegocie ? "echeance" : "tranche",
     };
@@ -1676,6 +1726,12 @@ const handlePaiement = async () => {
     return;
   }
 
+  if (!paiementForm.value.reference && paiementForm.value.mode_paiement === 'especes') {
+    const timestamp = Date.now().toString().slice(-6);
+    const randomUrl = Math.floor(Math.random() * 100);
+    paiementForm.value.reference = `ESP-${timestamp}${randomUrl}`;
+  }
+
   isSubmitting.value = true;
 
   try {
@@ -1700,6 +1756,8 @@ const handlePaiement = async () => {
           montant: montantSaisi,
           mode_paiement: paiementForm.value.mode_paiement,
           reference: paiementForm.value.reference || null,
+          commentaire: paiementForm.value.commentaire || null,
+          frais_retrait: paiementForm.value.frais_retrait || 0,
           payable_id: paiementForm.value.payable_id,
           payable_type: paiementForm.value.payable_type,
         });
@@ -1765,6 +1823,7 @@ const handlePaiement = async () => {
           montant: montantAEcheance,
           mode_paiement: paiementForm.value.mode_paiement,
           reference: paiementForm.value.reference || null,
+          commentaire: paiementForm.value.commentaire || null,
           payable_id: echeance.id,
           payable_type: paiementStore.hasFraisNegocie ? "echeance" : "tranche",
         });
@@ -1826,6 +1885,7 @@ const handlePaiement = async () => {
 const resetForm = () => {
   paiementForm.value.montant = null;
   paiementForm.value.reference = "";
+  paiementForm.value.commentaire = "";
   paiementForm.value.payable_id = null;
   paiementForm.value.payable_type = null;
 };
@@ -1903,7 +1963,7 @@ const getModePaiementLabel = (mode) => {
     especes: "Espèces",
     banque: "Banque",
     semoa: "SEMOA",
-    caisse: "Caisse",
+    caisse: "Espèces",
     carte: "Carte",
     virement: "Virement",
     cheque: "Chèque",

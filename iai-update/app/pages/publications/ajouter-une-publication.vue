@@ -84,11 +84,10 @@
                   : 'border-gray-300 hover:border-gray-400',
             ]"
           >
-            <!-- Image prévisualisée -->
-            <div v-if="imagePreview" class="mb-4">
+            <div v-if="imagePreview" class="mb-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2">
               <img
                 :src="imagePreview"
-                class="max-h-48 mx-auto rounded-lg object-cover"
+                class="max-h-64 mx-auto rounded-lg object-contain shadow-sm"
                 alt="Image prévisualisée"
               />
             </div>

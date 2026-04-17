@@ -728,67 +728,35 @@
         </div>
 
         <div class="p-6 space-y-6">
+          <!-- Indicateur du niveau sélectionné et documents requis -->
+          <div v-if="selectedNiveauLabel" class="p-4 rounded-xl border-2 border-dashed" :class="niveauAlertClass">
+            <div class="flex items-start gap-3">
+              <svg class="w-6 h-6 text-indigo-600 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/></svg>
+              <div>
+                <p class="text-sm font-bold text-indigo-800 dark:text-indigo-300">Documents requis pour : {{ selectedNiveauLabel }}</p>
+                <ul class="mt-2 space-y-1 text-xs text-indigo-700 dark:text-indigo-400">
+                  <li v-for="doc in requiredDocsList" :key="doc" class="flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                    {{ doc }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div v-else class="p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+            <p class="text-sm text-amber-700 dark:text-amber-400 font-medium">⚠️ Veuillez d'abord sélectionner un niveau académique (Étape 2) pour afficher les documents requis.</p>
+          </div>
+
+          <!-- Documents communs à tous les niveaux -->
+          <h3 class="text-md font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <svg class="w-4 h-4 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/></svg>
+            Documents communs
+          </h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Lettre fichier -->
+            <!-- Photos d'identité -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Lettre de motivation (fichier)
-              </label>
-              <input
-                ref="lettreFile"
-                type="file"
-                @change="handleFileUpload('lettre_file', $event)"
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
-              />
-            </div>
-
-            <!-- Acte de naissance -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Acte de naissance
-              </label>
-              <input
-                ref="naissanceFile"
-                type="file"
-                @change="handleFileUpload('naissance_file', $event)"
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
-              />
-            </div>
-
-            <!-- Diplôme -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Diplôme
-              </label>
-              <input
-                ref="diplomeFile"
-                type="file"
-                @change="handleFileUpload('diplome_file', $event)"
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
-              />
-            </div>
-
-            <!-- Nationalité fichier -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Justificatif de nationalité
-              </label>
-              <input
-                ref="nationaliteFile"
-                type="file"
-                @change="handleFileUpload('nationalite_file', $event)"
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
-              />
-            </div>
-
-            <!-- Photo d'identité -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Photo d'identité
+                Photos d'identité (format passeport) <span class="text-red-500">*</span>
               </label>
               <input
                 ref="photoFile"
@@ -797,86 +765,160 @@
                 accept=".jpg,.jpeg,.png"
                 class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
               />
+              <p class="text-[10px] text-gray-400 mt-1">2 photos d'identité format passeport</p>
             </div>
 
-            <!-- Certificat médical -->
+            <!-- Pièce d'identité / Passeport -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Certificat médical
+                Copie pièce d'identité / Passeport <span class="text-red-500">*</span>
               </label>
               <input
-                ref="certificatFile"
+                ref="nationaliteFile"
                 type="file"
-                @change="handleFileUpload('certificat_medical_file', $event)"
-                accept=".pdf,.jpg,.jpeg,.png"
-                class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
-              />
-            </div>
-
-            <!-- Coupon -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Coupon de paiement
-              </label>
-              <input
-                ref="couponFile"
-                type="file"
-                @change="handleFileUpload('coupon_file', $event)"
+                @change="handleFileUpload('nationalite_file', $event)"
                 accept=".pdf,.jpg,.jpeg,.png"
                 class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
               />
             </div>
           </div>
 
-          <!-- Bulletins de lycée -->
-          <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-            <h3 class="text-md font-medium text-gray-900 dark:text-white mb-4">Bulletins de lycée</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div v-for="niveau in ['seconde', 'premiere', 'terminale']" :key="niveau">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 capitalize">
-                  Bulletins {{ niveau }}
-                </label>
-                <input
-                  :ref="'bulletins_' + niveau"
-                  type="file"
-                  @change="handleMultipleFiles('bulletins_' + niveau, $event)"
-                  multiple
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Relevés BAC -->
-          <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-            <h3 class="text-md font-medium text-gray-900 dark:text-white mb-4">Relevés BAC</h3>
+          <!-- Documents spécifiques Licence 1 -->
+          <template v-if="isLicence1">
+            <h3 class="text-md font-semibold text-gray-900 dark:text-white flex items-center gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg>
+              Documents Licence 1
+            </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Relevé BAC 1
+                  Copie légalisée attestation BAC <span class="text-red-500">*</span>
                 </label>
-                <input
-                  ref="releveBac1"
-                  type="file"
-                  @change="handleMultipleFiles('releve_bac1', $event)"
-                  multiple
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
-                />
+                <input ref="diplomeFile" type="file" @change="handleFileUpload('diplome_file', $event)" accept=".pdf,.jpg,.jpeg,.png"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Relevé BAC 2
+                  Copie légalisée relevé de BAC <span class="text-red-500">*</span>
                 </label>
-                <input
-                  ref="releveBac2"
-                  type="file"
-                  @change="handleMultipleFiles('releve_bac2', $event)"
-                  multiple
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
-                />
+                <input ref="releveBac1" type="file" @change="handleMultipleFiles('releve_bac1', $event)" accept=".pdf,.jpg,.jpeg,.png"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
+              </div>
+            </div>
+          </template>
+
+          <!-- Documents spécifiques Licence 2 -->
+          <template v-if="isLicence2">
+            <h3 class="text-md font-semibold text-gray-900 dark:text-white flex items-center gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg>
+              Documents Licence 2
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Copie légalisée attestation BAC <span class="text-red-500">*</span>
+                </label>
+                <input ref="diplomeFile" type="file" @change="handleFileUpload('diplome_file', $event)" accept=".pdf,.jpg,.jpeg,.png"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Copie légalisée relevé de BAC <span class="text-red-500">*</span>
+                </label>
+                <input ref="releveBac1" type="file" @change="handleMultipleFiles('releve_bac1', $event)" accept=".pdf,.jpg,.jpeg,.png"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Copie légalisée du relevé de la 1ère année <span class="text-red-500">*</span>
+                </label>
+                <input ref="releveBac2" type="file" @change="handleMultipleFiles('releve_bac2', $event)" accept=".pdf,.jpg,.jpeg,.png"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
+              </div>
+            </div>
+          </template>
+
+          <!-- Documents spécifiques Licence 3 -->
+          <template v-if="isLicence3">
+            <h3 class="text-md font-semibold text-gray-900 dark:text-white flex items-center gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg>
+              Documents Licence 3
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Copie légalisée attestation BAC ou BTS <span class="text-red-500">*</span>
+                </label>
+                <input ref="diplomeFile" type="file" @change="handleFileUpload('diplome_file', $event)" accept=".pdf,.jpg,.jpeg,.png"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Copie légalisée relevé BAC ou BTS <span class="text-red-500">*</span>
+                </label>
+                <input ref="releveBac1" type="file" @change="handleMultipleFiles('releve_bac1', $event)" accept=".pdf,.jpg,.jpeg,.png"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Copie légalisée du relevé de la 1ère et 2ème année <span class="text-red-500">*</span>
+                </label>
+                <input ref="releveBac2" type="file" @change="handleMultipleFiles('releve_bac2', $event)" multiple accept=".pdf,.jpg,.jpeg,.png"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
+              </div>
+            </div>
+          </template>
+
+          <!-- Documents spécifiques Master & Executive Master -->
+          <template v-if="isMaster">
+            <h3 class="text-md font-semibold text-gray-900 dark:text-white flex items-center gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <svg class="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg>
+              Documents Master & Executive Master
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Copie légalisée du dernier diplôme universitaire <span class="text-red-500">*</span>
+                </label>
+                <input ref="diplomeFile" type="file" @change="handleFileUpload('diplome_file', $event)" accept=".pdf,.jpg,.jpeg,.png"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Curriculum Vitæ (CV) à jour <span class="text-red-500">*</span>
+                </label>
+                <input ref="cvFile" type="file" @change="handleFileUpload('cv_file', $event)" accept=".pdf,.doc,.docx"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
+              </div>
+            </div>
+          </template>
+
+          <!-- Documents optionnels supplémentaires -->
+          <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <h3 class="text-md font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
+              <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/></svg>
+              Documents supplémentaires (optionnels)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Lettre de motivation (fichier)</label>
+                <input ref="lettreFile" type="file" @change="handleFileUpload('lettre_file', $event)" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Acte de naissance</label>
+                <input ref="naissanceFile" type="file" @change="handleFileUpload('naissance_file', $event)" accept=".pdf,.jpg,.jpeg,.png"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Certificat médical</label>
+                <input ref="certificatFile" type="file" @change="handleFileUpload('certificat_medical_file', $event)" accept=".pdf,.jpg,.jpeg,.png"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Coupon de paiement</label>
+                <input ref="couponFile" type="file" @change="handleFileUpload('coupon_file', $event)" accept=".pdf,.jpg,.jpeg,.png"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
               </div>
             </div>
           </div>
@@ -993,6 +1035,7 @@ const files = reactive({
   photo_identite_file: null,
   certificat_medical_file: null,
   coupon_file: null,
+  cv_file: null,
   bulletins_seconde: [],
   bulletins_premiere: [],
   bulletins_terminale: [],
@@ -1008,6 +1051,7 @@ const nationaliteFile = ref(null)
 const photoFile = ref(null)
 const certificatFile = ref(null)
 const couponFile = ref(null)
+const cvFile = ref(null)
 const bulletinsSeconde = ref(null)
 const bulletinsPremiere = ref(null)
 const bulletinsTerminale = ref(null)
@@ -1026,6 +1070,58 @@ const etapes = [
 // Progression
 const progression = computed(() => {
   return ((etapeActive.value + 1) / etapes.length) * 100
+})
+
+// ===== Détection du niveau sélectionné pour les documents requis =====
+const selectedNiveauObj = computed(() => {
+  if (!formData.niveau_id) return null
+  return niveaux.value.find(n => n.id == formData.niveau_id)
+})
+
+const selectedNiveauLabel = computed(() => {
+  if (!selectedNiveauObj.value) return ''
+  return selectedNiveauObj.value.nom || selectedNiveauObj.value.libelle || ''
+})
+
+const niveauName = computed(() => (selectedNiveauLabel.value || '').toLowerCase())
+
+const isLicence1 = computed(() => niveauName.value.includes('licence 1') || niveauName.value === 'l1')
+const isLicence2 = computed(() => niveauName.value.includes('licence 2') || niveauName.value === 'l2')
+const isLicence3 = computed(() => niveauName.value.includes('licence 3') || niveauName.value === 'l3')
+const isMaster = computed(() => niveauName.value.includes('master') || niveauName.value.includes('executive'))
+
+const niveauAlertClass = computed(() => 'border-indigo-300 dark:border-indigo-700 bg-indigo-50 dark:bg-indigo-900/20')
+
+const requiredDocsList = computed(() => {
+  const common = [
+    'Deux (02) photos d\'identité (Format passeport)',
+    'Une (01) copie de votre pièce nationale d\'identité ou passeport',
+  ]
+  if (isMaster.value) {
+    return [...common,
+      'Une (01) copie légalisée de votre dernier diplôme universitaire',
+      'Un curriculum vitæ (CV) à jour',
+    ]
+  }
+  if (isLicence3.value) {
+    return [...common,
+      'Une (01) copie légalisée de l\'attestation de BAC ou BTS',
+      'Une (01) copie légalisée du relevé de BAC ou BTS',
+      'Une (01) copie légalisée du relevé de la 1ère et 2ème année',
+    ]
+  }
+  if (isLicence2.value) {
+    return [...common,
+      'Une (01) copie légalisée de l\'attestation de BAC',
+      'Une (01) copie légalisée du relevé de BAC',
+      'Une (01) copie légalisée du relevé de la 1ère année',
+    ]
+  }
+  // Licence 1 par défaut
+  return [...common,
+    'Une (01) copie légalisée de l\'attestation de BAC',
+    'Une (01) copie légalisée du relevé de BAC',
+  ]
 })
 
 // Headers d'authentification
@@ -1082,7 +1178,7 @@ const soumettreFormulaire = async () => {
     const fileFields = [
       'lettre_file', 'naissance_file', 'diplome_file', 
       'nationalite_file', 'photo_identite_file', 
-      'certificat_medical_file', 'coupon_file'
+      'certificat_medical_file', 'coupon_file', 'cv_file'
     ]
     
     fileFields.forEach(field => {

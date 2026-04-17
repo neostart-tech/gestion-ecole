@@ -930,7 +930,6 @@ const calendarOptions = computed<CalendarOptions>(() => ({
   },
 
   // Affichage du jour actuel
-  nowIndicator: true,
 
   // Gestion de la hauteur
   contentHeight: "auto",

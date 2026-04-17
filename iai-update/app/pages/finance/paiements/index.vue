@@ -64,7 +64,7 @@
               <div>
                 <label class="block mb-1">Mode de paiement</label>
                 <select v-model="form.mode" class="w-full border rounded px-3 py-2">
-                  <option value="caisse">À la caisse</option>
+                  <option value="especes">Espèces</option>
                   <option value="banque">Banque</option>
                 </select>
               </div>
@@ -113,14 +113,14 @@ const etudiants = ref([
 
 // Paiements par défaut (simulation)
 const paiements = ref([
-  { id: 1, etudiant: "Alice", mode: "caisse", banque: "", numero_recu: "", date_paiement: "" },
+  { id: 1, etudiant: "Alice", mode: "especes", banque: "", numero_recu: "", date_paiement: "" },
   { id: 2, etudiant: "Bob", mode: "banque", banque: "UBA", numero_recu: "12345", date_paiement: "2026-02-19" },
 ]);
 
 const searchQuery = ref("");
 const showModal = ref(false);
 const modalTitle = ref("Ajouter un paiement");
-const form = ref({ id: null, etudiant: "", mode: "caisse", banque: "", numero_recu: "", date_paiement: "" });
+const form = ref({ id: null, etudiant: "", mode: "especes", banque: "", numero_recu: "", date_paiement: "" });
 
 const columns = [
   { field: "etudiant", title: "Étudiant", visible: true },
@@ -133,7 +133,7 @@ const columns = [
 
 const openAddModal = () => {
   modalTitle.value = "Ajouter un paiement";
-  form.value = { id: null, etudiant: "", mode: "caisse", banque: "", numero_recu: "", date_paiement: "" };
+  form.value = { id: null, etudiant: "", mode: "especes", banque: "", numero_recu: "", date_paiement: "" };
   showModal.value = true;
 };
 

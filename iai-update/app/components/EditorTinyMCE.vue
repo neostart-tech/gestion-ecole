@@ -1,10 +1,10 @@
 <template>
   <div class="tinymce-editor">
     <Editor
+      :api-key="TINYMCE_API_KEY"
       v-model="content"
       :init="initOptions"
       :disabled="disabled"
-      @input="$emit('update:modelValue', $event)"
       @onInit="handleInit"
     />
   </div>
@@ -38,6 +38,10 @@ const TINYMCE_API_KEY = 'ktf8z0z55enm2wd9xyeoo6qzzoy7w9b629e51wii9y8lw4dx'
 
 watch(() => props.modelValue, (newValue) => {
   content.value = newValue
+})
+
+watch(content, (newValue) => {
+  emit('update:modelValue', newValue)
 })
 
 const initOptions = ref({

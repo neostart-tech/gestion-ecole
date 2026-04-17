@@ -1,15 +1,36 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800 p-3 sm:p-4 md:p-6 lg:p-8 transition-colors">
     
-    <div v-if="isPageLoading" class="fixed inset-0 bg-white dark:bg-gray-900 bg-opacity-90 dark:bg-opacity-90 z-50 flex items-center justify-center">
-      <div class="text-center">
-        <div class="w-20 h-20 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p class="text-gray-600 dark:text-gray-400">Chargement de l'examen...</p>
+    <!-- ========== LOADING SKELETON ========== -->
+    <div v-if="isPageLoading" class="animate-pulse space-y-8">
+      <!-- Header Skeleton -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="space-y-3">
+          <div class="h-10 w-64 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+          <div class="h-4 w-96 bg-gray-100 dark:bg-gray-800 rounded"></div>
+        </div>
+        <div class="h-16 w-48 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700"></div>
+      </div>
+
+      <!-- Progress Bar Skeleton -->
+      <div class="h-20 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4">
+        <div class="h-4 w-48 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+        <div class="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full"></div>
+      </div>
+
+      <!-- Main Content Skeleton -->
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Sidebar Skeleton -->
+        <div class="lg:col-span-1 h-[500px] bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700"></div>
+        <!-- Question Skeleton -->
+        <div class="lg:col-span-3 space-y-6">
+          <div v-for="i in 2" :key="i" class="h-96 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700"></div>
+        </div>
       </div>
     </div>
 
     <template v-else>
-      <div v-if="examStatus === 'termine'" class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
+      <div v-if="canSeeCorrection" class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
         <div class="flex items-center gap-3">
           <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
             <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -18,7 +39,21 @@
           </div>
           <div>
             <h3 class="font-semibold text-red-800 dark:text-red-300">Examen terminé</h3>
-            <p class="text-sm text-red-600 dark:text-red-400">Cet examen a pris fin le {{ formatDate(examStore.currentEvaluation?.fin) }}. Vous êtes en mode consultation.</p>
+            <p class="text-sm text-red-600 dark:text-red-400">Cet examen a pris fin le {{ formatDateTime(examStore.currentEvaluation && examStore.currentEvaluation.fin) }}. Vous êtes en mode consultation et pouvez voir la correction.</p>
+          </div>
+        </div>
+      </div>
+
+      <div v-else-if="hasSubmitted" class="mb-6 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-full">
+            <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-semibold text-emerald-800 dark:text-emerald-300">Copie soumise avec succès</h3>
+            <p class="text-sm text-emerald-600 dark:text-emerald-400">Votre participation a été enregistrée. Les résultats seront disponibles une fois l'examen officiellement terminé ({{ formatDateTime(examStore.currentEvaluation && examStore.currentEvaluation.fin) }}).</p>
           </div>
         </div>
       </div>
@@ -79,7 +114,7 @@
           </div>
         </div>
 
-        <div v-else-if="examStatus === 'termine'" class="flex items-center gap-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-3 border border-gray-100 dark:border-gray-700">
+        <div v-else-if="canSeeCorrection" class="flex items-center gap-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-3 border border-gray-100 dark:border-gray-700">
           <div class="text-center">
             <p class="text-xs text-gray-500 dark:text-gray-400">Note obtenue</p>
             <p class="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
@@ -90,7 +125,16 @@
           <div class="text-center">
             <p class="text-xs text-gray-500 dark:text-gray-400">Terminé le</p>
             <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-              {{ formatDate(examStore.currentEvaluation?.fin) }}
+              {{ formatDate(examStore.currentEvaluation && examStore.currentEvaluation.fin) }}
+            </p>
+          </div>
+        </div>
+
+        <div v-else-if="hasSubmitted" class="flex items-center gap-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-3 border border-gray-100 dark:border-gray-700">
+          <div class="text-center px-4">
+            <p class="text-xs text-gray-500 dark:text-gray-400">Statut</p>
+            <p class="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+              Copie Soumise
             </p>
           </div>
         </div>
@@ -115,6 +159,7 @@
       </div>
 
       <!-- ========== MESSAGE D'INFORMATION SI EXAMEN EN ATTENTE ========== -->
+
       <div v-if="examStatus === 'en_attente'" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-12 text-center">
         <svg class="w-20 h-20 mx-auto text-amber-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -123,7 +168,7 @@
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Examen à venir</h2>
         
         <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-          L'examen débutera automatiquement le {{ formatDate(examStore.currentEvaluation?.debut) }} à {{ formatTime(examStore.currentEvaluation?.debut) }}. 
+          L'examen débutera automatiquement le {{ formatDate(examStore.currentEvaluation && examStore.currentEvaluation.debut) }} à {{ formatTimeFromDate(examStore.currentEvaluation && examStore.currentEvaluation.debut) }}. 
           La page se rafraîchira automatiquement à ce moment.
         </p>
 
@@ -136,6 +181,75 @@
           </span>
         </div>
       </div>
+
+      <!-- ========== DIALOGUE ANTI-TRICHE ========== -->
+      <TransitionRoot appear :show="showCheatWarning" as="template">
+        <Dialog as="div" class="relative z-[100]" @close="showCheatWarning = false">
+          <TransitionChild
+            as="template"
+            enter="duration-300 ease-out"
+            enter-from="opacity-0"
+            enter-to="opacity-100"
+            leave="duration-200 ease-in"
+            leave-from="opacity-100"
+            leave-to="opacity-0"
+          >
+            <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+          </TransitionChild>
+
+          <div class="fixed inset-0 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4 text-center">
+              <TransitionChild
+                as="template"
+                enter="duration-300 ease-out"
+                enter-from="opacity-0 scale-95"
+                enter-to="opacity-100 scale-100"
+                leave="duration-200 ease-in"
+                leave-from="opacity-100 scale-100"
+                leave-to="opacity-0 scale-95"
+              >
+                <DialogPanel class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all border-2 border-red-500">
+                  <div class="flex items-center gap-4 text-red-600 mb-4">
+                    <div class="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
+                      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                    </div>
+                    <DialogTitle as="h3" class="text-xl font-bold leading-6">
+                      Avertissement de sécurité
+                    </DialogTitle>
+                  </div>
+
+                  <div class="mt-2 space-y-3">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                      Une activité suspecte a été détectée durant l'examen :
+                    </p>
+                    <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-800">
+                      <p class="text-sm font-semibold text-red-700 dark:text-red-300">{{ cheatReason }}</p>
+                    </div>
+                    <p class="text-xs text-gray-500 italic">
+                      Note : Quitter l'onglet ou la fenêtre de l'examen est strictement interdit. Vos actions sont enregistrées et peuvent entraîner une annulation de votre copie.
+                    </p>
+                  </div>
+
+                  <div class="mt-6 flex justify-between items-center">
+                    <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Avertissement : <span class="text-red-600">{{ cheatWarnings }}</span> / {{ maxWarnings }}
+                    </div>
+                    <button
+                      type="button"
+                      class="inline-flex justify-center rounded-lg border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 transition-colors"
+                      @click="showCheatWarning = false"
+                    >
+                      J'ai compris
+                    </button>
+                  </div>
+                </DialogPanel>
+              </TransitionChild>
+            </div>
+          </div>
+        </Dialog>
+      </TransitionRoot>
 
       <template v-if="examStatus === 'en_cours' || examStatus === 'termine'">
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -195,7 +309,7 @@
                         {{ getQuestionStatus(q).icon }}
                       </span>
                       <span class="text-xs truncate flex-1">{{ truncateText(stripHtml(q.content), 25) }}</span>
-                      <span class="text-[10px] text-gray-500 dark:text-gray-400">{{ q.points }} pts</span>
+                      <span class="text-[10px] text-gray-500 dark:text-gray-400">{{ getQuestionTotalPoints(q) }} pts</span>
                     </button>
                   </div>
                 </div>
@@ -222,8 +336,8 @@
                 </p>
               </div>
 
-              <!-- Résumé pour examen terminé -->
-              <div v-else-if="examStatus === 'termine'" class="p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30">
+              <!-- Résumé pour examen terminé avec correction -->
+              <div v-else-if="canSeeCorrection" class="p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30">
                 <div class="text-center">
                   <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Note finale</p>
                   <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">
@@ -232,6 +346,17 @@
                   <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
                     {{ getStudentCorrectAnswers() }} réponses correctes sur {{ examStore.totalQuestions }}
                   </p>
+                </div>
+              </div>
+
+              <!-- État soumis avant correction -->
+              <div v-else-if="hasSubmitted" class="p-4 border-t border-gray-200 dark:border-gray-700 bg-emerald-50 dark:bg-emerald-900/20 text-center">
+                <div class="flex flex-col items-center gap-2">
+                  <svg class="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p class="text-sm font-bold text-emerald-700 dark:text-emerald-300 uppercase">Copie Soumise</p>
+                  <p class="text-[10px] text-emerald-600 dark:text-emerald-400 italic">En attente de la clôture de l'examen pour les résultats</p>
                 </div>
               </div>
             </div>
@@ -280,13 +405,13 @@
                       <span class="text-xs px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full">
                         {{ getTypeLabel(question.type) }}
                       </span>
-                      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ question.points }} pts</span>
+                      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ getQuestionTotalPoints(question) }} pts</span>
                       
                       <!-- Badge pour examen terminé (note obtenue) -->
-                      <span v-if="examStatus === 'termine'" 
+                      <span v-if="canSeeCorrection" 
                             class="text-xs px-2 py-1 rounded-full"
                             :class="getQuestionResultClass(question.id)">
-                        {{ getQuestionPoints(question.id) }}/{{ question.points }} pts
+                        {{ getQuestionPoints(question.id) }}/{{ getQuestionTotalPoints(question) }} pts
                       </span>
                     </div>
                     <div class="flex items-center gap-2">
@@ -336,18 +461,35 @@
                               :checked="isOptionSelected(question.id, option.id)"
                               @change="selectOption(question.id, option.id)"
                               class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
-                              :disabled="examStatus !== 'en_cours' || examStore.isSubmitting || isSubmitting"
+                              :disabled="examStatus !== 'en_cours' || hasSubmitted || examStore.isSubmitting || isSubmitting"
                             />
                             <span class="text-sm text-gray-700 dark:text-gray-300">{{ option.text }}</span>
                             
                             <!-- Indicateurs pour examen terminé -->
-                            <span v-if="examStatus === 'termine' && option.is_correct" class="ml-2 text-green-600">
-                              ✓ (bonne réponse)
-                            </span>
-                            <span v-else-if="examStatus === 'termine' && isOptionSelected(question.id, option.id) && !option.is_correct" class="ml-2 text-red-600">
-                              ✗ (votre choix)
-                            </span>
+                            <template v-if="canSeeCorrection">
+                              <span v-if="option.is_correct" class="ml-2 text-green-600">
+                                ✓ (bonne réponse)
+                              </span>
+                              <span v-else-if="isOptionSelected(question.id, option.id) && !option.is_correct" class="ml-2 text-red-600">
+                                ✗ (votre choix)
+                              </span>
+                            </template>
                           </label>
+                        </div>
+
+                        <!-- Justification -->
+                        <div v-if="question.config?.requireJustification" class="mt-3">
+                          <label class="block text-xs font-medium text-gray-500 mb-1">
+                            Justification <span class="text-red-500">*</span>
+                          </label>
+                          <textarea
+                            v-model="justifications[question.id]"
+                            @input="debouncedSave(question)"
+                            rows="2"
+                            class="w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
+                            placeholder="Justifiez votre réponse..."
+                            :disabled="examStatus !== 'en_cours' || hasSubmitted || examStore.isSubmitting || isSubmitting"
+                          ></textarea>
                         </div>
                       </div>
 
@@ -366,18 +508,35 @@
                               :checked="isOptionSelected(question.id, option.id)"
                               @change="toggleOption(question.id, option.id)"
                               class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                              :disabled="examStatus !== 'en_cours' || examStore.isSubmitting || isSubmitting"
+                              :disabled="examStatus !== 'en_cours' || hasSubmitted || examStore.isSubmitting || isSubmitting"
                             />
                             <span class="text-sm text-gray-700 dark:text-gray-300">{{ option.text }}</span>
                             
                             <!-- Indicateurs pour examen terminé -->
-                            <span v-if="examStatus === 'termine' && option.is_correct" class="ml-2 text-green-600">
-                              ✓ (bonne réponse)
-                            </span>
-                            <span v-else-if="examStatus === 'termine' && isOptionSelected(question.id, option.id) && !option.is_correct" class="ml-2 text-red-600">
-                              ✗ (votre choix)
-                            </span>
+                            <template v-if="canSeeCorrection">
+                              <span v-if="option.is_correct" class="ml-2 text-green-600">
+                                ✓ (bonne réponse)
+                              </span>
+                              <span v-else-if="isOptionSelected(question.id, option.id) && !option.is_correct" class="ml-2 text-red-600">
+                                ✗ (votre choix)
+                              </span>
+                            </template>
                           </label>
+                        </div>
+
+                        <!-- Justification -->
+                        <div v-if="question.config?.requireJustification" class="mt-3">
+                          <label class="block text-xs font-medium text-gray-500 mb-1">
+                            Justification <span class="text-red-500">*</span>
+                          </label>
+                          <textarea
+                            v-model="justifications[question.id]"
+                            @input="debouncedSave(question)"
+                            rows="2"
+                            class="w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
+                            placeholder="Justifiez votre réponse..."
+                            :disabled="examStatus !== 'en_cours' || hasSubmitted || examStore.isSubmitting || isSubmitting"
+                          ></textarea>
                         </div>
                       </div>
 
@@ -385,8 +544,8 @@
                       <div v-else-if="question.type === 'vrai_faux'" class="flex gap-4">
                         <div class="flex items-center p-2 rounded-lg"
                              :class="{
-                               'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800': examStatus === 'termine' && isCorrectAnswer(question.id, 'vrai'),
-                               'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800': examStatus === 'termine' && getResponse(question.id) === 'vrai' && !isCorrectAnswer(question.id, 'vrai')
+                               'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800': canSeeCorrection && isCorrectAnswer(question.id, 'vrai'),
+                               'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800': canSeeCorrection && getResponse(question.id) === 'vrai' && !isCorrectAnswer(question.id, 'vrai')
                              }">
                           <label class="flex items-center gap-2 cursor-pointer">
                             <input
@@ -396,15 +555,15 @@
                               :checked="getResponse(question.id) === 'vrai'"
                               @change="setResponse(question.id, 'vrai')"
                               class="w-4 h-4 text-indigo-600"
-                              :disabled="examStatus !== 'en_cours' || examStore.isSubmitting || isSubmitting"
+                              :disabled="examStatus !== 'en_cours' || hasSubmitted || examStore.isSubmitting || isSubmitting"
                             />
                             <span class="text-sm text-gray-700 dark:text-gray-300">Vrai</span>
                           </label>
                         </div>
                         <div class="flex items-center p-2 rounded-lg"
                              :class="{
-                               'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800': examStatus === 'termine' && isCorrectAnswer(question.id, 'faux'),
-                               'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800': examStatus === 'termine' && getResponse(question.id) === 'faux' && !isCorrectAnswer(question.id, 'faux')
+                               'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800': canSeeCorrection && isCorrectAnswer(question.id, 'faux'),
+                               'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800': canSeeCorrection && getResponse(question.id) === 'faux' && !isCorrectAnswer(question.id, 'faux')
                              }">
                           <label class="flex items-center gap-2 cursor-pointer">
                             <input
@@ -414,40 +573,62 @@
                               :checked="getResponse(question.id) === 'faux'"
                               @change="setResponse(question.id, 'faux')"
                               class="w-4 h-4 text-indigo-600"
-                              :disabled="examStatus !== 'en_cours' || examStore.isSubmitting || isSubmitting"
+                              :disabled="examStatus !== 'en_cours' || hasSubmitted || examStore.isSubmitting || isSubmitting"
                             />
                             <span class="text-sm text-gray-700 dark:text-gray-300">Faux</span>
                           </label>
                         </div>
+
+                        <!-- Justification -->
+                        <div v-if="question.config?.requireJustification" class="mt-3 w-full">
+                          <label class="block text-xs font-medium text-gray-500 mb-1">
+                            Justification <span class="text-red-500">*</span>
+                          </label>
+                          <textarea
+                            v-model="justifications[question.id]"
+                            @input="debouncedSave(question)"
+                            rows="2"
+                            class="w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
+                            placeholder="Justifiez votre réponse..."
+                            :disabled="examStatus !== 'en_cours' || hasSubmitted || examStore.isSubmitting || isSubmitting"
+                          ></textarea>
+                        </div>
                       </div>
 
                       <!-- Texte court -->
-                      <div v-else-if="question.type === 'texte_court'">
-                        <div class="relative">
-                          <input
-                            type="text"
+                      <div v-else-if="question.type === 'texte_court'" class="space-y-2">
+                        <div class="relative group">
+                          <!-- Mode examen en cours : Textarea auto-extensible ou multi-ligne -->
+                          <textarea
+                            v-if="!canSeeCorrection"
                             v-model="responses[question.id]"
                             @input="debouncedSave(question)"
                             placeholder="Votre réponse..."
-                            class="w-full px-4 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
-                            :disabled="examStatus !== 'en_cours' || examStore.isSubmitting || isSubmitting"
-                            :class="{
-                              'border-green-500 bg-green-50 dark:bg-green-900/20': examStatus === 'termine' && isCorrectAnswer(question.id, responses[question.id]),
-                              'border-red-500 bg-red-50 dark:bg-red-900/20': examStatus === 'termine' && responses[question.id] && !isCorrectAnswer(question.id, responses[question.id])
-                            }"
-                          />
-                          <!-- Indicateur de correction pour examen terminé -->
-                          <div v-if="examStatus === 'termine' && responses[question.id]" class="absolute right-2 top-1/2 -translate-y-1/2">
-                            <span v-if="isCorrectAnswer(question.id, responses[question.id])" class="text-green-600 text-xs font-medium">
-                              ✓ Correct
-                            </span>
-                            <span v-else class="text-red-600 text-xs font-medium">
-                              ✗ Incorrect
-                            </span>
+                            rows="2"
+                            class="w-full px-4 py-3 text-sm rounded-xl border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none resize-none"
+                            :disabled="examStatus !== 'en_cours' || hasSubmitted || examStore.isSubmitting || isSubmitting"
+                          ></textarea>
+
+                          <!-- Mode correction : Div neutre pour texte court -->
+                          <div
+                            v-else
+                            class="w-full px-4 py-3 text-sm rounded-xl border border-gray-200 bg-gray-50 dark:bg-gray-800/50 transition-all"
+                          >
+                            <div class="flex justify-between items-start gap-4">
+                              <div class="whitespace-pre-wrap flex-grow text-gray-700 dark:text-gray-200">
+                                {{ responses[question.id] || '(Aucune réponse)' }}
+                              </div>
+                              <div v-if="responses[question.id]" class="shrink-0 pt-0.5">
+                                <span class="flex items-center gap-1 text-indigo-600 font-bold uppercase text-[10px] tracking-wider">
+                                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4" /></svg>
+                                  Réponse soumise
+                                </span>
+                              </div>
+                            </div>
                           </div>
                         </div>
                         <!-- Réponse attendue pour examen terminé -->
-                        <div v-if="examStatus === 'termine' && question.config?.expected_answer" class="mt-1 text-xs text-gray-500">
+                        <div v-if="canSeeCorrection && question.config?.expected_answer" class="mt-1 text-xs text-gray-500">
                           Réponse attendue: {{ question.config.expected_answer }}
                         </div>
                       </div>
@@ -460,6 +641,23 @@
                           :init="{
                             height: 300,
                             menubar: false,
+                            paste_as_text: false,
+                            paste_block_drop: true,
+                            paste_data_images: false,
+                            setup: function(editor) {
+                              editor.on('paste', function(e) {
+                                e.preventDefault();
+                                showToastMessage('Collage interdit dans l\'éditeur', 'error');
+                              });
+                              editor.on('copy', function(e) {
+                                e.preventDefault();
+                                showToastMessage('Copie interdite dans l\'éditeur', 'error');
+                              });
+                              editor.on('cut', function(e) {
+                                e.preventDefault();
+                                showToastMessage('Coupage interdit dans l\'éditeur', 'error');
+                              });
+                            },
                             plugins: [
                               'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
                               'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
@@ -471,7 +669,7 @@
                               'removeformat | help',
                             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                           }"
-                          :disabled="examStatus !== 'en_cours' || examStore.isSubmitting || isSubmitting"
+                          :disabled="examStatus !== 'en_cours' || hasSubmitted || examStore.isSubmitting || isSubmitting"
                           @input="debouncedSave(question)"
                         />
                         <div class="flex justify-end mt-1">
@@ -499,7 +697,7 @@
                               <thead>
                                 <tr class="bg-gray-100 dark:bg-gray-700">
                                   <th class="border p-3 text-left font-medium">#</th>
-                                  <th v-for="(col, colIdx) in question.complex_data.configuration?.colonnes || []" 
+                                  <th v-for="(col, colIdx) in (question.complex_data.configuration && question.complex_data.configuration.colonnes) || []" 
                                       :key="colIdx" 
                                       class="border p-3 text-left font-medium">
                                     {{ col.titre || `Colonne ${String.fromCharCode(65 + colIdx)}` }}
@@ -509,7 +707,7 @@
                               <tbody>
                                 <tr v-for="(row, rowIdx) in question.complex_data.data || []" :key="rowIdx">
                                   <td class="border p-3 text-center bg-gray-50 dark:bg-gray-800 font-medium">{{ rowIdx + 1 }}</td>
-                                  <td v-for="(col, colIdx) in question.complex_data.configuration?.colonnes || []" 
+                                  <td v-for="(col, colIdx) in (question.complex_data.configuration && question.complex_data.configuration.colonnes) || []" 
                                       :key="colIdx" 
                                       class="border p-3">
                                     
@@ -531,7 +729,7 @@
                                               v-model="tableResponses[`${question.id}_${rowIdx}_${colIdx}`]"
                                               @change="saveTableResponse(question, rowIdx, colIdx)"
                                               class="w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
-                                              :disabled="examStatus !== 'en_cours'"
+                                              :disabled="examStatus !== 'en_cours' || hasSubmitted"
                                             >
                                               <option value="">Sélectionnez...</option>
                                               <option v-for="(opt, optIdx) in getCellQuestion(question, rowIdx, colIdx).options || []" 
@@ -552,7 +750,7 @@
                                                   :checked="isTableOptionSelected(question, rowIdx, colIdx, opt.text)"
                                                   @change="toggleTableOption(question, rowIdx, colIdx, opt.text)"
                                                   class="w-4 h-4 text-indigo-600 rounded"
-                                                  :disabled="examStatus !== 'en_cours'"
+                                                  :disabled="examStatus !== 'en_cours' || hasSubmitted"
                                                 />
                                                 <span class="text-sm">{{ opt.text }}</span>
                                               </label>
@@ -566,7 +764,7 @@
                                               v-model="tableResponses[`${question.id}_${rowIdx}_${colIdx}`]"
                                               @input="debouncedSaveTable(question, rowIdx, colIdx)"
                                               class="w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
-                                              :disabled="examStatus !== 'en_cours'"
+                                              :disabled="examStatus !== 'en_cours' || hasSubmitted"
                                               placeholder="Saisissez votre réponse..."
                                             />
                                           </template>
@@ -578,7 +776,7 @@
                                               @input="debouncedSaveTable(question, rowIdx, colIdx)"
                                               rows="3"
                                               class="w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
-                                              :disabled="examStatus !== 'en_cours'"
+                                              :disabled="examStatus !== 'en_cours' || hasSubmitted"
                                               placeholder="Saisissez votre réponse..."
                                             ></textarea>
                                           </template>
@@ -590,14 +788,14 @@
                                               v-model="tableResponses[`${question.id}_${rowIdx}_${colIdx}`]"
                                               @input="debouncedSaveTable(question, rowIdx, colIdx)"
                                               class="w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
-                                              :disabled="examStatus !== 'en_cours'"
+                                              :disabled="examStatus !== 'en_cours' || hasSubmitted"
                                               placeholder="Saisissez votre réponse..."
                                             />
                                           </template>
                                         </template>
                                         
                                         <!-- Points de la cellule -->
-                                        <div v-if="getCellQuestion(question, rowIdx, colIdx)?.points" class="text-xs text-gray-500 text-right">
+                                        <div v-if="getCellQuestion(question, rowIdx, colIdx) && getCellQuestion(question, rowIdx, colIdx).points" class="text-xs text-gray-500 text-right">
                                           {{ getCellQuestion(question, rowIdx, colIdx).points }} pts
                                         </div>
                                       </div>
@@ -646,7 +844,7 @@
                                   @input="debouncedSaveMultiPart(question, partIdx)"
                                   rows="3"
                                   class="w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
-                                  :disabled="examStatus !== 'en_cours'"
+                                  :disabled="examStatus !== 'en_cours' || hasSubmitted"
                                   placeholder="Votre réponse..."
                                 ></textarea>
                               </template>
@@ -656,7 +854,7 @@
                                   v-model="multiPartResponses[`${question.id}_${partIdx}`]"
                                   @change="saveMultiPartResponse(question, partIdx)"
                                   class="w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
-                                  :disabled="examStatus !== 'en_cours'"
+                                  :disabled="examStatus !== 'en_cours' || hasSubmitted"
                                 >
                                   <option value="">Sélectionnez...</option>
                                   <option v-for="opt in part.options" :key="opt.id" :value="opt.id">
@@ -671,7 +869,7 @@
                                   v-model="multiPartResponses[`${question.id}_${partIdx}`]"
                                   @input="debouncedSaveMultiPart(question, partIdx)"
                                   class="w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
-                                  :disabled="examStatus !== 'en_cours'"
+                                  :disabled="examStatus !== 'en_cours' || hasSubmitted"
                                   placeholder="Votre réponse..."
                                 />
                               </template>
@@ -712,6 +910,23 @@
                               :init="{
                                 height: 300,
                                 menubar: false,
+                                paste_as_text: false,
+                                paste_block_drop: true,
+                                paste_data_images: false,
+                                setup: function(editor) {
+                                  editor.on('paste', function(e) {
+                                    e.preventDefault();
+                                    showToastMessage('Collage interdit dans l\'éditeur', 'error');
+                                  });
+                                  editor.on('copy', function(e) {
+                                    e.preventDefault();
+                                    showToastMessage('Copie interdite dans l\'éditeur', 'error');
+                                  });
+                                  editor.on('cut', function(e) {
+                                    e.preventDefault();
+                                    showToastMessage('Coupage interdit dans l\'éditeur', 'error');
+                                  });
+                                },
                                 plugins: [
                                   'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
                                   'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
@@ -723,7 +938,7 @@
                                   'removeformat | help',
                                 content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                               }"
-                              :disabled="examStatus !== 'en_cours' || examStore.isSubmitting || isSubmitting"
+                              :disabled="examStatus !== 'en_cours' || hasSubmitted || examStore.isSubmitting || isSubmitting"
                               @input="debouncedSave(question)"
                             />
                             
@@ -759,7 +974,7 @@
                                   :checked="getStructuredResponse(question.id, idx) === opt.nom"
                                   @change="setStructuredResponse(question, idx, opt.nom)"
                                   class="w-4 h-4 text-indigo-600"
-                                  :disabled="examStatus !== 'en_cours'"
+                                  :disabled="examStatus !== 'en_cours' || hasSubmitted"
                                 />
                                 <span class="text-sm font-medium" :style="{ color: opt.couleur }">{{ opt.nom }}</span>
                               </label>
@@ -777,7 +992,7 @@
                       <span v-else-if="savedStates[question.id]" class="text-green-600 dark:text-green-400">
                         ✓ Sauvegardé
                       </span>
-                      <span v-else-if="responses[question.id] || Object.keys(tableResponses).some(key => key.startsWith(question.id + '_')) || Object.keys(multiPartResponses).some(key => key.startsWith(question.id + '_')) || Object.keys(structuredResponses).some(key => key.startsWith(question.id + '_'))" class="text-gray-400">
+                      <span v-else-if="isAnyResponseProvided(question.id)" class="text-gray-400">
                         Non sauvegardé
                       </span>
                     </div>
@@ -793,10 +1008,11 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useExamStore } from '~~/stores/exam'
 import Editor from '@tinymce/tinymce-vue'
+import Swal from 'sweetalert2'
 
 const route = useRoute()
 const examStore = useExamStore()
@@ -809,9 +1025,10 @@ const isSubmitting = ref(false)
 const currentQuestionId = ref(null)
 const expandedParts = ref([])
 const responses = ref({}) // Réponses simples
+const justifications = ref({}) // Justifications
 const isSaving = ref({})
 const savedStates = ref({})
-const showSubmitModal = ref(false)
+const currentTime = ref(new Date())
 const showToast = ref(false)
 const toastMessage = ref('')
 const questionElements = ref({})
@@ -831,17 +1048,86 @@ let countdownInterval = null
 let examTimerInterval = null
 let autoSaveInterval = null
 
+// ========== ANTI-TRICHE ==========
+const cheatWarnings = ref(0)
+const maxWarnings = 3
+const showCheatWarning = ref(false)
+const cheatReason = ref('')
+
+const handleSecurityEvent = (reason) => {
+  if (examStatus.value !== 'en_cours' || isSubmitting.value) return
+  
+  cheatWarnings.value++
+  cheatReason.value = reason
+  showCheatWarning.value = true
+  
+  // Vibration si mobile
+  if ('vibrate' in navigator) navigator.vibrate([100, 50, 100])
+  
+  showToastMessage(`Attention : ${reason}`, 'error')
+  
+  if (cheatWarnings.value >= maxWarnings) {
+    // Force submit maybe?
+  }
+}
+
+const preventDefaults = (e) => {
+  if (examStatus.value === 'en_cours') {
+    e.preventDefault()
+    showToastMessage('Action interdite durant l\'examen (Droit d\'auteur/Sécurité)', 'error')
+    handleSecurityEvent('Tentative de copier-coller ou clic droit détectée')
+    return false
+  }
+}
+
+const setupSecurityListeners = () => {
+  if (examStatus.value === 'en_cours') {
+    console.log('[Security] Attaching anti-cheat listeners')
+    // Bloquer le copier-coller
+    document.addEventListener('copy', preventDefaults)
+    document.addEventListener('paste', preventDefaults)
+    document.addEventListener('cut', preventDefaults)
+    document.addEventListener('contextmenu', preventDefaults)
+    
+    // Détecter le changement d'onglet/fenêtre
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    
+    // Détecter la perte de focus
+    window.addEventListener('blur', handleBlur)
+  }
+}
+
+const handleVisibilityChange = () => {
+  if (document.visibilityState === 'hidden' && examStatus.value === 'en_cours') {
+    handleSecurityEvent('Changement d\'onglet détecté')
+  }
+}
+
+const handleBlur = () => {
+  if (examStatus.value === 'en_cours') {
+    handleSecurityEvent('Perte de focus navigateur (sortie de la fenêtre)')
+  }
+}
+
 // ========== STATUT DE L'EXAMEN ==========
 const examStatus = computed(() => {
-  if (!examStore.currentEvaluation) return 'chargement'
+  if (!examStore.currentEvaluation || isPageLoading.value) return 'chargement'
   
-  const now = new Date()
+  const now = currentTime.value
   const debut = new Date(examStore.currentEvaluation.debut)
   const fin = new Date(examStore.currentEvaluation.fin)
   
-  if (now > fin) return 'termine'
   if (now < debut) return 'en_attente'
+  if (now > fin) return 'termine'
   return 'en_cours'
+})
+
+const hasSubmitted = computed(() => {
+  return examStore.currentSession?.status === 'termine'
+})
+
+const canSeeCorrection = computed(() => {
+  return examStatus.value === 'termine'
 })
 
 // Récupérer l'utilisateur depuis localStorage
@@ -899,6 +1185,17 @@ const formatTime = (seconds) => {
   return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
 }
 
+const formatTimeFromDate = (dateString) => {
+  if (!dateString) return '--:--'
+  const date = new Date(dateString)
+  if (isNaN(date.getTime())) return '--:--'
+  return date.toLocaleTimeString('fr-FR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })
+}
+
 const formatCountdown = (seconds) => {
   if (seconds <= 0) return '00:00:00'
   const h = Math.floor(seconds / 3600)
@@ -915,6 +1212,18 @@ const formatDate = (dateString) => {
     month: '2-digit',
     year: 'numeric'
   })
+}
+
+const formatDateTime = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).replace(':', 'h')
 }
 
 const getTypeLabel = (type) => {
@@ -983,17 +1292,98 @@ const getQuestionStatus = (question) => {
   }
 }
 
+const isQuestionAnswered = (questionId) => {
+  // Vérifier réponses simples
+  const simpleResponse = responses.value[questionId]
+  if (simpleResponse !== null && simpleResponse !== undefined && simpleResponse !== '') {
+    if (Array.isArray(simpleResponse)) return simpleResponse.length > 0
+    return true
+  }
+  
+  // Vérifier tableaux (chercher n'importe quelle cellule pour cette question)
+  const hasTableData = Object.keys(tableResponses.value).some(key => key.startsWith(`${questionId}_`))
+  if (hasTableData) return true
+  
+  // Vérifier multi-parties
+  const hasMultiPartData = Object.keys(multiPartResponses.value).some(key => key.startsWith(`${questionId}_`))
+  if (hasMultiPartData) return true
+  
+  // Vérifier structuré
+  const hasStructuredData = Object.keys(structuredResponses.value).some(key => key.startsWith(`${questionId}_`))
+  if (hasStructuredData) return true
+  
+  return false
+}
+
+const isAnyResponseProvided = (questionId) => {
+  // Réponses simples
+  if (responses.value[questionId]) return true
+  
+  // Tableaux
+  if (Object.keys(tableResponses.value).some(k => k.startsWith(`${questionId}_`))) return true
+  
+  // Multi-parties
+  if (Object.keys(multiPartResponses.value).some(k => k.startsWith(`${questionId}_`))) return true
+  
+  // Structuré
+  if (Object.keys(structuredResponses.value).some(k => k.startsWith(`${questionId}_`))) return true
+  
+  return false
+}
+
 const isOptionSelected = (questionId, optionId) => {
   const response = responses.value[questionId]
   if (Array.isArray(response)) {
-    return response.includes(optionId)
+    return response.some(id => id == optionId)
   }
-  return response === optionId
+  return response == optionId
 }
 
 const wordCount = (text) => {
   if (!text) return 0
   return text.trim().split(/\s+/).length
+}
+
+const getStudentAnswerDisplay = (question) => {
+  if (question.type === 'complex_data') {
+    const cells = Object.keys(tableResponses.value).filter(key => key.startsWith(`${question.id}_`))
+    if (cells.length === 0) return 'Aucune réponse'
+    return `${cells.length} cellule(s) remplie(s)`
+  }
+  
+  if (question.type === 'multi_parts') {
+    const parts = Object.keys(multiPartResponses.value).filter(key => key.startsWith(`${question.id}_`))
+    if (parts.length === 0) return 'Aucune réponse'
+    return `${parts.length} partie(s) répondue(s)`
+  }
+  
+  if (question.type === 'structured_data') {
+    const items = Object.keys(structuredResponses.value).filter(key => key.startsWith(`${question.id}_`))
+    if (items.length === 0) return 'Aucune réponse'
+    return `${items.length} item(s) sélectionné(s)`
+  }
+  
+  const response = responses.value[question.id]
+  if (response === undefined || response === null || response === '') {
+    return 'Aucune réponse fournie'
+  }
+  
+  if (question.type === 'qcm_unique' || question.type === 'vrai_faux') {
+    const option = question.options?.find(o => o.id == response)
+    return option ? option.text : response
+  }
+  
+  if (question.type === 'qcm_multiple') {
+    if (!Array.isArray(response)) return response
+    const selected = question.options?.filter(o => response.includes(o.id))
+    return selected?.length ? selected.map(o => o.text).join(', ') : 'Aucune option sélectionnée'
+  }
+  
+  if (question.type === 'texte_long') {
+    return stripHtml(response).substring(0, 100) + (stripHtml(response).length > 100 ? '...' : '')
+  }
+  
+  return response
 }
 
 // ========== MÉTHODES POUR TABLEAUX DYNAMIQUES ==========
@@ -1221,9 +1611,15 @@ const saveCurrentQuestion = async (question) => {
     let reponseData
     
     if (question.type === 'qcm_unique' || question.type === 'vrai_faux') {
-      reponseData = { option_id: responses.value[question.id] }
+      reponseData = { 
+        option_id: responses.value[question.id],
+        justification: justifications.value[question.id] || ''
+      }
     } else if (question.type === 'qcm_multiple') {
-      reponseData = { option_ids: responses.value[question.id] || [] }
+      reponseData = { 
+        option_ids: responses.value[question.id] || [],
+        justification: justifications.value[question.id] || ''
+      }
     } else {
       reponseData = { text: responses.value[question.id] || '' }
     }
@@ -1284,25 +1680,81 @@ const showToastMessage = (message, type = 'success') => {
 
 const confirmSubmit = () => {
   if (examStatus.value !== 'en_cours') return
-  showSubmitModal.value = true
+  
+  Swal.fire({
+    title: 'Soumettre votre copie ?',
+    text: "Une fois soumise, vous ne pourrez plus modifier vos réponses.",
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#10b981',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Oui, soumettre',
+    cancelButtonText: 'Annuler',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      submitExam()
+    }
+  })
 }
 
-const submitExam = async () => {
+const submitExam = async (isAuto = false) => {
   if (isSubmitting.value || examStatus.value !== 'en_cours') return
   
+  if (!currentUser.value?.id) {
+    Swal.fire('Erreur', 'Utilisateur non identifié. Veuillez vous reconnecter.', 'error')
+    return
+  }
+  
+  // Confirmation finale avant l'envoi (seulement pour soumission manuelle)
+  if (!isAuto) {
+    const confirmation = await Swal.fire({
+      title: 'Soumettre définitivement ?',
+      text: "Une fois soumise, vous ne pourrez plus modifier vos réponses.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui, soumettre',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    })
+
+    if (!confirmation.isConfirmed) return
+  }
+
+  // Affichage du loader
+  Swal.fire({
+    title: isAuto ? 'Temps écoulé ! Soumission...' : 'Soumission en cours...',
+    text: 'Veuillez patienter pendant l\'enregistrement de votre copie.',
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading()
+    }
+  })
+
   isSubmitting.value = true
-  showSubmitModal.value = false
   
   try {
-    await examStore.submitAllExam(evaluationId, currentUser.value.id)
-    showToastMessage('Examen soumis avec succès !')
+    console.log('[Exam] Sending submit-all request for evaluation:', evaluationId)
+    const result = await examStore.submitAllExam(evaluationId, currentUser.value.id)
+    console.log('[Exam] Submission successful:', result)
     
-    setTimeout(() => {
-      navigateTo(`/evaluations/examen-en-ligne/${evaluationId}/passer-un-examen`)
-    }, 2000)
+    // Succès !
+    await Swal.fire({
+      title: 'Félicitations !',
+      text: 'Votre copie a été soumise avec succès. Vous allez être redirigé vers le message de confirmation.',
+      icon: 'success',
+      confirmButtonText: 'Terminer',
+      confirmButtonColor: '#10b981'
+    })
+    
+    // Le store a mis à jour currentSession.status à 'termine', l'UI va suivre via hasSubmitted
   } catch (error) {
-    console.error('Erreur soumission:', error)
-    showToastMessage('Erreur lors de la soumission', 'error')
+    console.error('[Exam] Submission error:', error)
+    const errorMsg = error.response?.data?.message || error.message || 'Une erreur est survenue lors de la soumission.'
+    Swal.fire('Erreur', errorMsg, 'error')
+  } finally {
     isSubmitting.value = false
   }
 }
@@ -1349,6 +1801,20 @@ const getStudentCorrectAnswers = () => {
   return examStore.submissions.filter(s => s.is_correct === true).length
 }
 
+const getQuestionTotalPoints = (question) => {
+  if (!question) return 0
+  let total = parseFloat(question.points) || 0
+  
+  // Ajouter les points de justification si activée
+  if (question.config?.requireJustification && question.config?.justificationPoints) {
+    const jPoints = parseFloat(question.config.justificationPoints)
+    if (!isNaN(jPoints)) {
+      total += jPoints
+    }
+  }
+  return total
+}
+
 const getQuestionPoints = (questionId) => {
   const submission = examStore.submissions.find(s => s.question_id === questionId)
   return submission?.points_obtenus || 0
@@ -1371,39 +1837,51 @@ const isCorrectAnswer = (questionId, value) => {
   }
   
   if (question.type === 'texte_court') {
-    const expected = question.config?.expected_answer?.toLowerCase()
-    return expected && value?.toLowerCase() === expected
+    return false // On ne corrige plus automatiquement les textes courts côté client
   }
   
   return false
+}
+
+// ========== GESTION DU TEMPS RÉEL ==========
+let globalTimeInterval = null
+
+const startGlobalTimer = () => {
+  if (globalTimeInterval) clearInterval(globalTimeInterval)
+  globalTimeInterval = setInterval(() => {
+    currentTime.value = new Date()
+    
+    // Si on est en attente, mettre aussi à jour le countdown
+    if (examStatus.value === 'en_attente') {
+      updateCountdown()
+    } else if (examStatus.value === 'en_cours') {
+      updateExamTimer()
+    }
+  }, 1000)
 }
 
 // ========== FONCTIONS DE MISE À JOUR DES TIMERS ==========
 const updateCountdown = () => {
   if (!examStore.currentEvaluation) return
   
-  const now = new Date()
+  const now = currentTime.value
   const debut = new Date(examStore.currentEvaluation.debut)
   const diff = Math.max(0, Math.floor((debut - now) / 1000))
   
   timeUntilStart.value = diff
-  
-  if (diff <= 0 && examStatus.value === 'en_attente') {
-    window.location.reload()
-  }
 }
 
 const updateExamTimer = () => {
   if (!examStore.currentEvaluation) return
   
-  const now = new Date()
+  const now = currentTime.value
   const fin = new Date(examStore.currentEvaluation.fin)
   const diff = Math.max(0, Math.floor((fin - now) / 1000))
   
   timeRemaining.value = diff
   
   if (diff <= 0 && examStatus.value === 'en_cours' && !isSubmitting.value) {
-    submitExam()
+    submitExam(true)
   }
 }
 
@@ -1420,10 +1898,36 @@ const startExamTimer = () => {
   examTimerInterval = setInterval(updateExamTimer, 1000)
 }
 
+// Watcher pour le changement de statut automatique
+watch(examStatus, async (newStatus, oldStatus) => {
+  console.log(`[ExamDebug] Statut changé: ${oldStatus} -> ${newStatus}`)
+  
+  if (newStatus === 'en_cours' && (oldStatus === 'en_attente' || oldStatus === 'chargement' || oldStatus === undefined)) {
+    console.log('[ExamDebug] Déclenchement automatique du démarrage de l\'examen')
+    showToastMessage('L\'examen commence maintenant ! Bonne chance.', 'success')
+    
+    // Charger les données si nécessaire
+    if (examStore.parts.length === 0) {
+      await examStore.loadExam(evaluationId)
+    }
+    
+    // Initialiser le passage d'examen
+    await examStore.startExam(evaluationId, currentUser.value.id)
+    
+    if (examStore.parts.length > 0 && expandedParts.value.length === 0) {
+      expandedParts.value.push(examStore.parts[0].id)
+    }
+    
+    startAutoSave()
+    setupSecurityListeners()
+  }
+}, { immediate: true })
+
 // ========== CHARGEMENT INITIAL ==========
 onMounted(async () => {
   try {
     currentUser.value = getUserFromStorage()
+    console.log('Utilisateur actuel:', currentUser.value)
     
     if (!currentUser.value) {
       showToastMessage('Utilisateur non connecté', 'error')
@@ -1432,67 +1936,120 @@ onMounted(async () => {
     }
     
     await examStore.loadExam(evaluationId)
-    await examStore.fetchSubmissions(evaluationId, currentUser.value.id)
+    const fetchedSubmissions = await examStore.fetchSubmissions(evaluationId, currentUser.value.id)
     
-    /**
-     * 🔴 IMPORTANT: Restaurer les réponses existantes
-     */
-    examStore.submissions.forEach(submission => {
-      if (submission.reponse) {
-        // Réponse complexe avec type
-        if (submission.reponse.type) {
-          switch (submission.reponse.type) {
-            case 'complex_data':
-              if (submission.reponse.data) {
-                const key = `${submission.question_id}_${submission.reponse.data.row}_${submission.reponse.data.column}`
-                tableResponses.value[key] = submission.reponse.data.value
+    const loadedQuestionIds = examStore.questions.map(q => q.id)
+    console.log('IDs des questions chargées sur cette page:', loadedQuestionIds)
+    console.log('Nombre de soumissions reçues du serveur:', fetchedSubmissions?.length || 0)
+    
+    if (examStore.submissions && examStore.submissions.length > 0) {
+      const newResponses = { ...responses.value }
+      const newJustifications = { ...justifications.value }
+      const newTableResponses = { ...tableResponses.value }
+      const newMultiPartResponses = { ...multiPartResponses.value }
+      const newStructuredResponses = { ...structuredResponses.value }
+
+      examStore.submissions.forEach(submission => {
+        const questionId = Number(submission.question_id)
+        
+        // Vérifier si cette question existe dans l'examen actuel
+        if (!loadedQuestionIds.some(id => Number(id) === questionId)) {
+          console.warn(`Attention: La soumission pour la question ID ${questionId} ne correspond à aucune question chargée sur cette page (IDs chargés: ${loadedQuestionIds.join(',')})`)
+          return // Passer à la suivante
+        }
+        
+        let reponse = submission.reponse
+        if (typeof reponse === 'string') {
+          try { reponse = JSON.parse(reponse) } catch (e) {}
+        }
+        
+        if (reponse) {
+          if (reponse.type === 'complex_data' && reponse.data) {
+            if (reponse.data.row !== undefined && reponse.data.column !== undefined) {
+              newTableResponses[`${questionId}_${reponse.data.row}_${reponse.data.column}`] = reponse.data.value
+            } else {
+              Object.keys(reponse.data).forEach(cellKey => {
+                if (cellKey.includes('-')) {
+                  const [row, col] = cellKey.split('-')
+                  newTableResponses[`${questionId}_${row}_${col}`] = reponse.data[cellKey]
+                }
+              })
+            }
+          } else if (reponse.type === 'multi_parts' && reponse.data) {
+            Object.keys(reponse.data).forEach(partKey => {
+              if (partKey.startsWith('part_')) {
+                const partIdx = partKey.split('_')[1]
+                newMultiPartResponses[`${questionId}_${partIdx}`] = reponse.data[partKey]
               }
-              break
-              
-            case 'multi_parts':
-              if (submission.reponse.data) {
-                const key = `${submission.question_id}_${submission.reponse.data.part}`
-                multiPartResponses.value[key] = submission.reponse.data.value
+            })
+          } else if (reponse.type === 'structured_data' && reponse.data) {
+            Object.keys(reponse.data).forEach(itemKey => {
+              if (itemKey.startsWith('item_')) {
+                const itemIdx = itemKey.split('_')[1]
+                newStructuredResponses[`${questionId}_${itemIdx}`] = reponse.data[itemKey]
               }
-              break
-              
-            case 'structured_data':
-              if (submission.reponse.data) {
-                const key = `${submission.question_id}_${submission.reponse.data.item}`
-                structuredResponses.value[key] = submission.reponse.data.value
-              }
-              break
-          }
-        } 
-        // Réponse simple
-        else {
-          if (submission.reponse.option_id) {
-            responses.value[submission.question_id] = submission.reponse.option_id
-          } else if (submission.reponse.option_ids) {
-            responses.value[submission.question_id] = submission.reponse.option_ids
-          } else if (submission.reponse.text) {
-            responses.value[submission.question_id] = submission.reponse.text
+            })
+          } else {
+            if (reponse.option_id !== undefined) {
+              newResponses[questionId] = reponse.option_id
+            } else if (reponse.option_ids !== undefined) {
+              newResponses[questionId] = reponse.option_ids
+            } else if (reponse.text !== undefined) {
+              newResponses[questionId] = reponse.text
+            } else if (typeof reponse !== 'object') {
+              newResponses[questionId] = reponse
+            }
+            
+            // Toujours essayer de récupérer la justification
+            if (reponse.justification !== undefined) {
+              newJustifications[questionId] = reponse.justification
+            }
           }
         }
+      })
+      
+      responses.value = newResponses
+      justifications.value = newJustifications
+      tableResponses.value = newTableResponses
+      multiPartResponses.value = newMultiPartResponses
+      structuredResponses.value = newStructuredResponses
+    }
+    
+    console.log('Restauration terminée. État de "responses":', responses.value)
+    
+    // ========== SÉCURITÉ : EMPÊCHER DE QUITTER ==========
+    window.addEventListener('beforeunload', (e) => {
+      if (examStatus.value === 'en_cours' && !isSubmitting.value) {
+        e.preventDefault()
+        e.returnValue = 'Attention : votre examen est en cours. Vos réponses pourraient être perdues.'
       }
     })
     
-    if (examStatus.value === 'en_attente') {
-      startCountdown()
-    } else if (examStatus.value === 'en_cours') {
-      await examStore.startExam(evaluationId, currentUser.value.id)
+    startGlobalTimer()
+    console.log('[ExamDebug] mounted - Statut initial:', examStatus.value)
+    
+    // Le reste de l'initialisation (startExam, etc.) est géré par le watcher sur examStatus
+    // car il est configuré avec immediate: true et capte le premier état après chargement.
+    
+    // ========== SÉCURITÉ & ANTI-TRICHE ==========
+    setupSecurityListeners()
+    
+    // Bloquer les raccourcis clavier nuisibles (toujours actif si en cours)
+    document.addEventListener('keydown', (e) => {
+      if (examStatus.value !== 'en_cours') return
       
-      if (examStore.parts.length > 0) {
-        expandedParts.value.push(examStore.parts[0].id)
+      // Bloquer F12, Ctrl+Shift+I (inspecter), Ctrl+U (source), Ctrl+S (sauver)
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+        (e.ctrlKey && e.key === 'u') || 
+        (e.ctrlKey && e.key === 's')
+      ) {
+        e.preventDefault()
+        handleSecurityEvent('Raccourci clavier interdit détecté')
+        return false
       }
-      
-      startExamTimer()
-      startAutoSave()
-    } else if (examStatus.value === 'termine') {
-      if (examStore.parts.length > 0) {
-        expandedParts.value.push(examStore.parts[0].id)
-      }
-    }
+    })
     
   } catch (error) {
     console.error('Erreur lors du chargement:', error)
@@ -1503,9 +2060,16 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
-  if (examTimerInterval) clearInterval(examTimerInterval)
-  if (countdownInterval) clearInterval(countdownInterval)
+  if (globalTimeInterval) clearInterval(globalTimeInterval)
   if (autoSaveInterval) clearInterval(autoSaveInterval)
+  
+  // Nettoyage sécurité
+  document.removeEventListener('copy', preventDefaults)
+  document.removeEventListener('paste', preventDefaults)
+  document.removeEventListener('cut', preventDefaults)
+  document.removeEventListener('contextmenu', preventDefaults)
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
+  window.removeEventListener('blur', handleBlur)
 })
 </script>
 
@@ -1578,5 +2142,20 @@ th, td {
 /* Style pour les badges de points */
 .text-right {
   text-align: right;
+}
+.fade-scale-enter-active,
+.fade-scale-leave-active {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fade-scale-enter-from,
+.fade-scale-leave-to {
+  opacity: 0;
+  transform: scale(1.1);
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.1; transform: scale(1); }
+  50% { opacity: 0.2; transform: scale(1.2); }
 }
 </style>

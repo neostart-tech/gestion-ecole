@@ -99,5 +99,17 @@ export const useLoginStore = defineStore("login", {
       if (!process.client) return true;
       return !!localStorage.getItem("gest-ecole-token");
     },
+
+    async fetchUser() {
+      try {
+        const response = await axios.get("/user", this.authHeaders());
+        localStorage.setItem("user", JSON.stringify(response.data));
+        const userState = useState("user");
+        userState.value = response.data;
+        return response.data;
+      } catch (error) {
+        console.error("Erreur rafraîchissement utilisateur:", error);
+      }
+    },
   },
 });

@@ -72,24 +72,26 @@
         </client-only>
 
         <!-- Ajouter -->
-        <button
-          @click="openAddModal"
-          class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        >
-          <svg
-            class="w-5 h-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
+        <Can action="create-uv">
+          <button
+            @click="openAddModal"
+            class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
           >
-            <path
-              d="M12 5v14M5 12h14"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-          </svg>
-          Ajouter
-        </button>
+            <svg
+              class="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+            >
+              <path
+                d="M12 5v14M5 12h14"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            Ajouter
+          </button>
+        </Can>
       </div>
     </div>
 
@@ -137,31 +139,35 @@
               </button>
 
               <!-- Edit -->
-              <button
-                @click="openEditModal(value)"
-                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
-              >
-                <svg
-                  class="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
+              <Can action="update-uv">
+                <button
+                  @click="openEditModal(value)"
+                  class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
                 >
-                  <path
-                    d="M4 20h4l10-10-4-4L4 16v4z"
-                    stroke-width="2"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </button>
+                  <svg
+                    class="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      d="M4 20h4l10-10-4-4L4 16v4z"
+                      stroke-width="2"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
+              </Can>
 
               <!-- Delete -->
-              <button
-                @click="deleteItem(value)"
-                class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
-              >
-                <ButtonDelete />
-              </button>
+              <Can action="delete-uv">
+                <button
+                  @click="deleteItem(value)"
+                  class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
+                >
+                  <ButtonDelete />
+                </button>
+              </Can>
             </div>
           </template>
         </Vue3Datatable>
@@ -285,17 +291,17 @@
                         <p
                           class="text-xs text-gray-500 dark:text-gray-400 mb-1"
                         >
-                          Période
+                        Semestre
                         </p>
                         <p class="font-medium text-gray-900 dark:text-white">
-                          {{ selectedEvent?.periode }}
+                          {{ selectedEvent?.semestre }}
                         </p>
                       </div>
                       <div>
                         <p
                           class="text-xs text-gray-500 dark:text-gray-400 mb-1"
                         >
-                          Date de la période
+                          Date du semestre
                         </p>
                         <p class="font-medium text-gray-900 dark:text-white">
                           {{ selectedEvent?.debut }}
@@ -536,13 +542,13 @@
               /> -->
 
               <Dropdown
-                v-model="form.periode_id"
-                :options="PeriodesOptions"
+                v-model="form.semestre_id"
+                :options="SemestreOptions"
                 optionLabel="label"
                 optionValue="value"
                 filter
                 showClear
-                placeholder="Sélectionner une période"
+                placeholder="Sélectionner un semestre"
                 class="w-full"
               />
 
@@ -637,7 +643,7 @@ const form = ref({
   coefficient: "",
   enseignant_id: [],
   filiere_id: "",
-  periode_id: "",
+  semestre_id: "",
 });
 
 const columns = ref([
@@ -650,7 +656,7 @@ const columns = ref([
   { field: "coefficient", title: "Coefficient", visible: true },
   { field: "filiere", title: "Filiere", visible: false },
   { field: "volume_horaire", title: "Volume Horaire", visible: false },
-  { field: "periode", title: "Période", visible: false },
+  { field: "semestre", title: "Semestre", visible: false },
   { field: "action", title: "Actions", visible: true },
 ]);
 
@@ -671,9 +677,9 @@ const rows = computed(() =>
     filiere: f.filiere.nom ?? 0,
     volume_horaire: f.volume_horaire ?? "--",
     user: f.user ?? null,
-    periode: f.periode.nom ?? null,
+    semestre: f.periode.nom ?? null,
     filiere_id: f.filiere?.id ?? null,
-    periode_id: f.periode?.id ?? null,
+    semestre_id: f.periode?.id ?? null,
     enseignant_ids: f.user?.map((u) => u.id) ?? [],
   })),
 );
@@ -704,7 +710,7 @@ const openAddModal = () => {
     coefficient: "",
     enseignant_id: [],
     filiere_id: "",
-    periode_id: "",
+    semestre_id: "",
   };
   showModal.value = true;
 };
@@ -721,7 +727,7 @@ const openEditModal = (f) => {
     coefficient: f.coefficient,
 
     filiere_id: f.filiere_id,
-    periode_id: f.periode_id,
+    semestre_id: f.periode_id,
     enseignant_id: [...f.enseignant_ids],
   };
 
@@ -760,7 +766,7 @@ const deleteItem = async (uv) => {
   }
 };
 
-const PeriodesOptions = computed(() =>
+const SemestreOptions = computed(() =>
   periodeStore.periode.map((p) => ({
     label: p.nom,
     value: p.id,

@@ -491,6 +491,32 @@
                 </div>
               </div>
             </div>
+            
+            <!-- Ventilation du montant total (Uniquement pour négociation) -->
+            <div v-if="form.type_paiement === 'negociation' && form.echeances.length > 0" class="mt-4 p-4 rounded-xl border border-blue-100 bg-blue-50/50 mb-4 transition-all animate-in fade-in duration-500">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <span class="text-xs font-semibold text-blue-600 uppercase tracking-wider">État de la répartition</span>
+                        <div class="flex items-center gap-2 mt-1">
+                            <i :class="resteARepartir === 0 ? 'pi pi-check-circle text-green-500' : 'pi pi-info-circle text-blue-500'"></i>
+                            <span class="text-sm font-medium text-gray-700">
+                                {{ resteARepartir === 0 ? 'Le montant total est entièrement réparti' : 'Il vous reste un montant à répartir' }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col items-end">
+                        <span class="text-xs text-gray-500 mb-1">Reste à ventiler</span>
+                        <span :class="resteARepartir === 0 ? 'text-green-600' : (resteARepartir > 0 ? 'text-blue-600' : 'text-red-600')" class="text-lg font-bold">
+                            {{ formatMontant(resteARepartir) }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div v-if="resteARepartir !== 0" class="mt-3 flex justify-end">
+                  <!-- Automatique désactivé car automatique sur ajout/suppression -->
+                </div>
+            </div>
 
             <!-- Résumé -->
             <div class="border-t pt-4">
@@ -698,10 +724,10 @@ const typePaiementOptions = [
 ]
 
 const frequenceOptions = [
-  { label: 'Annuel', value: 'annuel' },
-  { label: 'Trimestriel', value: 'trimestriel' },
-  { label: 'Bimestriel', value: 'bimestriel' },
-  { label: 'Mensuel', value: 'mensuel' }
+  { label: 'Annuel (1 fois)', value: 'annuel' },
+  { label: 'Trimestriel (3 fois)', value: 'trimestriel' },
+  { label: 'Bimestriel (4 fois)', value: 'bimestriel' },
+  { label: 'Mensuel (10 fois)', value: 'mensuel' }
 ]
 
 // Computed
@@ -722,6 +748,12 @@ const totalMontant = computed(() => {
 const moyenneParEcheance = computed(() => {
   if (!form.echeances.length) return 0
   return totalMontant.value / form.echeances.length
+})
+
+const resteARepartir = computed(() => {
+  const attendu = montantApresBourse.value || 0
+  const actuel = totalMontant.value
+  return attendu - actuel
 })
 
 // const montantApresBourse = computed(() => {
@@ -773,7 +805,7 @@ const montantApresBourse = computed(() => {
 })
 
 const nombreEcheancesAuto = computed(() => {
-  const map = { mensuel: 12, bimestriel: 6, trimestriel: 4, annuel: 1 }
+  const map = { mensuel: 10, bimestriel: 4, trimestriel: 3, annuel: 1 }
   return map[autoGenFrequence.value] || 0
 })
 
@@ -993,13 +1025,17 @@ function formatMontant(montant) {
 function addEcheance() {
   form.echeances.push({
     libelle: `Échéance ${form.echeances.length + 1}`,
-    montant: null,
+    montant: 0,
     date_limite: null
   })
+  equilibrerMontants()
 }
 
 function removeEcheance(index) {
   form.echeances.splice(index, 1)
+  if (form.echeances.length > 0) {
+    equilibrerMontants()
+  }
 }
 
 // NOUVELLE: Méthode pour ouvrir le dialog de génération auto
@@ -1047,6 +1083,22 @@ function generateEcheances() {
   $toastr.success(`${nombre} échéances générées`)
 }
 
+function equilibrerMontants() {
+  const totalAttendu = montantApresBourse.value
+  const nb = form.echeances.length
+  
+  if (nb === 0 || totalAttendu <= 0) return
+  
+  const part = Math.floor(totalAttendu / nb)
+  const reliquat = totalAttendu - (part * nb)
+  
+  form.echeances.forEach((e, i) => {
+    e.montant = (i === nb - 1) ? part + reliquat : part
+  })
+  
+  $toastr.success('Montants rééquilibrés sur ' + nb + ' échéances')
+}
+
 function resetForm() {
   selectedStudent.value = null
   selectedBourse.value = null
@@ -1067,6 +1119,12 @@ async function submitForm() {
   if (!canSubmit.value) {
     $toastr.warning('Veuillez remplir tous les champs obligatoires')
     return
+  }
+
+  // Vérifier la cohérence du montant total pour une négociation
+  if (form.type_paiement === 'negociation' && Math.abs(resteARepartir.value) > 1) {
+    const confirmed = window.confirm(`Attention : Le montant total des échéances (${formatMontant(totalMontant.value)}) ne correspond pas au montant attendu (${formatMontant(montantApresBourse.value)}). Le reste à répartir est de ${formatMontant(resteARepartir.value)}. Souhaitez-vous continuer ?`)
+    if (!confirmed) return
   }
 
   isSubmitting.value = true
