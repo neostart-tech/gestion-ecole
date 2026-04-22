@@ -198,19 +198,20 @@ const updateDropdownPosition = () => {
   if (triggerRef.value) {
     const rect = triggerRef.value.getBoundingClientRect()
     const viewportHeight = window.innerHeight
-    const dropdownHeight = 400
+    const dropdownHeight = Math.min(400, viewportHeight - 40)
     
-    let top = rect.bottom + window.scrollY + 5
+    let top = rect.bottom + 5
     
-    if (top + dropdownHeight > window.scrollY + viewportHeight) {
-      top = rect.top + window.scrollY - dropdownHeight - 5
+    // Si pas assez de place en bas, on affiche au dessus
+    if (top + dropdownHeight > viewportHeight) {
+      top = rect.top - dropdownHeight - 5
     }
     
     dropdownStyle.value = {
       top: `${top}px`,
-      left: `${rect.left + window.scrollX}px`,
+      left: `${rect.left}px`,
       width: `${rect.width}px`,
-      maxHeight: `${Math.min(dropdownHeight, viewportHeight - 40)}px`
+      maxHeight: `${dropdownHeight}px`
     }
   }
 }

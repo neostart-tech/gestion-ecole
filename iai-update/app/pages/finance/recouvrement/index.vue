@@ -72,8 +72,9 @@
       <!-- Real Dashboard Content -->
       <template v-else>
 
-      <!-- KPIs Globaux -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- LIGNE 1 : KPIs Principaux (3 cartes) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
         <!-- KPI : Objectif Global -->
         <div class="relative bg-white dark:bg-gray-800 rounded-2xl p-5 border border-slate-100 dark:border-gray-700 flex flex-col gap-2 hover:-translate-y-0.5 transition-transform duration-200 overflow-hidden shadow-sm">
           <div class="absolute left-0 top-0 h-full w-1 bg-indigo-500 rounded-l-2xl"></div>
@@ -86,10 +87,10 @@
             <span class="text-[10px] font-black tracking-widest text-slate-400 dark:text-gray-500 uppercase">Objectif à collecter</span>
           </div>
           <p class="text-xl font-black text-slate-800 dark:text-white tabular-nums">{{ formatMontant(kpis.total_a_encaisser) }}</p>
-          <span class="text-[11px] font-bold text-slate-400 italic">Total des frais pour l'année</span>
+          <span class="text-[11px] font-bold text-slate-400 italic">Total frais actifs pour l'année</span>
         </div>
 
-        <!-- KPI : Déjà Encaissé -->
+        <!-- KPI : Total Encaissé -->
         <div class="relative bg-white dark:bg-gray-800 rounded-2xl p-5 border border-slate-100 dark:border-gray-700 flex flex-col gap-2 hover:-translate-y-0.5 transition-transform duration-200 overflow-hidden shadow-sm">
           <div class="absolute left-0 top-0 h-full w-1 bg-emerald-500 rounded-l-2xl"></div>
           <div class="flex items-center gap-2">
@@ -101,9 +102,7 @@
             <span class="text-[10px] font-black tracking-widest text-slate-400 dark:text-gray-500 uppercase">Total encaissé</span>
           </div>
           <p class="text-xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">{{ formatMontant(kpis.total_encaisse) }}</p>
-          <div class="flex items-center gap-2">
-            <span class="text-[11px] font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-900/40 px-1.5 rounded">{{ kpis.taux_collecte }}% réalisé</span>
-          </div>
+          <span class="text-[11px] font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-900/40 px-1.5 py-0.5 rounded w-fit">{{ kpis.taux_collecte }}% réalisé</span>
         </div>
 
         <!-- KPI : Reste à collecter -->
@@ -118,61 +117,72 @@
             <span class="text-[10px] font-black tracking-widest text-slate-400 dark:text-gray-500 uppercase">Reste à collecter</span>
           </div>
           <p class="text-xl font-black text-amber-600 dark:text-amber-400 tabular-nums">{{ formatMontant(kpis.total_restant) }}</p>
-          <span class="text-[11px] font-bold text-slate-400 italic">Ecart à combler</span>
+          <span class="text-[11px] font-bold text-slate-400 italic">Écart sur étudiants actifs</span>
         </div>
 
-        <!-- KPI : Retard effectif -->
-        <div class="relative bg-white dark:bg-gray-800 rounded-2xl p-5 border border-slate-100 dark:border-gray-700 flex flex-col gap-2 hover:-translate-y-0.5 transition-transform duration-200 overflow-hidden shadow-sm">
-          <div class="absolute left-0 top-0 h-full w-1 bg-red-500 rounded-l-2xl"></div>
-          <div class="flex items-center gap-2">
-            <div class="p-2 bg-red-50 dark:bg-red-900/30 text-red-500 rounded-lg">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-              </svg>
-            </div>
-            <span class="text-[10px] font-black tracking-widest text-slate-400 dark:text-gray-500 uppercase">Retards réels</span>
-          </div>
-          <p class="text-xl font-black text-red-600 dark:text-red-400 tabular-nums">{{ formatMontant(kpis.retard_paiement?.montant || 0) }}</p>
-          <span class="text-[11px] font-bold text-red-500/80">{{ kpis.retard_paiement?.nombre_etudiants || 0 }} étudiants signalés</span>
-        </div>
       </div>
 
-      <!-- KPIs Secondaires -->
+      <!-- LIGNE 2 : Statistiques Abandons -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- KPI : Parts non échues -->
-        <div class="relative bg-white dark:bg-gray-800 rounded-2xl p-5 border border-slate-100 dark:border-gray-700 flex items-center justify-between hover:-translate-y-0.5 transition-transform duration-200 overflow-hidden shadow-sm">
-          <div class="absolute left-0 top-0 h-full w-1 bg-blue-400 rounded-l-2xl"></div>
-          <div class="flex items-center gap-3">
-            <div class="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-500 rounded-lg">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-            </div>
-            <div>
-              <span class="text-[10px] font-black tracking-widest text-slate-400 dark:text-gray-500 uppercase">Parts non échues</span>
-              <p class="text-lg font-black text-slate-800 dark:text-white tabular-nums">{{ formatMontant(kpis.non_echues?.montant || 0) }}</p>
-            </div>
-          </div>
-          <span class="text-[10px] bg-blue-50 dark:bg-blue-900/40 text-blue-600 px-2 py-1 rounded font-bold uppercase tracking-tighter">Prévisions</span>
-        </div>
 
-        <!-- KPI : Encaissement abandon -->
-        <div class="relative bg-white dark:bg-gray-800 rounded-2xl p-5 border border-slate-100 dark:border-gray-700 flex items-center justify-between hover:-translate-y-0.5 transition-transform duration-200 overflow-hidden shadow-sm">
+        <!-- CA Encaissé sur Abandons -->
+        <div class="relative bg-white dark:bg-gray-800 rounded-2xl p-5 border border-slate-100 dark:border-gray-700 flex flex-col gap-3 hover:-translate-y-0.5 transition-transform duration-200 overflow-hidden shadow-sm">
           <div class="absolute left-0 top-0 h-full w-1 bg-slate-400 rounded-l-2xl"></div>
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2">
             <div class="p-2 bg-slate-50 dark:bg-slate-700/50 text-slate-500 rounded-lg">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
               </svg>
             </div>
-            <div>
-              <span class="text-[10px] font-black tracking-widest text-slate-400 dark:text-gray-500 uppercase">Perdus (Abandons)</span>
-              <p class="text-lg font-black text-slate-800 dark:text-white tabular-nums">{{ formatMontant(kpis.encaissement_abandon?.montant || 0) }}</p>
+            <span class="text-[10px] font-black tracking-widest text-slate-500 dark:text-gray-400 uppercase">CA Récupéré — Abandons</span>
+          </div>
+          <!-- Détail Inscription / Scolarité -->
+          <div class="space-y-2 mt-1">
+            <div class="flex justify-between items-center">
+              <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Inscription</span>
+              <span class="text-sm font-black text-slate-600 dark:text-gray-300 tabular-nums">{{ formatMontant(kpis.ca_abandons_resume?.inscription || 0) }}</span>
+            </div>
+            <div class="flex justify-between items-center border-b border-slate-100 dark:border-gray-700 pb-2">
+              <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Scolarité</span>
+              <span class="text-sm font-black text-slate-600 dark:text-gray-300 tabular-nums">{{ formatMontant(kpis.ca_abandons_resume?.scolarite || 0) }}</span>
+            </div>
+            <div class="flex justify-between items-center pt-1">
+              <span class="text-[11px] font-black text-slate-500 uppercase tracking-wider">Total encaissé</span>
+              <span class="text-lg font-black text-slate-700 dark:text-gray-200 tabular-nums">{{ formatMontant(kpis.ca_abandons_resume?.total || 0) }}</span>
             </div>
           </div>
-          <span class="text-[10px] bg-slate-50 dark:bg-slate-700/50 text-slate-500 px-2 py-1 rounded font-bold uppercase tracking-tighter">Non réclamé</span>
         </div>
+
+        <!-- CA Non Récupéré sur Abandons (Perte sèche) -->
+        <div class="relative bg-white dark:bg-gray-800 rounded-2xl p-5 border border-slate-100 dark:border-gray-700 flex flex-col gap-3 hover:-translate-y-0.5 transition-transform duration-200 overflow-hidden shadow-sm">
+          <div class="absolute left-0 top-0 h-full w-1 bg-rose-400 rounded-l-2xl"></div>
+          <div class="flex items-center gap-2">
+            <div class="p-2 bg-rose-50 dark:bg-rose-900/20 text-rose-500 rounded-lg">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+              </svg>
+            </div>
+            <span class="text-[10px] font-black tracking-widest text-rose-400 uppercase">CA Non Récupéré — Abandons</span>
+          </div>
+          <!-- Détail Inscription / Scolarité restantes -->
+          <div class="space-y-2 mt-1">
+            <div class="flex justify-between items-center">
+              <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Inscription non payée</span>
+              <span class="text-sm font-black text-slate-600 dark:text-gray-300 tabular-nums">{{ formatMontant(kpis.ca_abandons_resume?.reste_inscription || 0) }}</span>
+            </div>
+            <div class="flex justify-between items-center border-b border-slate-100 dark:border-gray-700 pb-2">
+              <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Scolarité non payée</span>
+              <span class="text-sm font-black text-slate-600 dark:text-gray-300 tabular-nums">{{ formatMontant(kpis.ca_abandons_resume?.reste_scolarite || 0) }}</span>
+            </div>
+            <div class="flex justify-between items-center pt-1">
+              <span class="text-[11px] font-black text-rose-500 uppercase tracking-wider">Total non récupéré</span>
+              <span class="text-lg font-black text-rose-600 dark:text-rose-400 tabular-nums">{{ formatMontant(kpis.ca_abandons_resume?.total_non_recupere || 0) }}</span>
+            </div>
+          </div>
+        </div>
+
       </div>
+
 
       <!-- Recouvrement journalier -->
       <div class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 p-6">
@@ -328,17 +338,18 @@
               <td class="py-3 px-4">
                 <div class="flex items-center gap-3">
                   <div class="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xs uppercase">
-                    {{ (ab.etudiant?.nom_complet || ab.etudiant?.nom || '?').charAt(0) }}
+                    {{ (ab.nom || '?').charAt(0) }}
                   </div>
-                  <span class="font-semibold text-slate-700 dark:text-gray-300">
-                    {{ ab.etudiant?.nom_complet || (ab.etudiant?.nom + ' ' + ab.etudiant?.prenom) }}
-                  </span>
+                  <div class="flex flex-col">
+                    <span class="font-semibold text-slate-700 dark:text-gray-300">{{ ab.nom }}</span>
+                    <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wide">{{ ab.matricule }}</span>
+                  </div>
                 </div>
               </td>
-              <td class="py-3 px-4 text-slate-500 dark:text-gray-400">{{ ab.frais_scolarite?.niveau?.nom || 'Non spécifié' }}</td>
+              <td class="py-3 px-4 text-slate-500 dark:text-gray-400 text-sm">{{ ab.niveau }}</td>
               <td class="py-3 px-4">
                 <span class="px-2 py-1 bg-slate-50 dark:bg-gray-700 rounded-md text-xs font-mono text-slate-500 dark:text-gray-400 border border-slate-100 dark:border-gray-600">
-                  {{ ab.frais_scolarite?.filiere?.nom || '--' }}
+                  {{ ab.filiere }}
                 </span>
               </td>
             </tr>
@@ -374,7 +385,7 @@
             </select>
           </div>
           <div class="w-48">
-            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Statut</label>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Statut Scolarité</label>
             <select v-model="filterStatut"
               class="w-full bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl py-2.5 px-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer">
               <option value="">Tous</option>
@@ -384,6 +395,16 @@
               <option value="abandon">Abandon</option>
             </select>
           </div>
+          <div class="w-48">
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Statut Inscription</label>
+            <select v-model="filterStatutInscription"
+              class="w-full bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl py-2.5 px-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer">
+              <option value="">Tous</option>
+              <option value="solde">Soldé</option>
+              <option value="non_paye">Non payé</option>
+            </select>
+          </div>
+          <!-- Boutons Export supprimés -->
         </div>
 
         <!-- Encaissement global -->
@@ -423,6 +444,7 @@
           :rows="students"
           :search="searchQuery"
           skin="bh-table-striped"
+          :rowClass="(row) => row.est_en_abandon ? 'opacity-50 grayscale dark:opacity-30' : ''"
           class="premium-table"
         >
           <template #etudiant="{ value }">
@@ -436,10 +458,27 @@
               </div>
             </div>
           </template>
+          <template #niveau="{ value }">
+             <div class="text-xs font-bold text-slate-600 dark:text-gray-300 uppercase tracking-tighter">
+                {{ value.niveau }}
+             </div>
+          </template>
+          <template #filiere="{ value }">
+             <div class="text-[10px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded inline-block truncate max-w-[140px]" :title="value.filiere">
+                {{ value.filiere }}
+             </div>
+          </template>
           <template #statut="{ value }">
             <div class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider border" :class="getStatusClass(value.statut)">
               {{ getStatusLabel(value.statut) }}
             </div>
+          </template>
+          <template #inscription_statut="{ value }">
+            <div v-if="value.inscription_statut" class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider border transition-all"
+              :class="value.inscription_statut === 'solde' ? 'bg-indigo-50 text-indigo-700 border-indigo-100' : 'bg-slate-50 text-slate-400 border-slate-100'">
+              {{ value.inscription_statut === 'solde' ? 'Inscr. Validée' : 'Inscr. Non Payée' }}
+            </div>
+            <div v-else class="text-[10px] text-slate-300 italic font-medium px-2.5 py-1">--</div>
           </template>
           <template #montant_paye="{ value }">
             <div class="flex flex-col">
@@ -490,11 +529,44 @@ const activeTab = ref(route.query.tab || 'dashboard');
 const searchQuery = ref('');
 const filterNiveau = ref('');
 const filterStatut = ref(route.query.statut || '');
+const filterStatutInscription = ref('');
 const journalierDate = ref(new Date().toISOString().split('T')[0]);
 const currentYear = new Date().getFullYear();
 const selectedPeriods = ref([`${currentYear}-${String(new Date().getMonth() + 1).padStart(2, '0')}`]);
 const dashboardLoading = ref(false);
 const globalLoading = ref(true);
+const isExporting = ref(false);
+
+// Export Excel via l'API (téléchargement direct avec token)
+const exportExcel = async () => {
+  isExporting.value = true;
+  try {
+    const token = localStorage.getItem('gest-ecole-token');
+    const params = new URLSearchParams();
+    if (filterNiveau.value) params.append('niveau_id', filterNiveau.value);
+    const url = `/finance/export/xlsx?${params.toString()}`;
+    const response = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+    });
+    if (!response.ok) throw new Error('Erreur export');
+    const blob = await response.blob();
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `etat_paiements_${new Date().toISOString().split('T')[0]}.xlsx`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  } catch (e) {
+    console.error('Export Excel échoué:', e);
+    alert('Erreur lors de l\'export Excel. Veuillez réessayer.');
+  } finally {
+    isExporting.value = false;
+  }
+};
+
+// Impression PDF via le navigateur
+const printPDF = () => {
+  window.print();
+};
 
 const monthOptions = computed(() => {
   const months = [
@@ -514,10 +586,13 @@ const monthOptions = computed(() => {
 
 const columns = [
   { field: 'etudiant', title: 'Étudiant', width: '240px', sort: true },
-  { field: 'montant_du', title: 'Total dû', type: 'number', visible: false },
-  { field: 'montant_paye', title: 'Payé' },
-  { field: 'reste', title: 'Reste' },
-  { field: 'statut', title: 'Statut' },
+  { field: 'niveau', title: 'Niveau', width: '100px', sort: true },
+  { field: 'filiere', title: 'Filière', width: '130px', sort: true },
+  { field: 'montant_du', title: 'Total dû', visible: false },
+  { field: 'montant_paye', title: 'Scol. Payée' },
+  { field: 'reste', title: 'Scol. Reste' },
+  { field: 'statut', title: 'Statut Scol.' },
+  { field: 'inscription_statut', title: 'Statut Inscr.' },
   { field: 'prochaine_echeance_date', title: 'Prochain paiement' },
   { field: 'action', title: 'Actions', width: '120px', sort: false }
 ];
@@ -585,7 +660,7 @@ const refreshAll = async () => {
     loadMensuel(),
     recouvrementStore.fetchAbandons(),
     recouvrementStore.fetchNiveaux(),
-    recouvrementStore.fetchRecouvrements(filterNiveau.value, filterStatut.value)
+    recouvrementStore.fetchRecouvrements(filterNiveau.value, filterStatut.value, filterStatutInscription.value)
   ]);
   globalLoading.value = false;
 };
@@ -633,8 +708,8 @@ const openManagePaiement = (student) => {
 
 onMounted(() => refreshAll());
 
-watch([filterNiveau, filterStatut], () => {
-  recouvrementStore.fetchRecouvrements(filterNiveau.value, filterStatut.value);
+watch([filterNiveau, filterStatut, filterStatutInscription], () => {
+  recouvrementStore.fetchRecouvrements(filterNiveau.value, filterStatut.value, filterStatutInscription.value);
 });
 
 watch(selectedPeriods, async (newVal) => {
@@ -704,5 +779,75 @@ watch(selectedPeriods, async (newVal) => {
   --ms-option-bg-selected: #4f46e5;
   --ms-option-color-selected: #ffffff;
   --ms-ring-color: #4f46e5;
+}
+/* ===== IMPRESSION PDF ===== */
+@media print {
+  /* Masquer tout sauf la table des étudiants */
+  .no-print,
+  nav, header, footer,
+  button,
+  [class*="backdrop"],
+  [class*="bg-gradient"] > div:first-child,
+  [class*="bg-gradient"] > div:nth-child(2) {
+    display: none !important;
+  }
+
+  /* Fond blanc pour l'impression */
+  body, .min-h-screen {
+    background: white !important;
+    color: black !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Table propre */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 10px !important;
+  }
+
+  th, td {
+    border: 1px solid #ccc !important;
+    padding: 4px 6px !important;
+    color: black !important;
+    background: white !important;
+  }
+
+  th {
+    background: #f0f0f0 !important;
+    font-weight: bold !important;
+  }
+
+  /* Forcer affichage complet des montants — pas d'abréviation */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* Masquer colonnes inutiles à l'impression */
+  .bh-datatable td:last-child,
+  .bh-datatable th:last-child {
+    display: none !important;
+  }
+
+  /* Afficher uniquement l'onglet étudiants */
+  [v-if="activeTab === 'dashboard'"] {
+    display: none !important;
+  }
+
+  /* Titre d'impression */
+  .print-title {
+    display: block !important;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+}
+
+/* Cacher le titre print en mode normal */
+.print-title {
+  display: none;
 }
 </style>

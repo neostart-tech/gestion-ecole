@@ -1775,46 +1775,6 @@
               </NuxtLink>
             </li>
 
-            <!-- Dashboard Financier -->
-            <li
-              v-if="
-                hasAnyRole([
-                  'responsable-administratif-et-financier',
-                  'directeur-general-adjoint',
-                  'directeur-general',
-                  'directeur-des-affaires-financieres',
-                  'admin',
-                ])
-              "
-            >
-              <NuxtLink
-                to="/finance/dashboard"
-                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
-                :class="[
-                  $route.path.startsWith('/finance/dashboard')
-                    ? 'bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 text-indigo-700 dark:text-indigo-400'
-                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
-                ]"
-                @click="toggleMobileMenu"
-              >
-                <div
-                  :class="[
-                    'p-1 rounded-lg',
-                    $route.path.startsWith('/finance/dashboard')
-                      ? 'bg-indigo-100 dark:bg-indigo-900/30'
-                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
-                  ]"
-                >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                  </svg>
-                </div>
-                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
-                  >Dashboard Financier</span
-                >
-              </NuxtLink>
-            </li>
-
             <!-- Suivi du Recouvrement -->
             <li
               v-if="
@@ -2010,7 +1970,7 @@
                       Étude de dossier
                     </NuxtLink>
                   </li>
-                  <li
+                  <!-- <li
                     v-if="
                       hasAnyRole([
                         'directeur-general-adjoint',
@@ -2031,8 +1991,8 @@
                     >
                       Paiement Concours/Dossier
                     </NuxtLink>
-                  </li>
-                  <li>
+                  </li> -->
+                  <!-- <li>
                     <NuxtLink
                       to="/candidatures/declaration-admission"
                       class="block px-3 py-2 text-sm rounded-lg transition-colors"
@@ -2045,7 +2005,7 @@
                     >
                       Admission
                     </NuxtLink>
-                  </li>
+                  </li> -->
                   <li>
                     <NuxtLink
                       to="/candidatures/admis"

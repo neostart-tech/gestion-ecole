@@ -1,172 +1,196 @@
 <template>
-  <div class="page-wrapper">
-    <div class="page">
+  <div class="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-slate-200 dark:from-slate-900 dark:via-gray-900 dark:to-slate-800 p-4 md:p-8 transition-all duration-500 font-sans relative overflow-hidden">
+    
+    <!-- Décorations d'arrière-plan -->
+    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/0 blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-gradient-to-tl from-emerald-500/10 to-teal-500/0 blur-3xl pointer-events-none"></div>
 
+    <div class="relative z-10 max-w-7xl mx-auto">
       <!-- Breadcrumb + Titre -->
-      <Breadcrumb
-        :items="[
-          { label: 'Accueil', to: '/' },
-          { label: 'Actualités & Communiqués', to: null },
-        ]"
-        title="Actualités & Communiqués"
-        title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
-        spacing="mb-4"
-      />
+      <div class="mb-8">
+        <Breadcrumb
+          :items="[
+            { label: 'Accueil', to: '/' },
+            { label: 'Actualités & Communiqués', to: null },
+          ]"
+          title="Actualités & Communiqués"
+          title-class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-slate-500 dark:from-white dark:to-slate-400 tracking-tighter uppercase drop-shadow-sm"
+          spacing="mb-2"
+        />
+        <p class="text-slate-500 dark:text-gray-400 font-semibold text-sm flex items-center gap-2">
+          <span class="w-2.5 h-2.5 bg-gradient-to-tr from-indigo-600 to-purple-500 rounded-full shadow-[0_0_10px_rgba(79,70,229,0.5)] animate-pulse"></span>
+          Dernières annonces et informations de l'établissement
+        </p>
+      </div>
 
       <!-- Toolbar -->
-      <div class="toolbar">
-        <div class="search-wrap">
-          <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-md rounded-2xl p-4 mb-8 border border-white/50 dark:border-gray-700/50 shadow-sm flex flex-col lg:flex-row gap-4 lg:items-center">
+        <div class="relative flex-1 max-w-md">
+          <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
           <input
             v-model="searchQuery"
-            class="search-input"
+            class="w-full px-4 py-2 pl-10 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
             type="text"
-            placeholder="Rechercher..."
+            placeholder="Rechercher une actualité..."
           >
         </div>
 
-        <div class="filters">
+        <div class="flex flex-wrap gap-2">
           <button
             v-for="f in filters"
             :key="f.value"
-            class="filter-btn"
-            :class="{ active: activeFilter === f.value }"
+            class="px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-300"
+            :class="activeFilter === f.value 
+              ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/25' 
+              : 'bg-white/50 dark:bg-gray-700/50 text-slate-600 dark:text-slate-400 border border-white/50 dark:border-gray-600/50 hover:bg-white dark:hover:bg-gray-700'"
             @click="activeFilter = f.value"
           >
             {{ f.label }}
           </button>
         </div>
 
-        <div class="count-badge">
-          {{ filteredInfos.length }} résultat{{ filteredInfos.length > 1 ? 's' : '' }}
+        <div class="lg:ml-auto text-xs font-bold text-slate-500 dark:text-gray-500 uppercase tracking-widest">
+          {{ filteredInfos.length }} RÉSULTAT{{ filteredInfos.length > 1 ? 'S' : '' }}
         </div>
       </div>
 
-      <!-- Loading -->
-      <div v-if="isLoading" class="featured">
-        <div v-for="i in 2" :key="i" class="fcard skeleton">
-          <div class="skeleton-body">
-            <div class="skeleton-line w-20"></div>
-            <div class="skeleton-line w-full"></div>
-            <div class="skeleton-line w-3q"></div>
-            <div class="skeleton-line w-half"></div>
-          </div>
-        </div>
+      <!-- Content Area -->
+      <div v-if="isLoading" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div v-for="i in 2" :key="i" class="h-64 bg-white/40 dark:bg-gray-800/40 rounded-3xl animate-pulse"></div>
       </div>
 
-      <!-- Empty -->
-      <div v-else-if="filteredInfos.length === 0" class="empty">
-        <div class="empty-ring">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      <div v-else-if="filteredInfos.length === 0" class="text-center py-20 bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm rounded-3xl border border-white/50 dark:border-gray-700/50">
+        <div class="w-24 h-24 bg-slate-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
         </div>
-        <h3>Aucun résultat</h3>
-        <p>Essayez de modifier vos critères de recherche.</p>
-        <button class="btn-reset" @click="resetFilters">Réinitialiser</button>
+        <h3 class="text-gray-600 dark:text-gray-400 text-xl font-bold uppercase tracking-wider">Aucun résultat</h3>
+        <p class="text-gray-400 dark:text-gray-500 text-sm mt-2">Réessayez avec d'autres critères de recherche.</p>
+        <button class="mt-6 px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors" @click="resetFilters">Réinitialiser</button>
       </div>
 
-      <!-- Contenu -->
       <template v-else>
-
-        <!-- 2 cartes vedettes -->
-        <div class="featured">
+        <!-- Featured Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-12">
           <div
-            v-for="info in featuredInfos"
+            v-for="(info, index) in featuredInfos"
             :key="info.id"
-            class="fcard"
-            @click="router.push(`/actualites/${info.id}`)"
+            @click="router.push(`/actualites/${info.slug || info.id}`)"
+            class="group relative overflow-hidden rounded-3xl transition-all duration-500 cursor-pointer"
+            :class="index === 0 
+              ? 'md:row-span-2 bg-gradient-to-br from-indigo-600 to-purple-700 shadow-2xl shadow-indigo-500/20' 
+              : 'bg-white dark:bg-gray-800 shadow-xl vertical-card'"
           >
-            <div class="fcard-top">
-              <span class="fcard-badge" :class="{ tgt: info.target_audience !== 'all' }">
+            <!-- Badge -->
+            <div class="p-8 h-full flex flex-col">
+              <span class="inline-block px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest mb-6 w-fit"
+                :class="index === 0 
+                  ? 'bg-white/20 text-white' 
+                  : (info.target_audience === 'all' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400')">
                 {{ info.target_audience === 'all' ? 'Général' : 'Ciblé' }}
               </span>
-              <div class="fcard-title" v-html="truncateText(info.title, 60)">
-              </div>
-              <div class="fcard-sum" v-html="truncateText(info.summary || 'Consultez les détails complets de ce communiqué.', 120)">
-              </div>
-            </div>
-            <div class="fcard-foot">
-              <span class="fcard-date">{{ formatDate(info.publishedAt || info.created_at) }}</span>
-              <span class="fcard-link">
-                Lire
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                </svg>
-              </span>
-            </div>
-          </div>
-        </div>
 
-        <!-- Reste en liste numérotée -->
-        <template v-if="regularInfos.length > 0">
-          <div class="section-label">Autres annonces</div>
-          <div class="list">
-            <div
-              v-for="(info, index) in regularInfos"
-              :key="info.id"
-              class="item"
-              @click="router.push(`/actualites/${info.id}`)"
-            >
-              <div class="item-num">{{ String(index + 1).padStart(2, '0') }}</div>
+              <h3 class="font-bold leading-tight mb-4 transition-colors"
+                :class="index === 0 ? 'text-3xl text-white' : 'text-xl text-slate-800 dark:text-white group-hover:text-indigo-600'"
+                v-html="truncateText(info.title, index === 0 ? 80 : 60)">
+              </h3>
 
-              <div class="item-body">
-                <div class="item-meta">
-                  <span class="item-date">{{ formatDate(info.publishedAt || info.created_at) }}</span>
-                  <span class="item-dot"></span>
-                  <span class="item-badge" :class="{ tgt: info.target_audience !== 'all' }">
-                    {{ info.target_audience === 'all' ? 'Général' : 'Ciblé' }}
-                  </span>
-                </div>
-                <div class="item-title" v-html="truncateText(info.title, 70)">
-                </div>
-                <div class="item-sum" v-html="truncateText(info.summary, 100)">
-                </div>
+              <div class="text-sm line-clamp-4 flex-1"
+                :class="index === 0 ? 'text-indigo-100/80' : 'text-slate-500 dark:text-gray-400'"
+                v-html="truncateText(info.summary || 'Consultez les détails complets de ce communiqué.', index === 0 ? 150 : 120)">
               </div>
 
-              <div class="item-right">
-                <div class="item-arr">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                  </svg>
-                </div>
-                <span v-if="info.attachments?.length" class="item-attach">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
-                  </svg>
-                  {{ info.attachments.length }}
+              <div class="mt-8 pt-6 border-t flex items-center justify-between"
+                :class="index === 0 ? 'border-white/10' : 'border-slate-100 dark:border-gray-700'">
+                <span class="text-xs font-semibold" :class="index === 0 ? 'text-indigo-200' : 'text-slate-400'">
+                  {{ formatDate(info.publishedAt || info.created_at) }}
+                </span>
+                <span class="flex items-center gap-2 text-xs font-black uppercase tracking-widest group-hover:gap-3 transition-all"
+                  :class="index === 0 ? 'text-white' : 'text-indigo-600 dark:text-indigo-400'">
+                  Lire
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                 </span>
               </div>
             </div>
           </div>
-        </template>
+        </div>
 
+        <!-- Section List -->
+        <template v-if="regularInfos.length > 0">
+          <div class="flex items-center gap-4 mb-8">
+            <h2 class="text-sm font-black uppercase tracking-widest text-slate-400">Autres annonces</h2>
+            <div class="flex-1 h-px bg-slate-200 dark:bg-gray-700"></div>
+          </div>
+
+          <div class="space-y-4">
+            <div
+              v-for="(info, index) in regularInfos"
+              :key="info.id"
+              @click="router.push(`/actualites/${info.slug || info.id}`)"
+              class="group bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm p-4 rounded-2xl border border-white/50 dark:border-gray-700/50 hover:bg-white dark:hover:bg-gray-800 hover:shadow-lg transition-all duration-300 flex items-center gap-6 cursor-pointer"
+            >
+              <div class="hidden sm:flex text-3xl font-black text-slate-200 dark:text-gray-700 transition-colors group-hover:text-indigo-500/30">
+                {{ String(index + 3).padStart(2, '0') }}
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-[10px] font-bold text-slate-400">{{ formatDate(info.publishedAt || info.created_at) }}</span>
+                  <div class="w-1 h-1 rounded-full bg-slate-300"></div>
+                  <span class="text-[10px] font-bold uppercase tracking-widest"
+                    :class="info.target_audience === 'all' ? 'text-blue-500' : 'text-purple-500'">
+                    {{ info.target_audience === 'all' ? 'Général' : 'Ciblé' }}
+                  </span>
+                </div>
+                <h4 class="font-bold text-slate-800 dark:text-white truncate group-hover:text-indigo-600 transition-colors" v-html="info.title"></h4>
+                <p class="text-sm text-slate-500 dark:text-gray-400 line-clamp-1 mt-1" v-html="info.summary"></p>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <span v-if="info.attachments?.length" class="flex items-center gap-1 text-[10px] font-bold text-slate-400">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                  {{ info.attachments.length }}
+                </span>
+                <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7-7 7"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
       </template>
 
-      <!-- Pagination -->
-      <div v-if="totalPages > 1" class="pagination">
-        <button class="page-btn" :disabled="currentPage === 1" @click="currentPage--">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-          </svg>
+      <!-- Pagination Premium -->
+      <div v-if="totalPages > 1" class="mt-12 flex justify-center gap-2">
+        <button 
+          :disabled="currentPage === 1" 
+          @click="currentPage--"
+          class="p-2 rounded-xl bg-white/60 dark:bg-gray-800/60 border border-white/50 dark:border-gray-700 disabled:opacity-30 hover:bg-white dark:hover:bg-gray-700 transition-all font-bold text-indigo-600 dark:text-indigo-400"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
         </button>
 
         <button
           v-for="p in totalPages"
           :key="p"
-          class="page-btn"
-          :class="{ active: currentPage === p }"
           @click="currentPage = p"
+          class="w-10 h-10 rounded-xl font-bold transition-all border border-white/50 dark:border-gray-700/50"
+          :class="currentPage === p 
+            ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/20 scale-110' 
+            : 'bg-white/60 dark:bg-gray-800/60 text-slate-500 hover:bg-white dark:hover:bg-gray-700'"
         >
           {{ p }}
         </button>
 
-        <button class="page-btn" :disabled="currentPage === totalPages" @click="currentPage++">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-          </svg>
+        <button 
+          :disabled="currentPage === totalPages" 
+          @click="currentPage++"
+          class="p-2 rounded-xl bg-white/60 dark:bg-gray-800/60 border border-white/50 dark:border-gray-700 disabled:opacity-30 hover:bg-white dark:hover:bg-gray-700 transition-all font-bold text-indigo-600 dark:text-indigo-400"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
       </div>
 
@@ -205,20 +229,13 @@ onMounted(async () => {
   }
 });
 
-// Fonction pour tronquer le texte (sans decode car v-html le fait)
 const truncateText = (text, maxLength) => {
   if (!text) return '';
-  
-  // Enlève temporairement les balises HTML pour le comptage
   const cleanText = text.replace(/<[^>]*>/g, '');
   if (cleanText.length <= maxLength) return text;
-  
-  // Troncature intelligente
   let truncated = cleanText.substring(0, maxLength).trim();
   const lastSpace = truncated.lastIndexOf(' ');
-  if (lastSpace > 0) {
-    truncated = truncated.substring(0, lastSpace);
-  }
+  if (lastSpace > 0) truncated = truncated.substring(0, lastSpace);
   return truncated + '...';
 };
 
@@ -233,7 +250,6 @@ const formatDate = (dateString) => {
 
 const filteredInfos = computed(() => {
   if (!urgentInfoStore.urgentinfos) return [];
-
   let userRoles = [];
   let userGroupId = null;
   try {
@@ -245,672 +261,41 @@ const filteredInfos = computed(() => {
   } catch (e) {
     console.error("Erreur lecture rôles utilisateur:", e);
   }
-
   const isAdmin = userRoles.some(r => ['admin', 'directeur-general', 'responsable-du-site'].includes(r));
-
   let results = urgentInfoStore.urgentinfos.filter((info) => {
     if (!info.is_published) return false;
     if (isAdmin) return true;
-
     switch (info.target_audience) {
-      case 'all':
-        return true;
-      case 'students':
-        return userRoles.includes('etudiant');
-      case 'teachers':
-        return userRoles.includes('enseignant');
-      case 'administration':
-        return userRoles.some(r => !['etudiant', 'enseignant'].includes(r));
-      case 'group':
-        return userGroupId && info.target_group_id == userGroupId; 
-      default:
-        return true;
+      case 'all': return true;
+      case 'students': return userRoles.includes('etudiant');
+      case 'teachers': return userRoles.includes('enseignant');
+      case 'administration': return userRoles.some(r => !['etudiant', 'enseignant'].includes(r));
+      case 'group': return userGroupId && info.target_group_id == userGroupId; 
+      default: return true;
     }
   });
-
-  if (activeFilter.value === 'general') {
-    results = results.filter((info) => info.target_audience === 'all');
-  } else if (activeFilter.value === 'targeted') {
-    results = results.filter((info) => info.target_audience !== 'all');
-  }
-
+  if (activeFilter.value === 'general') results = results.filter((info) => info.target_audience === 'all');
+  else if (activeFilter.value === 'targeted') results = results.filter((info) => info.target_audience !== 'all');
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase();
-    results = results.filter(
-      (info) =>
-        info.title.toLowerCase().includes(query) ||
-        (info.summary && info.summary.toLowerCase().includes(query))
-    );
+    results = results.filter((info) => info.title.toLowerCase().includes(query) || (info.summary && info.summary.toLowerCase().includes(query)));
   }
-
-  return results.sort(
-    (a, b) =>
-      new Date(b.publishedAt || b.created_at) - new Date(a.publishedAt || a.created_at)
-  );
+  return results.sort((a, b) => new Date(b.publishedAt || b.created_at) - new Date(a.publishedAt || a.created_at));
 });
 
-// 2 premières cartes en vedette
 const featuredInfos = computed(() => filteredInfos.value.slice(0, 2));
-
-// Le reste avec pagination
 const regularInfos = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   return filteredInfos.value.slice(2).slice(start, start + itemsPerPage);
 });
-
 const totalPages = computed(() => {
   const remainingCount = Math.max(0, filteredInfos.value.length - 2);
   return Math.ceil(remainingCount / itemsPerPage);
 });
-
-watch([searchQuery, activeFilter], () => {
-  currentPage.value = 1;
-});
-
-const resetFilters = () => {
-  searchQuery.value = '';
-  activeFilter.value = 'all';
-};
+watch([searchQuery, activeFilter], () => { currentPage.value = 1; });
+const resetFilters = () => { searchQuery.value = ''; activeFilter.value = 'all'; };
 </script>
 
 <style scoped>
-/* ── Variables ── */
-.page-wrapper {
-  --b: #3746E9;
-  --v: #8A31F7;
-  --grad: linear-gradient(110deg, #3746E9, #8A31F7);
-  --ink: #0A0A14;
-  --ink2: #3D3D55;
-  --ink3: #8888A8;
-  --bg: #F9F8FF;
-  --surf: #FFFFFF;
-  --surf2: #F2F1FA;
-  --line: #E6E5F2;
-
-  font-family: system-ui, -apple-system, sans-serif;
-  background: var(--bg);
-  color: var(--ink);
-  min-height: 100vh;
-}
-
-.page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 48px 28px 100px;
-}
-
-/* ── Toolbar ── */
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 44px;
-  margin-top: 28px;
-}
-
-.search-wrap {
-  position: relative;
-  flex: 0 0 280px;
-}
-
-.search-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 15px;
-  height: 15px;
-  color: var(--ink3);
-  pointer-events: none;
-}
-
-.search-input {
-  width: 100%;
-  padding: 10px 12px 10px 36px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surf);
-  font-family: inherit;
-  font-size: 13px;
-  color: var(--ink);
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.search-input:focus {
-  border-color: var(--b);
-  box-shadow: 0 0 0 3px rgba(55, 70, 233, 0.09);
-}
-
-.search-input::placeholder {
-  color: var(--ink3);
-}
-
-.filters {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.filter-btn {
-  padding: 9px 20px;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--ink3);
-  cursor: pointer;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surf);
-  transition: all 0.18s;
-  white-space: nowrap;
-}
-
-.filter-btn:hover {
-  border-color: var(--b);
-  color: var(--b);
-}
-
-.filter-btn.active {
-  background: var(--grad);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 3px 12px rgba(55, 70, 233, 0.2);
-}
-
-.count-badge {
-  margin-left: auto;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink3);
-  white-space: nowrap;
-}
-
-/* ── Featured ── */
-.featured {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.fcard {
-  background: var(--surf);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.25s;
-  display: flex;
-  flex-direction: column;
-  min-height: 280px;
-}
-
-.fcard:hover {
-  border-color: rgba(55, 70, 233, 0.3);
-  box-shadow: 0 8px 32px rgba(55, 70, 233, 0.09);
-  transform: translateY(-2px);
-}
-
-.fcard:first-child {
-  grid-row: span 2;
-  background: var(--grad);
-  min-height: 380px;
-}
-
-.fcard-top {
-  padding: 28px 28px 20px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.fcard:first-child .fcard-top {
-  padding: 32px 32px 24px;
-}
-
-.fcard-badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  background: rgba(55, 70, 233, 0.1);
-  color: var(--b);
-  margin-bottom: 16px;
-  width: fit-content;
-}
-
-.fcard-badge.tgt {
-  background: rgba(138, 49, 247, 0.1);
-  color: var(--v);
-}
-
-.fcard:first-child .fcard-badge,
-.fcard:first-child .fcard-badge.tgt {
-  background: rgba(255, 255, 255, 0.18);
-  color: #fff;
-}
-
-.fcard-title {
-  font-size: 19px;
-  font-weight: 700;
-  line-height: 1.3;
-  color: var(--ink);
-  margin-bottom: 10px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.fcard:first-child .fcard-title {
-  font-size: 26px;
-  color: #fff;
-  -webkit-line-clamp: 3;
-}
-
-.fcard-sum {
-  font-size: 13px;
-  color: var(--ink3);
-  line-height: 1.5;
-  flex: 1;
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.fcard:first-child .fcard-sum {
-  color: rgba(255, 255, 255, 0.6);
-  -webkit-line-clamp: 5;
-}
-
-.fcard-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 28px;
-  border-top: 1px solid var(--line);
-}
-
-.fcard:first-child .fcard-foot {
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
-.fcard-date {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--ink3);
-}
-
-.fcard:first-child .fcard-date {
-  color: rgba(255, 255, 255, 0.45);
-}
-
-.fcard-link {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--b);
-  transition: gap 0.2s;
-}
-
-.fcard:first-child .fcard-link {
-  color: #fff;
-}
-
-.fcard-link svg {
-  width: 12px;
-  height: 12px;
-  transition: transform 0.2s;
-}
-
-.fcard:hover .fcard-link svg {
-  transform: translateX(3px);
-}
-
-/* ── Section label ── */
-.section-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink3);
-  margin-bottom: 24px;
-  margin-top: 56px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.section-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--line);
-}
-
-/* ── List ── */
-.list {
-  display: flex;
-  flex-direction: column;
-}
-
-.item {
-  display: grid;
-  grid-template-columns: 52px 1fr auto;
-  align-items: center;
-  gap: 22px;
-  padding: 20px 0;
-  border-bottom: 1px solid var(--line);
-  cursor: pointer;
-  transition: all 0.15s;
-  border-radius: 0;
-}
-
-.item:hover {
-  background: var(--surf2);
-  margin: 0 -14px;
-  padding-left: 14px;
-  padding-right: 14px;
-  border-radius: 10px;
-  border-color: transparent;
-}
-
-.item:hover .item-num {
-  background: var(--grad);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.item:hover .item-title {
-  color: var(--b);
-}
-
-.item-num {
-  font-size: 26px;
-  font-weight: 800;
-  color: var(--line);
-  text-align: right;
-  line-height: 1;
-  transition: all 0.2s;
-  letter-spacing: -0.02em;
-}
-
-.item-body {
-  flex: 1;
-  min-width: 0;
-}
-
-.item-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 6px;
-}
-
-.item-date {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--ink3);
-}
-
-.item-dot {
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: var(--line);
-}
-
-.item-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  background: rgba(55, 70, 233, 0.08);
-  color: var(--b);
-}
-
-.item-badge.tgt {
-  background: rgba(138, 49, 247, 0.1);
-  color: var(--v);
-}
-
-.item-title {
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.3;
-  color: var(--ink);
-  margin-bottom: 5px;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  transition: color 0.2s;
-}
-
-.item-sum {
-  font-size: 12.5px;
-  color: var(--ink3);
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.item-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.item-arr {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1px solid var(--line);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-
-.item:hover .item-arr {
-  background: var(--grad);
-  border-color: transparent;
-}
-
-.item-arr svg {
-  width: 13px;
-  height: 13px;
-  stroke: var(--ink3);
-  stroke-width: 2;
-  fill: none;
-  transition: stroke 0.2s;
-}
-
-.item:hover .item-arr svg {
-  stroke: #fff;
-}
-
-.item-attach {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--ink3);
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.item-attach svg {
-  width: 11px;
-  height: 11px;
-}
-
-/* ── Skeleton ── */
-.skeleton {
-  pointer-events: none;
-}
-
-.skeleton-body {
-  padding: 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  flex: 1;
-  min-height: 200px;
-}
-
-.skeleton-line {
-  height: 14px;
-  border-radius: 6px;
-  background: var(--line);
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-.skeleton-line.w-20  { width: 20%; }
-.skeleton-line.w-full { width: 100%; }
-.skeleton-line.w-3q  { width: 75%; }
-.skeleton-line.w-half { width: 50%; }
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-/* ── Empty ── */
-.empty {
-  text-align: center;
-  padding: 72px 24px;
-}
-
-.empty-ring {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: 1px solid var(--line);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 20px;
-}
-
-.empty-ring svg {
-  width: 20px;
-  height: 20px;
-  stroke: var(--ink3);
-  fill: none;
-  stroke-width: 1.5;
-}
-
-.empty h3 {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--ink);
-  margin-bottom: 8px;
-}
-
-.empty p {
-  font-size: 13px;
-  color: var(--ink3);
-  margin-bottom: 20px;
-}
-
-.btn-reset {
-  padding: 10px 22px;
-  border-radius: 8px;
-  background: var(--grad);
-  color: #fff;
-  border: none;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-
-.btn-reset:hover {
-  opacity: 0.88;
-}
-
-/* ── Pagination ── */
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin-top: 56px;
-  padding-top: 40px;
-  border-top: 1px solid var(--line);
-}
-
-.page-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 7px;
-  border: 1px solid var(--line);
-  background: var(--surf);
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--ink2);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.18s;
-}
-
-.page-btn svg {
-  width: 13px;
-  height: 13px;
-}
-
-.page-btn:hover:not(:disabled) {
-  border-color: var(--b);
-  color: var(--b);
-}
-
-.page-btn.active {
-  background: var(--grad);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 3px 12px rgba(55, 70, 233, 0.25);
-}
-
-.page-btn:disabled {
-  opacity: 0.25;
-  cursor: not-allowed;
-}
-
-/* ── Responsive ── */
-@media (max-width: 768px) {
-  .page { padding: 32px 16px 80px; }
-  .featured { grid-template-columns: 1fr; }
-  .fcard:first-child { grid-row: auto; min-height: 280px; }
-  .search-wrap { flex: 1 1 100%; }
-  .count-badge { display: none; }
-}
-
-@media (max-width: 480px) {
-  .item { grid-template-columns: 40px 1fr auto; gap: 12px; }
-  .item-num { font-size: 20px; }
-  .filter-btn { padding: 8px 14px; }
-}
+.vertical-card:hover { transform: translateY(-5px); }
 </style>

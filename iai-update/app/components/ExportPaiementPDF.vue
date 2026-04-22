@@ -37,7 +37,7 @@
         </div>
         <div class="info-item">
           <span class="info-label">Total étudiants</span>
-          <span class="info-value">{{ etudiants.length }}</span>
+          <span class="info-value">{{ etudiantsFiltres.length }}</span>
         </div>
       </div>
 
@@ -62,7 +62,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(etudiant, index) in etudiants" :key="index" :class="getStatutClass(etudiant.statut)">
+        <tr v-for="(etudiant, index) in etudiantsFiltres" :key="index" :class="getStatutClass(etudiant.statut)">
           <td class="text-center">{{ index + 1 }}</td>
           <td>{{ truncateName(etudiant.nom, etudiant.prenom) }}</td>
           <td class="text-right montant">{{ formatMontantCourt(etudiant.montant_initial) }}</td>
@@ -120,9 +120,13 @@
             <span class="stat-dot retard"></span>
             <span>En retard: <strong>{{ stats.en_retard }}</strong></span>
           </div>
-          <div class="stat-item">
+          <div class="stat-item" v-if="stats.abandon > 0">
+            <span class="stat-dot" style="background:#6b7280"></span>
+            <span>Abandons (exclus): <strong>{{ stats.abandon }}</strong></span>
+          </div>
+          <div class="stat-item" v-if="stats.aucun_frais > 0">
             <span class="stat-dot aucun"></span>
-            <span>Aucun frais: <strong>{{ stats.aucun_frais }}</strong></span>
+            <span>Sans frais: <strong>{{ stats.aucun_frais }}</strong></span>
           </div>
         </div>
       </div>
@@ -157,13 +161,19 @@ const props = defineProps({
   periodeFin: { type: String, default: null }
 })
 
+// Étudiants filtrés (sans les abandons)
+const etudiantsFiltres = computed(() => 
+  props.etudiants.filter(e => e.statut !== 'abandon')
+)
+
 // Statistiques par statut
 const stats = computed(() => {
-  const stats = { solde: 0, en_cours: 0, en_retard: 0, aucun_frais: 0 }
+  const stats = { solde: 0, en_cours: 0, en_retard: 0, aucun_frais: 0, abandon: 0 }
   props.etudiants.forEach(e => {
     if (e.statut === 'solde') stats.solde++
     else if (e.statut === 'en_cours') stats.en_cours++
     else if (e.statut === 'en_retard') stats.en_retard++
+    else if (e.statut === 'abandon') stats.abandon++
     else stats.aucun_frais++
   })
   return stats
@@ -239,13 +249,7 @@ const formatMontant = (montant) => {
 
 const formatMontantCourt = (montant) => {
   if (!montant && montant !== 0) return '-'
-  if (montant >= 1000000) {
-    return (montant / 1000000).toFixed(1) + ' M'
-  }
-  if (montant >= 1000) {
-    return (montant / 1000).toFixed(0) + ' K'
-  }
-  return montant.toString()
+  return new Intl.NumberFormat('fr-FR').format(montant) + ' F'
 }
 
 const formatDate = (date) => {

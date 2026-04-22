@@ -100,6 +100,11 @@ export const useDashboardPaiementStore = defineStore("dashboardPaiement", {
       return state.statistiques?.resume?.total_etudiants || 0;
     },
 
+    // Frais de retrait Mobile Money
+    fraisRetraitMM: (state) => {
+      return state.statistiques?.resume?.frais_retrait_mm || 0;
+    },
+
     // Étudiants avec frais
     etudiantsAvecFrais: (state) => {
       return state.statistiques?.resume?.etudiants_avec_frais || 0;
@@ -132,11 +137,16 @@ export const useDashboardPaiementStore = defineStore("dashboardPaiement", {
       const statuts = state.repartitionStatuts;
       return [
         { key: 'solde', label: 'Soldé', value: statuts.solde || 0, color: '#10b981' },
-        { key: 'a_jour', label: 'À jour', value: statuts.a_jour || 0, color: '#f59e0b' },
+        { key: 'a_jour', label: 'À jour', value: statuts.a_jour || 0, color: '#3b82f6' },
         { key: 'retard', label: 'En retard', value: statuts.retard || 0, color: '#ef4444' },
-        { key: 'abandon', label: 'Abandons', value: statuts.abandon || 0, color: '#6b7280' }
+        { key: 'abandon', label: 'Abandons', value: statuts.abandon || 0, color: '#64748b' }
       ];
     },
+
+    // ================= ABANDONS =================
+    caActive: (state) => state.statistiques?.resume?.ca_active || { inscription: 0, scolarite: 0, total: 0 },
+    caAbandons: (state) => state.statistiques?.resume?.ca_abandons || { inscription: 0, scolarite: 0, total: 0 },
+    grandTotalCollecte: (state) => state.statistiques?.resume?.grand_total_collecte || 0,
 
     // Top performers formaté
     topPerformersFormatted: (state) => {

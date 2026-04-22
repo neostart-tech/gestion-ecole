@@ -43,12 +43,12 @@ export const useRecouvrementStore = defineStore("recouvrement", {
     /**
      * Récupérer les recouvrements
      */
-    async fetchRecouvrements(niveau_id = "", statut = "") {
+    async fetchRecouvrements(niveau_id = "", statut = "", statut_inscription = "") {
       this.loading = true;
       this.error = null;
       try {
         const response = await axios.get('/finance/recouvrement', {
-          params: { niveau_id, statut },
+          params: { niveau_id, statut, statut_inscription },
           ...this.authHeaders
         });
         
@@ -141,10 +141,9 @@ export const useRecouvrementStore = defineStore("recouvrement", {
              total_encaisse: total_encaisse,
              total_restant: total_a_collecter - total_encaisse,
              taux_collecte: total_a_collecter > 0 ? Math.round((total_encaisse / total_a_collecter) * 100) : 0,
-             retard_paiement: (Number(extra.retard_paiement?.montant) > 0) ? extra.retard_paiement : {
-                montant: retard_montant,
-                nombre_etudiants: retard_calc.length
-             }
+             retard_paiement: extra.retard_paiement || { montant: 0, nombre_etudiants: 0 },
+             // Données détaillées abandons depuis le résumé du dashboard
+             ca_abandons_resume: resume.ca_abandons || {}
            };
         }
         return response.data;

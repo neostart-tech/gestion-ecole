@@ -43,8 +43,19 @@
 
       <!-- Main Content -->
       <template v-else>
+        <!-- Alerte Abandon -->
+        <div v-if="etudiant?.statut === 'abandon'" class="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-center gap-3 text-red-700 shadow-sm animate-pulse">
+          <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <div>
+            <p class="font-black text-sm uppercase tracking-tight">Dossier en arrêt (Abandon)</p>
+            <p class="text-xs opacity-80">Cet étudiant a été déclaré en situation d'abandon. Les opérations de recouvrement sont suspendues.</p>
+          </div>
+        </div>
+
         <!-- Profil -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 p-5 flex items-start justify-between gap-4 flex-wrap">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 p-5 flex items-start justify-between gap-4 flex-wrap" :class="{'opacity-75 grayscale-[0.5]': etudiant?.statut === 'abandon'}">
         <div class="flex items-center gap-4">
           <div class="w-14 h-14 rounded-full bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-xl uppercase">
             {{ initiales }}
@@ -57,6 +68,10 @@
               </span>
               <span class="text-xs font-bold px-2.5 py-1 rounded-lg border" :class="getStatusClass(etudiant?.statut)">
                 {{ getStatusLabel(etudiant?.statut) }}
+              </span>
+              <span v-if="etudiant?.inscription_statut" class="text-xs font-bold px-2.5 py-1 rounded-lg border ml-1"
+                :class="etudiant?.inscription_statut === 'solde' ? 'bg-indigo-50 text-indigo-700 border-indigo-100' : 'bg-slate-50 text-slate-400 border-slate-100'">
+                {{ etudiant?.inscription_statut === 'solde' ? 'Inscription Soldée' : 'Inscription Non Payée' }}
               </span>
             </div>
             <p class="text-sm text-slate-500 dark:text-gray-400 mt-1.5 font-medium">{{ etudiant?.niveau }} — <span class="text-indigo-600 dark:text-indigo-400">{{ etudiant?.filiere }}</span></p>
@@ -71,25 +86,28 @@
       <!-- KPIs -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-slate-100 dark:border-gray-700 p-4">
-          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Montant dû</p>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Scolarité Dû</p>
           <p class="text-xl font-black text-slate-800 dark:text-white tabular-nums">{{ formatMontantShort(etudiant?.montant_du) }}</p>
           <span class="text-xs text-slate-400">FCFA</span>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-slate-100 dark:border-gray-700 p-4">
-          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Montant payé</p>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Scolarité Payée</p>
           <p class="text-xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">{{ formatMontantShort(etudiant?.montant_paye) }}</p>
           <span class="text-xs text-slate-400">FCFA</span>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-slate-100 dark:border-gray-700 p-4">
-          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Reste à payer</p>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Inscription</p>
+          <p class="text-xl font-black tabular-nums" :class="etudiant?.inscription_statut === 'solde' ? 'text-emerald-600' : 'text-amber-500'">
+            {{ etudiant?.inscription_statut === 'solde' ? 'PAYÉE' : formatMontantShort(etudiant?.montant_inscription_du) }}
+          </p>
+          <span class="text-xs text-slate-400">{{ etudiant?.inscription_statut === 'solde' ? 'Validée' : 'FCFA à payer' }}</span>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-slate-100 dark:border-gray-700 p-4">
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Reste Scolarité</p>
           <p class="text-xl font-black tabular-nums" :class="etudiant?.reste > 0 ? 'text-red-500' : 'text-slate-400'">
             {{ etudiant?.reste > 0 ? formatMontantShort(etudiant?.reste) : '0' }}
           </p>
           <span class="text-xs text-slate-400">FCFA</span>
-        </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-slate-100 dark:border-gray-700 p-4">
-          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Couverture</p>
-          <p class="text-xl font-black text-indigo-600 dark:text-indigo-400">{{ tauxCouverture }}%</p>
         </div>
       </div>
 
@@ -372,17 +390,22 @@ const formatMontantShort = (m) => {
 };
 
 const getStatusLabel = (s) => ({
-  solde: 'Scolarité soldée', retard: 'En retard',
-  avance: 'Payé en avance', en_cours: 'À jour', 
-  abandon: 'Abandon', en_attente: 'À venir'
+  solde: 'Scolarité soldée', 
+  en_retard: 'En retard',
+  retard: 'En retard',
+  avance: 'Payé en avance', 
+  en_cours: 'À jour', 
+  abandon: 'Étudiant en abandon', 
+  en_attente: 'À venir'
 })[s] || s;
 
 const getStatusClass = (s) => ({
   solde: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800/30',
+  en_retard: 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400 border-red-100 dark:border-red-800/30',
   retard: 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400 border-red-100 dark:border-red-800/30',
   avance: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400 border-indigo-100 dark:border-indigo-800/30',
   en_cours: 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400 border-amber-100 dark:border-amber-800/30',
-  abandon: 'bg-slate-50 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-gray-700'
+  abandon: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700'
 })[s] || '';
 
 const ouvrirModalPaiement = () => {
@@ -430,15 +453,42 @@ const envoyerRappel = async () => {
 };
 
 const declarerAbandon = async () => {
-  if (confirm("Êtes-vous sûr de vouloir déclarer cet étudiant en abandon ?")) {
-    try {
-      const response = await recouvrementStore.declarerAbandon(route.params.slug);
-      $toastr.success(response.message || "La déclaration d'abandon a été traitée avec succès.");
-      await recouvrementStore.fetchEtudiantDetail(route.params.slug); // Refresh the UI state
-    } catch (e) {
-      if ($toastr) {
-        $toastr.error(e.response?.data?.message || "Erreur lors de la déclaration d'abandon.");
+  const { $swal } = useNuxtApp();
+  
+  if (!$swal) {
+      if (confirm("Êtes-vous sûr de vouloir déclarer cet étudiant en abandon ?")) {
+          // Fallback if swal not available
+          traiterAbandon();
       }
+      return;
+  }
+
+  const result = await $swal.fire({
+    title: 'Confirmer l\'abandon ?',
+    text: "Cette action marquera l'étudiant comme ayant abandonné ses études pour cette année. Cette opération est irréversible dans ce menu.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#64748b',
+    confirmButtonText: 'Oui, déclarer l\'abandon',
+    cancelButtonText: 'Annuler',
+    reverseButtons: true
+  });
+
+  if (result.isConfirmed) {
+    traiterAbandon();
+  }
+};
+
+const traiterAbandon = async () => {
+  const { $toastr } = useNuxtApp();
+  try {
+    const response = await recouvrementStore.declarerAbandon(route.params.slug);
+    $toastr.success(response.message || "La déclaration d'abandon a été traitée avec succès.");
+    await recouvrementStore.fetchEtudiantDetail(route.params.slug); // Refresh the UI state
+  } catch (e) {
+    if ($toastr) {
+      $toastr.error(e.response?.data?.message || "Erreur lors de la déclaration d'abandon.");
     }
   }
 };

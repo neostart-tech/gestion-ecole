@@ -176,7 +176,6 @@
         </div>
       </template>
 
-      <!-- Données réelles avec animation d'apparition -->
       <template v-else>
         <div
           v-for="(kpi, index) in kpis"
@@ -222,6 +221,141 @@
           </div>
         </div>
       </template>
+    </div>
+
+    <!-- Section Analyse du Chiffre d'Affaires (Actifs vs Abandons) -->
+    <div v-if="!isLoading" class="mb-8 animate-fade-in-up" style="animation-delay: 150ms">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Carte CA Actifs -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm overflow-hidden relative group transition-all duration-300 hover:shadow-md">
+           <div class="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
+              <svg class="w-32 h-32 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+              </svg>
+           </div>
+           
+           <div class="flex items-center gap-3 mb-6">
+              <div class="p-3 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-xl">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+               <div>
+                <h3 class="text-sm font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest leading-none mb-1">Chiffre d'Affaires</h3>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white leading-none">Étudiants Actifs</h2>
+              </div>
+           </div>
+
+           <div class="space-y-4 relative z-10">
+              <!-- CA Théorique Actifs -->
+              <div class="flex justify-between items-center p-3 bg-slate-50 dark:bg-gray-900/40 rounded-lg border border-slate-100 dark:border-gray-700/50">
+                <span class="text-sm font-bold text-slate-500 dark:text-gray-400 uppercase tracking-tight">CA Théorique Attendu</span>
+                <span class="text-lg font-black text-slate-500 font-mono">{{ formatMontant(dashboardStore.caActive.total + (dashboardStore.scolariteRestant + dashboardStore.inscriptionRestant)) }}</span>
+              </div>
+
+              <!-- CA RÉELLEMENT ENCAISSÉ -->
+              <div class="bg-emerald-50/50 dark:bg-emerald-900/10 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
+                 <div class="flex justify-between items-start mb-3">
+                    <div class="flex flex-col">
+                       <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest leading-none mb-1">CA Réellement Perçu</span>
+                       <span class="text-[9px] text-emerald-500 font-medium">Flux de trésorerie effectif</span>
+                    </div>
+                    <div class="flex flex-col items-end">
+                       <span class="text-2xl font-black text-emerald-600 tabular-nums leading-none">{{ formatMontant(dashboardStore.caActive.total) }}</span>
+                       <div class="flex items-center gap-1 mt-1">
+                          <svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                          <span class="text-[10px] font-bold text-emerald-500 uppercase">Encaissé</span>
+                       </div>
+                    </div>
+                 </div>
+                 <div class="flex flex-col gap-2 pt-2 border-t border-emerald-100 dark:border-emerald-800/30">
+                    <div class="flex justify-between items-center">
+                       <span class="text-[10px] text-emerald-600/70 font-bold uppercase">Dont Inscriptions</span>
+                       <span class="text-xs font-black text-emerald-700/80">{{ formatMontant(dashboardStore.caActive.inscription) }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                       <span class="text-[10px] text-emerald-600/70 font-bold uppercase">Dont Scolarités</span>
+                       <span class="text-xs font-black text-emerald-700/80">{{ formatMontant(dashboardStore.caActive.scolarite) }}</span>
+                    </div>
+                 </div>
+              </div>
+
+              <!-- RESTE À RECOUVRER -->
+              <div class="flex justify-between items-center p-3 rounded-xl bg-amber-50/30 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20">
+                 <div class="flex flex-col">
+                    <span class="text-[10px] font-black text-amber-600 uppercase tracking-widest">Reste à Recouvrer</span>
+                    <span class="text-[9px] text-amber-500 font-medium italic">Créances sur étudiants actifs</span>
+                 </div>
+                 <span class="text-lg font-black text-amber-600 tabular-nums">{{ formatMontant(dashboardStore.scolariteRestant + dashboardStore.inscriptionRestant) }}</span>
+              </div>
+           </div>
+        </div>
+
+        <!-- Carte CA Abandons -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm overflow-hidden relative group transition-all duration-300 hover:shadow-md">
+           <div class="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
+              <svg class="w-32 h-32 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+           </div>
+           
+           <div class="flex items-center gap-3 mb-6">
+              <div class="p-3 bg-red-50 dark:bg-red-900/30 text-red-600 rounded-xl">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-sm font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest leading-none mb-1">Chiffre d'Affaires</h3>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white leading-none">Étudiants en Abandon</h2>
+              </div>
+           </div>
+
+           <div class="space-y-4 relative z-10">
+              <!-- CA Théorique -->
+              <div class="flex justify-between items-center p-3 bg-slate-50 dark:bg-gray-900/40 rounded-lg border border-slate-100 dark:border-gray-700/50">
+                <span class="text-sm font-bold text-slate-500 dark:text-gray-400 uppercase tracking-tight">CA Théorique Attendu</span>
+                <span class="text-lg font-black text-slate-500 font-mono">{{ formatMontant(dashboardStore.caAbandons.total + dashboardStore.caAbandons.total_non_recupere) }}</span>
+              </div>
+
+              <!-- CA RÉELLEMENT PERÇU -->
+              <div class="bg-emerald-50/50 dark:bg-emerald-900/10 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
+                 <div class="flex justify-between items-start mb-3">
+                    <div class="flex flex-col">
+                       <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest leading-none mb-1">CA Réellement Perçu</span>
+                       <span class="text-[9px] text-emerald-500 font-medium">Sommes définitivement acquises</span>
+                    </div>
+                    <div class="flex flex-col items-end">
+                       <span class="text-2xl font-black text-emerald-600 tabular-nums leading-none">{{ formatMontant(dashboardStore.caAbandons.total) }}</span>
+                       <div class="flex items-center gap-1 mt-1">
+                          <svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                          <span class="text-[10px] font-bold text-emerald-500 uppercase">Encaissé</span>
+                       </div>
+                    </div>
+                 </div>
+                 <div class="flex flex-col gap-2 pt-2 border-t border-emerald-100 dark:border-emerald-800/30">
+                    <div class="flex justify-between items-center">
+                       <span class="text-[10px] text-emerald-600/70 font-bold uppercase">Dont Inscriptions</span>
+                       <span class="text-xs font-black text-emerald-700/80">{{ formatMontant(dashboardStore.caAbandons.inscription) }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                       <span class="text-[10px] text-emerald-600/70 font-bold uppercase">Dont Scolarités</span>
+                       <span class="text-xs font-black text-emerald-700/80">{{ formatMontant(dashboardStore.caAbandons.scolarite) }}</span>
+                    </div>
+                 </div>
+              </div>
+
+              <!-- DIFFÉRENCE NON VERSÉE -->
+              <div class="flex justify-between items-center p-3 rounded-xl bg-rose-50/30 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/20">
+                 <div class="flex flex-col">
+                    <span class="text-[10px] font-black text-rose-500 uppercase tracking-widest italic">Reliquat Non Versé</span>
+                    <span class="text-[9px] text-rose-400 font-medium italic">CA non réalisé suite à l'abandon</span>
+                 </div>
+                 <span class="text-lg font-black text-rose-500 tabular-nums">{{ formatMontant(dashboardStore.caAbandons.total_non_recupere) }}</span>
+              </div>
+           </div>
+        </div>
+      </div>
     </div>
 
     <!-- Tableaux de Performance par Cycle (Chiffres Bruts) -->
@@ -1001,25 +1135,39 @@
 
           <!-- Données réelles -->
           <template v-else>
-            <div
-              v-for="(prev, index) in dashboardStore.previsionsFormatted"
-              :key="prev.mois"
-              class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 last:border-0 last:pb-0 animate-slide-in-right"
-              :style="{ animationDelay: index * 100 + 'ms' }"
-            >
-              <div class="flex-1">
-                <p class="font-medium text-gray-900 dark:text-white">
-                  {{ prev.label }}
-                </p>
-                <p class="text-xs text-gray-500">
-                  {{ prev.nombre_echeances }} échéances
-                </p>
+            <div v-if="dashboardStore.previsionsFormatted && dashboardStore.previsionsFormatted.length > 0" class="space-y-4">
+              <div
+                v-for="(prev, index) in dashboardStore.previsionsFormatted"
+                :key="index"
+                class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 last:border-0 last:pb-0 animate-slide-in-right"
+                :style="{ animationDelay: index * 100 + 'ms' }"
+              >
+                <div class="flex-1">
+                  <div class="flex items-center gap-2">
+                    <p class="font-medium text-gray-900 dark:text-white">
+                      {{ prev.label }}
+                    </p>
+                    <span v-if="prev.is_retard" class="px-1.5 py-0.5 bg-red-100 text-red-600 text-[9px] font-black rounded uppercase">Retard</span>
+                  </div>
+                  <p class="text-xs text-gray-500">
+                    {{ prev.nombre_echeances }} échéances
+                  </p>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold" :class="prev.is_retard ? 'text-red-600' : 'text-indigo-600'">
+                    {{ prev.montant_prevu_formatted }}
+                  </p>
+                </div>
               </div>
-              <div class="text-right">
-                <p class="font-bold text-indigo-600">
-                  {{ prev.montant_prevu_formatted }}
-                </p>
-              </div>
+            </div>
+            <div v-else class="flex flex-col items-center justify-center py-10 opacity-60">
+               <div class="w-12 h-12 bg-slate-50 dark:bg-gray-700/50 rounded-full flex items-center justify-center mb-3">
+                  <svg class="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+               </div>
+               <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Aucune échéance à venir</p>
+               <p class="text-[10px] text-slate-300 mt-1 text-center italic">Toutes les échéances de l'année sont peut-être déjà échues.</p>
             </div>
           </template>
         </div>
@@ -1247,6 +1395,15 @@ const kpis = computed(() => [
     bgColor: "bg-pink-50 dark:bg-pink-900/20",
     iconColor: "text-pink-500 dark:text-pink-400",
     valueClass: "text-pink-600",
+  },
+  {
+    label: "Frais de Retrait (Mobile Money)",
+    value: formatMontant(dashboardStore.fraisRetraitMM),
+    periode: dashboardStore.periodeAffichee,
+    icon: "M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z",
+    bgColor: "bg-cyan-100 dark:bg-cyan-900/30",
+    iconColor: "text-cyan-600 dark:text-cyan-400",
+    valueClass: "text-cyan-600",
   },
 ]);
 

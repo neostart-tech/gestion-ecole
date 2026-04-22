@@ -539,6 +539,23 @@
                   />
                 </div>
 
+                <!-- Nature du paiement -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Nature <span class="text-red-500">*</span>
+                  </label>
+                  <SelectButton
+                    v-model="paiementForm.nature_paiement"
+                    :options="[
+                      { label: 'Scolarité', value: 'scolarite' },
+                      { label: 'Inscription', value: 'inscription' }
+                    ]"
+                    optionLabel="label"
+                    optionValue="value"
+                    class="w-full text-xs premium-select-button"
+                  />
+                </div>
+
                 <!-- Référence -->
                 <div>
                   <label
@@ -850,6 +867,9 @@
                       </p>
                       <p class="text-xs text-gray-500 flex items-center gap-1.5 mt-0.5">
                         {{ item.date_formatted }} <span class="text-gray-300">•</span> <span class="font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-tighter text-[10px]">{{ item.nature_paiement === 'inscription' ? 'Inscription' : 'Scolarité' }}</span>
+                      </p>
+                      <p v-if="item.frais_retrait > 0" class="text-[10px] text-amber-600 font-medium mt-0.5">
+                        + {{ formatMontant(item.frais_retrait) }} (Frais de retrait)
                       </p>
                       <p v-if="item.commentaire" class="text-[10px] text-gray-500 italic mt-1 dark:bg-gray-700/50 p-1 rounded-md leading-tight">
                         {{ item.commentaire }}
@@ -1303,7 +1323,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useToast } from "primevue/usetoast";
 import Dropdown from "primevue/dropdown";
 import Avatar from "primevue/avatar";
@@ -1355,9 +1375,9 @@ const pdfResteAPayer = ref(0);
 
 const paiementForm = ref({
   etudiant_id: null,
-  montant: null,
   frais_retrait: null,
   mode_paiement: "especes",
+  nature_paiement: "scolarite",
   reference: "",
   commentaire: "",
   payable_id: null,
@@ -1410,7 +1430,12 @@ const quickStats = computed(() => {
 
 // Formater les étudiants pour le dropdown
 const formattedEtudiants = computed(() => {
-  return etudiantStore.etudiants.map((e) => {
+  return etudiantStore.etudiants
+    .filter((e) => {
+      // Exclure les abandons
+      return e.statut !== 'abandon' && !e.est_en_abandon;
+    })
+    .map((e) => {
     let niveau = "N/A";
     let filiere = null;
 
@@ -1487,6 +1512,46 @@ const montantRestantElement = computed(() => {
     (e) => e.id === paiementForm.value.payable_id,
   );
   return element ? element.reste || element.reste_a_payer : null;
+});
+
+// Surveiller le changement de nature pour adapter l'élément sélectionné
+watch(() => paiementForm.value.nature_paiement, (newNature) => {
+  if (!paiementStore.infosEtudiant) return;
+  
+  const elements = paiementStore.elementsAPayer;
+  if (newNature === 'inscription') {
+    // Chercher une tranche/échéance qui parle d'inscription
+    const found = elements.find(e => 
+      (e.reste || e.reste_a_payer) > 0 && 
+      (e.libelle.toLowerCase().includes('inscr') || e.libelle.toLowerCase().includes('admis'))
+    );
+    if (found) {
+      paiementForm.value.payable_id = found.id;
+      paiementForm.value.payable_type = found.payable_type || (paiementStore.hasFraisNegocie ? 'echeance' : 'tranche');
+      paiementForm.value.montant = found.reste || found.reste_a_payer;
+    }
+  } else if (newNature === 'scolarite') {
+    // Si on repasse en scolarité et qu'on était sur une inscription, on reset
+    const current = elements.find(e => e.id === paiementForm.value.payable_id);
+    if (current && (current.libelle.toLowerCase().includes('inscr') || current.libelle.toLowerCase().includes('admis'))) {
+       paiementForm.value.payable_id = null;
+       paiementForm.value.montant = null;
+    }
+  }
+});
+
+// Surveiller le changement d'élément pour adapter la nature automatiquement
+watch(() => paiementForm.value.payable_id, (newId) => {
+  if (!newId || !paiementStore.infosEtudiant) return;
+  
+  const element = paiementStore.elementsAPayer.find(e => e.id === newId);
+  if (element) {
+    if (element.libelle.toLowerCase().includes('inscr') || element.libelle.toLowerCase().includes('admis')) {
+      paiementForm.value.nature_paiement = 'inscription';
+    } else {
+      paiementForm.value.nature_paiement = 'scolarite';
+    }
+  }
 });
 
 // ==================== METHODS ====================
@@ -1569,9 +1634,16 @@ const handleEtudiantChange = async () => {
 
 const preparerPaiementElement = (element) => {
   paiementForm.value.payable_id = element.id;
-  paiementForm.value.payable_type = paiementStore.hasFraisNegocie
+  paiementForm.value.payable_type = element.payable_type || (paiementStore.hasFraisNegocie
     ? "echeance"
-    : "tranche";
+    : "tranche");
+
+  // Détecter la nature du paiement à partir du libellé
+  if (element.libelle && (element.libelle.toLowerCase().includes('inscr') || element.libelle.toLowerCase().includes('admis'))) {
+    paiementForm.value.nature_paiement = 'inscription';
+  } else {
+    paiementForm.value.nature_paiement = 'scolarite';
+  }
 
   // Pré-remplir avec le montant restant de l'échéance
   const reste = element.reste || element.reste_a_payer || 0;
@@ -1637,6 +1709,7 @@ const repartirPaiementSurEcheances = async (montantTotal, echeanceId) => {
       etudiant_id: selectedEtudiant.value.id,
       montant: montantAEcheance,
       mode_paiement: paiementForm.value.mode_paiement,
+      nature_paiement: paiementForm.value.nature_paiement,
       reference: paiementForm.value.reference || null,
       commentaire: paiementForm.value.commentaire || null,
       frais_retrait: paiementForm.value.frais_retrait || 0,
@@ -1755,6 +1828,7 @@ const handlePaiement = async () => {
           etudiant_id: selectedEtudiant.value.id,
           montant: montantSaisi,
           mode_paiement: paiementForm.value.mode_paiement,
+          nature_paiement: paiementForm.value.nature_paiement,
           reference: paiementForm.value.reference || null,
           commentaire: paiementForm.value.commentaire || null,
           frais_retrait: paiementForm.value.frais_retrait || 0,
@@ -1871,10 +1945,11 @@ const handlePaiement = async () => {
     resetForm();
   } catch (error) {
     console.error("Erreur paiement:", error);
+    const detailMessage = error.response?.data?.message || error.message || "Erreur lors du paiement";
     toast.add({
       severity: "error",
-      summary: "Erreur",
-      detail: error.message || "Erreur lors du paiement",
+      summary: "Erreur lors du paiement",
+      detail: detailMessage,
       life: 5000,
     });
   } finally {

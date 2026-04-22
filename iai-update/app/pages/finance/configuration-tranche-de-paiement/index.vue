@@ -1,22 +1,24 @@
 <template>
-  <div
-    class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 transition-colors"
-  >
-    <!-- Breadcrumb -->
-    <Breadcrumb
-      :items="[
-        { label: 'Frais de scolarité', to: '/frais-de-scolarite/liste' },
-        { label: 'Tranches de paiement', to: null },
-      ]"
-      title="Gestion des tranches de paiement"
-      title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
-      spacing="mb-4"
-    />
+  <div class="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-slate-200 dark:from-slate-900 dark:via-gray-900 dark:to-slate-800 p-4 md:p-8 transition-all duration-500 font-sans relative overflow-hidden">
+    
+    <!-- Décorations d'arrière-plan -->
+    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/0 blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-gradient-to-tl from-emerald-500/10 to-teal-500/0 blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10">
+    <!-- Breadcrumb Custom -->
+    <div class="mb-8">
+      <h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-slate-500 dark:from-white dark:to-slate-400 tracking-tighter uppercase drop-shadow-sm">
+        Tranches de Paiement
+      </h1>
+      <p class="text-slate-500 dark:text-gray-400 font-semibold text-sm flex items-center gap-2">
+        <span class="w-2.5 h-2.5 bg-gradient-to-tr from-amber-500 to-orange-500 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.5)] animate-pulse"></span>
+        Configuration des échéanciers par niveau
+      </p>
+    </div>
 
     <!-- Toolbar -->
-    <div
-      class="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between mb-5"
-    >
+    <div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-md rounded-2xl p-4 mb-8 border border-white/50 dark:border-gray-700/50 shadow-sm flex flex-col lg:flex-row gap-4 lg:items-center">
       <!-- Recherche -->
       <div class="relative flex-1 max-w-md">
         <input
@@ -77,22 +79,25 @@
     <!-- Liste des frais de scolarité -->
     <div v-else class="space-y-4">
       <!-- Message si aucun résultat -->
-      <div v-if="filteredFrais.length === 0" class="text-center py-12 bg-white dark:bg-gray-800 rounded-xl shadow">
-        <svg class="w-20 h-20 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <p class="text-gray-600 dark:text-gray-400 text-lg">Aucun frais de scolarité trouvé</p>
+      <div v-if="filteredFrais.length === 0" class="text-center py-20 bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm rounded-3xl border border-white/50 dark:border-gray-700/50">
+        <div class="w-24 h-24 bg-slate-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <p class="text-gray-600 dark:text-gray-400 text-xl font-bold uppercase tracking-wider">Aucun frais configuré</p>
+        <p class="text-gray-400 dark:text-gray-500 text-sm mt-2">Veuillez ajuster vos filtres de recherche</p>
       </div>
 
       <div
         v-for="frais in filteredFrais"
         :key="frais.id"
-        class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden hover:shadow-lg transition-shadow"
+        class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none overflow-hidden border border-slate-100 dark:border-gray-700 transition-all duration-300"
       >
         <!-- En-tête du frais -->
         <div
           @click="toggleFrais(frais.id)"
-          class="p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 cursor-pointer hover:from-gray-100 hover:to-gray-200 dark:hover:from-gray-700 dark:hover:to-gray-600 transition-all"
+          class="p-6 bg-gradient-to-r from-white/50 to-slate-50/50 dark:from-gray-800/50 dark:to-gray-900/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-gray-700/50 transition-all"
         >
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div class="flex items-center gap-3 flex-1">
@@ -602,6 +607,7 @@
         </div>
       </Dialog>
     </TransitionRoot>
+    </div>
   </div>
 </template>
 

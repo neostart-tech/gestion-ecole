@@ -125,8 +125,8 @@
                 class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
               >
                 <option value="">Sélectionnez</option>
-                <option value="M">Masculin</option>
-                <option value="F">Féminin</option>
+                <option value="Masculin">Masculin</option>
+                <option value="Féminin">Féminin</option>
               </select>
             </div>
 
@@ -139,6 +139,7 @@
                 v-model="formData.date_naissance"
                 type="date"
                 required
+                :max="maxDateNaissance"
                 class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
               />
             </div>
@@ -158,16 +159,12 @@
             </div>
 
             <!-- Nationalité -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Nationalité <span class="text-red-500">*</span>
-              </label>
-              <input
+            <div class="md:col-span-1">
+              <NationaliteSelector
                 v-model="formData.nationalite"
-                type="text"
-                required
-                class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
-                placeholder="Nationalité"
+                label="Nationalité"
+                :required="true"
+                help-text="Sélectionnez la nationalité du candidat"
               />
             </div>
 
@@ -315,9 +312,10 @@
               <select
                 v-model="formData.filiere_id"
                 required
-                class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
+                :disabled="loadingFilieres || !formData.niveau_id"
+                class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <option value="">Sélectionnez</option>
+                <option value="">{{ loadingFilieres ? 'Chargement des filières...' : 'Sélectionnez une filière' }}</option>
                 <option v-for="filiere in filieres" :key="filiere.id" :value="filiere.id">
                   {{ filiere.nom }}
                 </option>
@@ -378,8 +376,8 @@
                 class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
               >
                 <option value="">Sélectionnez</option>
-                <option value="bac1">Bac 1</option>
-                <option value="bac2">Bac 2</option>
+                <option value="Relevé du Bac 1">Bac 1</option>
+                <option value="BAC 2">Bac 2</option>
               </select>
             </div>
 
@@ -739,6 +737,10 @@
                     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
                     {{ doc }}
                   </li>
+                  <li class="flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                    Lettre de motivation (fichier)
+                  </li>
                 </ul>
               </div>
             </div>
@@ -777,6 +779,34 @@
                 ref="nationaliteFile"
                 type="file"
                 @change="handleFileUpload('nationalite_file', $event)"
+                accept=".pdf,.jpg,.jpeg,.png"
+                class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
+              />
+            </div>
+
+            <!-- Acte de naissance -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Acte de naissance <span class="text-red-500">*</span>
+              </label>
+              <input
+                ref="naissanceFile"
+                type="file"
+                @change="handleFileUpload('naissance_file', $event)"
+                accept=".pdf,.jpg,.jpeg,.png"
+                class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
+              />
+            </div>
+
+            <!-- Certificat médical -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Certificat médical <span class="text-red-500">*</span>
+              </label>
+              <input
+                ref="certificatFile"
+                type="file"
+                @change="handleFileUpload('certificat_medical_file', $event)"
                 accept=".pdf,.jpg,.jpeg,.png"
                 class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
               />
@@ -901,18 +931,8 @@
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Lettre de motivation (fichier)</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Lettre de motivation (fichier) <span class="text-red-500">*</span></label>
                 <input ref="lettreFile" type="file" @change="handleFileUpload('lettre_file', $event)" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Acte de naissance</label>
-                <input ref="naissanceFile" type="file" @change="handleFileUpload('naissance_file', $event)" accept=".pdf,.jpg,.jpeg,.png"
-                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Certificat médical</label>
-                <input ref="certificatFile" type="file" @change="handleFileUpload('certificat_medical_file', $event)" accept=".pdf,.jpg,.jpeg,.png"
                   class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
               </div>
               <div>
@@ -961,6 +981,7 @@ import { useToast } from 'primevue/usetoast'
 import Breadcrumb from "~/components/Breadcrumb.vue"
 import Toast from 'primevue/toast'
 import axios from 'axios'
+import NationaliteSelector from "~/components/NationaliteSelector.vue"
 import { useFiliereStore } from '~~/stores/filiere';
 import { useNiveauStore } from '~~/stores/niveau'
 import {useCandidatureStore } from '~~/stores/candidature'
@@ -975,6 +996,7 @@ const etapeActive = ref(0)
 const isSubmitting = ref(false)
 const niveaux = ref([])
 const filieres = ref([])
+const loadingFilieres = ref(false)
 
 // Données du formulaire
 const formData = reactive({
@@ -1085,6 +1107,27 @@ const selectedNiveauLabel = computed(() => {
 
 const niveauName = computed(() => (selectedNiveauLabel.value || '').toLowerCase())
 
+const maxDateNaissance = computed(() => {
+  const d = new Date()
+  d.setFullYear(d.getFullYear() - 10)
+  return d.toISOString().split('T')[0]
+})
+
+watch(() => formData.niveau_id, (newNiveauId) => {
+  if (newNiveauId) {
+    formData.filiere_id = '' // Réinitialiser le choix de filière
+    loadingFilieres.value = true
+    filiereStore.fetchFilieres(newNiveauId).then(() => {
+      filieres.value = filiereStore.filieres || []
+      loadingFilieres.value = false
+    }).catch(() => {
+      loadingFilieres.value = false
+    })
+  } else {
+    filieres.value = []
+  }
+})
+
 const isLicence1 = computed(() => niveauName.value.includes('licence 1') || niveauName.value === 'l1')
 const isLicence2 = computed(() => niveauName.value.includes('licence 2') || niveauName.value === 'l2')
 const isLicence3 = computed(() => niveauName.value.includes('licence 3') || niveauName.value === 'l3')
@@ -1096,6 +1139,8 @@ const requiredDocsList = computed(() => {
   const common = [
     'Deux (02) photos d\'identité (Format passeport)',
     'Une (01) copie de votre pièce nationale d\'identité ou passeport',
+    'Un (01) extrait d\'acte de naissance',
+    'Un (01) certificat médical d\'aptitude',
   ]
   if (isMaster.value) {
     return [...common,
@@ -1139,12 +1184,8 @@ const authHeaders = () => {
 // Charger les données initiales
 onMounted(async () => {
   try {
-    const [niveauxRes, filieresRes] = await Promise.all([
-      niveauStore.fetchNiveaux(),
-       filiereStore.fetchFilieres()
-    ])
+    await niveauStore.fetchNiveaux()
     niveaux.value = niveauStore.niveaux || []
-    filieres.value = filiereStore.filieres|| []
   } catch (error) {
     console.error('Erreur chargement données:', error)
     toast.add({ severity: 'error', summary: 'Erreur', detail: 'Impossible de charger les données', life: 5000 })
@@ -1211,10 +1252,42 @@ const soumettreFormulaire = async () => {
       })
     }
 
+    // ===== Validation des fichiers obligatoires =====
+    const requiredFiles = ['photo_identite_file', 'nationalite_file', 'lettre_file', 'naissance_file', 'certificat_medical_file']
+    
+    // Documents académiques selon le niveau
+    if (isMaster.value) {
+      requiredFiles.push('diplome_file', 'cv_file')
+    } else if (isLicence3.value || isLicence2.value) {
+      requiredFiles.push('diplome_file', 'releve_bac1', 'releve_bac2')
+    } else {
+      // Licence 1 par défaut
+      requiredFiles.push('diplome_file', 'releve_bac1')
+    }
+
+    const missingFiles = []
+    requiredFiles.forEach(field => {
+      const file = files[field]
+      if (!file || (Array.isArray(file) && file.length === 0)) {
+        missingFiles.push(field)
+      }
+    })
+
+    if (missingFiles.length > 0) {
+      toast.add({ 
+        severity: 'warn', 
+        summary: 'Documents manquants', 
+        detail: 'Veuillez joindre tous les documents obligatoires marqués par un astérisque (*).', 
+        life: 5000 
+      })
+      isSubmitting.value = false
+      return
+    }
+
     // Envoyer la requête
     const response = await candidatureStore.storeByAdmin(formDataToSend)
 
-    if (response.data.success) {
+    if (response.success) {
       toast.add({ 
         severity: 'success', 
         summary: 'Succès', 

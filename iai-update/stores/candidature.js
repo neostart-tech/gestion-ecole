@@ -218,7 +218,8 @@ export const useCandidatureStore = defineStore("candidature", {
           "/candidature/liste-des-admis",
           this.authHeaders(),
         );
-        return response.data.data || response.data;
+        this.candidatures = response.data.data || response.data;
+        return this.candidatures;
       } catch (error) {
         console.error("Erreur chargement candidatures admis:", error);
         this.error =
@@ -687,7 +688,6 @@ export const useCandidatureStore = defineStore("candidature", {
     },
 
     hasError: (state) => state.error !== null,
-    isLoading: (state) => state.isLoading,
     isExporting: (state) => state.exportEnCours,
   },
 });

@@ -25,7 +25,7 @@ export const useNiveauStore = defineStore("niveau", {
           this.authHeaders()
         );
 
-        this.niveaux = response.data.data;
+        this.niveaux = response.data.data || response.data;
       } catch (error) {
         console.error("Erreur chargement des niveaux:", error);
         throw error;

@@ -47,23 +47,6 @@
 
     <!-- Loading initial -->
     <div v-if="store.isPageLoading" class="space-y-6">
-      <!-- Skeleton pour les cartes -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div v-for="i in 4" :key="i" class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
-          <div class="flex items-start justify-between">
-            <div class="space-y-2">
-              <div class="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-              <div class="h-8 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-            </div>
-            <div class="p-3 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse w-12 h-12"></div>
-          </div>
-          <div class="mt-3 space-y-2">
-            <div class="h-3 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-            <div class="h-3 w-28 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-          </div>
-        </div>
-      </div>
-
       <!-- Skeleton pour le tableau -->
       <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
         <div class="space-y-4">
@@ -79,49 +62,6 @@
 
     <!-- Contenu principal -->
     <template v-else>
-      <!-- Cartes KPI -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div
-          v-for="(kpi, index) in kpis"
-          :key="index"
-          class="group bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-700"
-        >
-          <div class="flex items-start justify-between mb-3">
-            <div>
-              <span class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ kpi.label }}</span>
-              <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ kpi.value }}</p>
-            </div>
-            <div :class="['p-3 rounded-xl', kpi.bgColor]">
-              <svg class="w-6 h-6" :class="kpi.iconColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="kpi.icon" />
-              </svg>
-            </div>
-          </div>
-
-          <!-- Barre de progression pour le taux de collecte -->
-          <div v-if="kpi.progress !== undefined" class="mt-3">
-            <div class="flex items-center justify-between text-xs mb-1">
-              <span class="text-gray-500 dark:text-gray-400">Progression</span>
-              <span class="font-medium text-gray-700 dark:text-gray-300">{{ kpi.progress }}%</span>
-            </div>
-            <div class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-              <div
-                class="h-full bg-gradient-to-r from-emerald-500 to-green-500 rounded-full transition-all duration-500"
-                :style="{ width: kpi.progress + '%' }"
-              ></div>
-            </div>
-          </div>
-
-          <!-- Détails pour les autres cartes -->
-          <div v-else class="mt-3 space-y-1">
-            <div v-for="(detail, idx) in kpi.details" :key="idx" class="flex items-center justify-between text-xs">
-              <span class="text-gray-500 dark:text-gray-400">{{ detail.label }}</span>
-              <span :class="['font-medium', detail.color]">{{ detail.value }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Carte principale avec tableau -->
       <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700">
         <!-- Barre de filtres et recherche -->
@@ -1038,14 +978,26 @@ const kpis = computed(() => {
       ]
     },
     {
-      label: 'Montant total',
-      value: formatMontant(stats.montants.total_a_payer),
+      label: 'Chiffre d\'Affaires Actifs',
+      value: stats.ca_actifs_detail?.total_formatted || formatMontant(stats.montants?.total_paye || 0),
       icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
       bgColor: 'bg-purple-100 dark:bg-purple-900/30',
       iconColor: 'text-purple-600 dark:text-purple-400',
       details: [
-        { label: 'Payé', value: formatMontant(stats.montants.total_paye), color: 'text-emerald-600' },
-        { label: 'Restant', value: formatMontant(stats.montants.total_restant), color: 'text-amber-600' }
+        { label: 'Inscriptions', value: stats.ca_actifs_detail?.inscription_formatted || '0 FCFA', color: 'text-indigo-600' },
+        { label: 'Scolarités', value: stats.ca_actifs_detail?.scolarite_formatted || '0 FCFA', color: 'text-emerald-600' }
+      ]
+    },
+    {
+      label: 'CA Récupéré (Abandons)',
+      value: stats.ca_abandons?.total_formatted || '0 FCFA',
+      icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
+      bgColor: 'bg-slate-100 dark:bg-slate-700/30',
+      iconColor: 'text-slate-600 dark:text-gray-400',
+      details: [
+        { label: 'Inscriptions', value: stats.ca_abandons?.inscription_formatted || '0 FCFA', color: 'text-indigo-500' },
+        { label: 'Scolarités', value: stats.ca_abandons?.scolarite_formatted || '0 FCFA', color: 'text-slate-500' },
+        { label: 'Total Non Récupéré', value: stats.ca_abandons?.total_perdu_formatted || '0 FCFA', color: 'text-rose-500' }
       ]
     },
     {
@@ -1066,8 +1018,8 @@ const kpis = computed(() => {
       bgColor: 'bg-red-50 dark:bg-red-900/20',
       iconColor: 'text-red-500 dark:text-red-400',
       details: [
-        { label: 'Accès actifs', value: (stats.total || 0) - (stats.par_statut?.bloques || 0), color: 'text-emerald-600' },
-        { label: '% Bloqués', value: stats.total > 0 ? Math.round(((stats.par_statut?.bloques || 0) / stats.total) * 100) + '%' : '0%', color: 'text-gray-500' }
+        { label: 'Restant Actifs', value: formatMontant(stats.montants?.total_restant || 0), color: 'text-amber-600' },
+        { label: '% Bloqués', value: stats.total > 0 ? Math.round(((stats.par_statut?.bloques || 0) / stats.total) * 100) + '%' : '0%', color: 'text-red-600' }
       ]
     },
     {

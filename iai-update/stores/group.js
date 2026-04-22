@@ -20,12 +20,17 @@ export const useGroupeStore = defineStore("groupe", {
         },
       };
     },
-    async fetchGroupes() {
+    async fetchGroupes(params = {}) {
       this.isLoading = true;
       try {
-        const response = await axios.get("/groups/liste", this.authHeaders());
+        const queryParams = new URLSearchParams();
+        if (params.niveau_id) queryParams.append('niveau_id', params.niveau_id);
+        if (params.filiere_id) queryParams.append('filiere_id', params.filiere_id);
+        
+        const url = queryParams.toString() ? `/groups/liste?${queryParams.toString()}` : "/groups/liste";
+        const response = await axios.get(url, this.authHeaders());
 
-        this.groupes = response.data.data;
+        this.groupes = response.data.data || response.data;
       } catch (error) {
         console.error("Erreur chargement des groupes:", error);
         throw error;

@@ -1,180 +1,133 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-4xl mx-auto">
+  <div class="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-slate-200 dark:from-slate-900 dark:via-gray-900 dark:to-slate-800 p-4 md:p-8 transition-all duration-500 font-sans relative overflow-hidden">
+    
+    <!-- Décorations d'arrière-plan -->
+    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/0 blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-gradient-to-tl from-emerald-500/10 to-teal-500/0 blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10 max-w-4xl mx-auto">
       
       <!-- Breadcrumb -->
-      <div class="mb-6">
+      <div v-if="breadcrumbItems.length" class="mb-6">
         <Breadcrumb
           :items="breadcrumbItems"
-          title="Actualités & Communiqués"
-          title-class="text-base sm:text-lg font-medium text-gray-600"
-          spacing="mb-4"
+          :title="actualite?.title || 'Détails'"
+          title-class="text-base sm:text-lg font-black text-slate-700 dark:text-slate-300"
         />
       </div>
 
-      <!-- Back Button -->
-      <NuxtLink 
-        v-if="actualite"
-        to="/actualites" 
-        class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#7C86FF] transition-colors mb-6 group"
-      >
-        <svg class="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
-        </svg>
-        <span>Retour</span>
-      </NuxtLink>
-
-      <!-- Loading -->
-      <div v-if="isLoading" class="space-y-6 animate-pulse">
-        <div class="h-6 bg-gray-200 rounded-lg w-1/3"></div>
-        <div class="h-48 bg-gray-200 rounded-xl"></div>
-        <div class="space-y-3">
-          <div class="h-3 bg-gray-200 rounded-full w-full"></div>
-          <div class="h-3 bg-gray-200 rounded-full w-11/12"></div>
-          <div class="h-3 bg-gray-200 rounded-full w-2/3"></div>
+      <!-- Detail Area -->
+      <div v-if="isLoading" class="space-y-8">
+        <div class="h-10 w-2/3 bg-white/40 dark:bg-gray-800/40 rounded-2xl animate-pulse"></div>
+        <div class="h-[400px] bg-white/40 dark:bg-gray-800/40 rounded-3xl animate-pulse"></div>
+        <div class="space-y-4">
+          <div class="h-4 bg-white/40 dark:bg-gray-800/40 rounded-full w-full animate-pulse"></div>
+          <div class="h-4 bg-white/40 dark:bg-gray-800/40 rounded-full w-5/6 animate-pulse"></div>
         </div>
       </div>
 
-      <article v-else-if="actualite" class="space-y-8">
-        
+      <article v-else-if="actualite" class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <!-- Back Button -->
+        <NuxtLink 
+          to="/actualites" 
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-white/50 dark:border-gray-700 text-sm font-black text-slate-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all group shadow-sm"
+        >
+          <svg class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+          </svg>
+          <span>Retour aux actualités</span>
+        </NuxtLink>
+
         <!-- Header -->
-        <header class="space-y-4">
-          <div class="flex flex-wrap items-center gap-3">
+        <header class="space-y-6">
+          <div class="flex flex-wrap items-center gap-4">
             <span 
-              class="px-3 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider"
+              class="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest leading-none shadow-sm"
               :class="actualite.target_audience === 'all' 
-                ? 'bg-[#7C86FF]/10 text-[#7C86FF]' 
-                : 'bg-amber-50 text-amber-600'"
+                ? 'bg-indigo-600 text-white' 
+                : 'bg-amber-500 text-white'"
             >
-              {{ actualite.target_audience === 'all' ? 'Annonce générale' : 'Information ciblée' }}
+              {{ actualite.target_audience === 'all' ? 'Communiqué' : 'Information Ciblée' }}
             </span>
             
-            <span class="w-1 h-1 rounded-full bg-gray-300"></span>
-            
-            <time class="text-xs text-gray-400 flex items-center gap-1.5">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <div class="flex items-center gap-2 text-slate-500 dark:text-gray-400 font-bold text-[11px] uppercase tracking-wider">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               {{ formatDate(actualite.publishedAt || actualite.created_at) }}
-            </time>
-
-            <span v-if="isRecent(actualite.publishedAt || actualite.created_at)" 
-                  class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-500 text-[10px] font-medium flex items-center gap-1">
-              <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Nouveau
-            </span>
+            </div>
           </div>
 
-          <h1 class="text-2xl sm:text-3xl font-semibold text-gray-800 leading-tight tracking-tight">
+          <h1 class="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter uppercase">
             {{ actualite.title }}
           </h1>
           
-          <p v-if="actualite.subtitle" class="text-base text-gray-500 leading-relaxed">
+          <p v-if="actualite.subtitle" class="text-xl text-slate-600 dark:text-gray-400 leading-relaxed font-semibold italic border-l-4 border-indigo-500 pl-6">
             {{ actualite.subtitle }}
           </p>
         </header>
 
-        <!-- Image -->
-        <div v-if="actualite.image" class="relative rounded-xl overflow-hidden bg-gray-100">
+        <!-- Featured Image -->
+        <div v-if="actualite.image" class="relative group rounded-[2rem] overflow-hidden bg-white/20 dark:bg-black/20 border border-white/50 dark:border-gray-700/50 shadow-2xl">
           <img 
             :src="actualite.image" 
             :alt="actualite.title" 
-            class="w-full h-auto max-h-[400px] object-cover"
-            loading="lazy"
+            class="w-full h-auto max-h-[600px] object-cover transition-transform duration-1000 group-hover:scale-105"
           />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
         </div>
 
-        <!-- Content -->
-        <div class="bg-white rounded-xl border border-gray-100 p-6 sm:p-8">
+        <!-- Main Content -->
+        <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-2xl rounded-[2.5rem] border border-white dark:border-gray-800 p-8 sm:p-12 shadow-2xl relative overflow-hidden">
           <div 
             v-html="actualite.summary"
-            class="prose prose-sm max-w-none 
-                   prose-headings:text-gray-800 prose-headings:font-semibold
-                   prose-h1:text-2xl prose-h1:mt-6 prose-h1:first:mt-0
-                   prose-h2:text-xl prose-h2:mt-5
-                   prose-h3:text-lg prose-h3:mt-4
-                   prose-p:text-gray-600 prose-p:leading-relaxed prose-p:mb-4
-                   prose-strong:text-gray-700 prose-strong:font-semibold
-                   prose-a:text-[#7C86FF] prose-a:no-underline hover:prose-a:underline
-                   prose-ul:my-4 prose-li:text-gray-600
-                   prose-blockquote:border-l-[#7C86FF] prose-blockquote:bg-gray-50 prose-blockquote:p-4 prose-blockquote:rounded-lg
-                   prose-img:rounded-lg prose-img:my-4
+            class="prose prose-slate dark:prose-invert max-w-none 
+                   prose-p:text-lg prose-p:leading-relaxed prose-p:text-slate-700 dark:prose-p:text-gray-300
+                   prose-headings:text-slate-900 dark:prose-headings:text-white prose-headings:font-black prose-headings:tracking-tighter
+                   prose-strong:text-indigo-600 dark:prose-strong:text-indigo-400
+                   prose-blockquote:border-l-indigo-500 prose-blockquote:bg-indigo-50 dark:prose-blockquote:bg-indigo-500/10 prose-blockquote:rounded-2xl
+                   prose-img:rounded-3xl prose-img:shadow-xl
                    break-words"
           ></div>
 
-          <!-- Tags -->
-          <div v-if="actualite.tags?.length" class="mt-8 flex flex-wrap gap-2">
-            <div class="flex items-center gap-1 mr-2">
-              <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-              </svg>
-            </div>
-            <span v-for="tag in actualite.tags" :key="tag" 
-                  class="px-2 py-0.5 bg-gray-100 text-gray-500 rounded-md text-xs hover:bg-[#7C86FF]/10 hover:text-[#7C86FF] transition-colors cursor-pointer">
-              {{ tag }}
-            </span>
-          </div>
-
-          <!-- Attachments -->
-          <div v-if="actualite.attachments?.length" class="mt-10 pt-8 border-t border-gray-100">
-            <div class="flex items-center gap-2 mb-5">
-              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-              </svg>
-              <h3 class="text-sm font-medium text-gray-700">Documents</h3>
-              <span class="text-xs text-gray-400 ml-auto">{{ actualite.attachments.length }} fichier(s)</span>
-            </div>
+          <!-- Documents -->
+          <div v-if="actualite.attachments?.length" class="mt-16 pt-10 border-t border-slate-200 dark:border-gray-800">
+            <h3 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mb-8 flex items-center gap-3">
+              <svg class="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              Documents à télécharger
+            </h3>
             
-            <div class="space-y-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <a 
                 v-for="(file, idx) in actualite.attachments" 
                 :key="idx"
                 :href="file.url"
                 target="_blank"
-                class="flex items-center gap-3 p-3 rounded-lg bg-gray-50 hover:bg-white hover:shadow-sm border border-gray-100 transition-all group"
+                class="flex items-center gap-4 p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-gray-700 hover:bg-white dark:hover:bg-slate-800 hover:shadow-xl hover:-translate-y-1 transition-all group"
               >
-                <div class="w-8 h-8 rounded-lg bg-white border border-gray-100 flex items-center justify-center text-gray-400 group-hover:text-[#7C86FF] transition-colors">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a2 2 0 00-.586-1.414l-5.414-5.414A2 2 0 0011.586 2H7a2 2 0 00-2 2v15a2 2 0 002 2z" />
-                  </svg>
+                <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:scale-110 transition-transform">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a2 2 0 00-.586-1.414l-5.414-5.414A2 2 0 0011.586 2H7a2 2 0 00-2 2v15a2 2 0 002 2z"/></svg>
                 </div>
                 <div class="flex-1 min-w-0">
-                  <p class="text-sm font-medium text-gray-700 truncate group-hover:text-[#7C86FF] transition-colors">{{ file.name }}</p>
-                  <p class="text-[10px] text-gray-400 flex items-center gap-1">
-                    <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
-                    {{ formatFileSize(file.size) }}
-                  </p>
+                   <p class="text-sm font-black text-slate-800 dark:text-white truncate">{{ file.name }}</p>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{{ formatFileSize(file.size) }}</p>
                 </div>
-                <svg class="w-4 h-4 text-gray-300 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
               </a>
             </div>
           </div>
         </div>
-
-      
-     
       </article>
 
-      <!-- 404 -->
-      <div v-else class="text-center py-16 bg-white rounded-xl border border-gray-100">
-        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 9.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+      <!-- Not Found/Error -->
+      <div v-else class="text-center py-24 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-[2.5rem] border border-white dark:border-gray-700 shadow-2xl">
+        <div class="w-24 h-24 bg-slate-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-8">
+          <svg class="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 9.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
-        <h2 class="text-xl font-semibold text-gray-700 mb-2">Contenu introuvable</h2>
-        <p class="text-sm text-gray-400 mb-6">L'actualité recherchée n'existe pas ou a été déplacée.</p>
-        <NuxtLink to="/actualites" class="inline-flex items-center gap-2 px-5 py-2 bg-[#7C86FF] text-white rounded-lg text-sm font-medium hover:bg-[#6B76F0] transition-all">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M3 12l4-4m-4 4l4 4" />
-          </svg>
-          Voir les actualités
+        <h2 class="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mb-4">Publication introuvable</h2>
+        <p class="text-slate-500 dark:text-slate-400 font-semibold mb-10 max-w-md mx-auto">Cette information n'est plus disponible ou vous n'avez pas les autorisations nécessaires.</p>
+        <NuxtLink to="/actualites" class="inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-indigo-500/25 hover:scale-105 transition-all">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 12h18M3 12l4-4m-4 4l4 4"/></svg>
+          Retour à la liste
         </NuxtLink>
       </div>
 
@@ -184,26 +137,42 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useUrgentInfoStore } from '~~/stores/urgent-info';
+import Breadcrumb from '~/components/Breadcrumb.vue';
 
 const route = useRoute();
+const router = useRouter();
 const urgentInfoStore = useUrgentInfoStore();
 const actualite = ref(null);
 const isLoading = ref(true);
 
-const breadcrumbItems = computed(() => [
-  { label: 'Accueil', to: '/' },
-  { label: 'Actualités', to: '/actualites' },
-  ...(actualite.value ? [{ label: actualite.value.title, to: null }] : [])
-]);
+const breadcrumbItems = computed(() => {
+  const items = [
+    { label: 'Accueil', to: '/' },
+    { label: 'Actualités', to: '/actualites' }
+  ];
+  if (actualite.value) {
+    items.push({ label: actualite.value.title, to: null });
+  }
+  return items;
+});
 
 onMounted(async () => {
   try {
     const data = await urgentInfoStore.fetchUrgentInfo(route.params.id);
     
     if (data && process.client) {
-      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      let userData = {};
+      try {
+        const stored = localStorage.getItem('user');
+        if (stored && stored !== 'undefined') {
+          userData = JSON.parse(stored);
+        }
+      } catch (e) {
+        console.error("Erreur parsing user data", e);
+      }
+
       const userRoles = (userData?.roles || []).map(r => r.slug);
       const userGroupId = userData.etudiant?.groupe_id || null;
       const isAdmin = userRoles.some(r => ['admin', 'directeur-general', 'responsable-du-site'].includes(r));
@@ -219,15 +188,15 @@ onMounted(async () => {
       }
 
       if (!hasAccess) {
-        alert("Vous n'avez pas les droits pour consulter cette publication.");
-        return navigateTo('/actualites');
+        console.warn("Accès refusé");
+        return router.push('/actualites');
       }
     }
 
     actualite.value = data;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (process.client) window.scrollTo({ top: 0, behavior: 'smooth' });
   } catch (error) {
-    console.error("Détail actualité introuvable:", error);
+    console.error("Erreur lors du chargement de l'actualité:", error);
   } finally {
     isLoading.value = false;
   }
@@ -249,33 +218,10 @@ const formatFileSize = (bytes) => {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 };
-
-const isRecent = (dateString) => {
-  if (!dateString) return false;
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-  return diffDays <= 7;
-};
 </script>
 
 <style scoped>
-:deep(.prose) {
-  --tw-prose-body: #6B7280;
-  --tw-prose-headings: #374151;
-  --tw-prose-lead: #4B5563;
-  --tw-prose-links: #7C86FF;
-  --tw-prose-bold: #374151;
-  --tw-prose-counters: #9CA3AF;
-  --tw-prose-bullets: #D1D5DB;
-  --tw-prose-hr: #E5E7EB;
-  --tw-prose-quotes: #374151;
-  --tw-prose-quote-borders: #7C86FF;
-  --tw-prose-captions: #6B7280;
-  --tw-prose-code: #374151;
-  --tw-prose-pre-code: #E5E7EB;
-  --tw-prose-pre-bg: #1F2937;
-  --tw-prose-th-borders: #D1D5DB;
-  --tw-prose-td-borders: #E5E7EB;
+.prose {
+  max-width: none;
 }
 </style>

@@ -1,42 +1,31 @@
 <template>
-  <div
-    class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 transition-colors"
-  >
-    <!-- Loading state -->
-    <div
-      v-if="isLoading"
-      class="flex justify-center items-center min-h-[600px]"
-    >
-      <div
-        class="h-10 w-10 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent"
-      ></div>
-    </div>
+  <div class="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-slate-200 dark:from-slate-900 dark:via-gray-900 dark:to-slate-800 p-4 md:p-8 transition-all duration-500 font-sans relative overflow-hidden">
+    
+    <!-- Décorations d'arrière-plan -->
+    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/0 blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-gradient-to-tl from-emerald-500/10 to-teal-500/0 blur-3xl pointer-events-none"></div>
 
-    <div v-else class="space-y-6">
+    <div class="relative z-10">
+      <!-- Loading state -->
+      <div v-if="isLoading" class="flex justify-center items-center min-h-[600px]">
+        <div class="h-10 w-10 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent"></div>
+      </div>
+
+      <div v-else class="space-y-6">
       <!-- Header avec breadcrumb et boutons PDF -->
-      <div
-        class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-      >
-        <Breadcrumb
-          :items="[
-            { label: 'Négociations', to: '/admin/negociations' },
-            { label: 'Détails', to: null },
-          ]"
-          :title="etudiantNomComplet"
-          title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
-          spacing="mb-4"
-        />
-
-        <div class="flex items-center gap-2">
-          <!-- Bouton visualisation PDF -->
-
-          <!-- Bouton téléchargement PDF -->
-      
-        </div>
+      <!-- Header Custom -->
+      <div class="mb-8">
+        <h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-slate-500 dark:from-white dark:to-slate-400 tracking-tighter uppercase drop-shadow-sm truncate max-w-[800px]">
+          {{ etudiantNomComplet }}
+        </h1>
+        <p class="text-slate-500 dark:text-gray-400 font-semibold text-sm flex items-center gap-2">
+          <span class="w-2.5 h-2.5 bg-gradient-to-tr from-indigo-600 to-purple-500 rounded-full shadow-[0_0_10px_rgba(79,70,229,0.5)] animate-pulse"></span>
+          Détails de l'échéancier et historique financier
+        </p>
       </div>
 
       <!-- Header info avec statut corrigé -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+      <div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden border border-white/50 dark:border-gray-700 p-6">
         <div
           class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4"
         >
@@ -939,393 +928,136 @@
 
     <!-- Modal de paiement -->
     <TransitionRoot appear :show="showPaiementModal" as="template">
-      <Dialog 
-    v-model:visible="showPDFModal" 
-    modal 
-    header="Aperçu du reçu"
-    :style="{ width: '90vw', maxWidth: '1200px' }"
-    :dismissableMask="true"
-    class="pdf-preview-modal"
-    :breakpoints="{ '640px': '90vw' }"
-  >
-    <template #header>
-      <div class="flex items-center gap-2">
-        <div class="p-2 bg-indigo-50 dark:bg-indigo-950/30 rounded-lg">
-          <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-        </div>
-        <span class="font-semibold text-gray-900 dark:text-white">Reçu de paiement - {{ pdfEtudiant?.nom_complet || 'Étudiant' }}</span>
-      </div>
-    </template>
+      <Dialog as="div" class="relative z-50" @close="closePaiementModal">
+        <div class="fixed inset-0 bg-black/60" />
 
-    <div class="flex flex-col h-[80vh]">
-      <!-- Contrôles du PDF -->
-      <div class="flex justify-between items-center mb-4 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
-        <div class="flex items-center gap-2">
-          <Button 
-            icon="pi pi-minus" 
-            @click="zoomOut" 
-            :disabled="pdfZoom <= 0.5"
-            class="p-button-rounded p-button-text"
-          />
-          <span class="text-sm font-medium">{{ Math.round(pdfZoom * 100) }}%</span>
-          <Button 
-            icon="pi pi-plus" 
-            @click="zoomIn" 
-            :disabled="pdfZoom >= 2"
-            class="p-button-rounded p-button-text"
-          />
-        </div>
-        <div class="flex items-center gap-2">
-          <Button 
-            label="Télécharger" 
-            icon="pi pi-download" 
-            @click="downloadPDF"
-            :loading="isDownloadingPDF"
-            class="p-button-success"
-          />
-          <Button 
-            label="Fermer" 
-            icon="pi pi-times" 
-            @click="showPDFModal = false"
-            class="p-button-secondary"
-          />
-        </div>
-      </div>
-
-      <!-- Aperçu PDF -->
-      <div class="flex-1 overflow-auto bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
-        <div id="pdf-preview-content" class="bg-white shadow-lg mx-auto" :style="{ transform: `scale(${pdfZoom})`, transformOrigin: 'top center', width: '210mm', minHeight: '297mm' }">
-          <!-- Contenu du PDF adapté du design négociation -->
-          <div class="p-8" v-if="pdfEtudiant && pdfPaiements.length">
-            <!-- En-tête avec breadcrumb style -->
-            <div class="flex justify-between items-center mb-6">
-              <div>
-                <p class="text-sm text-gray-500 mb-1">Reçu de paiement</p>
-                <h1 class="text-2xl font-bold text-gray-900">DÉTAILS DES PAIEMENTS</h1>
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+          <DialogPanel class="w-full max-w-lg rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-2xl transition-all border border-gray-100 dark:border-gray-700">
+            <DialogTitle class="text-xl font-bold mb-6 text-gray-900 dark:text-white flex items-center gap-3">
+              <div class="p-2 bg-indigo-50 dark:bg-indigo-950/30 rounded-lg">
+                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
               </div>
-              <div class="text-right">
-                <p class="text-sm text-gray-500">N° {{ pdfNumeroRecu }}</p>
-                <p class="text-xs text-gray-400">{{ formatDate(new Date()) }}</p>
-              </div>
-            </div>
+              <span>Nouveau paiement</span>
+            </DialogTitle>
 
-            <!-- Header info avec statut -->
-            <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-              <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-                <div class="flex items-start gap-4">
-                  <div class="relative flex-shrink-0">
-                    <div class="h-16 w-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-500 flex items-center justify-center text-white shadow-lg">
-                      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <div class="absolute -top-1 -right-1 h-4 w-4 bg-emerald-500 rounded-full border-2 border-white"></div>
-                  </div>
-                  <div>
-                    <div class="flex flex-wrap items-center gap-3">
-                      <h1 class="text-2xl font-bold text-gray-900">
-                        {{ pdfEtudiant.nom_complet }}
-                      </h1>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500 mt-2">
-                      <div class="flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
-                        <span>{{ pdfEtudiant.niveau || 'N/A' }}</span>
-                      </div>
-                      <span class="w-1 h-1 rounded-full bg-gray-300"></span>
-                      <div class="flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <span>Matricule: {{ pdfEtudiant.matricule }}</span>
-                      </div>
-                    </div>
-                  </div>
+            <form @submit.prevent="savePaiement" class="space-y-4">
+              <!-- Grid pour Échéance et Montant -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                  <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Échéance</label>
+                  <select
+                    v-model="paiementForm.echeance_id"
+                    class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                    required
+                  >
+                    <option value="" disabled>Choisir...</option>
+                    <option v-for="e in echeancesWithReste" :key="e.id" :value="e.id">
+                      {{ e.libelle }} ({{ formatMontant(e.reste_a_payer) }})
+                    </option>
+                  </select>
                 </div>
 
-                <div class="flex items-center gap-3">
-                  <!-- Badge statut -->
-                  <div class="px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2.5 shadow-sm bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-                    <span>Payé</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Stats cards - 2 par ligne -->
-            <div class="grid grid-cols-2 gap-4 mb-6">
-              <!-- Carte Total -->
-              <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-                <div class="h-1.5 w-full bg-indigo-500"></div>
-                <div class="p-5">
-                  <div class="flex items-start gap-3">
-                    <div class="p-3 rounded-xl bg-indigo-50 flex-shrink-0">
-                      <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div class="flex-1">
-                      <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Total à payer</p>
-                      <p class="text-2xl font-bold text-gray-900 mt-0.5">{{ formatMontant(pdfTotalAPayer) }}</p>
-                    </div>
-                  </div>
+                <div class="space-y-1.5">
+                  <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Montant (FCFA)</label>
+                  <input
+                    v-model="paiementForm.montant"
+                    type="number"
+                    step="50"
+                    placeholder="0"
+                    class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-indigo-500 outline-none font-mono"
+                    required
+                  />
                 </div>
               </div>
 
-              <!-- Carte Payé -->
-              <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-                <div class="h-1.5 w-full bg-emerald-500"></div>
-                <div class="p-5">
-                  <div class="flex items-start gap-3">
-                    <div class="p-3 rounded-xl bg-emerald-50 flex-shrink-0">
-                      <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div class="flex-1">
-                      <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Déjà payé</p>
-                      <p class="text-2xl font-bold text-emerald-600 mt-0.5">{{ formatMontant(pdfTotalPaye) }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Grille d'informations étudiant -->
-            <div class="grid grid-cols-2 gap-4 mb-6">
-              <!-- Carte étudiant -->
-              <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-indigo-50/50">
-                  <h3 class="font-semibold text-gray-900 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              <!-- Mode de paiement -->
+              <div class="space-y-1.5">
+                <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Mode de règlement</label>
+                <div class="grid grid-cols-3 gap-2">
+                  <button
+                    v-for="mode in modesPaiement"
+                    :key="mode.value"
+                    type="button"
+                    @click="paiementForm.mode_paiement = mode.value"
+                    :class="[
+                      'flex flex-col items-center justify-center p-2 rounded-xl border transition-all gap-1.5',
+                      paiementForm.mode_paiement === mode.value
+                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-md'
+                        : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-indigo-300'
+                    ]"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="mode.iconPath" />
                     </svg>
-                    Profil étudiant
-                  </h3>
-                </div>
-                <div class="p-6 space-y-4">
-                  <div class="flex items-center gap-4">
-                    <div class="relative flex-shrink-0">
-                      <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white text-xl font-light shadow-lg">
-                        {{ getInitials(pdfEtudiant) }}
-                      </div>
-                    </div>
-                    <div>
-                      <p class="text-sm text-gray-500 mb-1">Matricule</p>
-                      <p class="font-mono text-sm font-medium text-gray-900 bg-gray-50 px-3 py-1.5 rounded-lg">
-                        {{ pdfEtudiant.matricule }}
-                      </p>
-                    </div>
-                  </div>
-                  <div class="grid grid-cols-2 gap-4 pt-2 border-t border-gray-100">
-                    <div>
-                      <p class="text-xs text-gray-500 mb-1 flex items-center gap-1">Email</p>
-                      <p class="text-sm font-medium text-gray-900">{{ pdfEtudiant.email || 'Non renseigné' }}</p>
-                    </div>
-                    <div>
-                      <p class="text-xs text-gray-500 mb-1 flex items-center gap-1">Téléphone</p>
-                      <p class="text-sm font-medium text-gray-900">{{ pdfEtudiant.telephone || 'Non renseigné' }}</p>
-                    </div>
-                  </div>
+                    <span class="text-[10px] font-bold uppercase">{{ mode.label }}</span>
+                  </button>
                 </div>
               </div>
 
-              <!-- Carte résumé -->
-              <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-emerald-50/50">
-                  <h3 class="font-semibold text-gray-900 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Résumé
-                  </h3>
+              <!-- Référence et Frais (Conditionnel) -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                  <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Référence / N° Transaction</label>
+                  <input
+                    v-model="paiementForm.reference"
+                    type="text"
+                    placeholder="Ref..."
+                    class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                  />
                 </div>
-                <div class="p-6 space-y-4">
-                  <div class="flex items-center justify-between">
-                    <span class="text-sm text-gray-600">Type de paiement</span>
-                    <span class="px-3 py-1.5 text-xs font-medium rounded-xl bg-amber-50 text-amber-700 border border-amber-200">
-                      Négociation
-                    </span>
-                  </div>
-                  <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                      <span class="text-sm text-gray-600">Montant initial</span>
-                      <span class="font-mono text-gray-900">{{ formatMontant(pdfMontantInitial) }}</span>
-                    </div>
-                    <div class="flex items-center justify-between pt-3 border-t border-gray-100">
-                      <span class="text-sm font-medium text-gray-700">Montant après bourse</span>
-                      <span class="font-mono text-xl font-bold text-indigo-600">{{ formatMontant(pdfMontantApresBourse) }}</span>
-                    </div>
-                  </div>
+
+                <div v-if="paiementForm.mode_paiement === 'banque' || paiementForm.mode_paiement === 'mobile_money'" class="space-y-1.5">
+                  <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Frais de retrait (FCFA)</label>
+                  <input
+                    v-model="paiementForm.frais_retrait_mm"
+                    type="number"
+                    step="5"
+                    placeholder="0"
+                    class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-indigo-500 outline-none font-mono"
+                  />
                 </div>
               </div>
-            </div>
 
-            <!-- Section Échéances -->
-            <div class="bg-white rounded-xl shadow p-4 mb-6">
-              <div class="flex items-center gap-3 mb-5">
-                <div class="p-2.5 bg-indigo-50 rounded-xl">
-                  <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              <!-- Commentaire -->
+              <div class="space-y-1.5">
+                <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Commentaire interne</label>
+                <textarea
+                  v-model="paiementForm.commentaire"
+                  rows="2"
+                  placeholder="Notes facultatives..."
+                  class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
+                ></textarea>
+              </div>
+
+              <!-- Boutons -->
+              <div class="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  @click="closePaiementModal"
+                  class="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors dark:text-gray-300"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  :disabled="isSaving"
+                  class="flex-1 px-4 py-2.5 rounded-lg bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                >
+                  <svg v-if="isSaving" class="w-4 h-4 animate-spin" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
                   </svg>
-                </div>
-                <div>
-                  <h3 class="text-lg font-semibold text-gray-900">Échéances de paiement</h3>
-                  <p class="text-sm text-gray-500">{{ pdfEcheances.length }} échéance{{ pdfEcheances.length > 1 ? 's' : '' }} au total</p>
-                </div>
+                  <span>{{ isSaving ? 'Envoi...' : 'Enregistrer le paiement' }}</span>
+                </button>
               </div>
-
-              <!-- Table des échéances -->
-              <table class="w-full">
-                <thead>
-                  <tr class="border-b-2 border-gray-200">
-                    <th class="text-left py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Échéance</th>
-                    <th class="text-left py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
-                    <th class="text-left py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Payé</th>
-                    <th class="text-left py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Reste</th>
-                    <th class="text-left py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Date limite</th>
-                    <th class="text-left py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="e in pdfEcheances" :key="e.id" class="border-b border-gray-100">
-                    <td class="py-3">
-                      <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 font-medium text-sm">
-                          {{ e.ordre }}
-                        </div>
-                        <span class="font-medium text-gray-900">{{ e.libelle }}</span>
-                      </div>
-                    </td>
-                    <td class="py-3 font-mono text-gray-900">{{ formatMontant(e.montant) }}</td>
-                    <td class="py-3 font-mono text-emerald-600">{{ formatMontant(e.montant_paye || 0) }}</td>
-                    <td class="py-3 font-mono text-gray-900">{{ formatMontant(e.reste_a_payer) }}</td>
-                    <td class="py-3">{{ formatDate(e.date_limite) }}</td>
-                    <td class="py-3">
-                      <span class="px-3 py-1.5 text-xs font-medium rounded-xl" :class="{
-                        'bg-emerald-50 text-emerald-700 border border-emerald-200': e.statut === 'paye',
-                        'bg-amber-50 text-amber-700 border border-amber-200': e.statut === 'partiel',
-                        'bg-gray-100 text-gray-600 border border-gray-200': e.statut === 'en_attente',
-                        'bg-red-50 text-red-700 border border-red-200': e.statut === 'en_retard',
-                      }">
-                        {{ getEcheanceStatut(e.statut) }}
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <!-- Pied de tableau -->
-              <div class="flex flex-wrap justify-end gap-6 mt-4 pt-4 border-t border-gray-100">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm text-gray-500">Total à payer:</span>
-                  <span class="font-mono font-semibold text-gray-900">{{ formatMontant(pdfMontantApresBourse) }}</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="text-sm text-gray-500">Total payé:</span>
-                  <span class="font-mono font-semibold text-emerald-600">{{ formatMontant(pdfTotalPaye) }}</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="text-sm text-gray-500">Reste:</span>
-                  <span class="font-mono font-semibold text-amber-600">{{ formatMontant(pdfResteAPayer) }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Historique des paiements -->
-            <div class="bg-white rounded-xl shadow p-4">
-              <div class="flex items-center gap-3 mb-5">
-                <div class="p-2.5 bg-indigo-50 rounded-xl">
-                  <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 class="text-lg font-semibold text-gray-900">Historique des paiements</h3>
-                  <p class="text-sm text-gray-500">{{ pdfPaiements.length }} paiement{{ pdfPaiements.length > 1 ? 's' : '' }} enregistré{{ pdfPaiements.length > 1 ? 's' : '' }}</p>
-                </div>
-              </div>
-
-              <div v-if="pdfPaiements.length === 0" class="p-12 text-center">
-                <div class="w-24 h-24 mx-auto bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
-                  <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h4 class="text-lg font-medium text-gray-900 mb-1">Aucun paiement</h4>
-                <p class="text-sm text-gray-500">Aucun paiement n'a encore été enregistré.</p>
-              </div>
-
-              <div v-else class="space-y-3">
-                <div v-for="p in pdfPaiements" :key="p.id" class="p-4 bg-gray-50 rounded-xl">
-                  <div class="flex flex-wrap items-center justify-between gap-4">
-                    <div class="flex items-center gap-4">
-                      <div class="relative flex-shrink-0">
-                        <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center">
-                          <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7" />
-                          </svg>
-                        </div>
-                      </div>
-                      <div class="space-y-1">
-                        <div class="flex flex-wrap items-center gap-2">
-                          <p class="font-mono text-sm font-medium text-gray-900">{{ p.reference || 'Sans référence' }}</p>
-                          <span class="text-xs text-gray-400">•</span>
-                          <p class="text-xs text-gray-500">{{ formatDate(p.created_at) }}</p>
-                        </div>
-                        <div class="flex items-center gap-2 text-sm">
-                          <span class="px-2 py-1 bg-gray-100 rounded-lg text-xs text-gray-600">
-                            {{ getModePaiementLabel(p.mode_paiement) }}
-                          </span>
-                          <span class="text-xs text-gray-400">•</span>
-                          <span class="text-xs text-gray-500">Échéance: {{ getEcheanceLabel(p.payable_id) }}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="text-right">
-                      <p class="text-xl font-bold font-mono text-emerald-600">{{ formatMontant(p.montant) }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Mentions légales -->
-            <div class="text-sm text-gray-500 text-center mt-8 pt-8 border-t border-gray-200">
-              <p>Ce reçu est délivré à titre d'information et ne constitue pas une facture officielle.</p>
-              <p>Pour toute réclamation, veuillez contacter le service financier.</p>
-            </div>
-
-            <!-- Cachet et signature -->
-            <div class="flex justify-between mt-12">
-              <div>
-                <p class="font-semibold text-gray-900">Le caissier,</p>
-                <p class="mt-8 text-gray-700">____________________</p>
-              </div>
-              <div class="text-center">
-                <p class="font-semibold text-gray-900">Cachet de l'établissement</p>
-                <div class="mt-4 w-32 h-32 border-2 border-gray-300 rounded-lg mx-auto flex items-center justify-center text-gray-400">Cachet</div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Message si pas de données -->
-          <div v-else class="p-8 text-center text-gray-500">
-            <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-            </svg>
-            <p>Aucune donnée de paiement disponible</p>
-          </div>
+            </form>
+          </DialogPanel>
         </div>
-      </div>
-    </div>
-  </Dialog>
+      </Dialog>
     </TransitionRoot>
+    </div>
   </div>
 </template>
 
@@ -1384,6 +1116,8 @@ const paiementForm = ref({
   montant: "",
   mode_paiement: "especes",
   reference: "",
+  commentaire: "",
+  frais_retrait_mm: 0,
 });
 
 // Colonnes du tableau des échéances
@@ -1406,25 +1140,17 @@ const modesPaiement = [
   {
     value: "especes",
     label: "Espèces",
-    iconPath:
-      "M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z",
+    iconPath: "M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z",
+  },
+  {
+    value: "mobile_money",
+    label: "Mobile Money",
+    iconPath: "M12 18h.01M8 21h8a4 4 0 004-4V7a4 4 0 00-4-4H8a4 4 0 00-4 4v10a4 4 0 004 4z",
   },
   {
     value: "banque",
     label: "Banque",
     iconPath: "M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4v3H3v-3z",
-  },
-  {
-    value: "semoa",
-    label: "SEMOA",
-    iconPath:
-      "M12 18h.01M8 21h8a4 4 0 004-4V7a4 4 0 00-4-4H8a4 4 0 00-4 4v10a4 4 0 004 4z",
-  },
-  {
-    value: "caisse",
-    label: "Caisse",
-    iconPath:
-      "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z",
   },
 ];
 
@@ -1455,7 +1181,7 @@ const getStatutDot = (statut) => {
 
 const getStatutLabel = (statut) => {
   const labels = {
-    en_cours: "En cours",
+    en_cours: "À jour",
     solde: "Soldé",
     en_retard: "En retard",
   };
@@ -1685,8 +1411,9 @@ const getEcheanceStatut = (statut) => {
 const getModePaiementLabel = (mode) => {
   const labels = {
     especes: "Espèces",
+    mobile_money: "Mobile Money",
     banque: "Banque",
-    semoa: "SEMOA",
+    semoa: "Mobile Money (SEMOA)",
     caisse: "Caisse",
   };
   return labels[mode] || mode;
@@ -1728,6 +1455,8 @@ const closePaiementModal = () => {
     montant: "",
     mode_paiement: "especes",
     reference: "",
+    commentaire: "",
+    frais_retrait_mm: 0,
   };
 };
 
@@ -1780,6 +1509,8 @@ const savePaiement = async () => {
         montant: montantAEcheance,
         mode_paiement: paiementForm.value.mode_paiement,
         reference: paiementForm.value.reference || null,
+        commentaire: paiementForm.value.commentaire || null,
+        frais_retrait_mm: paiementForm.value.frais_retrait_mm || 0,
       };
 
       try {

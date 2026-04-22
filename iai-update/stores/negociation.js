@@ -51,9 +51,18 @@ export const useNegociationStore = defineStore('negociation', {
       
       try {
         const response = await axios.get('/admin/negociations', this.authHeaders)
-        this.negociations = response.data
-        return response.data
+        // Gérer le cas où la réponse est enveloppée dans une clé 'data'
+        if (response.data && response.data.data && Array.isArray(response.data.data)) {
+          this.negociations = response.data.data
+        } else if (Array.isArray(response.data)) {
+          this.negociations = response.data
+        } else {
+          this.negociations = []
+          console.warn('Format de réponse inattendu pour les négociations:', response.data)
+        }
+        return this.negociations
       } catch (error) {
+        this.negociations = []
         this.error = error.response?.data?.message || 'Erreur lors du chargement des négociations'
         throw error
       } finally {
@@ -67,11 +76,36 @@ export const useNegociationStore = defineStore('negociation', {
       this.error = null
       
       try {
-        const response = await axios.get(`/negociations/${id}`, this.authHeaders)
+        const response = await axios.get(`/admin/negociations/${id}`, this.authHeaders)
         this.currentNegociation = response.data
         return response.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Erreur lors du chargement de la négociation'
+        throw error
+      } finally {
+        this.isLoading = false
+      }
+    },
+
+    // Récupérer la négociation d'un étudiant pour l'année en cours
+    async fetchNegociationByEtudiant(etudiantId, anneeScolaireId = null) {
+      this.isLoading = true
+      this.error = null
+      
+      try {
+        let url = `/admin/negociations/etudiant/${etudiantId}`
+        if (anneeScolaireId) {
+          url += `?annee_scolaire_id=${anneeScolaireId}`
+        }
+        
+        const response = await axios.get(url, this.authHeaders)
+        return response.data
+      } catch (error) {
+        // Ne pas jeter l'erreur si c'est un 404 (cas normal où l'étudiant n'a pas encore de négociation)
+        if (error.response?.status === 404) {
+          return null
+        }
+        this.error = error.response?.data?.message || 'Erreur lors de la vérification de la négociation'
         throw error
       } finally {
         this.isLoading = false
@@ -196,6 +230,7 @@ export const useNegociationStore = defineStore('negociation', {
       // Ajouter les échéances pour la négociation
       if (formData.type_paiement === 'negociation' && formData.echeances) {
         data.echeances = formData.echeances.map((e, index) => ({
+          id: e.id || null,
           libelle: e.libelle,
           montant: parseFloat(e.montant),
           date_limite: e.date_limite,

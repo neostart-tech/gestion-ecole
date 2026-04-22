@@ -49,11 +49,25 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
     elementsAPayer: (state) => {
       if (!state.infosEtudiant) return [];
       
+      let elements = [];
       if (state.infosEtudiant.type === 'negocie') {
-        return state.infosEtudiant.echeances || [];
+        elements = [...(state.infosEtudiant.echeances || [])];
       } else {
-        return state.infosEtudiant.tranches || [];
+        elements = [...(state.infosEtudiant.tranches || [])];
       }
+
+      // Ajouter le frais d'inscription s'il existe et n'est pas payé
+      if (state.infosEtudiant.frais_inscription && state.infosEtudiant.frais_inscription.reste > 0) {
+        // On le met au début avec un type spécial
+        const insc = {
+           ...state.infosEtudiant.frais_inscription,
+           payable_type: 'frais_inscription',
+           is_inscription: true
+        };
+        elements.unshift(insc);
+      }
+
+      return elements;
     },
 
     // Calculer le total payé
@@ -80,35 +94,32 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
     nombreElements: (state) => {
       if (!state.infosEtudiant) return 0;
       
+      let count = 0;
       if (state.infosEtudiant.type === 'negocie') {
-        return state.infosEtudiant.echeances?.length || 0;
+        count = state.infosEtudiant.echeances?.length || 0;
       } else {
-        return state.infosEtudiant.tranches?.length || 0;
+        count = state.infosEtudiant.tranches?.length || 0;
       }
+
+      if (state.infosEtudiant.frais_inscription) count++;
+      return count;
     },
 
     // Prochaine échéance/tranche à payer
-    prochainElement: (state) => {
-      if (!state.infosEtudiant) return null;
-      
-      const elements = state.infosEtudiant.type === 'negocie' 
-        ? state.infosEtudiant.echeances 
-        : state.infosEtudiant.tranches;
-      
+    prochainElement(state) {
+      const elements = this.elementsAPayer;
       if (!elements || elements.length === 0) return null;
       
       // Filtrer ceux qui ne sont pas complètement payés
-      const nonPayes = elements.filter(e => {
-        if (state.infosEtudiant.type === 'negocie') {
-          return e.statut !== 'paye';
-        } else {
-          return e.reste > 0;
-        }
-      });
+      const nonPayes = elements.filter(e => (e.reste || e.reste_a_payer) > 0);
       
+      // Si on a un frais d'inscription non payé, c'est la priorité absolue
+      const insc = nonPayes.find(e => e.is_inscription);
+      if (insc) return insc;
+
       // Trier par date limite
       return nonPayes.sort((a, b) => 
-        new Date(a.date_limite) - new Date(b.date_limite)
+        new Date(a.date_limite || '9999-12-31') - new Date(b.date_limite || '9999-12-31')
       )[0] || null;
     },
 
@@ -311,9 +322,11 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
             montant: paiementData.montant,
             mode_paiement: paiementData.mode_paiement,
             nature_paiement: paiementData.nature_paiement || 'scolarite',
-            frais_retrait_mm: paiementData.frais_retrait_mm || 0,
+            frais_retrait_mm: paiementData.frais_retrait || paiementData.frais_retrait_mm || 0,
             reference: paiementData.reference || null,
-            commentaire: paiementData.commentaire || null
+            commentaire: paiementData.commentaire || null,
+            payable_id: paiementData.payable_id || null,
+            payable_type: paiementData.payable_type || (paiementData.payable_id ? (this.infosEtudiant?.type === 'negocie' ? 'echeance' : 'tranche') : null)
           },
           this.authHeaders
         );

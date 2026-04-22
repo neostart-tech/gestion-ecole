@@ -39,7 +39,7 @@ const columns = [
     { field: 'date_depense', title: 'Date', width: '120px', sort: true },
     { field: 'titre', title: 'Libellé / Objet', sort: true },
     { field: 'categorie', title: 'Catégorie', width: '200px' },
-    { field: 'montant', title: 'Montant', width: '150px', cellClass: 'text-right font-semibold text-gray-800' },
+    { field: 'montant', title: 'Montant', width: '150px', cellClass: 'text-right font-semibold text-gray-800 dark:text-gray-200' },
     { field: 'mode_paiement', title: 'Paiement', width: '150px' },
     { field: 'actions', title: 'Actions', width: '100px', sort: false, cellClass: 'text-center' }
 ];
@@ -128,33 +128,37 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 transition-colors font-sans">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-      <Breadcrumb
-        :items="[
-          { label: 'Tableau de bord', to: '/admin/dashboard' },
-          { label: 'Finance', to: '/finance' },
-          { label: 'Dépenses', to: null }
-        ]"
-        title="Journal des Décaissements"
-        spacing="mb-0"
-      />
+  <div class="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-slate-200 dark:from-slate-900 dark:via-gray-900 dark:to-slate-800 p-4 md:p-8 transition-all duration-500 font-sans relative overflow-hidden">
+    
+    <!-- Décorations d'arrière-plan -->
+    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/0 blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-gradient-to-tl from-emerald-500/10 to-teal-500/0 blur-3xl pointer-events-none"></div>
 
-      <div class="flex items-center gap-3">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6 relative z-10">
+      <div class="space-y-1">
+        <h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-slate-500 dark:from-white dark:to-slate-400 tracking-tighter uppercase drop-shadow-sm">
+          Journal des Décaissements
+        </h1>
+        <p class="text-slate-500 dark:text-gray-400 font-semibold text-sm flex items-center gap-2">
+          <span class="w-2.5 h-2.5 bg-gradient-to-tr from-rose-600 to-orange-500 rounded-full shadow-[0_0_10px_rgba(225,29,72,0.5)] animate-pulse"></span>
+          Pilotage et suivi des flux sortants
+        </p>
+      </div>
+
+      <div class="flex items-center gap-3 bg-white/60 dark:bg-gray-800/60 backdrop-blur-md p-2 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-gray-700/50">
         <button
           @click="depenseStore.fetchDepenses"
-          class="inline-flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 text-gray-600 dark:text-gray-300 font-semibold text-sm transition-all shadow-sm"
+          class="p-3 bg-gradient-to-b from-white to-slate-50 dark:from-gray-700 dark:to-gray-800 hover:from-slate-50 hover:to-slate-100 rounded-xl transition-all shadow-[inset_0_1px_0_rgba(255,255,255,1),0_2px_4px_rgba(0,0,0,0.05)] border border-slate-200/60 dark:border-gray-600 text-slate-600 dark:text-gray-200"
         >
-          <svg class="w-4 h-4" :class="{ 'animate-spin': depenseStore.loading }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 drop-shadow-sm" :class="{ 'animate-spin': depenseStore.loading }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-          Rafraîchir
         </button>
 
         <button
           @click="openAddModal"
-          class="inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-100 dark:shadow-none transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+          class="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none transition-all transform hover:-translate-y-0.5 active:translate-y-0"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -343,7 +347,7 @@ onMounted(() => {
                 <div class="space-y-3 group">
                   <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1 group-focus-within:text-indigo-600 transition-colors">Libellé de l'opération</label>
                   <input v-model="form.titre" required type="text" placeholder="Désignation du décaissement..." 
-                    class="w-full bg-gray-50 dark:bg-gray-900/40 border-2 border-gray-50 dark:border-gray-700/50 rounded-2xl px-6 py-4 text-sm font-bold text-gray-800 dark:text-white outline-none focus:bg-white focus:border-indigo-500 transition-all placeholder:text-gray-300 shadow-sm">
+                    class="w-full bg-gray-50 dark:bg-gray-900/40 border-2 border-transparent dark:border-gray-700/50 rounded-2xl px-6 py-4 text-sm font-bold text-gray-800 dark:text-white outline-none focus:bg-white dark:focus:bg-gray-800 focus:border-indigo-500 transition-all placeholder:text-gray-300 shadow-sm">
                 </div>
 
                 <!-- Montant & Date -->
@@ -352,14 +356,14 @@ onMounted(() => {
                     <label class="text-[10px] font-black text-rose-400 uppercase tracking-widest pl-1">Montant Décaissé</label>
                     <div class="relative">
                         <input v-model="form.montant" required type="number" 
-                          class="w-full bg-gray-50 dark:bg-gray-900/40 border-2 border-gray-50 dark:border-gray-700/50 rounded-2xl pl-6 pr-14 py-4 text-lg font-black text-indigo-600 dark:text-indigo-400 focus:bg-white focus:border-indigo-500 outline-none transition-all shadow-sm">
+                          class="w-full bg-gray-50 dark:bg-gray-900/40 border-2 border-transparent dark:border-gray-700/50 rounded-2xl pl-6 pr-14 py-4 text-lg font-black text-indigo-600 dark:text-indigo-400 focus:bg-white dark:focus:bg-gray-800 focus:border-indigo-500 outline-none transition-all shadow-sm">
                         <span class="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-gray-300 uppercase">XOF</span>
                     </div>
                   </div>
                   <div class="space-y-3">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Date d'engagement</label>
                     <input v-model="form.date_depense" required type="date" 
-                      class="w-full bg-gray-50 dark:bg-gray-900/40 border-2 border-gray-50 dark:border-gray-700/50 rounded-2xl px-6 py-4 text-sm font-bold text-gray-800 dark:text-white outline-none focus:bg-white focus:border-indigo-500 transition-all shadow-sm appearance-none">
+                      class="w-full bg-gray-50 dark:bg-gray-900/40 border-2 border-transparent dark:border-gray-700/50 rounded-2xl px-6 py-4 text-sm font-bold text-gray-800 dark:text-white outline-none focus:bg-white dark:focus:bg-gray-800 focus:border-indigo-500 transition-all shadow-sm appearance-none">
                   </div>
                 </div>
 
@@ -369,7 +373,7 @@ onMounted(() => {
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Pôle Analytique</label>
                     <div class="relative group">
                         <select v-model="form.categorie" required 
-                            class="w-full bg-gray-50 dark:bg-gray-900/40 border-2 border-gray-50 dark:border-gray-700/50 rounded-2xl px-6 py-4 text-sm font-bold text-gray-800 dark:text-white outline-none focus:bg-white focus:border-indigo-500 transition-all appearance-none cursor-pointer shadow-sm">
+                            class="w-full bg-gray-50 dark:bg-gray-900/40 border-2 border-transparent dark:border-gray-700/50 rounded-2xl px-6 py-4 text-sm font-bold text-gray-800 dark:text-white outline-none focus:bg-white dark:focus:bg-gray-800 focus:border-indigo-500 transition-all appearance-none cursor-pointer shadow-sm">
                             <option value="" disabled>Classifier...</option>
                             <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
                         </select>
@@ -380,7 +384,7 @@ onMounted(() => {
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Mode de règlement</label>
                     <div class="relative group">
                         <select v-model="form.mode_paiement" required 
-                            class="w-full bg-gray-50 dark:bg-gray-900/40 border-2 border-gray-50 dark:border-gray-700/50 rounded-2xl px-6 py-4 text-sm font-bold text-gray-800 dark:text-white outline-none focus:bg-white focus:border-indigo-500 transition-all appearance-none cursor-pointer shadow-sm">
+                            class="w-full bg-gray-50 dark:bg-gray-900/40 border-2 border-transparent dark:border-gray-700/50 rounded-2xl px-6 py-4 text-sm font-bold text-gray-800 dark:text-white outline-none focus:bg-white dark:focus:bg-gray-800 focus:border-indigo-500 transition-all appearance-none cursor-pointer shadow-sm">
                             <option v-for="m in modesPaiement" :key="m" :value="m">{{ m }}</option>
                         </select>
                         <svg class="w-4 h-4 text-gray-300 absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" /></svg>
@@ -392,14 +396,14 @@ onMounted(() => {
                 <div class="space-y-3 group">
                   <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Référence / Pièce jointe (N°)</label>
                   <input v-model="form.reference" type="text" placeholder="N° de chèque, virement, facture..." 
-                    class="w-full bg-gray-50 dark:bg-gray-900/40 border-2 border-gray-50 dark:border-gray-700/50 rounded-2xl px-6 py-4 text-sm font-bold text-gray-800 dark:text-white outline-none focus:bg-white focus:border-indigo-500 transition-all placeholder:text-gray-300 shadow-sm">
+                    class="w-full bg-gray-50 dark:bg-gray-900/40 border-2 border-transparent dark:border-gray-700/50 rounded-2xl px-6 py-4 text-sm font-bold text-gray-800 dark:text-white outline-none focus:bg-white dark:focus:bg-gray-800 focus:border-indigo-500 transition-all placeholder:text-gray-300 shadow-sm">
                 </div>
 
                 <!-- Description -->
                 <div class="space-y-3 group">
                   <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Observations</label>
                   <textarea v-model="form.description" rows="3" placeholder="Notes complémentaires éventuelles..." 
-                    class="w-full bg-gray-50 dark:bg-gray-900/40 border-2 border-gray-50 dark:border-gray-700/50 rounded-2xl px-6 py-4 text-sm font-bold text-gray-800 dark:text-white outline-none resize-none focus:bg-white focus:border-indigo-500 transition-all placeholder:text-gray-300 shadow-sm custom-scrollbar"></textarea>
+                    class="w-full bg-gray-50 dark:bg-gray-900/40 border-2 border-transparent dark:border-gray-700/50 rounded-2xl px-6 py-4 text-sm font-bold text-gray-800 dark:text-white outline-none resize-none focus:bg-white dark:focus:bg-gray-800 focus:border-indigo-500 transition-all placeholder:text-gray-300 shadow-sm custom-scrollbar"></textarea>
                 </div>
               </div>
             </form>
