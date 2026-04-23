@@ -1,5 +1,5 @@
 export default {
-  app_local: true,
+  app_local: false,
   app_dev_url: "http://localhost:8000/api",
   app_prod_url: "https://escen.neostart.tech/api",
   // app_prod_url: "https://new.iai-togo.tg/api",

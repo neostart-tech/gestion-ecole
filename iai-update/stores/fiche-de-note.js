@@ -50,6 +50,25 @@ export const useFicheDeNoteStore = defineStore("fiche de note", {
         this.isLoading = false;
       }
     },
+
+    async saveNote(evaluation, payload) {
+      this.isLoading = true;
+      console.log("Store: Envoi de saveNote", { evaluation, payload });
+      try {
+        const response = await axios.post(
+          `/evaluations/${evaluation}/notes/changer-note`,
+          {
+            noteid: payload.id,
+            newnote: payload.note,
+            motif: payload.commentaire || "Modification manuelle",
+          },
+          this.authHeaders(),
+        );
+        return response.data;
+      } finally {
+        this.isLoading = false;
+      }
+    },
     async PublishNote(evaluation) {
       this.isLoading = true;
       try {

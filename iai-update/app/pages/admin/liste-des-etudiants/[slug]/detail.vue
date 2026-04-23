@@ -38,9 +38,15 @@
         >
           <div class="flex items-center gap-4">
             <div
-              class="w-14 h-14 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-semibold text-xl"
+              class="w-14 h-14 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-semibold text-xl overflow-hidden"
             >
-              {{ initials }}
+              <img 
+                v-if="etudiantStore.etudiant.image" 
+                :src="etudiantStore.etudiant.image" 
+                class="w-full h-full object-cover"
+                alt="Profile"
+              />
+              <span v-else>{{ initials }}</span>
             </div>
             <div>
               <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
@@ -53,49 +59,6 @@
               </p>
             </div>
           </div>
-<!-- 
-          <div class="flex gap-2">
-            <button
-              @click="openEditModal"
-              class="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
-            >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                />
-              </svg>
-              Modifier
-            </button>
-
-          
-            <button
-              @click="openDisableModal"
-              class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
-            >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-                />
-              </svg>
-              Désactiver le compte
-            </button>
-          </div> -->
         </div>
       </div>
 
@@ -126,6 +89,17 @@
               ]"
             >
               Relevés de notes
+            </button>
+            <button
+              @click="activeTab = 'dossier'"
+              :class="[
+                'px-6 py-3 text-sm font-medium transition-colors duration-200',
+                activeTab === 'dossier'
+                  ? 'border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400'
+                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
+              ]"
+            >
+              Dossier (Album)
             </button>
           </nav>
         </div>
@@ -326,425 +300,168 @@
               </Can>
             </div>
 
-            <!-- Liste des relevés simulés -->
+            <!-- Liste des relevés -->
             <div class="space-y-3">
-              <div
-                v-for="releve in simulatedReleves"
-                :key="releve.id"
-                class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              >
-                <div class="flex items-center gap-3">
-                  <div
-                    class="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg"
-                  >
-                    <svg
-                      class="w-5 h-5 text-indigo-600 dark:text-indigo-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
+              <template v-if="relevenoteStore.releves.length > 0">
+                <div
+                  v-for="releve in relevenoteStore.releves"
+                  :key="releve.id"
+                  class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:shadow-md transition-shadow"
+                >
+                  <div class="flex items-center gap-4">
+                    <div class="p-3 bg-white dark:bg-gray-600 text-indigo-600 dark:text-indigo-400 rounded-lg shadow-sm">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 class="font-semibold text-gray-900 dark:text-white">
+                        Relevé de notes - {{ releve.periode }}
+                      </h3>
+                      <div class="flex items-center gap-3 mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        <span>Année : {{ releve.annee_scolaire }}</span>
+                        <span>•</span>
+                        <span>{{ releve.periode }}</span>
+                        <span>•</span>
+                        <span>Généré le : {{ formatDate(releve.date_generation) }}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <p class="font-medium text-gray-900 dark:text-white">
-                      {{ releve.titre }}
-                    </p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      {{ releve.annee }} • {{ releve.semestre }} • Généré le
-                      {{ formatDate(releve.date_generation) }}
-                    </p>
+                  <div class="flex items-center gap-2">
+                    <button
+                      @click="deleteReleve(releve.id)"
+                      class="p-2 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
+                      title="Supprimer le relevé"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                    <button
+                      @click="
+                        activeReleve = releve;
+                        showPreviewModal = true;
+                      "
+                      class="p-2 text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors"
+                      title="Prévisualiser et télécharger"
+                    >
+                      <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        />
+                      </svg>
+                    </button>
                   </div>
                 </div>
-                <button
-                  @click="generatePDF(releve)"
-                  class="p-2 text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors"
-                  title="Télécharger le PDF"
-                >
-                  <svg
-                    class="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                    />
+              </template>
+              <div v-else class="text-center py-12 bg-gray-50 dark:bg-gray-800/20 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+                <div class="w-16 h-16 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm text-gray-400">
+                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-1">Aucun relevé généré</h3>
+                <p class="text-gray-500 dark:text-gray-400 max-w-xs mx-auto mb-6">
+                  Il n'y a pas encore de relevé de notes pour cet étudiant. Commencez par en générer un.
+                </p>
+                <button
+                  @click="openReleveModal"
+                  class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium shadow-sm"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Générer le premier relevé
                 </button>
               </div>
+            </div>
+          </div>
+
+          <!-- Onglet Dossier (Album) -->
+          <div v-if="activeTab === 'dossier'">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-lg font-medium text-gray-900 dark:text-white">
+                Dossier de l'étudiant
+              </h2>
+            </div>
+
+            <div v-if="etudiantStore.etudiant.album" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div 
+                v-for="(label, key) in documentLabels" 
+                :key="key"
+                v-show="etudiantStore.etudiant.album[key]"
+                class="group relative bg-gray-50 dark:bg-gray-700/50 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-600 hover:shadow-md transition-all duration-300"
+              >
+                <!-- Preview / Icon Area -->
+                <div class="aspect-video bg-gray-200 dark:bg-gray-800 flex items-center justify-center overflow-hidden">
+                  <img 
+                    v-if="isImage(etudiantStore.etudiant.album[key])"
+                    :src="getFileUrl(etudiantStore.etudiant.album[key])" 
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    alt="Document preview"
+                  />
+                  <div v-else class="flex flex-col items-center gap-2">
+                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span class="text-xs font-medium text-gray-500 uppercase">{{ getFileExtension(etudiantStore.etudiant.album[key]) }}</span>
+                  </div>
+                </div>
+
+                <!-- Info and Actions -->
+                <div class="p-4">
+                  <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-sm font-semibold text-gray-800 dark:text-white truncate pr-2">
+                      {{ label }}
+                    </h3>
+                  </div>
+                  
+                  <div class="flex gap-2 mt-4">
+                    <a 
+                      :href="getFileUrl(etudiantStore.etudiant.album[key])" 
+                      target="_blank"
+                      class="flex-1 flex items-center justify-center gap-2 px-3 py-1.5 text-xs font-medium bg-white dark:bg-gray-600 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-400/30 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
+                    >
+                      Voir
+                    </a>
+                    <a 
+                      :href="getFileUrl(etudiantStore.etudiant.album[key])" 
+                      download
+                      class="flex items-center justify-center p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/20 rounded-lg transition-colors border border-transparent hover:border-indigo-100 dark:hover:border-indigo-400/30"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-else class="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+               <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+               </svg>
+               <p class="text-gray-500 dark:text-gray-400">Aucun document n'a été fourni par cet étudiant.</p>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Template du relevé de notes (caché) -->
-    <div v-show="false" ref="releveTemplate">
-      <div
-        id="releve-content"
-        class="releve-pdf"
-        style="
-          background: white;
-          padding: 20px;
-          font-family: Arial, sans-serif;
-          width: 210mm;
-          margin: 0 auto;
-        "
-      >
-        <!-- En-tête avec logo -->
-        <div style="text-align: center; margin-bottom: 20px">
-          <h1
-            style="
-              color: #4f46e5;
-              font-size: 24px;
-              font-weight: bold;
-              text-transform: uppercase;
-              letter-spacing: 2px;
-              margin: 0;
-            "
-          >
-            UNIVERSITÉ EXCELLENCE
-          </h1>
-          <p style="color: #666; font-size: 12px; margin: 5px 0">
-            ---------- Excellence et Innovation ----------
-          </p>
-        </div>
-
-        <!-- Titre du document -->
-        <div style="text-align: center; margin-bottom: 30px">
-          <h2
-            style="
-              font-size: 20px;
-              font-weight: bold;
-              color: #333;
-              border-bottom: 2px solid #4f46e5;
-              padding-bottom: 5px;
-              display: inline-block;
-              padding-left: 30px;
-              padding-right: 30px;
-              margin: 0;
-            "
-          >
-            RELEVÉ DE NOTES
-          </h2>
-        </div>
-
-        <!-- Informations de l'étudiant -->
-        <div
-          style="
-            margin-bottom: 30px;
-            background: #f9fafb;
-            padding: 15px;
-            border: 1px solid #e5e7eb;
-            border-radius: 4px;
-          "
-        >
-          <table style="width: 100%; border-collapse: collapse">
-            <tr>
-              <td style="padding: 5px; width: 50%">
-                <span style="color: #666; font-size: 12px"
-                  >Nom et Prénoms :</span
-                >
-                <span
-                  style="
-                    font-weight: bold;
-                    color: #111;
-                    margin-left: 10px;
-                    font-size: 14px;
-                  "
-                  >{{ studentName }}</span
-                >
-              </td>
-              <td style="padding: 5px">
-                <span style="color: #666; font-size: 12px">Matricule :</span>
-                <span
-                  style="
-                    font-weight: bold;
-                    color: #111;
-                    margin-left: 10px;
-                    font-size: 14px;
-                  "
-                  >{{ etudiantStore.etudiant?.matricule }}</span
-                >
-              </td>
-            </tr>
-            <tr>
-              <td style="padding: 5px">
-                <span style="color: #666; font-size: 12px">Niveau :</span>
-                <span
-                  style="
-                    font-weight: bold;
-                    color: #111;
-                    margin-left: 10px;
-                    font-size: 14px;
-                  "
-                  >{{
-                    etudiantStore.etudiant?.dernier_groupe?.niveau?.nom || "-"
-                  }}</span
-                >
-              </td>
-              <td style="padding: 5px">
-                <span style="color: #666; font-size: 12px">Filière :</span>
-                <span
-                  style="
-                    font-weight: bold;
-                    color: #111;
-                    margin-left: 10px;
-                    font-size: 14px;
-                  "
-                  >{{
-                    etudiantStore.etudiant?.dernier_groupe?.filiere?.nom || "-"
-                  }}</span
-                >
-              </td>
-            </tr>
-          </table>
-        </div>
-
-        <!-- Période concernée -->
-        <div style="margin-bottom: 20px; text-align: center">
-          <p style="font-size: 14px; margin: 0">
-            <span style="font-weight: bold">Année académique :</span>
-            {{ releveForm.annee || "2023-2024" }} •
-            <span style="font-weight: bold">{{
-              releveForm.semestre || "Semestre 1"
-            }}</span>
-          </p>
-        </div>
-
-        <!-- Tableau des notes -->
-        <table
-          style="width: 100%; border-collapse: collapse; margin-bottom: 30px"
-        >
-          <thead>
-            <tr style="background-color: #4f46e5">
-              <th
-                style="
-                  border: 1px solid #3730a3;
-                  padding: 10px;
-                  text-align: left;
-                  color: white;
-                  font-weight: bold;
-                "
-              >
-                Matières
-              </th>
-              <th
-                style="
-                  border: 1px solid #3730a3;
-                  padding: 10px;
-                  text-align: center;
-                  color: white;
-                  font-weight: bold;
-                "
-              >
-                Notes (/20)
-              </th>
-              <th
-                style="
-                  border: 1px solid #3730a3;
-                  padding: 10px;
-                  text-align: center;
-                  color: white;
-                  font-weight: bold;
-                "
-              >
-                Crédits
-              </th>
-              <th
-                style="
-                  border: 1px solid #3730a3;
-                  padding: 10px;
-                  text-align: center;
-                  color: white;
-                  font-weight: bold;
-                "
-              >
-                Mentions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(matiere, index) in matieresNotes" :key="index">
-              <td style="border: 1px solid #d1d5db; padding: 8px">
-                {{ matiere.nom }}
-              </td>
-              <td
-                style="
-                  border: 1px solid #d1d5db;
-                  padding: 8px;
-                  text-align: center;
-                  font-weight: bold;
-                "
-              >
-                {{ matiere.note }}
-              </td>
-              <td
-                style="
-                  border: 1px solid #d1d5db;
-                  padding: 8px;
-                  text-align: center;
-                "
-              >
-                {{ matiere.credits }}
-              </td>
-              <td
-                style="
-                  border: 1px solid #d1d5db;
-                  padding: 8px;
-                  text-align: center;
-                "
-              >
-                {{ matiere.mention }}
-              </td>
-            </tr>
-          </tbody>
-          <tfoot style="background-color: #f3f4f6">
-            <tr>
-              <td
-                colspan="3"
-                style="
-                  border: 1px solid #d1d5db;
-                  padding: 10px;
-                  text-align: right;
-                  font-weight: bold;
-                "
-              >
-                Moyenne générale :
-              </td>
-              <td
-                style="
-                  border: 1px solid #d1d5db;
-                  padding: 10px;
-                  text-align: center;
-                  font-weight: bold;
-                "
-              >
-                {{ moyenneGenerale }}
-              </td>
-            </tr>
-            <tr>
-              <td
-                colspan="3"
-                style="
-                  border: 1px solid #d1d5db;
-                  padding: 10px;
-                  text-align: right;
-                  font-weight: bold;
-                "
-              >
-                Total crédits :
-              </td>
-              <td
-                style="
-                  border: 1px solid #d1d5db;
-                  padding: 10px;
-                  text-align: center;
-                  font-weight: bold;
-                "
-              >
-                {{ totalCredits }}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-
-        <!-- Section décision -->
-        <div
-          style="
-            margin-bottom: 30px;
-            padding: 15px;
-            border: 2px solid #4f46e5;
-            border-radius: 4px;
-            background-color: #eef2ff;
-          "
-        >
-          <p style="text-align: center; font-size: 16px; margin: 0">
-            <span style="font-weight: bold">DÉCISION DU JURY :</span>
-            <span
-              style="margin-left: 10px; color: #4f46e5; font-weight: bold"
-              >{{ decision }}</span
-            >
-          </p>
-        </div>
-
-        <!-- Signatures -->
-        <div
-          style="
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 50px;
-          "
-        >
-          <div style="text-align: center">
-            <div
-              style="
-                border-top: 1px solid #9ca3af;
-                padding-top: 5px;
-                margin-top: 30px;
-              "
-            ></div>
-            <p style="margin: 0; font-size: 12px">Le Chef de département</p>
-          </div>
-          <div style="text-align: center">
-            <div
-              style="
-                border-top: 1px solid #9ca3af;
-                padding-top: 5px;
-                margin-top: 30px;
-              "
-            ></div>
-            <p style="margin: 0; font-size: 12px">Le Directeur académique</p>
-          </div>
-          <div style="text-align: center">
-            <div
-              style="
-                border-top: 1px solid #9ca3af;
-                padding-top: 5px;
-                margin-top: 30px;
-              "
-            ></div>
-            <p style="margin: 0; font-size: 12px">Le Recteur</p>
-          </div>
-        </div>
-
-        <!-- Date et lieu -->
-        <div style="text-align: right; margin-top: 30px">
-          <p style="color: #666; font-size: 12px; margin: 0">
-            Fait à Cotonou, le {{ currentDate }}
-          </p>
-        </div>
-
-        <!-- Pied de page -->
-        <div
-          style="
-            margin-top: 30px;
-            padding-top: 15px;
-            border-top: 1px solid #d1d5db;
-            text-align: center;
-            font-size: 11px;
-            color: #666;
-          "
-        >
-          <p style="margin: 0">
-            Ce document est officiel et tient lieu de justificatif académique
-          </p>
-          <p style="margin: 5px 0 0 0">
-            www.universite-excellence.bj • contact@universite-excellence.bj
-          </p>
-        </div>
-      </div>
-    </div>
 
     <!-- Modal de modification -->
     <TransitionRoot appear :show="showEditModal" as="template">
@@ -762,7 +479,7 @@
         </TransitionChild>
 
         <div class="fixed inset-0 overflow-y-auto">
-          <div class="flex min-h-full items-center justify-center p-4">
+          <div class="flex min-h-full items-center justify-center p-4 text-center">
             <TransitionChild
               as="template"
               enter="ease-out duration-300"
@@ -783,56 +500,22 @@
 
                 <div class="space-y-4">
                   <div>
-                    <label
-                      class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >
-                      Nom
-                    </label>
-                    <input
-                      v-model="editForm.nom"
-                      type="text"
-                      class="w-full px-3 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
-                    />
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nom</label>
+                    <input v-model="editForm.nom" type="text" class="w-full px-3 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white" />
                   </div>
                   <div>
-                    <label
-                      class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >
-                      Prénom
-                    </label>
-                    <input
-                      v-model="editForm.prenom"
-                      type="text"
-                      class="w-full px-3 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
-                    />
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prénom</label>
+                    <input v-model="editForm.prenom" type="text" class="w-full px-3 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white" />
                   </div>
                   <div>
-                    <label
-                      class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >
-                      Téléphone
-                    </label>
-                    <input
-                      v-model="editForm.tel"
-                      type="text"
-                      class="w-full px-3 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
-                    />
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Téléphone</label>
+                    <input v-model="editForm.tel" type="text" class="w-full px-3 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white" />
                   </div>
                 </div>
 
                 <div class="mt-6 flex justify-end gap-3">
-                  <button
-                    @click="closeEditModal"
-                    class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600"
-                  >
-                    Annuler
-                  </button>
-                  <button
-                    @click="saveEdit"
-                    class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700"
-                  >
-                    Enregistrer
-                  </button>
+                  <button @click="closeEditModal" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">Annuler</button>
+                  <button @click="saveEdit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">Enregistrer</button>
                 </div>
               </DialogPanel>
             </TransitionChild>
@@ -857,7 +540,7 @@
         </TransitionChild>
 
         <div class="fixed inset-0 overflow-y-auto">
-          <div class="flex min-h-full items-center justify-center p-4">
+          <div class="flex min-h-full items-center justify-center p-4 text-center">
             <TransitionChild
               as="template"
               enter="ease-out duration-300"
@@ -871,58 +554,20 @@
                 class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all"
               >
                 <div class="flex items-center gap-3 text-red-600 mb-4">
-                  <svg
-                    class="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                    />
-                  </svg>
-                  <DialogTitle
-                    class="text-lg font-medium text-gray-900 dark:text-white"
-                  >
-                    Désactiver le compte
-                  </DialogTitle>
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                  <DialogTitle class="text-lg font-medium text-gray-900 dark:text-white">Désactiver le compte</DialogTitle>
                 </div>
 
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  Êtes-vous sûr de vouloir désactiver le compte de
-                  {{ studentName }} ? Cette action peut être réversible.
-                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Êtes-vous sûr de vouloir désactiver le compte de {{ studentName }} ? Cette action peut être réversible.</p>
 
                 <div class="mb-4">
-                  <label
-                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                  >
-                    Motif (optionnel)
-                  </label>
-                  <textarea
-                    v-model="disableReason"
-                    rows="3"
-                    class="w-full px-3 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
-                    placeholder="Raison de la désactivation..."
-                  ></textarea>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Motif (optionnel)</label>
+                  <textarea v-model="disableReason" rows="3" class="w-full px-3 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white" placeholder="Raison de la désactivation..."></textarea>
                 </div>
 
                 <div class="flex justify-end gap-3">
-                  <button
-                    @click="closeDisableModal"
-                    class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600"
-                  >
-                    Annuler
-                  </button>
-                  <button
-                    @click="confirmDisable"
-                    class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
-                  >
-                    Désactiver
-                  </button>
+                  <button @click="closeDisableModal" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">Annuler</button>
+                  <button @click="confirmDisable" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">Désactiver</button>
                 </div>
               </DialogPanel>
             </TransitionChild>
@@ -931,7 +576,173 @@
       </Dialog>
     </TransitionRoot>
 
-    <!-- Modal de génération de relevé -->
+    <!-- Modal de prévisualisation du relevé -->
+    <TransitionRoot appear :show="showPreviewModal" as="template">
+      <Dialog as="div" class="relative z-50" @close="showPreviewModal = false">
+        <TransitionChild
+          as="template"
+          enter="ease-out duration-300"
+          enter-from="opacity-0"
+          enter-to="opacity-100"
+          leave="ease-in duration-200"
+          leave-from="opacity-100"
+          leave-to="opacity-0"
+        >
+          <div class="fixed inset-0 bg-black/60" />
+        </TransitionChild>
+
+        <div class="fixed inset-0 overflow-y-auto">
+          <div class="flex min-h-full items-center justify-center p-4 text-center">
+            <TransitionChild
+              as="template"
+              enter="ease-out duration-300"
+              enter-from="opacity-0 scale-95"
+              enter-to="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leave-from="opacity-100 scale-100"
+              leave-to="opacity-0 scale-95"
+            >
+              <DialogPanel
+                class="w-full max-w-5xl transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all"
+              >
+                <div class="flex justify-between items-center mb-6">
+                  <DialogTitle
+                    class="text-xl font-bold text-gray-900 dark:text-white"
+                  >
+                    Prévisualisation du relevé
+                  </DialogTitle>
+                  <div class="flex gap-3">
+                    <button
+                      @click="downloadCurrentPDF"
+                      class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                      Télécharger PDF
+                    </button>
+                    <button
+                      @click="showPreviewModal = false"
+                      class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                    >
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="bg-gray-100 dark:bg-gray-900 rounded-xl p-8 max-h-[70vh] overflow-y-auto border-2 border-dashed border-gray-300 dark:border-gray-700">
+                  <div class="bg-white text-black shadow-2xl mx-auto p-10 min-h-[297mm] w-[210mm] origin-top transform scale-[0.8] md:scale-100">
+                    <div v-if="currentReleve" id="releve-content">
+                      <div style="text-align: center; margin-bottom: 20px">
+                        <div v-if="currentReleve.logo_url || parametreStore.getAppLogo" style="margin-bottom: 10px;">
+                          <img :src="currentReleve.logo_url || parametreStore.getAppLogo" alt="Logo" style="height: 80px; object-fit: contain; margin: 0 auto;">
+                        </div>
+                        <h1 style="color: #4f46e5; font-size: 24px; font-weight: bold; text-transform: uppercase; margin: 0;">{{ parametreStore.getParamValue('nom_de_etablissement') || 'UNIVERSITÉ EXCELLENCE' }}</h1>
+                        <p style="color: #666; font-size: 12px; margin: 5px 0">---------- Excellence et Innovation ----------</p>
+                      </div>
+
+                      <div style="text-align: center; margin-bottom: 30px">
+                        <h2 style="font-size: 20px; font-weight: bold; color: #333; border-bottom: 2px solid #4f46e5; padding-bottom: 5px; display: inline-block; padding-left: 30px; padding-right: 30px; margin: 0;">RELEVÉ DE NOTES</h2>
+                      </div>
+
+                      <div style="margin-bottom: 30px; background: #f9fafb; padding: 15px; border: 1px solid #e5e7eb; border-radius: 4px;">
+                        <table style="width: 100%; border-collapse: collapse">
+                          <tr>
+                            <td style="padding: 5px; width: 50%">
+                              <span style="color: #666; font-size: 12px">Nom et Prénoms :</span>
+                              <span style="font-weight: bold; color: #111; margin-left: 10px; font-size: 14px;">{{ studentName }}</span>
+                            </td>
+                            <td style="padding: 5px">
+                              <span style="color: #666; font-size: 12px">Matricule :</span>
+                              <span style="font-weight: bold; color: #111; margin-left: 10px; font-size: 14px;">{{ etudiantStore.etudiant?.matricule }}</span>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 5px">
+                              <span style="color: #666; font-size: 12px">Niveau :</span>
+                              <span style="font-weight: bold; color: #111; margin-left: 10px; font-size: 14px;">{{ etudiantStore.etudiant?.dernier_groupe?.niveau?.nom || "-" }}</span>
+                            </td>
+                            <td style="padding: 5px">
+                              <span style="color: #666; font-size: 12px">Filière :</span>
+                              <span style="font-weight: bold; color: #111; margin-left: 10px; font-size: 14px;">{{ etudiantStore.etudiant?.dernier_groupe?.filiere?.nom || "-" }}</span>
+                            </td>
+                          </tr>
+                        </table>
+                      </div>
+
+                      <div style="margin-bottom: 20px; text-align: center">
+                        <p style="font-size: 14px; margin: 0">
+                          <span style="font-weight: bold">Année académique :</span> {{ currentReleve.annee_scolaire }} •
+                          <span style="font-weight: bold">{{ currentReleve.periode }}</span>
+                        </p>
+                      </div>
+
+                      <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px">
+                        <thead>
+                          <tr style="background-color: #4f46e5">
+                            <th style="border: 1px solid #3730a3; padding: 10px; text-align: left; color: white; font-weight: bold;">Matières</th>
+                            <th style="border: 1px solid #3730a3; padding: 10px; text-align: center; color: white; font-weight: bold;">Devoir</th>
+                            <th style="border: 1px solid #3730a3; padding: 10px; text-align: center; color: white; font-weight: bold;">Examen</th>
+                            <th style="border: 1px solid #3730a3; padding: 10px; text-align: center; color: white; font-weight: bold;">Moy.</th>
+                            <th style="border: 1px solid #3730a3; padding: 10px; text-align: center; color: white; font-weight: bold;">Crédit</th>
+                            <th style="border: 1px solid #3730a3; padding: 10px; text-align: center; color: white; font-weight: bold;">Points</th>
+                            <th style="border: 1px solid #3730a3; padding: 10px; text-align: center; color: white; font-weight: bold;">Mentions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(uv, index) in currentUVs" :key="index">
+                            <td style="border: 1px solid #d1d5db; padding: 8px">{{ uv.nom }}</td>
+                            <td style="border: 1px solid #d1d5db; padding: 8px; text-align: center;">{{ uv.devoir }}</td>
+                            <td style="border: 1px solid #d1d5db; padding: 8px; text-align: center;">{{ uv.examen }}</td>
+                            <td style="border: 1px solid #d1d5db; padding: 8px; text-align: center; font-weight: bold;">{{ uv.note }}</td>
+                            <td style="border: 1px solid #d1d5db; padding: 8px; text-align: center;">{{ uv.credits }}</td>
+                            <td style="border: 1px solid #d1d5db; padding: 8px; text-align: center; font-weight: bold;">{{ uv.note_ponderee }}</td>
+                            <td style="border: 1px solid #d1d5db; padding: 8px; text-align: center;">{{ uv.mention }}</td>
+                          </tr>
+                        </tbody>
+                        <tfoot style="background-color: #f3f4f6">
+                          <tr>
+                            <td colspan="4" style="border: 1px solid #d1d5db; padding: 10px; text-align: right; font-weight: bold;">Totaux :</td>
+                            <td style="border: 1px solid #d1d5db; padding: 10px; text-align: center; font-weight: bold;">{{ currentReleve.total_coefficients }}</td>
+                            <td style="border: 1px solid #d1d5db; padding: 10px; text-align: center; font-weight: bold;">{{ currentReleve.total_notes_ponderees }}</td>
+                            <td style="border: 1px solid #d1d5db; padding: 10px; text-align: center; font-weight: bold;">-</td>
+                          </tr>
+                          <tr>
+                            <td colspan="5" style="border: 1px solid #d1d5db; padding: 10px; text-align: right; font-weight: bold;">Moyenne générale :</td>
+                            <td colspan="2" style="border: 1px solid #d1d5db; padding: 10px; text-align: center; font-weight: bold; font-size: 16px; color: #4f46e5;">{{ currentReleve.moyenne_generale }} / 20</td>
+                          </tr>
+                        </tfoot>
+                      </table>
+
+                      <div style="margin-top: 40px; display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="font-size: 12px; color: #666; padding-top: 20px;">
+                          <p style="margin-bottom: 5px;">Total crédits : <span style="font-weight: bold; color: #111;">{{ currentReleve.total_credits_valides }} / {{ (parseInt(currentReleve.total_credits_valides) + parseInt(currentReleve.total_credits_non_valides)) }}</span></p>
+                          <p>Décision : <span style="font-weight: bold; color: #111; font-size: 14px;">{{ parseFloat(currentReleve.moyenne_generale) >= 10 ? 'Admis' : 'Ajourné' }}</span></p>
+                        </div>
+                        <div style="text-align: center; min-width: 280px;">
+                          <p style="font-size: 14px; margin-bottom: 50px;">Fait à Lomé, le {{ formatDate(currentReleve.date_generation) }}</p>
+                          <p style="font-weight: bold; margin-bottom: 8px; font-size: 15px;">{{ parametreStore.getParamValue('titre_du_directeur_des_etudes') || 'Le Directeur des Études' }}</p>
+                          <div style="margin-top: 10px;">
+                            <p style="font-weight: bold; font-size: 16px;">{{ parametreStore.getParamValue('nom_complet_du_directeur_des_etudes') || '' }}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div v-else class="flex flex-col items-center justify-center py-20 text-gray-500">
+                      <p>Données du relevé indisponibles...</p>
+                    </div>
+                  </div>
+                </div>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+
+    <!-- Modal de sélection de relevé -->
     <TransitionRoot appear :show="showReleveModal" as="template">
       <Dialog as="div" class="relative z-50" @close="closeReleveModal">
         <TransitionChild
@@ -947,7 +758,7 @@
         </TransitionChild>
 
         <div class="fixed inset-0 overflow-y-auto">
-          <div class="flex min-h-full items-center justify-center p-4">
+          <div class="flex min-h-full items-center justify-center p-4 text-center">
             <TransitionChild
               as="template"
               enter="ease-out duration-300"
@@ -988,9 +799,18 @@
                   </button>
                   <button
                     @click="generateReleveDeNote"
-                    class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
+                    :disabled="isGenerating"
+                    class="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors flex items-center gap-2"
+                    :class="[
+                      isGenerating ? 'bg-indigo-400 cursor-not-allowed' : 
+                      selectedReleveExists ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-green-600 hover:bg-green-700'
+                    ]"
                   >
-                    Générer
+                    <svg v-if="isGenerating" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    {{ isGenerating ? 'Génération...' : (selectedReleveExists ? 'Prévisualiser' : 'Générer') }}
                   </button>
                 </div>
               </DialogPanel>
@@ -1016,9 +836,12 @@ import Breadcrumb from "~/components/Breadcrumb.vue";
 import { useEtudiantStore } from "~~/stores/etudiant";
 import { usePeriodeStore } from "~~/stores/periode";
 import { useReleveNoteStore } from "~~/stores/relevenote";
+import { useParametreStore } from "~~/stores/parametre";
+import config from "~~/config";
 
 const periodeStore = usePeriodeStore();
 const relevenoteStore = useReleveNoteStore();
+const parametreStore = useParametreStore();
 
 // Import dynamique de html2pdf avec fallback
 let html2pdf = null;
@@ -1034,7 +857,7 @@ if (process.client) {
 }
 
 const route = useRoute();
-const { $toastr } = useNuxtApp();
+const { $toastr, $swal } = useNuxtApp();
 const etudiantStore = useEtudiantStore();
 
 // Référence pour le template de relevé
@@ -1044,11 +867,21 @@ const form = ref({
   periode_id: "",
 });
 
+const selectedAnnee = computed(() => {
+  const p = periodeStore.periodes.find(p => p.id === form.value.periode_id);
+  return p ? p.annee_scolaire_id : null;
+});
+
+const selectedPeriode = computed(() => form.value.periode_id);
+
 // État
+const isGenerating = ref(false);
 const activeTab = ref("info");
 const showEditModal = ref(false);
 const showDisableModal = ref(false);
 const showReleveModal = ref(false);
+const showPreviewModal = ref(false);
+const activeReleve = ref(null);
 const disableReason = ref("");
 
 // Formulaire d'édition
@@ -1064,52 +897,24 @@ const releveForm = ref({
   semestre: "Semestre 1",
 });
 
-// Données simulées pour les matières
-const matieresNotes = ref([
-  { nom: "Programmation Web", note: 16, credits: 4, mention: "Bien" },
-  { nom: "Base de données", note: 14, credits: 4, mention: "Assez bien" },
-  { nom: "Algorithmique", note: 15, credits: 3, mention: "Bien" },
-  { nom: "Réseaux", note: 13, credits: 3, mention: "Assez bien" },
-  { nom: "Anglais technique", note: 17, credits: 2, mention: "Très bien" },
-  { nom: "Gestion de projet", note: 15, credits: 3, mention: "Bien" },
-]);
-
-// Données simulées pour les relevés
-const simulatedReleves = ref([
-  {
-    id: 1,
-    titre: "Relevé de notes - Licence 1",
-    annee: "2021-2022",
-    semestre: "Semestre 1",
-    date_generation: "2022-01-15",
-  },
-  {
-    id: 2,
-    titre: "Relevé de notes - Licence 1",
-    annee: "2021-2022",
-    semestre: "Semestre 2",
-    date_generation: "2022-06-20",
-  },
-  {
-    id: 3,
-    titre: "Relevé de notes - Licence 2",
-    annee: "2022-2023",
-    semestre: "Semestre 1",
-    date_generation: "2023-01-10",
-  },
-  {
-    id: 4,
-    titre: "Relevé de notes - Licence 2",
-    annee: "2022-2023",
-    semestre: "Semestre 2",
-    date_generation: "2023-06-15",
-  },
-]);
+// Mapping des documents
+const documentLabels = {
+  lettre: "Lettre de demande",
+  naissance: "Acte de naissance",
+  diplome: "Diplôme principal",
+  nationalite: "Nationalité",
+  photo: "Photo d'identité",
+  certificat_medical: "Certificat médical",
+  cv: "CV",
+  lettre_motivation: "Lettre de motivation",
+  releve_bac1_path: "Relevé BAC 1",
+  releve_bac2_path: "Relevé BAC 2",
+};
 
 // Computed
 const studentName = computed(() => {
   if (!etudiantStore.etudiant) return "";
-  return `${etudiantStore.etudiant.prenom} ${etudiantStore.etudiant.nom}`;
+  return `${etudiantStore.etudiant.nom} ${etudiantStore.etudiant.prenom}`;
 });
 
 const initials = computed(() => {
@@ -1119,23 +924,54 @@ const initials = computed(() => {
   return (prenom.charAt(0) + nom.charAt(0)).toUpperCase() || "?";
 });
 
-const moyenneGenerale = computed(() => {
-  const total = matieresNotes.value.reduce((acc, m) => acc + m.note, 0);
-  return (total / matieresNotes.value.length).toFixed(2);
+const selectedReleveId = ref(null);
+
+const currentReleve = computed(() => {
+  return activeReleve.value;
 });
 
-const totalCredits = computed(() => {
-  return matieresNotes.value.reduce((acc, m) => acc + m.credits, 0);
+const selectedReleveExists = computed(() => {
+  if (!form.value.periode_id) return false;
+  return relevenoteStore.releves.find(r => r.periode_id === form.value.periode_id);
 });
 
-const decision = computed(() => {
-  const moyenne = parseFloat(moyenneGenerale.value);
-  if (moyenne >= 16) return "Admis avec Félicitations";
-  if (moyenne >= 14) return "Admis avec Mention Bien";
-  if (moyenne >= 12) return "Admis avec Mention Assez Bien";
-  if (moyenne >= 10) return "Admis";
+const currentUVs = computed(() => {
+  if (!currentReleve.value || !currentReleve.value.ues) return [];
+  const uvs = [];
+  currentReleve.value.ues.forEach((ue) => {
+    if (ue.uvs) {
+      ue.uvs.forEach((uv) => {
+        uvs.push({
+          nom: uv.nom,
+          devoir: uv.devoir || "0.00",
+          examen: uv.examen || "0.00",
+          note: uv.moyenne_uv,
+          note_ponderee: uv.note_ponderee || "0.00",
+          credits: uv.coefficient,
+          mention: getMention(uv.moyenne_uv),
+        });
+      });
+    }
+  });
+  return uvs;
+});
+
+const totalCoefficients = computed(() => {
+  return currentUVs.value.reduce((acc, uv) => acc + parseFloat(uv.credits || 0), 0);
+});
+
+const totalPoints = computed(() => {
+  return currentUVs.value.reduce((acc, uv) => acc + parseFloat(uv.note_ponderee || 0), 0).toFixed(2);
+});
+
+const getMention = (note) => {
+  const n = parseFloat(note);
+  if (n >= 16) return "Très Bien";
+  if (n >= 14) return "Bien";
+  if (n >= 12) return "Assez Bien";
+  if (n >= 10) return "Passable";
   return "Ajourné";
-});
+};
 
 const currentDate = computed(() => {
   return new Date().toLocaleDateString("fr-FR", {
@@ -1150,6 +986,22 @@ const formatDate = (dateString) => {
   if (!dateString) return "-";
   const date = new Date(dateString);
   return date.toLocaleDateString("fr-FR");
+};
+
+const getFileUrl = (path) => {
+  if (!path) return null;
+  const baseUrl = process.dev ? config.app_dev_storage_url : config.app_prod_storage_url;
+  return `${baseUrl}/${path}`;
+};
+
+const isImage = (path) => {
+  if (!path) return false;
+  return /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(path);
+};
+
+const getFileExtension = (path) => {
+  if (!path) return "";
+  return path.split(".").pop().toUpperCase();
 };
 
 // Gestion des modales
@@ -1203,47 +1055,59 @@ const closeReleveModal = () => {
 };
 
 const generateReleveDeNote = async () => {
-  try {
-    await relevenoteStore.GenererReleveNotes(route.params.slug, form.value);
-    $toastr.success("Releve de note généré avec succes");
-  } catch (error) {
-    $toastr.error(error.response.data.message);
-  }
-};
-
-// Génération de relevé avec html2pdf
-const generateReleve = async () => {
-  if (!html2pdf) {
-    $toastr.error("Bibliothèque de génération PDF non disponible");
+  if (!form.value.periode_id) {
+    $toastr.error("Veuillez sélectionner une période");
     return;
   }
 
-  try {
-    const element = document.getElementById("releve-content");
-    if (!element) {
-      $toastr.error("Élément du relevé non trouvé");
-      return;
-    }
-
-    const options = {
-      margin: [0.5, 0.5, 0.5, 0.5],
-      filename: `releve_${etudiantStore.etudiant?.matricule || "etudiant"}_${releveForm.value.semestre}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        letterRendering: true,
-        useCORS: true,
-        logging: false,
-      },
-      jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-    };
-
-    await html2pdf().set(options).from(element).save();
-    $toastr.success("Relevé généré avec succès");
+  isGenerating.value = true;
+  
+  if (selectedReleveExists.value) {
+    activeReleve.value = selectedReleveExists.value;
+    showPreviewModal.value = true;
     closeReleveModal();
+    isGenerating.value = false;
+    return;
+  }
+
+  // Afficher un loading Swal
+  $swal.fire({
+    title: 'Génération en cours...',
+    text: 'Calcul des moyennes et des crédits en cours.',
+    allowOutsideClick: false,
+    didOpen: () => {
+      $swal.showLoading();
+    }
+  });
+
+  try {
+    const newReleve = await relevenoteStore.GenererReleveNotes(
+      route.params.slug,
+      {
+        annee_scolaire_id: selectedAnnee.value,
+        periode_id: selectedPeriode.value
+      }
+    );
+    
+    $swal.close();
+    $toastr.success("Relevé de notes calculé avec succès");
+    closeReleveModal();
+
+    if (newReleve) {
+      activeReleve.value = newReleve;
+      showPreviewModal.value = true;
+    }
   } catch (error) {
-    console.error("Erreur génération PDF:", error);
-    $toastr.error("Erreur lors de la génération du PDF");
+    $swal.close();
+    $toastr.error("Erreur lors de la génération du relevé");
+  } finally {
+    isGenerating.value = false;
+  }
+};
+
+const downloadCurrentPDF = async () => {
+  if (currentReleve.value) {
+    await generatePDF(currentReleve.value);
   }
 };
 
@@ -1255,25 +1119,22 @@ const generatePDF = async (releve) => {
   }
 
   try {
+    selectedReleveId.value = releve.id;
+    releveForm.value.annee = releve.annee_scolaire;
+    releveForm.value.semestre = releve.periode;
+
+    // Attendre que le DOM soit mis à jour avec les nouvelles données de selectedReleveId
+    await nextTick();
+
     const element = document.getElementById("releve-content");
     if (!element) {
       $toastr.error("Élément du relevé non trouvé");
       return;
     }
 
-    // Mettre à jour temporairement les données pour ce relevé
-    const originalAnnee = releveForm.value.annee;
-    const originalSemestre = releveForm.value.semestre;
-
-    releveForm.value.annee = releve.annee;
-    releveForm.value.semestre = releve.semestre;
-
-    // Attendre que le DOM soit mis à jour
-    await nextTick();
-
     const options = {
       margin: [0.5, 0.5, 0.5, 0.5],
-      filename: `releve_${etudiantStore.etudiant?.matricule || "etudiant"}_${releve.semestre}.pdf`,
+      filename: `releve_${etudiantStore.etudiant?.matricule || "etudiant"}_${releve.periode}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: {
         scale: 2,
@@ -1285,28 +1146,60 @@ const generatePDF = async (releve) => {
     };
 
     await html2pdf().set(options).from(element).save();
-
-    // Restaurer les valeurs
-    releveForm.value.annee = originalAnnee;
-    releveForm.value.semestre = originalSemestre;
+    $toastr.success("Relevé généré avec succès");
   } catch (error) {
     console.error("Erreur génération PDF:", error);
     $toastr.error("Erreur lors de la génération du PDF");
   }
 };
 
+const deleteReleve = async (id) => {
+  const result = await $swal.fire({
+    title: 'Supprimer ce relevé ?',
+    text: "Cette action est irréversible et supprimera également toutes les validations (UE/UV) associées.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Oui, supprimer',
+    cancelButtonText: 'Annuler',
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await relevenoteStore.deleteReleveNote(id);
+      $toastr.success("Relevé supprimé avec succès");
+      if (activeReleve.value?.id === id) {
+        showPreviewModal.value = false;
+        activeReleve.value = null;
+      }
+    } catch (error) {
+      $swal.fire({
+        title: 'Erreur',
+        text: "Une erreur est survenue lors de la suppression.",
+        icon: 'error'
+      });
+    }
+  }
+};
+
 const periodeOptions = computed(() =>
-  periodeStore.periode.map((p) => ({
-    label: p.nom,
-    value: p.id,
-  })),
+  periodeStore.periode.map((p) => {
+    const exists = relevenoteStore.releves.some(r => r.periode_id === p.id);
+    return {
+      label: exists ? `${p.nom} (Déjà généré)` : p.nom,
+      value: p.id,
+      isGenerated: exists
+    };
+  }),
 );
 
 // Chargement initial
 onMounted(async () => {
   await etudiantStore.fetchEtudiant(route.params.slug);
   await periodeStore.fetchPeriodeByYear();
-  await relevenoteStore.getReleveNotes(route.params.slug)
+  await relevenoteStore.getReleveNotes(route.params.slug);
+  await parametreStore.fetchParametres();
 });
 </script>
 

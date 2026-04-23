@@ -1205,6 +1205,84 @@
                 >
               </NuxtLink>
             </li>
+
+            <!-- Génération globale des relevés -->
+            <li
+              v-if="
+                hasAnyRole([
+                  'directeur-academique',
+                  'logiticien-academique',
+                  'directeur-general',
+                  'directeur-general-adjoint',
+                  'informaticien',
+                  'admin'
+                ])
+              "
+            >
+              <NuxtLink
+                to="/admin/releves-globaux"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/admin/releves-globaux'
+                    ? 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 text-amber-700 dark:text-amber-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/admin/releves-globaux'
+                      ? 'bg-amber-100 dark:bg-amber-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium flex-1">Génération relevés</span>
+              </NuxtLink>
+            </li>
+
+            <!-- Liste globale des relevés -->
+            <!-- <li
+              v-if="
+                hasAnyRole([
+                  'directeur-academique',
+                  'logiticien-academique',
+                  'directeur-general',
+                  'directeur-general-adjoint',
+                  'informaticien',
+                  'admin'
+                ])
+              "
+            >
+              <NuxtLink
+                to="/admin/liste-des-releves"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/admin/liste-des-releves'
+                    ? 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 text-amber-700 dark:text-amber-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/admin/liste-des-releves'
+                      ? 'bg-amber-100 dark:bg-amber-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium flex-1">Liste des relevés</span>
+              </NuxtLink>
+            </li> -->
           </ul>
         </section>
 

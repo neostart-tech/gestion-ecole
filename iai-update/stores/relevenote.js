@@ -17,14 +17,32 @@ export const useReleveNoteStore = defineStore("releve de note", {
         },
       };
     },
-    async fetchReleveNotes() {
+    async fetchGlobalReleves(params = {}) {
       this.isLoading = true;
       try {
-        const response = await axios.get("/roles/liste", this.authHeaders());
-
-        this.releves = response.data.data;
+        const response = await axios.get("/releves-de-note/liste", {
+          ...this.authHeaders(),
+          params
+        });
+        return response.data;
       } catch (error) {
-        console.error("Erreur chargement roles:", error);
+        console.error("Erreur chargement global relevés:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async checkRelevesStatus(payload) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          "/releves-de-note/check-statuses",
+          payload,
+          this.authHeaders()
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Erreur vérification statuts relevés:", error);
         throw error;
       } finally {
         this.isLoading = false;
@@ -39,9 +57,29 @@ export const useReleveNoteStore = defineStore("releve de note", {
           this.authHeaders(),
         );
 
-        this.releves = response.data.data;
+        // Recharger la liste complète pour que l'UI soit à jour
+        await this.getReleveNotes(etudiant);
+        
+        return response.data.releve;
       } catch (error) {
-        console.error("Erreur chargement releves:", error);
+        console.error("Erreur génération relevé:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async BulkGenerateReleveNotes(payload) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          '/releves-de-note/bulk-generate',
+          payload,
+          this.authHeaders(),
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Erreur génération groupée:", error);
         throw error;
       } finally {
         this.isLoading = false;
@@ -56,9 +94,24 @@ export const useReleveNoteStore = defineStore("releve de note", {
           this.authHeaders(),
         );
 
-        this.releves = response.data.data;
+        this.releves = response.data.data || [];
       } catch (error) {
         console.error("Erreur chargement releves:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async deleteReleveNote(releveId) {
+      this.isLoading = true;
+      try {
+        await axios.delete(
+          `/releves-de-note/${releveId}/supprimer`,
+          this.authHeaders(),
+        );
+        this.releves = this.releves.filter((r) => r.id !== releveId);
+      } catch (error) {
+        console.error("Erreur suppression relevé:", error);
         throw error;
       } finally {
         this.isLoading = false;

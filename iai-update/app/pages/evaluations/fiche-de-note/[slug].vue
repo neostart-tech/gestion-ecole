@@ -1214,31 +1214,36 @@ const updateNote = async () => {
   if (!validateNewNote()) return;
 
   updatingNote.value = true;
+  console.log("Tentative de mise à jour de la note:", {
+    evaluation: evaluation_slug.value,
+    noteId: selectedNote.value?.id,
+    value: newNoteValue.value
+  });
+
   try {
-    await ficheDeNoteStore.saveNote({
+    const res = await ficheDeNoteStore.saveNote(evaluation_slug.value, {
       id: selectedNote.value.id,
       note: parseFloat(newNoteValue.value),
       commentaire: newNoteComment.value,
     });
 
-    // Mettre à jour la note dans le tableau
-    const noteIndex = notes.value.findIndex(
-      (n) => n.id === selectedNote.value.id,
-    );
-    if (noteIndex !== -1) {
-      const val = parseFloat(newNoteValue.value);
-      notes.value[noteIndex].tempNote = newNoteValue.value;
-      notes.value[noteIndex].notation = val;
-      notes.value[noteIndex].note = val;
-      if (!notes.value[noteIndex].raw) notes.value[noteIndex].raw = {};
-      notes.value[noteIndex].raw.notation = { note: val, commentaire: newNoteComment.value };
+    // Mettre à jour la source de vérité dans le store
+    if (res && res.note) {
+      const storeIndex = ficheDeNoteStore.fiches.findIndex(f => f.id === selectedNote.value.id);
+      if (storeIndex !== -1) {
+        ficheDeNoteStore.fiches[storeIndex] = {
+           ...ficheDeNoteStore.fiches[storeIndex],
+           ...res.note
+        };
+      }
     }
 
     $toastr.success("Note mise à jour avec succès");
     closeEditModal();
   } catch (error) {
     console.error("Erreur mise à jour note:", error);
-    $toastr.error("Erreur lors de la mise à jour de la note");
+    const msg = error.response?.data?.message || "Erreur lors de la mise à jour de la note";
+    $toastr.error(msg);
   } finally {
     updatingNote.value = false;
   }
