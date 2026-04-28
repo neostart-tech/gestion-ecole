@@ -185,6 +185,9 @@
               </div>
               
               <div class="max-h-[80vh] overflow-y-auto custom-scrollbar">
+                <div v-if="activeReleveData" class="mb-4 p-2 bg-gray-100 dark:bg-gray-700 text-[10px] overflow-auto max-h-32 text-gray-800 dark:text-gray-200">
+                  DEBUG: {{ JSON.stringify(activeReleveData).substring(0, 500) }}...
+                </div>
                 <ReleveNotePreview v-if="activeReleveData" :releve="activeReleveData" />
               </div>
             </DialogPanel>
@@ -282,12 +285,16 @@ const previewReleve = async (releve) => {
     // Utiliser le store pour récupérer les relevés de l'étudiant
     const data = await relevenoteStore.getReleveNotes(releve.etudiant.slug)
     // On cherche le relevé spécifique dans la liste (le store met à jour relevenoteStore.releves)
-    const found = relevenoteStore.releves.find(r => r.id === releve.id)
+    const found = relevenoteStore.releves.find(r => String(r.id) === String(releve.id))
+    console.log('[LISTE-RELEVES] Releve selectionne:', releve.id)
+    console.log('[LISTE-RELEVES] Données trouvées dans le store:', found)
+    
     if (found) {
       activeReleveData.value = found
       showPreview.value = true
     } else {
-      $toastr.error('Données du relevé introuvables')
+      console.warn('[LISTE-RELEVES] Releve non trouve dans le store après fetch')
+      $toastr.error('Erreur: Les détails du relevé sont introuvables.')
     }
   } catch (error) {
     console.error('[LISTE-RELEVES] Erreur preview:', error)

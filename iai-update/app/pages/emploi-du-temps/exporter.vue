@@ -93,6 +93,7 @@
         :date-debut="pdfData.dateDebut"
         :date-fin="pdfData.dateFin"
         :type-export="pdfData.typeExport"
+        :holidays="calendarStore.holidays"
       />
     </div>
       <div
@@ -948,8 +949,9 @@ watch(
   },
 );
 
-onMounted(() => {
+onMounted(async () => {
   chargerGroupes();
+  await calendarStore.loadHolidays();
 });
 </script>
 

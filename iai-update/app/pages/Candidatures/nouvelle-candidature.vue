@@ -360,7 +360,7 @@
                 <!-- Type de diplôme -->
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Type de diplôme <span class="text-red-500">*</span>
+                    Dernier Diplôme obtenu <span class="text-red-500">*</span>
                   </label>
                   <select
                     v-model="form.type_diplome"
@@ -369,11 +369,10 @@
                     @blur="validateField('type_diplome')"
                   >
                     <option value="">Sélectionnez</option>
-                    <option value="BAC">BAC</option>
+                    <option value="Bac 2">Bac 2</option>
                     <option value="BTS">BTS</option>
-                    <option value="LICENCE">Licence</option>
-                    <option value="MASTER">Master</option>
-                    <option value="DOCTORAT">Doctorat</option>
+                    <option value="Licence">Licence</option>
+                    <option value="Master">Master</option>
                   </select>
                   <p v-if="errors.type_diplome" class="mt-1 text-sm text-red-600">{{ errors.type_diplome }}</p>
                 </div>

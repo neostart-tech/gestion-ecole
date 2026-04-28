@@ -1295,7 +1295,7 @@ const processExport = async () => {
 // Fonctions de gestion des utilisateurs (existantes)
 const openEditModal = (user) => {
   editForm.value = {
-    id: user.id,
+    slug: user.slug,
     nom: user.nom,
     prenom: user.prenom,
     email: user.email,
@@ -1357,7 +1357,7 @@ const confirmDelete = async (user) => {
 
 const submitUpdate = async () => {
   try {
-    await userStore.updateUser(editForm.value.id, editForm.value);
+    await userStore.updateUser(editForm.value.slug, editForm.value);
 
     // Fermer la modale et rafraîchir
     showEditModal.value = false;

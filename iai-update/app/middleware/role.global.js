@@ -15,8 +15,11 @@ export default defineNuxtRouteMiddleware((to) => {
 		"/mot-de-passe-oublie",
 		"/reset-password",
 		"/unauthorized",
+        "/actualites",
+        "/annonces",
+        "/support/ticket"
 	];
-	if (publicRoutes.includes(to.path)) {
+	if (publicRoutes.includes(to.path) || to.path.startsWith("/actualites/") || to.path.startsWith("/annonces/")) {
 		return;
 	}
 

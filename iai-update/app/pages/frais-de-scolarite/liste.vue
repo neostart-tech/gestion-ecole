@@ -790,6 +790,24 @@
                   />
                 </div>
 
+                <!-- Mode de formation -->
+                <div class="space-y-1.5">
+                  <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 ml-1">
+                    <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    Mode de formation
+                  </label>
+                  <Dropdown
+                    v-model="form.mode_formation"
+                    :options="modeFormationOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Tous les modes"
+                    class="w-full shadow-sm border-gray-200 dark:border-gray-700 dark:bg-gray-900 rounded-lg h-10 flex items-center px-2"
+                  />
+                </div>
+
                 <!-- Montant -->
                 <div class="space-y-1.5">
                   <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 ml-1">
@@ -984,6 +1002,7 @@ const form = ref({
   montant: null,
   description: null,
   genre: null,
+  mode_formation: 'Tous',
   frequence: 'bimestriel',
   existingTranches: [],
 });
@@ -996,6 +1015,7 @@ const duplicateForm = ref({
 const columns = ref([
   { field: "annee", title: "Année scolaire ", visible: true },
   { field: "genre", title: "Genre", visible: false },
+  { field: "mode_formation", title: "Mode", visible: true },
   { field: "niveau", title: "Niveau", visible: true },
   { field: "filiere", title: "Filiere ", visible: true },
   { field: "montant", title: "Montant ", visible: true },
@@ -1010,6 +1030,7 @@ const rows = computed(() =>
     id: f.id,
     annee: f.annee_scolaire.nom || "--",
     genre: f.genre ?? "",
+    mode_formation: f.mode_formation ?? "Tous",
     niveau: f.niveau.libelle,
     niveau_id: f.niveau.id,
     filiere: f?.filiere?.code || "--",
@@ -1040,6 +1061,7 @@ const openAddModal = () => {
     montant: null,
     description: null,
     genre: null,
+    mode_formation: 'Tous',
     frequence: 'bimestriel',
   };
   showModal.value = true;
@@ -1054,6 +1076,7 @@ const openEditModal = (f) => {
     montant: f.montant,
     description: f.description,
     genre: f.genre,
+    mode_formation: f.mode_formation,
     frequence: f.frequence,
     existingTranches: f.tranches?.data || f.tranches || [],
   };
@@ -1181,6 +1204,14 @@ const genreOptions = computed(() => {
   ];
 });
 
+const modeFormationOptions = computed(() => {
+  return [
+    { label: "Tous", value: "Tous" },
+    { label: "Présentiel", value: "Présentiel" },
+    { label: "En ligne", value: "En ligne" },
+  ];
+});
+
 const niveauOptions = computed(() =>
   (niveauStore.niveaux || []).map((n) => ({
     label: n.libelle,
@@ -1191,7 +1222,7 @@ const niveauOptions = computed(() =>
 const frequenceOptions = ref([
   { label: "Annuel (1 tranche)", value: "annuel" },
   { label: "Trimestriel (3 tranches)", value: "trimestriel" },
-  { label: "Bimestriel (6 tranches)", value: "bimestriel" },
+  { label: "Bimestriel (4 tranches)", value: "bimestriel" },
 ]);
 
 const anneeOptions = computed(() =>
@@ -1211,7 +1242,7 @@ const previewTranches = computed(() => {
   const configs = {
     annuel: { count: 1, interval: 12 },
     trimestriel: { count: 3, interval: 3 },
-    bimestriel: { count: 6, interval: 2 }
+    bimestriel: { count: 4, interval: 2 }
   };
 
   const config = configs[form.value.frequence];

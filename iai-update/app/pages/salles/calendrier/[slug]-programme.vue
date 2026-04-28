@@ -1,9 +1,50 @@
 <template>
+  <!-- LOADING GLOBAL PREMIUM -->
+  <Transition
+    enter-active-class="transition duration-500 ease-out"
+    enter-from-class="opacity-0"
+    enter-to-class="opacity-100"
+    leave-active-class="transition duration-300 ease-in"
+    leave-from-class="opacity-100"
+    leave-to-class="opacity-0"
+  >
+    <div
+      v-if="isPageLoading"
+      class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm"
+    >
+      <div class="relative flex items-center justify-center">
+        <!-- Cercles pulsants -->
+        <div class="absolute w-32 h-32 bg-indigo-500/20 rounded-full animate-ping"></div>
+        <div class="absolute w-24 h-24 bg-indigo-600/30 rounded-full animate-pulse delay-75"></div>
+        
+        <!-- Icône centrale -->
+        <div class="relative w-16 h-16 bg-gradient-to-tr from-indigo-600 to-blue-500 rounded-2xl shadow-2xl flex items-center justify-center transform rotate-12 hover:rotate-0 transition-transform duration-500">
+          <svg class="w-8 h-8 text-white animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+      </div>
+      
+      <!-- Texte de chargement -->
+      <div class="mt-12 text-center">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white tracking-tight">
+          Préparation de l'emploi du temps
+        </h2>
+        <p class="text-gray-500 dark:text-gray-400 mt-2 flex items-center justify-center gap-1">
+          Synchronisation de vos cours
+          <span class="flex gap-1 ml-1">
+            <span class="w-1 h-1 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+            <span class="w-1 h-1 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+            <span class="w-1 h-1 bg-indigo-500 rounded-full animate-bounce"></span>
+          </span>
+        </p>
+      </div>
+    </div>
+  </Transition>
   <div
     class="min-h-screen p-4 md:p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800"
   >
     <div class="max-w-7xl mx-auto">
-      <!-- En-tête amélioré -->
       <!-- En-tête amélioré -->
       <div
         class="flex flex-col md:flex-row md:items-center justify-between mb-8"
@@ -35,7 +76,7 @@
         <!-- Boutons d'action -->
         <div class="flex items-center space-x-4 mt-4 md:mt-0">
           <button
-            @click="openCreateModal"
+            @click="() => { resetForm(); openCreateModal(); }"
             class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
           >
             <svg
@@ -475,6 +516,7 @@
                           showIcon
                           fluid
                           iconDisplay="input"
+                          :disabledDates="disabledDates"
                         />
                         <label for="on_label">Date</label>
                       </FloatLabel>
@@ -526,6 +568,7 @@
                   <div>
                     <FloatLabel variant="on">
                       <Dropdown
+                        id="uv_s_id"
                         v-model="form.uv_id"
                         :options="MatieresOptions"
                         optionLabel="label"
@@ -535,7 +578,7 @@
                         placeholder=""
                         class="w-full"
                       />
-                      <label for="on_label">Sélectionner une matière</label>
+                      <label for="uv_s_id">Sélectionner une matière</label>
                     </FloatLabel>
                   </div>
 
@@ -543,6 +586,7 @@
                   <div>
                     <FloatLabel variant="on">
                       <Dropdown
+                        id="grade_s_id"
                         v-model="form.grade"
                         :options="GroupesOptions"
                         optionLabel="label"
@@ -552,7 +596,7 @@
                         placeholder=""
                         class="w-full"
                       />
-                      <label for="on_label">Sélectionnez un groupe</label>
+                      <label for="grade_s_id">Sélectionnez un groupe</label>
                     </FloatLabel>
                   </div>
 
@@ -560,6 +604,7 @@
                   <div>
                     <FloatLabel variant="on">
                       <Dropdown
+                        id="teacher_s_id"
                         v-model="form.teacher"
                         :options="EnseignantsOptions"
                         optionLabel="label"
@@ -569,7 +614,7 @@
                         placeholder=""
                         class="w-full"
                       />
-                      <label for="on_label">Sélectionnez un enseignant</label>
+                      <label for="teacher_s_id">Sélectionnez un enseignant</label>
                     </FloatLabel>
                   </div>
 
@@ -577,6 +622,7 @@
                   <div>
                     <FloatLabel variant="on">
                       <Dropdown
+                        id="type_s_id"
                         v-model="form.type"
                         :options="TypeOptions"
                         optionLabel="label"
@@ -586,7 +632,7 @@
                         placeholder=""
                         class="w-full"
                       />
-                      <label for="on_label"
+                      <label for="type_s_id"
                         >Sélectionnez un type de programme</label
                       >
                     </FloatLabel>
@@ -638,13 +684,15 @@
                           <label
                             v-for="day in daysOfWeek"
                             :key="day.value"
-                            class="flex items-center gap-2"
+                            :for="'day-' + day.value"
+                            class="flex items-center gap-2 cursor-pointer"
                           >
                             <input
                               type="checkbox"
+                              :id="'day-' + day.value"
                               :value="day.value"
                               v-model="form.recurrence_days"
-                              class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                              class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                             />
                             <span
                               class="text-sm text-gray-700 dark:text-gray-300"
@@ -660,11 +708,15 @@
                         >
                           Date de fin (optionnel)
                         </label>
-                        <input
-                          type="date"
+                        <DatePicker
                           v-model="form.recurrence_end_date"
-                          :min="form.date"
-                          class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          dateFormat="yy-mm-dd"
+                          showIcon
+                          fluid
+                          iconDisplay="input"
+                          :minDate="form.date ? new Date(form.date) : null"
+                          :disabledDates="disabledDates"
+                          placeholder="Date de fin"
                         />
                       </div>
                     </div>
@@ -761,6 +813,15 @@
                     />
                   </svg>
                   <svg
+                    v-else-if="selectedEvent?.extendedProps?.type === 'Jour Férié'"
+                    class="w-6 h-6 text-indigo-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-7h.01" />
+                  </svg>
+                  <svg
                     v-else
                     class="w-6 h-6 text-blue-500"
                     fill="none"
@@ -783,6 +844,8 @@
                     'px-3 py-1 rounded-full text-xs font-semibold',
                     selectedEvent?.extendedProps?.type === 'Évaluation'
                       ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
+                      : selectedEvent?.extendedProps?.type === 'Jour Férié'
+                      ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300'
                       : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
                   ]"
                 >
@@ -791,7 +854,83 @@
               </div>
 
               <!-- Contenu de la modale -->
-              <div class="space-y-4">
+              <div
+                v-if="selectedEvent?.extendedProps?.type === 'Jour Férié'"
+                class="py-6 flex flex-col items-center text-center"
+              >
+                <div
+                  class="w-20 h-20 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mb-4 shadow-inner"
+                >
+                  <svg
+                    class="w-10 h-10 text-indigo-600 dark:text-indigo-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-7h.01"
+                    />
+                  </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2 uppercase tracking-tight">
+                  {{ selectedEvent?.title.replace("🚩 ", "") }}
+                </h3>
+                <div
+                  class="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 rounded-full text-sm font-bold mb-4 border border-indigo-100 dark:border-indigo-800"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  {{
+                    selectedEvent?.start ? format(new Date(selectedEvent.start), "eeee d MMMM yyyy", {
+                      locale: fr,
+                    }) : ''
+                  }}
+                </div>
+                <p
+                  v-if="selectedEvent?.extendedProps?.details"
+                  class="text-gray-600 dark:text-gray-400 italic bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700 max-w-sm"
+                >
+                  "{{ selectedEvent?.extendedProps?.details }}"
+                </p>
+                <div
+                  class="mt-8 p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 rounded-xl w-full"
+                >
+                  <p
+                    class="text-amber-800 dark:text-amber-300 text-xs flex items-center gap-2 justify-center font-medium"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    Aucun cours ou évaluation n'est prévu ce jour (Férié).
+                  </p>
+                </div>
+              </div>
+
+              <div v-else class="space-y-4">
                 <!-- UV -->
                 <div class="flex items-start">
                   <div class="w-8 flex-shrink-0">
@@ -1077,6 +1216,7 @@
 
               <!-- Boutons d'action -->
               <div class="mt-8 flex justify-end gap-3">
+                <template v-if="selectedEvent?.extendedProps?.type !== 'Jour Férié'">
                 <button
                   type="button"
                   @click="openEditModalFromDetail(selectedEvent)"
@@ -1117,6 +1257,7 @@
                   </svg>
                   Supprimer
                 </button>
+                </template>
                 <button
                   type="button"
                   @click="closeEventModal"
@@ -1152,16 +1293,16 @@ import {
   TransitionRoot,
 } from "@headlessui/vue";
 
+import { useCalendarStore } from "~~/stores/calendar";
 import { useSalleStore } from "~~/stores/salle";
-import { useUvStore } from "~~/stores/unite-valeur";
-import { useUeStore } from "~~/stores/unite-enseignement";
-import { useGroupeStore } from "~~/stores/group";
 import { useUserStore } from "~~/stores/user";
-
-import { useRoute } from "vue-router";
+import { useUvStore } from "~~/stores/unite-valeur";
+import { useGroupeStore } from "~~/stores/group";
+import { useUeStore } from "~~/stores/unite-enseignement";
 
 const route = useRoute();
 const salleStore = useSalleStore();
+const calendarStore = useCalendarStore();
 const UeStore = useUeStore();
 const userStore = useUserStore();
 const UvStore = useUvStore();
@@ -1179,6 +1320,17 @@ const enableRecurrence = ref(false);
 const formLoading = ref(false);
 const availabilityChecked = ref(false);
 const deleteValue = ref();
+const isPageLoading = ref(true);
+
+// Jours fériés désactivés pour le DatePicker
+const disabledDates = computed(() => {
+  if (!calendarStore.holidays) return [];
+  // Créer des objets Date à minuit local pour le DatePicker
+  return calendarStore.holidays.map(h => {
+    const d = new Date(h.date);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  });
+});
 
 // Données
 const selectedEvent = ref<any>(null);
@@ -1283,23 +1435,23 @@ const parseDateTime = (dateTimeStr: string): Date => {
   if (!dateTimeStr) return new Date();
 
   try {
-    // Si la chaîne contient déjà un espace, c'est probablement "YYYY-MM-DD HH:mm"
+    // Normaliser le format pour le constructeur Date (remplacer espace par T)
+    const normalized = dateTimeStr.replace(" ", "T");
+    const d = new Date(normalized);
+    
+    if (!isNaN(d.getTime())) {
+      return d;
+    }
+
+    // Fallback manuel si nécessaire
     if (dateTimeStr.includes(" ")) {
       const [datePart, timePart] = dateTimeStr.split(" ");
       const [year, month, day] = datePart.split("-").map(Number);
       const [hour, minute] = timePart.split(":").map(Number);
-
       return new Date(year, month - 1, day, hour, minute);
     }
 
-    // Si c'est juste une date "YYYY-MM-DD"
-    if (dateTimeStr.includes("-")) {
-      const [year, month, day] = dateTimeStr.split("-").map(Number);
-      return new Date(year, month - 1, day, 0, 0);
-    }
-
-    // Fallback
-    return new Date(dateTimeStr);
+    return new Date();
   } catch (error) {
     console.error("Erreur parsing date:", dateTimeStr, error);
     return new Date();
@@ -1309,7 +1461,7 @@ const parseDateTime = (dateTimeStr: string): Date => {
 /**
  * Convertit les jours de récurrence en format RRule
  */
-const convertRecurrenceDays = (daysString: string | null): number[] => {
+const convertRecurrenceDays = (daysString: string | string[] | null): number[] => {
   if (!daysString) return [];
 
   const dayMap: { [key: string]: number } = {
@@ -1329,8 +1481,14 @@ const convertRecurrenceDays = (daysString: string | null): number[] => {
     dimanche: RRule.SU,
   };
 
-  return daysString
-    .split(",")
+  let daysArray: string[] = [];
+  if (Array.isArray(daysString)) {
+    daysArray = daysString;
+  } else {
+    daysArray = daysString.split(",");
+  }
+
+  return daysArray
     .map((day) => {
       const dayLower = day.trim().toLowerCase();
       if (dayLower.length === 2) {
@@ -1361,6 +1519,8 @@ const shouldUseDateFin = (event: any): boolean => {
   );
 };
 
+
+
 /**
  * Génère les dates récurrentes pour un événement avec date de fin correcte
  */
@@ -1368,6 +1528,7 @@ const generateRecurringEvents = (
   event: any,
   startDate: Date,
   endDate: Date,
+  holidayDates: Set<string> = new Set()
 ): any[] => {
   if (!event.recurrence_type || event.recurrence_type === "aucune") {
     return [
@@ -1480,17 +1641,23 @@ const generateRecurringEvents = (
         continue;
       }
 
+      // Vérifier si c'est un jour férié
+      const occDateStr = format(eventStart, "yyyy-MM-dd");
+      if (holidayDates.has(occDateStr)) continue;
+
       // Vérifier si la date générée est avant la date de fin
       if (recurrenceEndDate && eventStart > recurrenceEndDate) {
         continue;
       }
 
-      const eventEnd = new Date(eventStart.getTime() + duration);
+      const eventEnd = new Date(eventStart);
+      eventEnd.setHours(endDate.getHours(), endDate.getMinutes(), endDate.getSeconds());
 
       events.push({
         ...event,
         start: eventStart,
         end: eventEnd,
+        type: event.type || event.type_programme || "Cours",
         originalSlug: event.slug,
         slug: `${event.slug}`,
         isRecurring: true,
@@ -1524,15 +1691,42 @@ const generateRecurringEvents = (
 const calendarEvents = computed(() => {
   const events: any[] = [];
 
+  // Ajouter les jours fériés du store
+  if (calendarStore.holidays && calendarStore.holidays.length > 0) {
+    calendarStore.holidays.forEach((holiday: any) => {
+      // Événement visible avec le titre
+      events.push({
+        id: `holiday-${holiday.id}`,
+        title: `🚩 ${holiday.titre || holiday.nom}`,
+        start: holiday.date,
+        allDay: true,
+        classNames: ["premium-holiday-pill"],
+        extendedProps: {
+          type: "Jour Férié",
+          details: holiday.description,
+          titre: holiday.titre,
+          title: holiday.titre,
+          start: holiday.date,
+          isHoliday: true,
+        },
+      });
+    });
+  }
+
   console.log(
     "Début génération calendarEvents, nombre d'événements:",
     programmesArray.value.length,
   );
 
+  const holidayDates = new Set(calendarStore.holidays.map((h: any) => h.date.split("T")[0]));
+
   programmesArray.value.forEach((event: any, index: number) => {
     try {
-      const startDate = parseDateTime(event.debut);
-      const endDate = parseDateTime(event.fin);
+      const eventDate = event.debut.split(" ")[0];
+      if (holidayDates.has(eventDate)) return;
+
+      const startDate = parseDateTime(event.debut || event.date_debut);
+      const endDate = parseDateTime(event.fin || event.date_fin);
 
       if (!startDate || !endDate) {
         console.warn("Dates manquantes pour:", event.title);
@@ -1543,20 +1737,23 @@ const calendarEvents = computed(() => {
         event,
         startDate,
         endDate,
+        holidayDates
       );
 
       console.log(`  → ${recurringEvents.length} occurrence(s) générée(s)`);
 
       recurringEvents.forEach((evt: any) => {
-        const backgroundColor = getEventColor(evt.type);
-        const title =
-          evt.title || `${evt.uv?.nom || ""} - ${evt.type || "Cours"}`;
+        const backgroundColor = getEventColor(evt.type || evt.type_programme || "Cours");
+        const uvName = evt.uv?.nom || evt.uv || "";
+        const typeLabel = evt.type || evt.type_programme || "Cours";
+        const title = uvName ? `${typeLabel}: ${uvName}` : typeLabel;
 
         events.push({
           id: evt.slug,
           title: title,
           start: evt.start,
           end: evt.end,
+          allDay: false,
           backgroundColor: backgroundColor,
           borderColor: "transparent",
           classNames: [
@@ -1565,23 +1762,29 @@ const calendarEvents = computed(() => {
             evt.isRecurring ? "event-recurring" : "event-initial",
           ],
           extendedProps: {
-            uv: evt.uv?.nom || evt.uv || "",
-            uv_id: evt.uv?.id || evt.uv_id || "",
+            ...evt,
+            displayType: evt.type || "Cours",
+            displayGroup: evt.grade?.nom || evt.group || "",
+            displayTeacher: evt.teacher?.nom || evt.enseignant?.nom || evt.teacher || evt.enseignant || "",
+            displayUv: uvName,
+            uv: uvName,
+            uv_id: evt.uv?.id || evt.uv_id || evt.matiere_id || evt.id_uv || evt.uv || "",
             uv_slug: evt.uv?.slug || evt.uv_slug || "",
             salle: evt.salle?.nom || evt.salle || "",
-            teacher: evt.teacher?.nom || evt.teacher || "",
+            salle_id: evt.salle?.id || evt.salle_id || evt.id_salle || evt.salle || "",
+            teacher: evt.teacher?.nom || evt.enseignant?.nom || evt.teacher || evt.enseignant || "",
             lien_reunion: evt?.lien_reunion_formate || evt?.lien_reunion || null,
             est_virtuelle: evt.est_virtuelle || false,
             plateforme: evt.plateforme || null,
-            teacher_id: evt.teacher?.id || evt.teacher_id || "",
+            teacher_id: evt.teacher?.id || evt.enseignant?.id || evt.teacher_id || evt.enseignant_id || evt.id_enseignant || evt.teacher || evt.enseignant || "",
             teacher_slug: evt.teacher?.slug || evt.teacher_slug || "",
-            group: evt.group || evt.grade || "",
-            group_id: evt.group_id,
-            grade_id: evt.grade?.id || evt.group_id || "",
+            group: evt.group?.nom || evt.grade?.nom || evt.group || evt.grade || "",
+            group_id: evt.group?.id || evt.grade?.id || evt.group_id || evt.grade_id || evt.id_groupe || evt.group || evt.grade || "",
+            grade_id: evt.grade?.id || evt.group?.id || evt.grade_id || evt.group_id || evt.id_groupe || evt.grade || evt.group || "",
             grade_slug: evt.grade?.slug || evt.grade_slug || "",
             details: evt.details || "",
-            type: evt.type || "Cours",
-            slug: evt.slug || "",
+            type: evt.type || evt.type_programme || "Cours",
+            slug: evt.slug || evt.id || "",
             recurrence_type: evt.recurrence_type || "aucune",
             recurrence_days: evt.recurrence_days || "",
             recurrence_end_date: evt.recurrence_end_date || evt.date_fin || "",
@@ -1608,7 +1811,8 @@ const calendarOptions = computed<CalendarOptions>(() => ({
   plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
   locale: frLocale,
   initialView: "dayGridMonth",
-  height: "auto",
+  height: 800,
+  contentHeight: 750,
 
   headerToolbar: {
     left: "prev,next today",
@@ -1624,25 +1828,115 @@ const calendarOptions = computed<CalendarOptions>(() => ({
     list: "Liste",
   },
 
+  // Appliquer une classe à toute la cellule du jour pour les jours fériés
+  dayCellClassNames: (arg: any) => {
+    const dateStr = arg.date.toISOString().split('T')[0];
+    const isHoliday = calendarStore.holidays.some((h: any) => h.date.split('T')[0] === dateStr);
+    return isHoliday ? ['holiday-cell'] : [];
+  },
+
   // Événements depuis la fonction générée
   events: (info, successCallback) => {
     const events = calendarEvents.value;
-    console.log(
-      "FullCalendar demande des événements, on envoie:",
-      events.length,
-    );
     successCallback(events);
   },
 
+  // Gestion de l'affichage des événements
+  eventContent: (arg: any) => {
+    const type = arg.event.extendedProps?.type || "Cours";
+    const title = arg.event.title || "";
+    const viewType = arg.view.type;
+    const isEval = type === "Évaluation";
+
+    // Vue Liste
+    if (viewType.startsWith("list")) {
+      return {
+        html: `
+          <div style="display:flex;align-items:center;gap:6px;padding:2px 4px;">
+            <span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;background:${isEval ? '#f97316' : '#2563eb'}"></span>
+            <span style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${title}</span>
+            <span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;background:${isEval ? 'rgba(249,115,22,0.15)' : 'rgba(37,99,235,0.15)'};color:${isEval ? '#c2410c' : '#1d4ed8'};padding:1px 5px;border-radius:3px;flex-shrink:0;">${type}</span>
+          </div>
+        `
+      };
+    }
+
+    // Vue Mois — Design en "pilule" colorée
+    if (viewType.startsWith("dayGrid")) {
+      const isHoliday = type === "Jour Férié";
+      const pillBg = isHoliday ? "#dc2626" : (isEval ? "#f97316" : "#3b82f6");
+
+      return {
+        html: `
+          <div style="display:flex;align-items:center;padding:2px 8px;width:100%;background:${pillBg};border-radius:4px;overflow:hidden;margin:1px 0;">
+            <span style="font-size:11px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">${title}</span>
+          </div>
+        `
+      };
+    }
+
+    // Jours fériés (vues TimeGrid)
+    if (type === "Jour Férié") {
+      return {
+        html: `
+          <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;padding:4px;">
+            <div style="display:flex;align-items:center;gap:6px;padding:4px 10px;background:linear-gradient(to right,#dc2626,#b91c1c);border-radius:20px;border:1px solid rgba(248,113,113,0.3);">
+              <span style="font-size:8px;background:rgba(255,255,255,0.2);padding:1px 5px;border-radius:3px;font-weight:900;letter-spacing:0.1em;color:#fff;">FÉRIÉ</span>
+              <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${title.replace("🚩 ", "")}</span>
+            </div>
+          </div>
+        `,
+      };
+    }
+
+    // Vue Semaine / Jour — design premium
+    const gradient = isEval ? "linear-gradient(135deg,#f97316,#ea580c)" : "linear-gradient(135deg,#2563eb,#1d4ed8)";
+    const accent = isEval ? "rgba(251,146,60,0.4)" : "rgba(96,165,250,0.4)";
+
+    return {
+      html: `
+        <div style="display:flex;flex-direction:column;padding:6px 8px;width:100%;height:100%;min-height:100%;background:${gradient};border-radius:6px;border:1px solid ${accent};box-shadow:0 1px 3px rgba(0,0,0,0.2);overflow:hidden;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-bottom:3px;border-bottom:1px solid rgba(255,255,255,0.2);">
+            <span style="font-size:9px;font-weight:900;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.9);">${arg.timeText || ""}</span>
+            <span style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;background:rgba(255,255,255,0.2);padding:1px 5px;border-radius:3px;color:#fff;">${type}</span>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:#fff;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">${title}</div>
+        </div>
+      `,
+    };
+  },
+
+  dateClick: (info: any) => {
+    const holiday = (calendarStore.holidays || []).find((h: any) => h.date.split("T")[0] === info.dateStr);
+    if (holiday) {
+      const calendarApi = info.view.calendar;
+      const holidayEvent = calendarApi.getEvents().find((e: any) => 
+        e.extendedProps.type === 'Jour Férié' && e.startStr.split('T')[0] === info.dateStr
+      );
+      if (holidayEvent) {
+        selectedEvent.value = holidayEvent;
+        openEventModal(holidayEvent);
+      }
+      return;
+    }
+    resetForm();
+    form.value.date = new Date(info.dateStr);
+    openCreateModal();
+  },
   eventClick: (info: any) => {
     selectedEvent.value = info.event;
     openEventModal(info.event);
+  },
+  eventAllow: (dropInfo: any) => {
+    const holidayDates = new Set(calendarStore.holidays.map((h: any) => h.date.split("T")[0]));
+    const dropDate = dropInfo.startStr.split("T")[0];
+    return !holidayDates.has(dropDate);
   },
 
   eventDrop: async (info: any) => {
     try {
       const payload = {
-        slug: info.event.extendedProps.slug,
+        slug: info.event.extendedProps.originalSlug || info.event.extendedProps.slug,
         debut: info.event.start.toISOString().slice(0, 19),
         fin: info.event.end.toISOString().slice(0, 19),
       };
@@ -1664,7 +1958,7 @@ const calendarOptions = computed<CalendarOptions>(() => ({
   eventResize: async (info: any) => {
     try {
       const payload = {
-        slug: info.event.extendedProps.slug,
+        slug: info.event.extendedProps.originalSlug || info.event.extendedProps.slug,
         debut: info.event.start.toISOString().slice(0, 19),
         fin: info.event.end.toISOString().slice(0, 19),
       };
@@ -1687,8 +1981,75 @@ const calendarOptions = computed<CalendarOptions>(() => ({
   navLinks: true,
   editable: true,
   selectable: true,
+  select: (info: any) => {
+    const holidayDates = new Set(calendarStore.holidays.map((h: any) => h.date.split("T")[0]));
+    const startStr = info.startStr.split("T")[0];
+    if (holidayDates.has(startStr)) {
+      $toastr.error("Impossible de programmer un cours un jour férié");
+      return;
+    }
+    resetForm();
+    const start = new Date(info.start);
+    const end = new Date(info.end);
+    
+    // Pour PrimeVue DatePicker, il faut des objets Date
+    form.value.date = start;
+
+    if (info.allDay) {
+      const diffTime = Math.abs(end.getTime() - start.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      form.value.debut = "08:00";
+      form.value.fin = "10:00";
+
+      if (diffDays > 1) {
+        form.value.recurrence_type = "hebdomadaire";
+        const lastDay = new Date(end);
+        lastDay.setDate(lastDay.getDate() - 1);
+        form.value.recurrence_end_date = lastDay;
+        
+        const days = [];
+        let current = new Date(start);
+        const dayCodes = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+        for (let i = 0; i < diffDays; i++) {
+          const code = dayCodes[current.getDay()];
+          if (!days.includes(code)) days.push(code);
+          current.setDate(current.getDate() + 1);
+        }
+        form.value.recurrence_days = days;
+      }
+      
+      openCreateModal();
+      if (diffDays > 1) {
+        enableRecurrence.value = true;
+      }
+    } else {
+      form.value.debut = format(start, "HH:mm");
+      form.value.fin = format(end, "HH:mm");
+      openCreateModal();
+    }
+  },
+  selectAllow: (selectInfo) => {
+    let current = new Date(selectInfo.start);
+    const end = new Date(selectInfo.end);
+    while (current < end) {
+      const dateStr = format(current, 'yyyy-MM-dd');
+      const isHoliday = calendarStore.holidays.some(h => h.date.split('T')[0] === dateStr);
+      if (isHoliday) return false;
+      current.setDate(current.getDate() + 1);
+    }
+    return true;
+  },
   selectMirror: true,
   dayMaxEvents: true,
+  slotDuration: "01:00:00",
+  slotLabelInterval: "01:00:00",
+  defaultTimedEventDuration: "02:00:00",
+  forceEventDuration: true,
+  slotMinTime: "07:00:00",
+  slotMaxTime: "21:00:00",
+  allDaySlot: true,
+  expandRows: true,
 }));
 
 // Événements filtrés pour la vue mobile
@@ -1700,6 +2061,16 @@ const filteredEvents = computed(() => {
         new Date(a.start).getTime() - new Date(b.start).getTime(),
     )
     .slice(0, 10);
+});
+
+// Rafraîchir le calendrier quand les événements changent
+watch(calendarEvents, () => {
+  if (calendarRef.value) {
+    const calendarApi = calendarRef.value.getApi();
+    if (calendarApi) {
+      calendarApi.refetchEvents();
+    }
+  }
 });
 
 // Fonctions utilitaires
@@ -1714,11 +2085,19 @@ const getEventTypeClass = (type: string) => {
     : `${base} bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300`;
 };
 
-const formatEventTime = (start: Date, end: Date): string => {
+const formatEventTime = (start: any, end: any): string => {
   try {
-    return `${format(start, "dd MMMM yyyy HH:mm", { locale: fr })} à ${format(end, "HH:mm", { locale: fr })}`;
-  } catch {
-    return `${start.toLocaleDateString("fr-FR")} ${start.toLocaleTimeString("fr-FR")}`;
+    if (!start || !end) return "";
+    const startDate = start instanceof Date ? start : new Date(start);
+    const endDate = end instanceof Date ? end : new Date(end);
+    
+    // Vérifier si la date est valide
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) return "";
+    
+    return `${format(startDate, "dd MMMM yyyy HH:mm", { locale: fr })} à ${format(endDate, "HH:mm", { locale: fr })}`;
+  } catch (error) {
+    console.error("Erreur formatage date:", error);
+    return "";
   }
 };
 
@@ -1809,101 +2188,81 @@ const checkAvailability = async () => {
 };
 
 // Fonction utilitaire pour trouver la valeur correcte pour un dropdown
-const findItemValue = (
-  items: any[],
-  searchValue: string,
-  searchBy: string[] = ["id", "slug", "nom"],
-): string => {
+const findItemValue = (items: any[], searchValue: any, searchBy: string[] = ["id", "slug", "nom", "username", "email"]) => {
   if (!searchValue) return "";
-
+  const s = String(searchValue).toLowerCase().trim();
+  if (!s) return "";
   for (const field of searchBy) {
-    const item = items.find((i) => i[field] === searchValue);
-    if (item) {
-      return item.id || item.slug || "";
-    }
+    const item = items.find((i) => {
+      const val = String(i[field] || "").toLowerCase().trim();
+      if (val === s) return true;
+      if (i.nom && i.prenom) {
+        const full1 = `${i.nom} ${i.prenom}`.toLowerCase().trim();
+        const full2 = `${i.prenom} ${i.nom}`.toLowerCase().trim();
+        if (full1 === s || full2 === s) return true;
+        if (full1.includes(s) || full2.includes(s) || s.includes(full1)) return true;
+      }
+      return false;
+    });
+    if (item) return item.id || item.slug || "";
   }
-
   return "";
 };
 
 // Ouvrir modal de création
 const openCreateModal = () => {
-  resetForm();
+  // Vérifier si le jour sélectionné est férié
+  const selectedDateStr = form.value.date ? format(new Date(form.value.date), 'yyyy-MM-dd') : null;
+  if (selectedDateStr) {
+    const isHoliday = calendarStore.holidays.some(h => h.date.split('T')[0] === selectedDateStr);
+    if (isHoliday) {
+      $swal.fire({
+        icon: 'warning',
+        title: 'Jour Férié',
+        text: 'Vous ne pouvez pas programmer de cours sur un jour férié.',
+        confirmButtonColor: '#6366f1'
+      });
+      return;
+    }
+  }
+
   isEditing.value = false;
-  enableRecurrence.value = false;
   availabilityChecked.value = false;
   showFormModal.value = true;
 };
 
 // Ouvrir modal d'édition depuis le calendrier
-const openEditModal = (event: any) => {
+const openEditModal = async (event: any) => {
+  // S'assurer que les listes sont chargées
+  if (userStore.enseignants.length === 0) await userStore.fetchUsersEnseignant();
+  if (userStore.users.length === 0) await userStore.fetchUsers();
+  if (UvStore.uvs.length === 0) await UvStore.fetchUv();
+  if (groupStore.groupes.length === 0) await groupStore.fetchGroupes();
+
   selectedEvent.value = event;
-  const extendedProps = event.extendedProps || {};
+  const p = event.extendedProps || {};
 
-  const uvValue = findItemValue(
-    UvStore.uvs,
-    extendedProps.uv_id || extendedProps.uv_slug,
-    ["id", "slug", "nom"],
-  );
-  const gradeValue = findItemValue(
-    groupStore.groupes,
-    extendedProps.group_id || extendedProps.grade_slug,
-    ["id", "slug", "nom"],
-  );
-  const teacherValue = findItemValue(
-    userStore.enseignants,
-    extendedProps.teacher_id || extendedProps.teacher_slug,
-    ["id", "slug", "nom"],
-  );
-
-  // Remplir le formulaire
+  // Remplir le formulaire avec un maximum de fallbacks pour les IDs
   form.value = {
+    id: p.id || p.originalId || event.id || "",
     slug: event.id,
     date: format(new Date(event.start), "yyyy-MM-dd"),
     debut: format(new Date(event.start), "HH:mm"),
     fin: format(new Date(event.end), "HH:mm"),
-    uv_id: uvValue,
-    type: extendedProps.type || "",
-    grade: gradeValue,
-    teacher: teacherValue,
-    details: extendedProps.details || "",
-    recurrence_type: extendedProps.recurrence_type || "aucune",
-    recurrence_days: extendedProps.recurrence_days
-      ? extendedProps.recurrence_days.split(",")
-      : [],
-    recurrence_end_date: extendedProps.recurrence_end_date || "",
+    uv_id: findItemValue(UvStore.uvs, p.uv_id || p.matiere_id || p.id_uv || (typeof p.uv === 'object' ? p.uv?.id : p.uv) || p.uv_name || p.displayUv || p.matiere || p.titre),
+    type: p.type || p.type_programme || "Cours",
+    grade: findItemValue(groupStore.groupes, p.group_id || p.grade_id || p.id_groupe || (typeof p.grade === 'object' ? p.grade?.id : (typeof p.group === 'object' ? p.group?.id : (p.grade || p.group))) || p.grade_name || p.displayGroup || p.group),
+    teacher: findItemValue([...userStore.enseignants, ...userStore.users], p.teacher_id || p.enseignant_id || p.id_enseignant || (typeof p.teacher === 'object' ? p.teacher?.id : (typeof p.enseignant === 'object' ? p.enseignant?.id : (p.teacher || p.enseignant))) || p.teacher_name || p.displayTeacher || p.enseignant),
+    salle: slug.value,
+    details: p.details || "",
+    recurrence_type: p.recurrence_type || "aucune",
+    recurrence_days: p.recurrence_days ? (Array.isArray(p.recurrence_days) ? p.recurrence_days : p.recurrence_days.split(",")) : [],
+    recurrence_end_date: p.recurrence_end_date ? new Date(p.recurrence_end_date) : (p.date_fin ? new Date(p.date_fin) : null),
   };
-
-  console.log("Formulaire pré-rempli:", form.value);
-  console.log(
-    "UV trouvée:",
-    uvValue,
-    "sur",
-    extendedProps.uv_id,
-    "ou",
-    extendedProps.uv_slug,
-    "ou",
-    event,
-  );
-  console.log(
-    "Groupe trouvé:",
-    gradeValue,
-    "sur",
-    extendedProps.grade_id,
-    "ou",
-    extendedProps.grade_slug,
-  );
-  console.log(
-    "Enseignant trouvé:",
-    teacherValue,
-    "sur",
-    extendedProps.teacher_id,
-    "ou",
-    extendedProps.teacher_slug,
-  );
 
   enableRecurrence.value = form.value.recurrence_type !== "aucune";
   isEditing.value = true;
+  availabilityChecked.value = false;
   showFormModal.value = true;
 };
 
@@ -1948,6 +2307,14 @@ const submitForm = async () => {
   formLoading.value = true;
 
   try {
+    const holidayDates = new Set(calendarStore.holidays.map((h: any) => h.date.split("T")[0]));
+    const holidayCheckedDate = format(new Date(form.value.date), "yyyy-MM-dd");
+    
+    if (holidayDates.has(holidayCheckedDate)) {
+      $toastr.error("Impossible d'enregistrer un cours un jour férié");
+      formLoading.value = false;
+      return;
+    }
     // Valider les jours de récurrence si activés
     if (
       enableRecurrence.value &&
@@ -1968,10 +2335,10 @@ const submitForm = async () => {
     }
 
     // Formater la date pour l'API
-    const formattedDate = new Date(form.value.date);
-    const year = formattedDate.getFullYear();
-    const month = String(formattedDate.getMonth() + 1).padStart(2, "0");
-    const day = String(formattedDate.getDate()).padStart(2, "0");
+    const apiDate = new Date(form.value.date);
+    const year = apiDate.getFullYear();
+    const month = String(apiDate.getMonth() + 1).padStart(2, "0");
+    const day = String(apiDate.getDate()).padStart(2, "0");
     const formattedDateStr = `${year}-${month}-${day}`;
 
     // CORRECTION : Créer les dates début et fin au format attendu par l'API
@@ -1980,26 +2347,96 @@ const submitForm = async () => {
     const fin = `${formattedDateStr} ${form.value.fin}:00`;
 
     // Pour le mode édition, il faut aussi envoyer l'ID
-    const body = {
+    const body: any = {
       ...form.value,
       salle: slug.value,
       debut,
       fin,
+      recurrence_days: enableRecurrence.value && form.value.recurrence_type === "hebdomadaire" ? form.value.recurrence_days : []
     };
 
     // Si en mode édition, ajouter l'ID
     if (isEditing.value && form.value.id) {
       body.id = form.value.id;
     }
-    if (form.value.recurrence_type !== "hebdomadaire") {
-      body.recurrence_days = [];
+
+    if (enableRecurrence.value && form.value.recurrence_type !== "aucune") {
+      body.recurrence_end_date = form.value.recurrence_end_date 
+        ? format(new Date(form.value.recurrence_end_date), "yyyy-MM-dd")
+        : formattedDateStr;
+    } else {
+      body.recurrence_end_date = null;
     }
-    if (
-      enableRecurrence.value &&
-      form.value.recurrence_type !== "aucune" &&
-      (!form.value.recurrence_end_date || form.value.recurrence_end_date === "")
-    ) {
-      body.recurrence_end_date = form.value.date;
+
+    // === VÉRIFICATION API (Vérifie si le Prof ou le Groupe est occupé ailleurs) ===
+    try {
+      const checkPayload = {
+        date: formattedDateStr,
+        debut: body.debut,
+        fin: body.fin,
+        salle_id: slug.value,
+        enseignant_id: body.teacher,
+        groupe_id: body.grade,
+        id: isEditing.value && form.value.id ? form.value.id : null,
+      };
+      
+      const checkRes = await salleStore.checkAvailability(checkPayload);
+      if (!checkRes.available) {
+        $toastr.error(checkRes.message || "Conflit détecté : La salle, le professeur ou le groupe est déjà occupé sur ce créneau.");
+        formLoading.value = false;
+        return;
+      }
+    } catch (e: any) {
+      if (e.response && e.response.status === 409) {
+        $toastr.error(e.response.data.message || "Conflit d'horaire détecté.");
+        formLoading.value = false;
+        return;
+      }
+    }
+
+    // === VÉRIFICATION FRONT-END (Anti-chevauchement strict pour la salle et ses répétitions) ===
+    const newStartDate = new Date(`${formattedDateStr} ${form.value.debut}:00`);
+    const newEndDate = new Date(`${formattedDateStr} ${form.value.fin}:00`);
+    
+    const tempEvent = {
+       ...form.value,
+       recurrence_type: enableRecurrence.value ? form.value.recurrence_type : "aucune",
+       recurrence_days: form.value.recurrence_days,
+       recurrence_end_date: form.value.recurrence_end_date ? format(new Date(form.value.recurrence_end_date), "yyyy-MM-dd") : null,
+    };
+    
+    // On simule la génération pour vérifier TOUTES les répétitions
+    let newOccurrences = [];
+    if (enableRecurrence.value && form.value.recurrence_type !== "aucune") {
+      newOccurrences = generateRecurringEvents(tempEvent, newStartDate, newEndDate, holidayDates);
+    } else {
+      newOccurrences = [{ start: newStartDate, end: newEndDate }];
+    }
+    
+    let hasConflict = false;
+    for (const newOcc of newOccurrences) {
+      const nStart = new Date(newOcc.start).getTime();
+      const nEnd = new Date(newOcc.end).getTime();
+      
+      for (const existingEvent of calendarEvents.value) {
+        if (isEditing.value && (existingEvent.extendedProps?.originalSlug === form.value.id || existingEvent.id === form.value.id)) continue;
+        if (existingEvent.extendedProps?.type === 'Jour Férié') continue;
+        
+        const eStart = new Date(existingEvent.start).getTime();
+        const eEnd = new Date(existingEvent.end).getTime();
+        
+        if (nStart < eEnd && eStart < nEnd) {
+          hasConflict = true;
+          break;
+        }
+      }
+      if (hasConflict) break;
+    }
+
+    if (hasConflict) {
+      $toastr.error("Conflit d'horaire ! Ce créneau (ou l'une de ses répétitions) chevauche un événement existant dans ce calendrier.");
+      formLoading.value = false;
+      return;
     }
 
     if (isEditing.value) {
@@ -2033,9 +2470,19 @@ const deleteEvent = async (slugValue: string) => {
   try {
     if (!slugValue) return;
 
+    $swal.fire({
+      title: "Suppression en cours...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        $swal.showLoading();
+      },
+    });
+
     await salleStore.DeleteProgramme(slugValue);
     await salleStore.salleDisplayCalendar(slug.value);
+    $swal.close();
     $toastr.success("Programme supprimé avec succès");
+    closeEventModal();
   } catch (error: any) {
     console.error("Erreur lors de la suppression:", error);
     $toastr.error(
@@ -2049,10 +2496,10 @@ const resetForm = () => {
   form.value = {
     id: "",
     date: "",
-    debut: "",
-    fin: "",
+    debut: "08:00",
+    fin: "10:00",
     uv_id: "",
-    type: "",
+    type: "Cours",
     grade: "",
     teacher: "",
     details: "",
@@ -2092,12 +2539,9 @@ const GroupesOptions = computed(() => {
 });
 
 const EnseignantsOptions = computed(() => {
-  return userStore.enseignants.map((e: any) => {
-    return {
-      label: `${e?.nom} ${e?.prenom}`,
-      value: e.id || e.slug,
-    };
-  });
+  const all = [...userStore.enseignants, ...userStore.users];
+  const unique = Array.from(new Map(all.map(item => [item.id || item.slug, item])).values());
+  return unique.map(e => ({ label: `${e.nom || ''} ${e.prenom || ''}`.trim() || e.username || e.email, value: e.id || e.slug }));
 });
 
 const TypeOptions = computed(() => {
@@ -2140,16 +2584,23 @@ const copyLienReunion = async () => {
 
 // Chargement initial
 onMounted(async () => {
+  isPageLoading.value = true;
   try {
-    fixSalleStore();
-    await salleStore.salleDisplayCalendar(slug.value);
-    await salleStore.getSalleBySlug(slug.value);
-    fixSalleStore();
-    await loadSelectData();
+    showCalendar.value = false;
+    await Promise.all([
+      salleStore.getSalleBySlug(slug.value),
+      salleStore.salleDisplayCalendar(slug.value),
+      UeStore.fetchUe(),
+      UvStore.fetchUv(),
+      groupStore.fetchGroupes(),
+      userStore.fetchUsers(),
+      calendarStore.loadHolidays()
+    ]);
     showCalendar.value = true;
-    $toastr.succes("Donnée chargée avec succes");
   } catch (error) {
-    console.error("Erreur lors du chargement:", error);
+    console.error("Erreur initialisation:", error);
+  } finally {
+    isPageLoading.value = false;
   }
 });
 
@@ -2186,3 +2637,150 @@ const fixSalleStore = () => {
   }
 };
 </script>
+
+<style scoped>
+:deep(.fc) {
+  --fc-border-color: #e5e7eb;
+  --fc-page-bg-color: #ffffff;
+  --fc-list-event-hover-bg-color: #f3f4f6;
+  --fc-today-bg-color: rgba(79, 70, 229, 0.05);
+}
+
+:deep(.dark .fc) {
+  --fc-border-color: #374151;
+  --fc-page-bg-color: #1f2937;
+  --fc-list-event-hover-bg-color: #374151;
+  --fc-neutral-bg-color: #111827;
+  --fc-today-bg-color: rgba(79, 70, 229, 0.15);
+}
+
+:deep(.fc-header-toolbar) {
+  padding: 1rem !important;
+  margin-bottom: 0 !important;
+}
+
+:deep(.fc-toolbar-title) {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  color: #1f2937;
+}
+
+:deep(.dark .fc-toolbar-title) {
+  color: #f9fafb;
+}
+
+:deep(.fc-button) {
+  background-color: #ffffff !important;
+  border-color: #d1d5db !important;
+  color: #374151 !important;
+  font-weight: 600 !important;
+  text-transform: capitalize !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+:deep(.dark .fc-button) {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f3f4f6 !important;
+}
+
+:deep(.fc-button-active) {
+  background-color: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
+:deep(.fc-col-header-cell) {
+  padding: 0.75rem 0 !important;
+  background-color: #f9fafb !important;
+}
+
+:deep(.dark .fc-col-header-cell) {
+  background-color: #111827 !important;
+}
+
+:deep(.fc-col-header-cell-cushion) {
+  color: #4b5563 !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+}
+
+:deep(.dark .fc-col-header-cell-cushion) {
+  color: #9ca3af !important;
+}
+
+:deep(.fc-timegrid-slot-label-cushion),
+:deep(.fc-timegrid-axis-cushion) {
+  color: #6b7280 !important;
+  font-size: 0.75rem !important;
+}
+
+:deep(.dark .fc-timegrid-slot-label-cushion),
+:deep(.dark .fc-timegrid-axis-cushion) {
+  color: #9ca3af !important;
+}
+
+:deep(.fc-list-day-cushion) {
+  background-color: #f3f4f6 !important;
+}
+
+:deep(.dark .fc-list-day-cushion) {
+  background-color: #111827 !important;
+}
+
+:deep(.calendar-event) {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+
+:deep(.holiday-cell) { 
+  background-color: #fee2e2 !important; 
+  background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(220, 38, 38, 0.05) 10px, rgba(220, 38, 38, 0.05) 20px) !important;
+  cursor: not-allowed !important; 
+}
+:deep(.dark .holiday-cell) { 
+  background-color: rgba(220, 38, 38, 0.15) !important; 
+  background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(220, 38, 38, 0.1) 10px, rgba(220, 38, 38, 0.1) 20px) !important;
+}
+
+:deep(.holiday-background) {
+  background-color: #fee2e2 !important;
+  opacity: 1 !important;
+}
+
+:deep(.premium-holiday-pill) {
+  border-radius: 6px !important;
+  padding: 2px 4px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2) !important;
+  border: none !important;
+  font-size: 0.85em !important;
+}
+
+:deep(.fc-event) {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+:deep(.fc-v-event), :deep(.fc-h-event) {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+:deep(.fc-event-main) {
+  padding: 0 !important;
+  color: white !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+:deep(.fc-timegrid-event) {
+  border: none !important;
+  margin: 1px !important;
+}
+</style>

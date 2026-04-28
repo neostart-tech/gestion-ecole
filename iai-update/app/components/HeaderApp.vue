@@ -728,6 +728,12 @@ const getNotificationStyle = (type: string) => {
       bgClass: "bg-gradient-to-br from-green-500 to-green-600",
     };
   }
+  if (type.includes("CommunicationPublishedNotification")) {
+    return {
+      icon: '<svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>',
+      bgClass: "bg-gradient-to-br from-violet-500 to-violet-600",
+    };
+  }
   return {
     icon: '<svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
     bgClass: "bg-gradient-to-br from-blue-500 to-blue-600",

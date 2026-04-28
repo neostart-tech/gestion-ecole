@@ -585,6 +585,34 @@
                     class="w-full"
                   />
                 </div>
+
+                <!-- Justificatif -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Justificatif
+                    <span class="text-xs text-gray-400">(PDF, Image - optionnel)</span>
+                  </label>
+                  <div class="relative">
+                    <input
+                      type="file"
+                      @change="handleFileUpload"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      class="hidden"
+                      ref="fileInput"
+                    />
+                    <div 
+                      @click="$refs.fileInput.click()"
+                      class="flex items-center justify-between w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg cursor-pointer hover:border-indigo-500 transition-colors"
+                    >
+                      <span class="text-sm text-gray-500 dark:text-gray-400 truncate">
+                        {{ fileName || 'Joindre un fichier...' }}
+                      </span>
+                      <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <!-- Boutons -->
@@ -874,12 +902,39 @@
                       <p v-if="item.commentaire" class="text-[10px] text-gray-500 italic mt-1 dark:bg-gray-700/50 p-1 rounded-md leading-tight">
                         {{ item.commentaire }}
                       </p>
+                      <div v-if="item.justificatif" class="mt-1">
+                        <button 
+                          @click="openPreview(item.justificatif)"
+                          class="text-[10px] text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 flex items-center gap-1 font-medium"
+                        >
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                          </svg>
+                          Justificatif
+                        </button>
+                      </div>
                     </div>
                     <div class="text-right">
                       <p class="font-bold text-green-600">
                         {{ formatMontant(item.montant) }}
                       </p>
                       <p class="text-xs text-gray-500">{{ item.mode_label }}</p>
+                      <p v-if="item.frais_retrait_mm > 0" class="text-[10px] text-orange-500 font-medium italic">
+                        + {{ formatMontant(item.frais_retrait_mm) }} (Frais MM)
+                      </p>
+                      
+                      <!-- Actions -->
+                      <div class="mt-2 flex justify-end gap-2">
+                        <button 
+                          @click="openEditModal(item)"
+                          class="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-md transition-colors"
+                          title="Modifier le paiement"
+                        >
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1317,6 +1372,214 @@
       </Dialog>
     </TransitionRoot>
 
+    <!-- Modal d'édition de paiement -->
+    <TransitionRoot appear :show="showEditModal" as="template">
+      <Dialog as="div" class="relative z-50" @close="showEditModal = false">
+        <div class="fixed inset-0 bg-black/60" />
+
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+          <DialogPanel
+            class="w-full max-w-md rounded-xl bg-white dark:bg-gray-800 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden"
+          >
+            <!-- Header -->
+            <div class="p-6 border-b border-gray-50 dark:border-gray-700/50">
+              <DialogTitle
+                class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2"
+              >
+                <div class="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg text-indigo-600">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </div>
+                Modifier le paiement
+              </DialogTitle>
+            </div>
+
+            <!-- Scrollable Body -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
+              <!-- Montant -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Montant
+                </label>
+                <InputNumber
+                  v-model="editForm.montant"
+                  mode="currency"
+                  currency="XOF"
+                  locale="fr-FR"
+                  class="w-full"
+                  :min="1"
+                />
+              </div>
+
+              <!-- Mode de paiement -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Mode de paiement
+                </label>
+                <Dropdown
+                  v-model="editForm.mode_paiement"
+                  :options="modesPaiement"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Sélectionner le mode"
+                  class="w-full"
+                />
+              </div>
+
+              <!-- Frais de retrait (si Mobile Money) -->
+              <div v-if="editForm.mode_paiement === 'mobile_money'">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Frais de retrait (Mobile Money)
+                </label>
+                <InputNumber
+                  v-model="editForm.frais_retrait_mm"
+                  mode="currency"
+                  currency="XOF"
+                  locale="fr-FR"
+                  class="w-full"
+                  :min="0"
+                />
+              </div>
+
+              <!-- Référence -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Référence
+                </label>
+                <InputText
+                  v-model="editForm.reference"
+                  placeholder="Référence de transaction..."
+                  class="w-full"
+                />
+              </div>
+
+              <!-- Commentaire -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Commentaire
+                </label>
+                <InputText
+                  v-model="editForm.commentaire"
+                  placeholder="Commentaire optionnel..."
+                  class="w-full"
+                />
+              </div>
+
+              <!-- Justificatif -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Justificatif
+                </label>
+                <div v-if="editingPaiement?.justificatif" class="mb-3 p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800/30">
+                  <button 
+                    @click="openPreview(editingPaiement.justificatif)"
+                    class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-2 font-medium"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    Voir le fichier actuel
+                  </button>
+                </div>
+                <div class="relative">
+                  <input
+                    type="file"
+                    @change="handleEditFileUpload"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    class="hidden"
+                    ref="editFileInput"
+                  />
+                  <div 
+                    @click="$refs.editFileInput.click()"
+                    class="flex items-center justify-between w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-indigo-500 transition-colors"
+                  >
+                    <span class="text-sm text-gray-500 dark:text-gray-400 truncate">
+                      {{ editFileName || 'Remplacer/Ajouter un fichier...' }}
+                    </span>
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                  </div>
+                </div>
+                <p class="text-[10px] text-gray-400 mt-1">Laissez vide pour conserver l'ancien fichier (si présent)</p>
+              </div>
+            </div>
+
+            <!-- Footer (Sticky) -->
+            <div class="p-6 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3 bg-gray-50/50 dark:bg-gray-800/50">
+              <button
+                @click="showEditModal = false"
+                class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                @click="submitEdit"
+                :disabled="isEditing"
+                class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm disabled:opacity-50 flex items-center gap-2 transition-colors"
+              >
+                <svg v-if="isEditing" class="w-4 h-4 animate-spin" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                {{ isEditing ? 'Modification...' : 'Enregistrer les modifications' }}
+              </button>
+            </div>
+          </DialogPanel>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+
+    <!-- Modal de prévisualisation de fichier -->
+    <TransitionRoot appear :show="showPreviewModal" as="template">
+      <Dialog as="div" class="relative z-[60]" @close="showPreviewModal = false">
+        <div class="fixed inset-0 bg-black/80" />
+
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+          <DialogPanel
+            class="w-full max-w-4xl rounded-xl bg-white dark:bg-gray-800 shadow-2xl flex flex-col max-h-[95vh] overflow-hidden"
+          >
+            <!-- Header -->
+            <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
+              <DialogTitle class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                Prévisualisation du justificatif
+              </DialogTitle>
+              <button 
+                @click="showPreviewModal = false"
+                class="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Body -->
+            <div class="flex-1 overflow-auto p-2 bg-gray-100 dark:bg-gray-900 flex items-center justify-center min-h-[300px]">
+              <template v-if="isPDFPreview">
+                <iframe :src="previewUrl" class="w-full h-full min-h-[70vh] border-0"></iframe>
+              </template>
+              <template v-else-if="isImagePreview">
+                <img :src="previewUrl" class="max-w-full max-h-full object-contain rounded-lg shadow-lg" alt="Justificatif" />
+              </template>
+              <div v-else class="p-8 text-center">
+                <p class="text-gray-500">Le type de fichier ne permet pas une prévisualisation directe.</p>
+                <a :href="previewUrl" target="_blank" class="mt-4 inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg">
+                  Télécharger le fichier
+                </a>
+              </div>
+            </div>
+          </DialogPanel>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+
     <!-- Toast -->
     <Toast position="top-right" />
   </div>
@@ -1366,6 +1629,7 @@ const showPDFModal = ref(false);
 const isDownloadingPDF = ref(false);
 const pdfZoom = ref(1);
 const recuContent = ref(null);
+const fileName = ref("");
 
 // Données pour le PDF
 const pdfEtudiant = ref(null);
@@ -1382,7 +1646,23 @@ const paiementForm = ref({
   commentaire: "",
   payable_id: null,
   payable_type: null,
+  justificatif: null,
 });
+
+// États pour l'édition
+const showEditModal = ref(false);
+const isEditing = ref(false);
+const editingPaiement = ref(null);
+const editForm = ref({
+  id: null,
+  montant: null,
+  mode_paiement: "especes",
+  reference: "",
+  commentaire: "",
+  frais_retrait_mm: 0,
+  justificatif: null,
+});
+const editFileName = ref("");
 
 // Modes de paiement
 const modesPaiement = ref([
@@ -1390,6 +1670,12 @@ const modesPaiement = ref([
   { value: "banque", label: "Banque" },
   { value: "mobile_money", label: "Mobile Money" }
 ]);
+
+// États pour la prévisualisation
+const showPreviewModal = ref(false);
+const previewUrl = ref("");
+const isImagePreview = ref(false);
+const isPDFPreview = ref(false);
 
 // App name
 const appName = computed(() => parametreStore.getAppName || "Établissement");
@@ -1963,6 +2249,27 @@ const resetForm = () => {
   paiementForm.value.commentaire = "";
   paiementForm.value.payable_id = null;
   paiementForm.value.payable_type = null;
+  paiementForm.value.justificatif = null;
+  fileName.value = "";
+};
+
+const handleFileUpload = (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Validation de la taille (2Mo)
+  if (file.size > 2 * 1024 * 1024) {
+    toast.add({
+      severity: "error",
+      summary: "Fichier trop volumineux",
+      detail: "La taille maximale autorisée est de 2 Mo",
+      life: 3000,
+    });
+    return;
+  }
+
+  paiementForm.value.justificatif = file;
+  fileName.value = file.name;
 };
 
 const getInitials = (etudiant) => {
@@ -2155,6 +2462,86 @@ const zoomOut = () => {
   if (pdfZoom.value > 0.5) {
     pdfZoom.value -= 0.1;
   }
+};
+
+const openEditModal = (paiement) => {
+  editingPaiement.value = paiement;
+  editForm.value = {
+    id: paiement.id,
+    montant: paiement.montant,
+    mode_paiement: paiement.mode_paiement || 'especes',
+    reference: paiement.reference || '',
+    commentaire: paiement.commentaire || '',
+    frais_retrait_mm: paiement.frais_retrait_mm || 0,
+    justificatif: null
+  };
+  editFileName.value = paiement.justificatif ? 'Justificatif existant' : '';
+  showEditModal.value = true;
+};
+
+const handleEditFileUpload = (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (file.size > 2 * 1024 * 1024) {
+    toast.add({
+      severity: "error",
+      summary: "Fichier trop volumineux",
+      detail: "La taille maximum est de 2 Mo",
+      life: 3000,
+    });
+    return;
+  }
+
+  editForm.value.justificatif = file;
+  editFileName.value = file.name;
+};
+
+const submitEdit = async () => {
+  if (!editForm.value.montant || editForm.value.montant <= 0) {
+    toast.add({
+      severity: "error",
+      summary: "Erreur",
+      detail: "Veuillez saisir un montant valide",
+      life: 3000,
+    });
+    return;
+  }
+
+  isEditing.value = true;
+  try {
+    const response = await paiementStore.modifierPaiement(editForm.value.id, editForm.value);
+    
+    if (response.success) {
+      toast.add({
+        severity: "success",
+        summary: "Succès",
+        detail: "Paiement modifié avec succès",
+        life: 3000,
+      });
+      showEditModal.value = false;
+    }
+  } catch (error) {
+    toast.add({
+      severity: "error",
+      summary: "Erreur",
+      detail: error.response?.data?.message || error.message || "Erreur lors de la modification",
+      life: 5000,
+    });
+  } finally {
+    isEditing.value = false;
+  }
+};
+
+const openPreview = (url) => {
+  if (!url) return;
+  previewUrl.value = url;
+  
+  const extension = url.split('.').pop().toLowerCase();
+  isPDFPreview.value = extension === 'pdf';
+  isImagePreview.value = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension);
+  
+  showPreviewModal.value = true;
 };
 </script>
 

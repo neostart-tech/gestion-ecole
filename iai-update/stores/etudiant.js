@@ -208,5 +208,42 @@ export const useEtudiantStore = defineStore("etudiant", {
         this.isLoading = false;
       }
     },
+
+    async updateEtudiant(slug, data) {
+      this.isLoading = true;
+      try {
+        // Pour Laravel, les fichiers en PUT ne fonctionnent pas bien.
+        // Si c'est du FormData, on utilise POST avec _method=PUT (déjà géré dans le composant ou à ajouter ici)
+        const isFormData = data instanceof FormData;
+        const response = await axios({
+          method: isFormData ? 'post' : 'put',
+          url: `/etudiants/${slug}`,
+          data: data,
+          ...this.authHeaders()
+        });
+        return response.data;
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour de l'étudiant:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async deleteEtudiant(slug) {
+      this.isLoading = true;
+      try {
+        const response = await axios.delete(
+          `/etudiants/${slug}`,
+          this.authHeaders(),
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Erreur lors de la suppression de l'étudiant:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
   },
 });

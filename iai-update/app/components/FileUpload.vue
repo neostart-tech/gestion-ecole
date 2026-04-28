@@ -54,16 +54,27 @@
             </svg>
           </div>
 
+          <!-- Aperçu existant -->
+          <div v-if="!modelValue && existingUrl" class="existing-preview">
+            <img v-if="isImage(existingUrl)" :src="existingUrl" class="preview-img" />
+            <div v-else class="preview-file-icon">
+              <svg class="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span class="text-[10px] font-bold text-indigo-600 uppercase mt-1">Fichier Actuel</span>
+            </div>
+          </div>
+
           <div class="text-content">
             <p v-if="!modelValue" class="title">
-              {{ isDragging ? 'Déposez votre fichier' : 'Déposez votre fichier ici' }}
+              {{ isDragging ? 'Déposez votre fichier' : (existingUrl ? 'Remplacer le fichier actuel' : 'Déposez votre fichier ici') }}
             </p>
             <p v-else class="title file-name">
               {{ modelValue.name }}
             </p>
             <p class="subtitle">
               {{ !modelValue ? 'ou' : '' }}
-              <span class="browse-link">cliquez pour parcourir</span>
+              <span class="browse-link">{{ existingUrl && !modelValue ? 'modifier' : 'cliquez pour parcourir' }}</span>
             </p>
             <div class="file-info" v-if="modelValue">
               <span class="file-size">{{ formatFileSize(modelValue.size) }}</span>
@@ -148,6 +159,10 @@ const props = defineProps({
   showProgress: {
     type: Boolean,
     default: false
+  },
+  existingUrl: {
+    type: String,
+    default: ''
   }
 })
 
@@ -158,6 +173,11 @@ const hasError = ref(false)
 const errorMessage = ref('')
 const isUploading = ref(false)
 const progress = ref(0)
+
+const isImage = (url) => {
+  if (!url) return false
+  return url.match(/\.(jpeg|jpg|gif|png|webp)$/i)
+}
 
 const handleFileChange = (event) => {
   const file = event.target.files[0]
@@ -316,12 +336,40 @@ const clearError = () => {
   position: relative;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 1rem;
   padding: 1.5rem;
   border: 2px dashed #e2e8f0;
   border-radius: 1rem;
   background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
   transition: all 0.3s ease;
+  min-height: 100px;
+}
+
+.existing-preview {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #e2e8f0;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-img {
+  width: 100%;
+  height: 100%;
+  object-cover: cover;
+}
+
+.preview-file-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .dark .upload-content {

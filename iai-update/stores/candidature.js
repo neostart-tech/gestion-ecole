@@ -103,6 +103,29 @@ export const useCandidatureStore = defineStore("candidature", {
         this.isLoading = false;
       }
     },
+    
+    // POST  api/candidature/{candidature}/update-by-admin
+    async updateByAdmin(slug, formData) {
+      this.isLoading = true;
+      this.error = null;
+      try {
+        const response = await axios.post(
+          `/candidature/${slug}/update-by-admin`,
+          formData,
+          this.multipartHeaders(),
+        );
+        await this.fetchCandidatures();
+        return response.data;
+      } catch (error) {
+        console.error("Erreur mise à jour candidature:", error);
+        this.error =
+          error.response?.data?.message ||
+          "Erreur lors de la mise à jour de la candidature";
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
 
     // GET|HEAD  api/candidature/{candidature}/evaluer
     async fetchCandidatureDetail(candidature) {

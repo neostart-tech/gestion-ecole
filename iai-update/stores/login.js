@@ -109,6 +109,7 @@ export const useLoginStore = defineStore("login", {
         return response.data;
       } catch (error) {
         console.error("Erreur rafraîchissement utilisateur:", error);
+        throw error;
       }
     },
   },

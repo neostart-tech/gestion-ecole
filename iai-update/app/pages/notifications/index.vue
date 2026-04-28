@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900  pb-10 px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 pt-8 pb-10 px-4 sm:px-6 lg:px-8">
     <!-- En-tête de la page -->
     <div class="max-w-7xl mx-auto mb-6 sm:mb-8">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -252,10 +252,10 @@
                   <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                     <div>
                       <h4 class="text-base font-semibold text-gray-900 dark:text-white">
-                        {{ notification.data.title }}
+                        {{ notification.data.title || notification.data.titre }}
                       </h4>
-                      <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
-                        {{ notification.data.content }}
+                      <p class="mt-1 text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
+                        {{ notification.data.content || notification.data.message || notification.data.contenu }}
                       </p>
                     </div>
                     <div class="flex flex-col items-end gap-2">

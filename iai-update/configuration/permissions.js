@@ -126,6 +126,7 @@ export const rolePermissions = {
     "/finance/*",
     "/frais-de-scolarite/*",
     "/bourses/*",
+    "/annonces",
   ],
 
   "responsable-marketing": [
@@ -138,6 +139,8 @@ export const rolePermissions = {
     "/notifications/*",
     "/info-urgente/*",
     "/chat/*",
+    "/annonces",
+    "/admin/communications/*",
   ],
 
   // Rôles administratifs/support
@@ -218,6 +221,7 @@ export const rolePermissions = {
     "/evaluations/etudiant/mes-examens",
     "/evaluations/examen-en-ligne/*",
     '/actualites/*',
+    "/annonces",
   ],
 
   // Utilisateur simple
@@ -245,6 +249,7 @@ export const publicRoutes = [
   "/register",
   "/mot-de-passe-oublie",
   "/reset-password",
+  "/actualites"
 ];
 
 // Routes interdites pour les utilisateurs connectés (comme login)

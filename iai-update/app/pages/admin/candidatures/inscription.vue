@@ -76,12 +76,11 @@
             <!-- Nom -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Nom <span class="text-red-500">*</span>
+                Nom
               </label>
               <input
                 v-model="formData.nom"
                 type="text"
-                required
                 class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
                 placeholder="Entrez le nom"
               />
@@ -90,12 +89,11 @@
             <!-- Prénom -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Prénom <span class="text-red-500">*</span>
+                Prénom
               </label>
               <input
                 v-model="formData.prenom"
                 type="text"
-                required
                 class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
                 placeholder="Entrez le prénom"
               />
@@ -117,11 +115,10 @@
             <!-- Genre -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Genre <span class="text-red-500">*</span>
+                Genre
               </label>
               <select
                 v-model="formData.genre"
-                required
                 class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
               >
                 <option value="">Sélectionnez</option>
@@ -133,12 +130,11 @@
             <!-- Date de naissance -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Date de naissance <span class="text-red-500">*</span>
+                Date de naissance
               </label>
               <input
                 v-model="formData.date_naissance"
                 type="date"
-                required
                 :max="maxDateNaissance"
                 class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
               />
@@ -147,12 +143,11 @@
             <!-- Lieu de naissance -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Lieu de naissance <span class="text-red-500">*</span>
+                Lieu de naissance
               </label>
               <input
                 v-model="formData.lieu_naissance"
                 type="text"
-                required
                 class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
                 placeholder="Lieu de naissance"
               />
@@ -163,7 +158,7 @@
               <NationaliteSelector
                 v-model="formData.nationalite"
                 label="Nationalité"
-                :required="true"
+                :required="false"
                 help-text="Sélectionnez la nationalité du candidat"
               />
             </div>
@@ -171,12 +166,11 @@
             <!-- Email -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Email <span class="text-red-500">*</span>
+                Email
               </label>
               <input
                 v-model="formData.email"
                 type="email"
-                required
                 class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
                 placeholder="email@exemple.com"
               />
@@ -185,12 +179,11 @@
             <!-- Téléphone -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Téléphone <span class="text-red-500">*</span>
+                Téléphone
               </label>
               <input
                 v-model="formData.tel"
                 type="tel"
-                required
                 class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
                 placeholder="Téléphone principal"
               />
@@ -290,11 +283,10 @@
             <!-- Niveau -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Niveau <span class="text-red-500">*</span>
+                Niveau
               </label>
               <select
                 v-model="formData.niveau_id"
-                required
                 class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
               >
                 <option value="">Sélectionnez</option>
@@ -307,11 +299,10 @@
             <!-- Filière -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Filière <span class="text-red-500">*</span>
+                Filière
               </label>
               <select
                 v-model="formData.filiere_id"
-                required
                 :disabled="loadingFilieres || !formData.niveau_id"
                 class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -338,12 +329,11 @@
             <!-- Année du bac -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Année du bac <span class="text-red-500">*</span>
+                Année du bac
               </label>
               <input
                 v-model="formData.annee_bac"
                 type="number"
-                required
                 min="1900"
                 max="2099"
                 class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
@@ -354,12 +344,11 @@
             <!-- Série -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Série <span class="text-red-500">*</span>
+                Série
               </label>
               <input
                 v-model="formData.serie"
                 type="text"
-                required
                 class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
                 placeholder="Série du bac"
               />
@@ -368,16 +357,17 @@
             <!-- Type de diplôme -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Type de diplôme <span class="text-red-500">*</span>
+                Dernier Diplôme obtenu
               </label>
               <select
                 v-model="formData.type_diplome"
-                required
                 class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
               >
                 <option value="">Sélectionnez</option>
-                <option value="Relevé du Bac 1">Bac 1</option>
-                <option value="BAC 2">Bac 2</option>
+                <option value="Bac 2">Bac 2</option>
+                <option value="BTS">BTS</option>
+                <option value="Licence">Licence</option>
+                <option value="Master">Master</option>
               </select>
             </div>
 
@@ -750,195 +740,88 @@
           </div>
 
           <!-- Documents communs à tous les niveaux -->
-          <h3 class="text-md font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <svg class="w-4 h-4 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/></svg>
-            Documents communs
-          </h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Photos d'identité -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Photos d'identité (format passeport) <span class="text-red-500">*</span>
-              </label>
-              <input
-                ref="photoFile"
-                type="file"
-                @change="handleFileUpload('photo_identite_file', $event)"
-                accept=".jpg,.jpeg,.png"
-                class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
-              />
-              <p class="text-[10px] text-gray-400 mt-1">2 photos d'identité format passeport</p>
-            </div>
-
-            <!-- Pièce d'identité / Passeport -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Copie pièce d'identité / Passeport <span class="text-red-500">*</span>
-              </label>
-              <input
-                ref="nationaliteFile"
-                type="file"
-                @change="handleFileUpload('nationalite_file', $event)"
-                accept=".pdf,.jpg,.jpeg,.png"
-                class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
-              />
-            </div>
-
-            <!-- Acte de naissance -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Acte de naissance <span class="text-red-500">*</span>
-              </label>
-              <input
-                ref="naissanceFile"
-                type="file"
-                @change="handleFileUpload('naissance_file', $event)"
-                accept=".pdf,.jpg,.jpeg,.png"
-                class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
-              />
-            </div>
-
-            <!-- Certificat médical -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Certificat médical <span class="text-red-500">*</span>
-              </label>
-              <input
-                ref="certificatFile"
-                type="file"
-                @change="handleFileUpload('certificat_medical_file', $event)"
-                accept=".pdf,.jpg,.jpeg,.png"
-                class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
-              />
+          <div class="space-y-6">
+            <h3 class="text-md font-bold text-gray-900 dark:text-white flex items-center gap-2 uppercase tracking-tight">
+              <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              Documents communs
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="space-y-2">
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Photo d'identité</label>
+                <FileUpload id="photo_identite_file" v-model="files.photo_identite_file" accept=".jpg,.jpeg,.png" />
+              </div>
+              <div class="space-y-2">
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Pièce d'identité / Passeport</label>
+                <FileUpload id="nationalite_file" v-model="files.nationalite_file" accept=".pdf,.jpg,.jpeg,.png" />
+              </div>
+              <div class="space-y-2">
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Acte de naissance</label>
+                <FileUpload id="naissance_file" v-model="files.naissance_file" accept=".pdf,.jpg,.jpeg,.png" />
+              </div>
+              <div class="space-y-2">
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Certificat médical</label>
+                <FileUpload id="certificat_medical_file" v-model="files.certificat_medical_file" accept=".pdf,.jpg,.jpeg,.png" />
+              </div>
             </div>
           </div>
 
-          <!-- Documents spécifiques Licence 1 -->
-          <template v-if="isLicence1">
-            <h3 class="text-md font-semibold text-gray-900 dark:text-white flex items-center gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
-              <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg>
-              Documents Licence 1
+          <!-- Documents spécifiques par niveau -->
+          <div class="pt-8 border-t border-gray-100 dark:border-gray-700 space-y-6">
+            <h3 class="text-md font-bold text-gray-900 dark:text-white flex items-center gap-2 uppercase tracking-tight">
+              <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+              Parcours académique & Diplômes
             </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Copie légalisée attestation BAC <span class="text-red-500">*</span>
-                </label>
-                <input ref="diplomeFile" type="file" @change="handleFileUpload('diplome_file', $event)" accept=".pdf,.jpg,.jpeg,.png"
-                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Copie légalisée relevé de BAC <span class="text-red-500">*</span>
-                </label>
-                <input ref="releveBac1" type="file" @change="handleMultipleFiles('releve_bac1', $event)" accept=".pdf,.jpg,.jpeg,.png"
-                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
-              </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+               <div class="space-y-2">
+                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Attestation du BAC / Diplôme</label>
+                 <FileUpload id="diplome_file" v-model="files.diplome_file" accept=".pdf,.jpg,.jpeg,.png" />
+               </div>
+               <div v-if="isMaster" class="space-y-2">
+                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Curriculum Vitæ (CV)</label>
+                 <FileUpload id="cv_file" v-model="files.cv_file" accept=".pdf,.doc,.docx" />
+               </div>
             </div>
-          </template>
 
-          <!-- Documents spécifiques Licence 2 -->
-          <template v-if="isLicence2">
-            <h3 class="text-md font-semibold text-gray-900 dark:text-white flex items-center gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
-              <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg>
-              Documents Licence 2
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Copie légalisée attestation BAC <span class="text-red-500">*</span>
-                </label>
-                <input ref="diplomeFile" type="file" @change="handleFileUpload('diplome_file', $event)" accept=".pdf,.jpg,.jpeg,.png"
-                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Copie légalisée relevé de BAC <span class="text-red-500">*</span>
-                </label>
-                <input ref="releveBac1" type="file" @change="handleMultipleFiles('releve_bac1', $event)" accept=".pdf,.jpg,.jpeg,.png"
-                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
-              </div>
-              <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Copie légalisée du relevé de la 1ère année <span class="text-red-500">*</span>
-                </label>
-                <input ref="releveBac2" type="file" @change="handleMultipleFiles('releve_bac2', $event)" accept=".pdf,.jpg,.jpeg,.png"
-                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
-              </div>
+            <!-- Bulletins et Relevés -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+               <div class="space-y-2">
+                 <label class="block text-xs font-bold text-gray-500 uppercase">Bulletins Seconde</label>
+                 <MultipleFileUpload v-model="files.bulletins_seconde" accept=".pdf" />
+               </div>
+               <div class="space-y-2">
+                 <label class="block text-xs font-bold text-gray-500 uppercase">Bulletins Première</label>
+                 <MultipleFileUpload v-model="files.bulletins_premiere" accept=".pdf" />
+               </div>
+               <div class="space-y-2">
+                 <label class="block text-xs font-bold text-gray-500 uppercase">Bulletins Terminale</label>
+                 <MultipleFileUpload v-model="files.bulletins_terminale" accept=".pdf" />
+               </div>
+               <div v-if="isLicence2 || isLicence3 || isMaster" class="space-y-2">
+                 <label class="block text-xs font-bold text-gray-500 uppercase">Relevés BAC 1 / Année 1</label>
+                 <MultipleFileUpload v-model="files.releve_bac1" accept=".pdf" />
+               </div>
+               <div v-if="isLicence3 || isMaster" class="space-y-2">
+                 <label class="block text-xs font-bold text-gray-500 uppercase">Relevés BAC 2 / Année 2</label>
+                 <MultipleFileUpload v-model="files.releve_bac2" accept=".pdf" />
+               </div>
             </div>
-          </template>
+          </div>
 
-          <!-- Documents spécifiques Licence 3 -->
-          <template v-if="isLicence3">
-            <h3 class="text-md font-semibold text-gray-900 dark:text-white flex items-center gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
-              <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg>
-              Documents Licence 3
+          <!-- Documents optionnels -->
+          <div class="pt-8 border-t border-gray-100 dark:border-gray-700 space-y-6">
+            <h3 class="text-md font-bold text-gray-900 dark:text-white flex items-center gap-2 uppercase tracking-tight">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Options supplémentaires
             </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Copie légalisée attestation BAC ou BTS <span class="text-red-500">*</span>
-                </label>
-                <input ref="diplomeFile" type="file" @change="handleFileUpload('diplome_file', $event)" accept=".pdf,.jpg,.jpeg,.png"
-                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="space-y-2">
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Lettre de motivation</label>
+                <FileUpload id="lettre_file" v-model="files.lettre_file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
               </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Copie légalisée relevé BAC ou BTS <span class="text-red-500">*</span>
-                </label>
-                <input ref="releveBac1" type="file" @change="handleMultipleFiles('releve_bac1', $event)" accept=".pdf,.jpg,.jpeg,.png"
-                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
-              </div>
-              <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Copie légalisée du relevé de la 1ère et 2ème année <span class="text-red-500">*</span>
-                </label>
-                <input ref="releveBac2" type="file" @change="handleMultipleFiles('releve_bac2', $event)" multiple accept=".pdf,.jpg,.jpeg,.png"
-                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
-              </div>
-            </div>
-          </template>
-
-          <!-- Documents spécifiques Master & Executive Master -->
-          <template v-if="isMaster">
-            <h3 class="text-md font-semibold text-gray-900 dark:text-white flex items-center gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
-              <svg class="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg>
-              Documents Master & Executive Master
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Copie légalisée du dernier diplôme universitaire <span class="text-red-500">*</span>
-                </label>
-                <input ref="diplomeFile" type="file" @change="handleFileUpload('diplome_file', $event)" accept=".pdf,.jpg,.jpeg,.png"
-                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Curriculum Vitæ (CV) à jour <span class="text-red-500">*</span>
-                </label>
-                <input ref="cvFile" type="file" @change="handleFileUpload('cv_file', $event)" accept=".pdf,.doc,.docx"
-                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
-              </div>
-            </div>
-          </template>
-
-          <!-- Documents optionnels supplémentaires -->
-          <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-            <h3 class="text-md font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
-              <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/></svg>
-              Documents supplémentaires (optionnels)
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Lettre de motivation (fichier) <span class="text-red-500">*</span></label>
-                <input ref="lettreFile" type="file" @change="handleFileUpload('lettre_file', $event)" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Coupon de paiement</label>
-                <input ref="couponFile" type="file" @change="handleFileUpload('coupon_file', $event)" accept=".pdf,.jpg,.jpeg,.png"
-                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
+              <div class="space-y-2">
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Coupon de paiement</label>
+                <FileUpload id="coupon_file" v-model="files.coupon_file" accept=".pdf,.jpg,.jpeg,.png" />
               </div>
             </div>
           </div>
@@ -982,6 +865,8 @@ import Breadcrumb from "~/components/Breadcrumb.vue"
 import Toast from 'primevue/toast'
 import axios from 'axios'
 import NationaliteSelector from "~/components/NationaliteSelector.vue"
+import FileUpload from "~/components/FileUpload.vue"
+import MultipleFileUpload from "~/components/MultipleFileUpload.vue"
 import { useFiliereStore } from '~~/stores/filiere';
 import { useNiveauStore } from '~~/stores/niveau'
 import {useCandidatureStore } from '~~/stores/candidature'
@@ -1065,20 +950,6 @@ const files = reactive({
   releve_bac2: [],
 })
 
-// Références pour les fichiers
-const lettreFile = ref(null)
-const naissanceFile = ref(null)
-const diplomeFile = ref(null)
-const nationaliteFile = ref(null)
-const photoFile = ref(null)
-const certificatFile = ref(null)
-const couponFile = ref(null)
-const cvFile = ref(null)
-const bulletinsSeconde = ref(null)
-const bulletinsPremiere = ref(null)
-const bulletinsTerminale = ref(null)
-const releveBac1 = ref(null)
-const releveBac2 = ref(null)
 
 // Étapes
 const etapes = [
@@ -1192,14 +1063,6 @@ onMounted(async () => {
   }
 })
 
-// Gestion des fichiers
-const handleFileUpload = (field, event) => {
-  files[field] = event.target.files[0]
-}
-
-const handleMultipleFiles = (field, event) => {
-  files[field] = Array.from(event.target.files)
-}
 
 // Soumettre le formulaire
 const soumettreFormulaire = async () => {
@@ -1252,37 +1115,8 @@ const soumettreFormulaire = async () => {
       })
     }
 
-    // ===== Validation des fichiers obligatoires =====
-    const requiredFiles = ['photo_identite_file', 'nationalite_file', 'lettre_file', 'naissance_file', 'certificat_medical_file']
-    
-    // Documents académiques selon le niveau
-    if (isMaster.value) {
-      requiredFiles.push('diplome_file', 'cv_file')
-    } else if (isLicence3.value || isLicence2.value) {
-      requiredFiles.push('diplome_file', 'releve_bac1', 'releve_bac2')
-    } else {
-      // Licence 1 par défaut
-      requiredFiles.push('diplome_file', 'releve_bac1')
-    }
-
-    const missingFiles = []
-    requiredFiles.forEach(field => {
-      const file = files[field]
-      if (!file || (Array.isArray(file) && file.length === 0)) {
-        missingFiles.push(field)
-      }
-    })
-
-    if (missingFiles.length > 0) {
-      toast.add({ 
-        severity: 'warn', 
-        summary: 'Documents manquants', 
-        detail: 'Veuillez joindre tous les documents obligatoires marqués par un astérisque (*).', 
-        life: 5000 
-      })
-      isSubmitting.value = false
-      return
-    }
+    // ===== Validation des fichiers (Optionnels pour l'admin) =====
+    // Nous ne bloquons plus la soumission si des fichiers manquent
 
     // Envoyer la requête
     const response = await candidatureStore.storeByAdmin(formDataToSend)
@@ -1297,7 +1131,7 @@ const soumettreFormulaire = async () => {
       
       // Rediriger vers la liste des candidatures après 2 secondes
       setTimeout(() => {
-        navigateTo('/admin/candidatures')
+        navigateTo('/candidatures/etude-dossier')
       }, 2000)
     }
 

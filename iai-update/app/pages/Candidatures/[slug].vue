@@ -49,7 +49,7 @@
               <div class="w-28 h-28 lg:w-36 lg:h-36 rounded-xl bg-white dark:bg-slate-800 p-1.5 shadow-[0_4px_20px_rgba(0,0,0,0.05)] relative">
                 <div class="w-full h-full rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                   <img v-if="candidat.album?.photo" :src="getFullUrl(candidat.album.photo)" class="w-full h-full object-cover grayscale-[0.1] group-hover:grayscale-0 transition-all duration-700" />
-                  <div v-else class="text-5xl font-black text-slate-200 uppercase">
+                  <div v-else class="text-5xl font-semibold text-slate-200 uppercase">
                     {{ candidat.nom?.charAt(0) }}
                   </div>
                 </div>
@@ -65,7 +65,7 @@
                 </div>
 
                 <div class="space-y-1">
-                  <h2 class="text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white uppercase tracking-tighter leading-none">
+                  <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white uppercase tracking-tighter leading-none">
                     {{ candidat.nom }}
                   </h2>
                   <p class="text-3xl lg:text-4xl font-bold text-violet-600 uppercase tracking-tighter leading-none">
@@ -78,7 +78,7 @@
                    <!-- Filiere Pill -->
                    <div class="px-4 py-2 bg-violet-600 text-white rounded-xl shadow-lg shadow-violet-600/20 flex items-center gap-3">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
-                      <span class="text-[10px] font-black uppercase tracking-widest">{{ candidat.filiere?.nom }}</span>
+                      <span class="text-[10px] font-semibold uppercase tracking-widest">{{ candidat.filiere?.nom }}</span>
                    </div>
                    <!-- Niveau Pill -->
                    <div class="px-4 py-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center gap-3">
@@ -98,7 +98,7 @@
            <div class="w-full lg:w-[400px] p-8 lg:p-10 bg-slate-50/40 dark:bg-slate-800/10 flex flex-col justify-center gap-5">
               <template v-if="!candidat.dossier_valide">
                 <!-- Primary Action -->
-                <button @click="handleAction('valider')" class="w-full py-5 bg-violet-600 hover:bg-violet-700 text-white font-black text-xs uppercase tracking-[.2em] rounded-xl shadow-lg shadow-violet-600/20 transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3">
+                <button @click="handleAction('valider')" class="w-full py-5 bg-violet-600 hover:bg-violet-700 text-white font-semibold text-xs uppercase tracking-[.2em] rounded-xl shadow-lg shadow-violet-600/20 transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                   Valider le dossier
                 </button>
@@ -122,8 +122,8 @@
                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                     </div>
                     <div>
-                       <p class="text-[10px] font-black uppercase tracking-widest opacity-80 leading-none mb-1.5">Dossier Validé</p>
-                       <NuxtLink v-if="!candidat.etudiant_id" :to="`/candidatures/inscription/${candidat.slug}`" class="text-xs font-black text-white hover:underline uppercase tracking-tight flex items-center gap-1.5">Finaliser l'inscription →</NuxtLink>
+                       <p class="text-[10px] font-semibold uppercase tracking-widest opacity-80 leading-none mb-1.5">Dossier Validé</p>
+                       <NuxtLink v-if="!candidat.etudiant_id" :to="`/candidatures/inscription/${candidat.slug}`" class="text-xs font-semibold text-white hover:underline uppercase tracking-tight flex items-center gap-1.5">Finaliser l'inscription →</NuxtLink>
                     </div>
                  </div>
               </template>
@@ -137,7 +137,7 @@
             <div class="bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-[0_10px_40px_rgb(0,0,0,0.03)] min-h-[400px]">
                <div class="flex bg-slate-50/30 dark:bg-slate-800/20">
                  <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id"
-                   class="flex-1 py-6 text-xs font-black uppercase tracking-[0.2em] relative transition-all"
+                   class="flex-1 py-6 text-xs font-semibold uppercase tracking-[0.2em] relative transition-all"
                    :class="activeTab === tab.id ? 'text-violet-600 bg-white dark:bg-slate-900' : 'text-slate-400 hover:text-slate-600'">
                    {{ tab.label }}
                    <div v-if="activeTab === tab.id" class="absolute bottom-0 left-0 right-0 h-1.5 bg-violet-600"></div>
@@ -147,9 +147,9 @@
                <div class="p-12">
                   <!-- Profile -->
                   <div v-if="activeTab === 'perso'" class="grid grid-cols-1 sm:grid-cols-3 gap-y-12 gap-x-16 animate-in slide-in-from-left-4 duration-500">
-                    <div v-for="item in personalItems" :key="item.label" class="space-y-1.5">
-                      <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{{ item.label }}</p>
-                      <p class="text-base font-black text-slate-900 dark:text-slate-100 uppercase leading-none">{{ item.value || '—' }}</p>
+                    <div v-for="item in personalItems" :key="item.label" class="space-y-1.5 min-w-0">
+                      <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.2em]">{{ item.label }}</p>
+                      <p class="text-sm sm:text-base font-semibold text-slate-900 dark:text-slate-100 uppercase break-all sm:break-words">{{ item.value || '—' }}</p>
                     </div>
                   </div>
 
@@ -157,17 +157,17 @@
                   <div v-if="activeTab === 'acad'" class="space-y-12 animate-in slide-in-from-left-4 duration-500">
                     <div class="grid grid-cols-3 gap-8">
                        <div class="p-8 bg-violet-50/40 dark:bg-violet-900/10 rounded-2xl shadow-sm">
-                          <p class="text-[10px] font-black text-violet-400 mb-3 uppercase tracking-[0.2em]">OBTENTION BAC</p>
-                          <p class="text-4xl font-black text-violet-700 dark:text-violet-400 leading-none">{{ candidat.annee_bac }}</p>
+                          <p class="text-[10px] font-semibold text-violet-400 mb-3 uppercase tracking-[0.2em]">OBTENTION BAC</p>
+                          <p class="text-4xl font-semibold text-violet-700 dark:text-violet-400 leading-none">{{ candidat.annee_bac || '—' }}</p>
                        </div>
                        <div class="p-8 bg-indigo-50/40 dark:bg-indigo-900/10 rounded-2xl shadow-sm">
-                          <p class="text-[10px] font-black text-indigo-400 mb-3 uppercase tracking-[0.2em]">SÉRIE BAC</p>
-                          <p class="text-4xl font-black text-indigo-700 dark:text-indigo-400 leading-none">{{ candidat.serie }}</p>
+                          <p class="text-[10px] font-semibold text-indigo-400 mb-3 uppercase tracking-[0.2em]">SÉRIE BAC</p>
+                          <p class="text-4xl font-semibold text-indigo-700 dark:text-indigo-400 leading-none">{{ candidat.serie || '—' }}</p>
                        </div>
                     </div>
                     
                     <div class="pt-12 border-t border-slate-50 dark:border-slate-800/60">
-                       <h3 class="text-sm font-black uppercase tracking-[0.3em] text-slate-900 dark:text-white mb-8">Lettre de Motivation</h3>
+                       <h3 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-900 dark:text-white mb-8">Lettre de Motivation</h3>
                        <p class="text-base text-slate-600 dark:text-slate-400 leading-relaxed font-semibold italic bg-slate-50/40 dark:bg-slate-800/40 p-10 rounded-2xl">
                           " {{ candidat.lettre_motivation || 'Aucune lettre de motivation annexée à ce dossier.' }} "
                        </p>
@@ -180,29 +180,29 @@
                        <div class="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-300 ring-8 ring-slate-100/50 dark:ring-slate-800/30">
                           <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                        </div>
-                       <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-loose max-w-sm mx-auto">Ces informations sont manquantes ou n'ont pas été renseignées lors de l'inscription.</p>
+                       <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest leading-loose max-w-sm mx-auto">Ces informations sont manquantes ou n'ont pas été renseignées lors de l'inscription.</p>
                     </div>
                     <div v-else class="space-y-20">
                       <div v-if="candidat.responsable" class="grid grid-cols-1 sm:grid-cols-3 gap-y-12 gap-x-12">
                          <div class="col-span-full flex items-center gap-6">
                             <div class="h-px flex-1 bg-slate-100 dark:bg-slate-800"></div>
-                            <span class="text-[10px] font-black uppercase text-violet-600 tracking-[0.4em]">Le Responsable</span>
+                            <span class="text-[10px] font-semibold uppercase text-violet-600 tracking-[0.4em]">Le Responsable</span>
                             <div class="h-px flex-1 bg-slate-100 dark:bg-slate-800"></div>
                          </div>
-                         <div v-for="item in responsableItems" :key="item.label" class="space-y-1.5">
+                         <div v-for="item in responsableItems" :key="item.label" class="space-y-1.5 min-w-0">
                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">{{ item.label }}</p>
-                           <p class="text-base font-black text-slate-900 dark:text-slate-100 uppercase">{{ item.value || '—' }}</p>
+                           <p class="text-sm sm:text-base font-semibold text-slate-900 dark:text-slate-100 uppercase break-words">{{ item.value || '—' }}</p>
                          </div>
                       </div>
                       <div v-if="candidat.tuteur" class="grid grid-cols-1 sm:grid-cols-3 gap-y-12 gap-x-12">
                          <div class="col-span-full flex items-center gap-6">
                             <div class="h-px flex-1 bg-slate-100 dark:bg-slate-800"></div>
-                            <span class="text-[10px] font-black uppercase text-indigo-600 tracking-[0.4em]">Le Tuteur</span>
+                            <span class="text-[10px] font-semibold uppercase text-indigo-600 tracking-[0.4em]">Le Tuteur</span>
                             <div class="h-px flex-1 bg-slate-100 dark:bg-slate-800"></div>
                          </div>
-                         <div v-for="item in tuteurItems" :key="item.label" class="space-y-1.5">
+                         <div v-for="item in tuteurItems" :key="item.label" class="space-y-1.5 min-w-0">
                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">{{ item.label }}</p>
-                           <p class="text-base font-black text-slate-900 dark:text-slate-100 uppercase">{{ item.value || '—' }}</p>
+                           <p class="text-sm sm:text-base font-semibold text-slate-900 dark:text-slate-100 uppercase break-words">{{ item.value || '—' }}</p>
                          </div>
                       </div>
                     </div>
@@ -220,15 +220,15 @@
                   <svg class="w-8 h-8 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                 </div>
                 <div class="space-y-2">
-                   <p class="text-[10px] font-black uppercase tracking-[0.3em] text-amber-700 opacity-70">Observations de l'administration</p>
-                   <p class="text-sm lg:text-base text-slate-800 dark:text-slate-200 font-black italic leading-relaxed">" {{ candidat.motif }} "</p>
+                   <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-amber-700 opacity-70">Observations de l'administration</p>
+                   <p class="text-sm lg:text-base text-slate-800 dark:text-slate-200 font-semibold italic leading-relaxed">" {{ candidat.motif }} "</p>
                 </div>
              </div>
 
              <!-- Documents Grid (Clean & Professional) -->
              <div class="bg-slate-50/50 dark:bg-slate-800/10 rounded-[2rem] p-10 lg:p-14 shadow-sm">
                 <div class="flex items-center justify-between mb-10">
-                   <h3 class="text-sm font-extrabold uppercase tracking-widest text-slate-800 dark:text-slate-200 flex items-center gap-4">
+                   <h3 class="text-sm font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200 flex items-center gap-4">
                       <span class="w-2 h-8 bg-violet-600 rounded-full"></span>
                       Dossier de candidature
                    </h3>
@@ -261,8 +261,8 @@
                          <!-- Header: Minimalist & High-End -->
                          <div class="flex items-center gap-6">
                             <div class="flex flex-col">
-                               <h3 class="text-xs font-black text-violet-600 uppercase tracking-[.4em] mb-1">Scolarité Antérieure</h3>
-                               <p class="text-2xl font-extrabold text-slate-900 dark:text-white uppercase tracking-tighter">{{ niv }}</p>
+                               <h3 class="text-xs font-semibold text-violet-600 uppercase tracking-[.4em] mb-1">Scolarité Antérieure</h3>
+                               <p class="text-2xl font-bold text-slate-900 dark:text-white uppercase tracking-tighter">{{ niv }}</p>
                             </div>
                             <div class="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent dark:from-slate-800 dark:to-transparent"></div>
                          </div>
@@ -304,25 +304,25 @@
                       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
                     </div>
                     <div>
-                      <DialogTitle as="h3" class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Réorientation</DialogTitle>
+                      <DialogTitle as="h3" class="text-xl font-semibold text-slate-900 dark:text-white uppercase tracking-tighter">Réorientation</DialogTitle>
                       <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Modification du parcours académique</p>
                     </div>
                   </div>
 
                   <div class="space-y-6">
                     <div class="space-y-3">
-                       <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Nouvelle Filière</label>
+                       <label class="text-[9px] font-semibold text-slate-400 uppercase tracking-widest pl-1">Nouvelle Filière</label>
                        <Select v-model="reorientForm.filiere_id" :options="filiereStore.filieres" optionLabel="nom" optionValue="id" placeholder="Choisir une filière" filter class="w-full prime-select-custom" />
                     </div>
                     <div class="space-y-3">
-                       <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Niveau d'entrée</label>
+                       <label class="text-[9px] font-semibold text-slate-400 uppercase tracking-widest pl-1">Niveau d'entrée</label>
                        <Select v-model="reorientForm.niveau_id" :options="niveauStore.niveaux" :optionLabel="(opt) => opt.nom || opt.libelle" optionValue="id" placeholder="Choisir un niveau" filter class="w-full prime-select-custom" />
                     </div>
                   </div>
 
                   <div class="flex gap-4 pt-4">
-                    <button @click="closeModal" class="flex-1 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Annuler</button>
-                    <button @click="confirmReorientation" :disabled="isSubmitting" class="flex-[2] py-4 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-indigo-600/20 active:scale-95 disabled:opacity-50">
+                    <button @click="closeModal" class="flex-1 py-4 text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Annuler</button>
+                    <button @click="confirmReorientation" :disabled="isSubmitting" class="flex-[2] py-4 bg-indigo-600 text-white text-[10px] font-semibold uppercase tracking-widest rounded-2xl shadow-lg shadow-indigo-600/20 active:scale-95 disabled:opacity-50">
                        {{ isSubmitting ? 'Mise à jour...' : 'Réorienter le candidat' }}
                     </button>
                   </div>
@@ -335,21 +335,21 @@
                       <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                     </div>
                     <div>
-                      <DialogTitle as="h3" class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">{{ modalTitle }}</DialogTitle>
+                      <DialogTitle as="h3" class="text-xl font-semibold text-slate-900 dark:text-white uppercase tracking-tighter">{{ modalTitle }}</DialogTitle>
                       <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Action administrative requise</p>
                     </div>
                   </div>
 
                   <div class="space-y-2">
-                     <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Motif de la décision</label>
+                     <label class="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">Motif de la décision</label>
                      <textarea v-model="actionMotif" rows="5" class="w-full p-5 bg-slate-50 dark:bg-slate-800 rounded-3xl border-none font-bold text-sm outline-none focus:ring-2 transition-all" :class="modalAction === 'rejeter' ? 'focus:ring-rose-600' : 'focus:ring-amber-500'"></textarea>
                   </div>
 
                   <div class="flex gap-4 pt-4">
-                    <button @click="closeModal" class="flex-1 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Annuler</button>
+                    <button @click="closeModal" class="flex-1 py-4 text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Annuler</button>
                     <button @click="confirmAction" :disabled="!actionMotif || isSubmitting" 
                       :class="modalAction === 'rejeter' ? 'bg-rose-600 shadow-rose-600/20' : 'bg-amber-500 shadow-amber-500/20'"
-                      class="flex-[2] py-4 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-lg active:scale-95 disabled:opacity-50">
+                      class="flex-[2] py-4 text-white text-[10px] font-semibold uppercase tracking-widest rounded-2xl shadow-lg active:scale-95 disabled:opacity-50">
                        {{ isSubmitting ? 'Traitement...' : 'Confirmer l\'action' }}
                     </button>
                   </div>

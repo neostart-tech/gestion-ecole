@@ -4,6 +4,7 @@ import axios from "axios";
 export const useCalendarStore = defineStore("calendar", {
   state: () => ({
     calendarData: [],
+    holidays: [],
     isLoading: false,
   }),
 
@@ -21,12 +22,23 @@ export const useCalendarStore = defineStore("calendar", {
 
       try {
         const req = await axios.get("/load-calendar", this.authHeaders());
-
         this.calendarData = req.data.data;
+        
+        // Charger aussi les jours fériés pour l'affichage
+        await this.loadHolidays();
       } catch (error) {
         console.error("Erreur chargement calendrier:", error);
       } finally {
         this.isLoading = false;
+      }
+    },
+
+    async loadHolidays() {
+      try {
+        const response = await axios.get("/jours-feries/liste", this.authHeaders());
+        this.holidays = response.data.data;
+      } catch (error) {
+        console.error("Erreur chargement jours fériés:", error);
       }
     },
 

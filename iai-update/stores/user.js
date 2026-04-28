@@ -90,10 +90,10 @@ export const useUserStore = defineStore("user", {
       }
     },
 
-    async fetchUser(user) {
+    async fetchUser(slug) {
       this.isLoading = true;
       try {
-        const response = await axios.get(`/users/${user}/show`, this.authHeaders());
+        const response = await axios.get(`/users/${slug}/show`, this.authHeaders());
         this.user= response.data.data;
       } catch (error) {
         console.error("Erreur chargement des utilisateurs:", error);
@@ -227,15 +227,15 @@ export const useUserStore = defineStore("user", {
       }
     },
 
-    async updateUser(id, updatedData) {
+    async updateUser(slug, updatedData) {
       this.isLoading = true;
       try {
         const response = await axios.put(
-          `/users/${id}/update`,
+          `/users/${slug}/update`,
           updatedData,
           this.authHeaders(),
         );
-        const index = this.users.findIndex((u) => u.id === id);
+        const index = this.users.findIndex((u) => u.slug === slug);
 
         if (index !== -1) {
           this.users[index] = response.data.data ?? response.data;
@@ -249,7 +249,7 @@ export const useUserStore = defineStore("user", {
       }
     },
 
-    async updateUserEnseignant(id, updatedData) {
+    async updateUserEnseignant(slug, updatedData) {
   this.isLoading = true;
   try {
     let response;
@@ -262,10 +262,10 @@ export const useUserStore = defineStore("user", {
         "Content-Type": "multipart/form-data",
       };
       
-      console.log("Envoi FormData pour mise à jour:", id);
+      console.log("Envoi FormData pour mise à jour:", slug);
       
       response = await axios.post(
-        `/users/${id}/update-enseignant?_method=PUT`,
+        `/users/${slug}/update-enseignant?_method=PUT`,
         updatedData,
         { headers }
       );
@@ -278,12 +278,12 @@ export const useUserStore = defineStore("user", {
       );
     }
     
-    const index = this.users.findIndex((u) => u.id === id);
+    const index = this.users.findIndex((u) => u.slug === slug);
     if (index !== -1) {
       this.users[index] = response.data.data ?? response.data;
     }
     
-    const enseignantIndex = this.enseignants.findIndex((u) => u.id === id);
+    const enseignantIndex = this.enseignants.findIndex((u) => u.slug === slug);
     if (enseignantIndex !== -1) {
       this.enseignants[enseignantIndex] = response.data.data ?? response.data;
     }
@@ -297,13 +297,54 @@ export const useUserStore = defineStore("user", {
   }
 },
 
-    async deleteUser(id) {
+async updateFiscalite(slug, updatedData) {
+  this.isLoading = true;
+  try {
+    const token = localStorage.getItem("gest-ecole-token");
+    const headers = {
+      Authorization: token ? `Bearer ${token}` : "",
+      Accept: "application/json",
+    };
+    
+    // On utilise POST avec _method=PUT pour supporter les fichiers
+    const response = await axios.post(
+      `/users/${slug}/update-fiscalite?_method=PUT`,
+      updatedData,
+      { headers }
+    );
+
+    // Mettre à jour l'utilisateur dans le state si présent
+    if (this.user && this.user.slug === slug) {
+      this.user = response.data.data ?? response.data;
+    }
+    
+    return response.data;
+  } catch (error) {
+    console.error("Erreur mise à jour fiscalité:", error);
+    throw error;
+    } finally {
+      this.isLoading = false;
+    }
+  },
+
+  async fetchFiscalite() {
+    const token = localStorage.getItem("gest-ecole-token");
+    const headers = {
+      Authorization: token ? `Bearer ${token}` : "",
+      Accept: "application/json",
+    };
+    
+    const response = await axios.get("/user/fiscalite", { headers });
+    return response.data;
+  },
+
+    async deleteUser(slug) {
       this.isLoading = true;
       try {
-        await axios.delete(`/users/${id}/delete`, this.authHeaders());
-        this.users = this.users.filter((u) => u.id !== id);
-        this.enseignants = this.enseignants.filter((u) => u.id !== id);
-        this.surveillants = this.surveillants.filter((u) => u.id !== id);
+        await axios.delete(`/users/${slug}/delete`, this.authHeaders());
+        this.users = this.users.filter((u) => u.slug !== slug);
+        this.enseignants = this.enseignants.filter((u) => u.slug !== slug);
+        this.surveillants = this.surveillants.filter((u) => u.slug !== slug);
       } catch (error) {
         console.error("Erreur suppression utilisateur :", error);
         throw error;
@@ -312,11 +353,11 @@ export const useUserStore = defineStore("user", {
       }
     },
 
-    async EditUser(user) {
+    async EditUser(slug) {
       this.isLoading = true;
       try {
         const response = await axios.get(
-          `/users/${user}/edit`,
+          `/users/${slug}/edit`,
           this.authHeaders(),
         );
         this.user = response.data.data;

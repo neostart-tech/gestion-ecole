@@ -426,7 +426,6 @@
                         <Calendar
                           v-model="tranche.date_limite"
                           dateFormat="dd/mm/yy"
-                          :minDate="new Date()"
                           class="w-full"
                           required
                         />
@@ -578,7 +577,6 @@
                     <Calendar
                       v-model="editForm.date_limite"
                       dateFormat="dd/mm/yy"
-                      :minDate="new Date()"
                       class="w-full"
                     />
                   </div>

@@ -2,6 +2,8 @@
 	<div
 		class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-6 lg:p-8"
 	>
+
+
 		<!-- Header avec effet de verre -->
 		<div class="mb-8">
 			<div
@@ -542,6 +544,7 @@
 	import { useUserStore } from "~~/stores/user";
 	import { useAnneScolaireStore } from "~~/stores/annee-scolaire";
 	import { useStatistiqueStore } from "~~/stores/statistique";
+	import { useLoginStore } from "~~/stores/login";
 	import axios from "axios";
 	import { Chart, registerables } from "chart.js";
 	import { Bar, Pie } from "vue-chartjs";
@@ -550,6 +553,54 @@
 
 	const isLoading = ref(true);
 	const anneeScolaireStore = useAnneScolaireStore();
+	const loginStore = useLoginStore();
+
+	const userData = computed(() => {
+		try {
+			if (process.client) {
+				return JSON.parse(localStorage.getItem("user") || "{}");
+			}
+			return {};
+		} catch {
+			return {};
+		}
+	});
+
+	const showNationaliteAlert = computed(() => {
+		const user = userData.value;
+		if (!user || !user.roles) return false;
+		const isEnseignant = user.roles.some(r => r.slug === 'enseignant' || r.slug === 'professeur');
+		return isEnseignant && (!user.nationalite || user.nationalite.trim() === '');
+	});
+
+	const showNifAlert = computed(() => {
+		const user = userData.value;
+		if (!user || !user.roles) return false;
+		const isEnseignant = user.roles.some(r => r.slug === 'enseignant' || r.slug === 'professeur');
+		if (!isEnseignant) return false;
+		
+		const isTogolais = user.nationalite === 'Togo' || user.nationalite === 'Togolaise';
+		const hasNoValidNif = !user.nif || ['N/A', 'N/R', ''].includes(user.nif.trim().toUpperCase());
+		
+		return isTogolais && hasNoValidNif;
+	});
+
+	const showDocumentsAlert = computed(() => {
+		const user = userData.value;
+		if (!user || !user.roles) return false;
+		const isEnseignant = user.roles.some(r => r.slug === 'enseignant' || r.slug === 'professeur');
+		if (!isEnseignant) return false;
+		
+		// Vérifier si au moins un document essentiel est manquant
+		const missingDocs = !user.identity_document_url || !user.diploma_document_url || !user.cv_document_url;
+		
+		// Pour le NIF, on ne l'exige dans cette alerte que si Togolais
+		const isTogolais = user.nationalite === 'Togo' || user.nationalite === 'Togolaise';
+		const missingNifDoc = isTogolais && !user.nif_document_url;
+		
+		return missingDocs || missingNifDoc;
+	});
+
 	const etudiantStore = useEtudiantStore();
 	const filiereStore = useFiliereStore();
 	const userStore = useUserStore();
@@ -808,6 +859,17 @@
 	};
 
 	onMounted(async () => {
+		// Vérifier l'utilisateur
+		try {
+			await loginStore.fetchUser();
+		} catch (error) {
+			if (error.response?.status === 404 || error.response?.status === 401) {
+				loginStore.logout();
+				navigateTo("/login");
+				return;
+			}
+		}
+		
 		await loadData();
 	});
 </script>

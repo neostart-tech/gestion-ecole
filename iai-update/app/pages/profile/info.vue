@@ -388,15 +388,11 @@
                         />
                       </svg>
                     </div>
-                    <!-- <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium bg-white/30 backdrop-blur-sm text-white">
-                      Actif
-                    </span> -->
                   </div>
                   <div>
                     <p class="font-medium text-white text-base mb-1">
                       {{ role.nom }}
                     </p>
-                    <!-- <p class="text-xs text-white/80">{{ role.slug }}</p> -->
                   </div>
                 </div>
               </div>
@@ -425,6 +421,174 @@
                 Aucun rôle assigné
               </p>
             </div>
+          </div>
+        </div>
+
+        <!-- Fiscalité avec cartes colorées -->
+        <div
+          v-if="currentTab === 'fiscalite'"
+          class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-orange-100/50 dark:shadow-orange-900/10 border border-orange-100 dark:border-orange-900/30 overflow-hidden animate-fade-in-up"
+        >
+          <div v-if="currentTab === 'fiscalite'" class="p-8 animate-fade-in">
+            <div class="max-w-3xl">
+              <div class="mb-8">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Documents & Fiscalité</h2>
+                <p class="mt-1 text-sm text-gray-500">Gérez vos informations fiscales et vos documents administratifs.</p>
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <!-- Alert -->
+            <div class="mb-6 bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-500 p-4 rounded-r-xl shadow-sm">
+                <div class="flex items-start">
+                    <svg class="h-6 w-6 text-orange-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-bold text-orange-800 dark:text-orange-300 uppercase tracking-wide">Information Importante sur l'Impôt</h3>
+                        <p class="mt-1 text-sm text-orange-700 dark:text-orange-400">
+                          Si le NIF est renseigné, seulement <strong>5 %</strong> sont prélevés sur votre salaire ; sinon, <strong>20 %</strong> seront prélevés. Notez que le NIF est <strong>obligatoire</strong> pour les personnes de nationalité togolaise.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <form @submit.prevent="submitFiscaliteForm" class="space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Nationalité -->
+                <div class="z-50 relative">
+                  <NationaliteSelector
+                    v-model="fiscaliteForm.nationalite"
+                    label="Nationalité"
+                    placeholder="Sélectionnez votre nationalité"
+                  />
+                </div>
+
+                <!-- NIF -->
+                <div v-if="fiscaliteForm.nationalite === 'Togo' || fiscaliteForm.nationalite === 'Togolaise'">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Numéro d'Identification Fiscale (NIF)
+                    <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    v-model="fiscaliteForm.nif"
+                    type="text"
+                    placeholder="Saisissez votre NIF"
+                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white transition-colors"
+                    required
+                  />
+                </div>
+
+                <!-- Document NIF -->
+                <div v-if="fiscaliteForm.nationalite === 'Togo' || fiscaliteForm.nationalite === 'Togolaise'" class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Document NIF (Fichier numérisé) <span class="text-red-500">*</span>
+                  </label>
+                  <div v-if="user.nif_document_url" class="mb-3 flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <div class="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                      <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      Document NIF enregistré
+                    </div>
+                    <a :href="user.nif_document_url" target="_blank" class="text-xs font-medium text-blue-600 hover:text-blue-500">Voir le document</a>
+                  </div>
+                  <FileUpload
+                    id="nif-document"
+                    v-model="fiscaliteForm.nif_document"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    :existing-url="user.nif_document_url"
+                    :max-size="5"
+                    @error="(msg) => $toastr.error(msg)"
+                  />
+                </div>
+
+                <!-- Pièce d'identité -->
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Pièce d'identité ou passeport
+                  </label>
+                  <div v-if="user.identity_document_url" class="mb-3 flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <div class="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                      <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      Pièce d'identité enregistrée
+                    </div>
+                    <a :href="user.identity_document_url" target="_blank" class="text-xs font-medium text-blue-600 hover:text-blue-500">Voir le document</a>
+                  </div>
+                  <FileUpload
+                    id="identity-document"
+                    v-model="fiscaliteForm.identity_document"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    :existing-url="user.identity_document_url"
+                    :max-size="5"
+                    @error="(msg) => $toastr.error(msg)"
+                  />
+                </div>
+
+                <!-- Diplômes -->
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Diplômes et certificats
+                  </label>
+                  <div v-if="user.diploma_document_url" class="mb-3 flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <div class="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                      <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      Diplômes enregistrés
+                    </div>
+                    <a :href="user.diploma_document_url" target="_blank" class="text-xs font-medium text-blue-600 hover:text-blue-500">Voir les diplômes</a>
+                  </div>
+                  <FileUpload
+                    id="diploma-document"
+                    v-model="fiscaliteForm.diploma_document"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    :existing-url="user.diploma_document_url"
+                    :max-size="10"
+                    @error="(msg) => $toastr.error(msg)"
+                  />
+                </div>
+
+                <!-- CV -->
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Curriculum Vitae (CV)
+                  </label>
+                  <div v-if="user.cv_document_url" class="mb-3 flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <div class="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                      <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      CV enregistré
+                    </div>
+                    <a :href="user.cv_document_url" target="_blank" class="text-xs font-medium text-blue-600 hover:text-blue-500">Voir le CV</a>
+                  </div>
+                  <FileUpload
+                    id="cv-document"
+                    v-model="fiscaliteForm.cv_document"
+                    accept=".pdf,.doc,.docx"
+                    :existing-url="user.cv_document_url"
+                    :max-size="5"
+                    @error="(msg) => $toastr.error(msg)"
+                  />
+                </div>
+              </div>
+
+              <!-- Bouton de sauvegarde -->
+              <div class="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+                <button
+                  type="submit"
+                  :disabled="isFiscaliteLoading"
+                  class="px-6 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2"
+                >
+                  <svg
+                    v-if="isFiscaliteLoading"
+                    class="w-4 h-4 animate-spin"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>{{ isFiscaliteLoading ? "Enregistrement..." : "Enregistrer les informations" }}</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
@@ -782,8 +946,12 @@ import {
   DialogTitle,
 } from "@headlessui/vue";
 
+import { useUserStore } from "~~/stores/user";
+import FileUpload from "~/components/FileUpload.vue";
+
 const { $toastr } = useNuxtApp();
 const loginStore = useLoginStore();
+const userStore = useUserStore();
 
 // Données utilisateur
 const user = ref(JSON.parse(localStorage.getItem("user") || "{}"));
@@ -810,10 +978,78 @@ const passwordErrors = reactive({
   new_password_confirmation: "",
 });
 
-const tabs = [
-  { id: "info", label: "Informations" },
-  { id: "roles", label: "Rôles" },
-];
+const isEnseignant = computed(() => {
+  if (!user.value || !user.value.roles) return false;
+  return user.value.roles.some((r: any) => r.slug === 'enseignant' || r.slug === 'professeur');
+});
+
+const tabs = computed(() => {
+  const baseTabs = [
+    { id: "info", label: "Informations" },
+    { id: "roles", label: "Rôles" },
+  ];
+  if (isEnseignant.value) {
+    baseTabs.push({ id: "fiscalite", label: "Documents & Fiscalité" });
+  }
+  return baseTabs;
+});
+
+// Formulaire Fiscalité
+const isFiscaliteLoading = ref(false);
+const fiscaliteForm = reactive({
+  nationalite: user.value.nationalite || "",
+  nif: user.value.nif || "",
+  nif_document: null as File | null,
+  identity_document: null as File | null,
+  diploma_document: null as File | null,
+  cv_document: null as File | null,
+});
+
+const submitFiscaliteForm = async () => {
+  if ((fiscaliteForm.nationalite === 'Togo' || fiscaliteForm.nationalite === 'Togolaise') && (!fiscaliteForm.nif || fiscaliteForm.nif.trim() === '')) {
+    $toastr.error("Le NIF est obligatoire pour les professeurs de nationalité togolaise");
+    return;
+  }
+  
+  isFiscaliteLoading.value = true;
+  try {
+    const formData = new FormData();
+    formData.append('nationalite', fiscaliteForm.nationalite);
+    if (fiscaliteForm.nif) formData.append('nif', fiscaliteForm.nif);
+    if (fiscaliteForm.nif_document) formData.append('nif_document', fiscaliteForm.nif_document);
+    if (fiscaliteForm.identity_document) formData.append('identity_document', fiscaliteForm.identity_document);
+    if (fiscaliteForm.diploma_document) formData.append('diploma_document', fiscaliteForm.diploma_document);
+    if (fiscaliteForm.cv_document) formData.append('cv_document', fiscaliteForm.cv_document);
+
+    const res = await userStore.updateFiscalite(user.value.slug, formData);
+    $toastr.success("Vos informations ont été mises à jour avec succès");
+    
+    // Extraire les données de l'utilisateur (Laravel les met dans .data)
+    const updatedUser = res.data || res;
+    
+    // Mettre à jour l'utilisateur local et le localStorage
+    user.value = updatedUser;
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    
+    // Synchroniser avec le loginStore pour que tout l'app soit à jour
+    if (loginStore.user && loginStore.user.id === updatedUser.id) {
+      loginStore.user = updatedUser;
+    }
+    
+    // Synchroniser le formulaire fiscalité
+    fiscaliteForm.nationalite = updatedUser.nationalite || "";
+    fiscaliteForm.nif = updatedUser.nif || "";
+    fiscaliteForm.nif_document = null;
+    fiscaliteForm.identity_document = null;
+    fiscaliteForm.diploma_document = null;
+    fiscaliteForm.cv_document = null;
+  } catch (error: any) {
+    console.error("Erreur mise à jour fiscalité:", error);
+    $toastr.error(error.response?.data?.message || "Une erreur est survenue lors de l'enregistrement");
+  } finally {
+    isFiscaliteLoading.value = false;
+  }
+};
 
 const userInitials = computed(() => {
   if (!user.value.prenom && !user.value.nom) return "U";
@@ -952,10 +1188,39 @@ const getRoleColor = (index: number) => {
   return colors[index % colors.length];
 };
 
-onMounted(() => {
+onMounted(async () => {
   if (!user.value.id) {
     $toastr.error("Vous devez être connecté");
     navigateTo("/login");
+    return;
+  }
+
+  try {
+    const freshUser = await loginStore.fetchUser();
+    if (freshUser) {
+      user.value = freshUser;
+      
+      // Si c'est un enseignant, on peut aussi récupérer les données fiscalité spécifiquement
+      if (isEnseignant.value) {
+        try {
+          const fiscaliteData = await userStore.fetchFiscalite();
+          fiscaliteForm.nationalite = fiscaliteData.nationalite || "";
+          fiscaliteForm.nif = fiscaliteData.nif || "";
+        } catch (e) {
+          console.warn("Erreur chargement données fiscalité dédiées:", e);
+          // Fallback sur les données du freshUser
+          fiscaliteForm.nationalite = freshUser.nationalite || "";
+          fiscaliteForm.nif = freshUser.nif || "";
+        }
+      }
+    }
+  } catch (error: any) {
+    console.error("Erreur chargement profil:", error);
+    if (error.response?.status === 404 || error.response?.status === 401) {
+      $toastr.error("Session invalide ou utilisateur introuvable. Veuillez vous reconnecter.");
+      loginStore.logout();
+      navigateTo("/login");
+    }
   }
 });
 </script>

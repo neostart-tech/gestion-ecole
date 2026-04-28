@@ -472,6 +472,66 @@
                   />
                 </svg>
               </NuxtLink>
+
+              <Can action="update-etudiant">
+                <NuxtLink
+                  :to="`/admin/liste-des-etudiants/${data.value.raw.slug}/modifier`"
+                  class="p-2 rounded-lg text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors duration-200"
+                  title="Modifier les informations"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                </NuxtLink>
+              </Can>
+
+              <Can action="delete-etudiant">
+                <button
+                  @click="toggleEtudiantStatus(data.value)"
+                  class="p-2 rounded-lg transition-colors duration-200"
+                  :class="data.value.statut === 'actif' ? 'text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30' : 'text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30'"
+                  :title="data.value.statut === 'actif' ? 'Désactiver l\'étudiant' : 'Réactiver l\'étudiant'"
+                >
+                  <svg
+                    v-if="data.value.statut === 'actif'"
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                    />
+                  </svg>
+                  <svg
+                    v-else
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </button>
+              </Can>
             </div>
           </template>
 
@@ -499,6 +559,21 @@
               {{ data.value.groupe }}
             </span>
             <span v-else class="text-gray-400">-</span>
+          </template>
+
+          <!-- Template pour le statut -->
+          <template #statut="data">
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+              :class="{
+                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300':
+                  data.value.statut === 'actif',
+                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300':
+                  data.value.statut === 'inactif',
+              }"
+            >
+              {{ data.value.statut === 'actif' ? 'Actif' : 'Inactif' }}
+            </span>
           </template>
         </Vue3Datatable>
       </div>
@@ -1156,6 +1231,7 @@ const etdudiantStore = useEtudiantStore();
 const searchQuery = ref("");
 const showDetailModal = ref(false);
 const showImportModal = ref(false);
+const showEditModal = ref(false);
 const selectedEtudiant = ref(null);
 const selectedFile = ref(null);
 const dragOver = ref(false);
@@ -1164,6 +1240,18 @@ const importError = ref("");
 const exportLoading = ref(false);
 const itemsPerPage = ref(10);
 const fileInput = ref(null);
+
+const editForm = ref({
+  nom: "",
+  prenom: "",
+  email: "",
+  tel: "",
+  genre: "",
+  nationalite: "",
+  date_naissance: "",
+  lieu_naissance: "",
+  group_id: null,
+});
 
 // Filtres
 const filters = ref({
@@ -1218,6 +1306,18 @@ const groupeOptions = computed(() => {
     .sort((a, b) => a.label.localeCompare(b.label));
 });
 
+const editGroupOptions = computed(() => {
+  if (!selectedEtudiant.value || !selectedEtudiant.value.dernier_groupe) return [];
+  const levelId = selectedEtudiant.value.dernier_groupe.niveau.id;
+  return groupeStore.groupes
+    .filter((g) => g.niveau.id === levelId)
+    .map((g) => ({
+      label: g.nom,
+      value: g.id,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+});
+
 // Vérifier si des filtres sont actifs
 const hasActiveFilters = computed(() => {
   return filters.value.niveau || filters.value.filiere || filters.value.groupe;
@@ -1247,6 +1347,7 @@ const columns = ref([
   { field: "tel", title: "Téléphone", visible: true },
   { field: "nationalite", title: "Nationalité", visible: false },
   { field: "groupe", title: "Groupe", visible: false },
+  { field: "statut", title: "Statut", visible: true },
   { field: "action", title: "Actions", visible: true },
 ]);
 
@@ -1273,6 +1374,7 @@ const filteredRows = computed(() => {
       groupe:  `${e?.dernier_groupe?.niveau?.nom} ${e?.dernier_groupe?.group?.nom}` || null,
       groupe_id: e?.dernier_groupe?.group?.id || null,
       filiere_nom: e?.dernier_groupe?.filiere?.nom || null,
+      statut: e.statut || "actif",
       raw: e,
     };
   });
@@ -1374,6 +1476,39 @@ const closeImportModal = () => {
   importError.value = "";
   if (fileInput.value) {
     fileInput.value.value = "";
+  }
+};
+
+const openEditModal = (item) => {
+  selectedEtudiant.value = item.raw;
+  editForm.value = {
+    nom: item.raw.nom,
+    prenom: item.raw.prenom,
+    email: item.raw.email === "--" ? "" : item.raw.email,
+    tel: item.raw.tel === "--" ? "" : item.raw.tel,
+    genre: item.raw.genre,
+    nationalite: item.raw.nationalite === "--" ? "" : item.raw.nationalite,
+    date_naissance: item.raw.date_naissance ? item.raw.date_naissance.split("T")[0] : "",
+    lieu_naissance: item.raw.lieu_naissance || "",
+    group_id: item.raw.dernier_groupe?.group?.id,
+  };
+  showEditModal.value = true;
+};
+
+const closeEditModal = () => {
+  showEditModal.value = false;
+  selectedEtudiant.value = null;
+};
+
+const handleUpdateEtudiant = async () => {
+  try {
+    await etdudiantStore.updateEtudiant(selectedEtudiant.value.slug, editForm.value);
+    $toastr.success("Informations mises à jour avec succès");
+    await etdudiantStore.fetchEtudiants();
+    closeEditModal();
+  } catch (error) {
+    console.error("Erreur mise à jour:", error);
+    $toastr.error(error.response?.data?.message || "Erreur lors de la mise à jour");
   }
 };
 
@@ -1519,26 +1654,30 @@ const processExport = async () => {
   }
 };
 
-// Suppression d'un étudiant
-const deleteEtudiant = async (item) => {
-  const res = await $swal.fire({
-    title: "Supprimer cet étudiant ?",
-    text: "Cette action est irréversible",
+// Toggle Statut d'un étudiant
+const toggleEtudiantStatus = async (item) => {
+  const isActif = item.statut === "actif";
+  const action = isActif ? "désactiver" : "réactiver";
+
+  const result = await $swal.fire({
+    title: "Êtes-vous sûr ?",
+    text: `Voulez-vous vraiment ${action} cet étudiant ?`,
     icon: "warning",
     showCancelButton: true,
-    confirmButtonText: "Supprimer",
+    confirmButtonColor: isActif ? "#d33" : "#10b981",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: `Oui, ${action} !`,
     cancelButtonText: "Annuler",
-    confirmButtonColor: "#dc2626",
   });
 
-  if (res.isConfirmed) {
+  if (result.isConfirmed) {
     try {
-      await etdudiantStore.deleteEtudiant(item.id);
-      $toastr.success("Étudiant supprimé avec succès");
+      await etdudiantStore.deleteEtudiant(item.raw.slug);
+      $toastr.success(`Étudiant ${isActif ? "désactivé" : "réactivé"} avec succès`);
       await etdudiantStore.fetchEtudiants();
     } catch (error) {
-      console.error("Erreur lors de la suppression:", error);
-      $toastr.error(error.response?.data?.message || "Une erreur est survenue");
+      console.error(`Erreur lors du changement de statut:`, error);
+      $toastr.error("Une erreur est survenue");
     }
   }
 };

@@ -3,155 +3,164 @@
     class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 transition-colors"
   >
     <!-- Breadcrumb -->
-    <Breadcrumb
-      :items="[
-        { label: 'Salle', to: '/' },
-        { label: 'Liste', to: null },
-      ]"
-      title="Liste des salles"
-      title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
-      spacing="mb-4"
-    />
 
-    <!-- Statistiques -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
-        <div class="flex items-center gap-3">
-          <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-            <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
-          </div>
-          <div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Total salles</p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total }}</p>
-          </div>
+    <!-- En-tête de page -->
+    <div class="mb-8">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+            <div class="p-2 bg-blue-600 rounded-lg shadow-lg shadow-blue-500/20">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+            Gestion des Salles
+          </h1>
+          <p class="mt-1 text-gray-500 dark:text-gray-400">Gérez vos espaces physiques et virtuels pour vos formations.</p>
         </div>
       </div>
 
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
-        <div class="flex items-center gap-3">
-          <div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-            <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
+      <!-- Statistiques rapides -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8">
+        <!-- Total -->
+        <div class="group bg-white dark:bg-gray-800 p-6 rounded-[5px] shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all duration-300 relative overflow-hidden">
+          <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform duration-500">
+            <svg class="w-16 h-16 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
           </div>
-          <div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Salles physiques</p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.physiques }}</p>
+          <div class="flex items-center gap-4 relative z-10">
+            <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total salles</p>
+              <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total }}</h3>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
-        <div class="flex items-center gap-3">
-          <div class="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-            <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
+        <!-- Physiques -->
+        <div class="group bg-white dark:bg-gray-800 p-6 rounded-[5px] shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all duration-300 relative overflow-hidden">
+          <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform duration-500">
+            <svg class="w-16 h-16 text-green-600" fill="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
           </div>
-          <div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Salles virtuelles</p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.virtuelles }}</p>
+          <div class="flex items-center gap-4 relative z-10">
+            <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Physiques</p>
+              <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.physiques }}</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- Virtuelles -->
+        <div class="group bg-white dark:bg-gray-800 p-6 rounded-[5px] shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all duration-300 relative overflow-hidden">
+          <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform duration-500">
+            <svg class="w-16 h-16 text-purple-600" fill="currentColor" viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          </div>
+          <div class="flex items-center gap-4 relative z-10">
+            <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Virtuelles</p>
+              <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.virtuelles }}</h3>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Toolbar -->
-    <div
-      class="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between mb-5"
-    >
-      <!-- Recherche et filtres -->
-      <div class="flex flex-wrap gap-3 items-center">
-        <input
-          v-model="searchQuery"
-          type="search"
-          placeholder="Rechercher..."
-          class="w-full lg:w-64 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-
-        <!-- Filtre par type -->
-        <select
-          v-model="typeFilter"
-          class="px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          <option value="tous">Tous les types</option>
-          <option value="physique">Salles physiques</option>
-          <option value="virtuelle">Salles virtuelles</option>
-        </select>
-      </div>
-
-      <div class="flex flex-col sm:flex-row gap-3">
-        <!-- Colonnes -->
-        <client-only>
-          <VDropdown placement="bottom-end">
-            <button
-              class="flex items-center gap-2 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
+    <!-- Table de données et outils -->
+    <div class="bg-white dark:bg-gray-800 rounded-[5px] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <!-- Barre d'outils -->
+      <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50/50 dark:bg-gray-800/50">
+        <div class="flex flex-wrap items-center gap-4 flex-1">
+          <div class="relative max-w-xs w-full">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              Colonnes
-              <svg
-                class="w-4 h-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-              >
-                <path
-                  d="M6 9l6 6 6-6"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                />
-              </svg>
-            </button>
-
-            <template #popper>
-              <div
-                class="w-56 p-3 rounded-lg shadow-lg bg-white dark:bg-gray-800"
-              >
-                <div
-                  v-for="col in columns"
-                  :key="col.field"
-                  class="flex items-center gap-2 py-1"
-                >
-                  <input
-                    type="checkbox"
-                    v-model="col.visible"
-                    :disabled="col.field === 'action'"
-                    class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  />
-                  <span class="text-sm text-gray-700 dark:text-gray-300">
-                    {{ col.title }}
-                  </span>
-                </div>
-              </div>
-            </template>
-          </VDropdown>
-        </client-only>
-
-        <!-- Ajouter -->
-        <Can action="create-salle">
-          <button
-            @click="openAddModal"
-            class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            </span>
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Rechercher une salle..."
+              class="block w-full pl-10 pr-3 py-2 border border-gray-200 dark:border-gray-600 rounded-[5px] bg-white dark:bg-gray-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+            />
+          </div>
+          
+          <select
+            v-model="typeFilter"
+            class="block pl-3 pr-10 py-2 border border-gray-200 dark:border-gray-600 rounded-[5px] bg-white dark:bg-gray-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none min-w-[150px]"
           >
-            <svg
-              class="w-5 h-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
+            <option value="tous">Tous les types</option>
+            <option value="physique">Salles physiques</option>
+            <option value="virtuelle">Salles virtuelles</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Gestion des colonnes -->
+          <client-only>
+            <VDropdown placement="bottom-end" :distance="12">
+              <button class="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-[5px] bg-white dark:bg-gray-700 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7" />
+                </svg>
+                Colonnes
+                <svg class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              <template #popper>
+                <div class="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl p-2">
+                  <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Affichage des colonnes</div>
+                  <div class="max-h-64 overflow-y-auto">
+                    <div 
+                      v-for="col in columns" 
+                      :key="col.field" 
+                      class="flex items-center gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded cursor-pointer transition-colors" 
+                      @click="col.visible = !col.visible"
+                    >
+                      <div 
+                        class="w-4 h-4 border border-gray-300 dark:border-gray-600 rounded flex items-center justify-center transition-colors" 
+                        :class="{'bg-blue-600 border-blue-600': col.visible}"
+                      >
+                        <svg v-if="col.visible" class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <span class="text-sm font-medium text-gray-700 dark:text-gray-200">{{ col.title }}</span>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </VDropdown>
+          </client-only>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <Can action="create-salle">
+            <button
+              @click="openAddModal"
+              class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-[5px] transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transform hover:-translate-y-0.5 active:translate-y-0"
             >
-              <path
-                d="M12 5v14M5 12h14"
-                stroke-width="2"
-                stroke-linecap="round"
-              />
-            </svg>
-            Ajouter
-          </button>
-        </Can>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Ajouter une salle
+            </button>
+          </Can>
+        </div>
       </div>
     </div>
 
@@ -172,10 +181,10 @@
           skin="bh-table-striped bh-table-hover"
         >
           <!-- Type de salle -->
-          <template #type="data">
+          <template #salle_type="data">
             <div class="flex items-center gap-2">
               <span
-                v-if="data.value.type === 'physique'"
+                v-if="(data.salle_type || data.value?.salle_type || data.value) === 'physique'"
                 class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
               >
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,36 +205,28 @@
           </template>
 
           <!-- Lien de réunion -->
-          <template #lien_reunion="data">
-            <div v-if="data.value.lien_reunion" class="flex items-center">
+          <template #lien_url="data">
+            <div v-if="(data.lien_url || data.value?.lien_url || (typeof data.value === 'string' && data.value && data.value !== '—'))" class="flex items-center">
               <a
-                :href="data.value.lien_reunion"
+                :href="data.lien_url || data.value?.lien_url || data.value"
                 target="_blank"
-                class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                class="group inline-flex items-center gap-2 px-3 py-1.5 rounded-[5px] text-[11px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-600 dark:hover:text-white border border-blue-100 dark:border-blue-800 hover:border-blue-600 transition-all duration-300"
                 @click.stop
               >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                <svg class="w-3.5 h-3.5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
-                Lien
+                Rejoindre
               </a>
             </div>
-            <span v-else class="text-gray-400">—</span>
-          </template>
-
-          <!-- Plateforme -->
-          <template #plateforme="data">
-            <span v-if="data.value.plateforme" class="text-sm text-gray-700 dark:text-gray-300">
-              {{ getPlateformeLabel(data.value.plateforme) }}
-            </span>
-            <span v-else class="text-gray-400">—</span>
+            <span v-else class="text-gray-400 italic text-xs">—</span>
           </template>
 
           <!-- Actions -->
-          <template #action="{ row }">
+          <template #action="data">
             <div class="flex justify-center gap-3">
               <button
-                @click="openDetailModal(row)"
+                @click="openDetailModal(data.value.raw || data.value)"
                 class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
                 title="Voir détails"
               >
@@ -251,7 +252,8 @@
               </button>
               
               <NuxtLink
-                :to="`/salles/calendrier/${row.slug}-programme`"
+                v-if="data.value?.raw?.slug || data.value?.slug"
+                :to="`/salles/calendrier/${(data.value?.raw?.slug || data.value?.slug)}-programme`"
                 class="p-2 rounded-lg text-purple-600 hover:bg-purple-100 dark:text-purple-400 dark:hover:bg-purple-900/30 transition-colors duration-200"
                 title="Voir dans le calendrier"
               >
@@ -272,7 +274,7 @@
 
               <Can action="update-salle">
                 <button
-                  @click="openEditModal(row)"
+                  @click="openEditModal(data.value.raw || data.value)"
                   class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
                   title="Modifier"
                 >
@@ -293,7 +295,7 @@
 
               <Can action="delete-salle">
                 <button
-                  @click="deleteItem(row)"
+                  @click="deleteItem(data.value.raw || data.value)"
                   class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
                   title="Supprimer"
                 >
@@ -782,10 +784,10 @@ const form = ref({
 // Configuration des colonnes
 const columns = ref([
   { field: "nom", title: "Nom", visible: true },
-  { field: "type", title: "Type", visible: true },
+  { field: "salle_type", title: "Type", visible: true },
   { field: "effectif", title: "Effectif", visible: true },
-  { field: "plateforme", title: "Plateforme", visible: true },
-  { field: "lien_reunion", title: "Lien", visible: true },
+  { field: "plateforme_label", title: "Plateforme", visible: true },
+  { field: "lien_url", title: "Lien", visible: true },
   { field: "action", title: "Actions", visible: true },
 ]);
 
@@ -808,11 +810,12 @@ const filteredRows = computed(() => {
     id: f.id,
     slug: f.slug,
     nom: f.nom,
-    type: f.type || 'physique',
+    salle_type: f.type,
     effectif: f.effectif ?? (f.type === 'virtuelle' ? '∞' : '—'),
-    plateforme: f.plateforme,
-    lien_reunion: f.lien_reunion_formate,
-    instructions: f.instructions
+    plateforme_label: f.plateforme_nom || '—',
+    lien_url: f.lien_reunion_formate || '—',
+    instructions: f.instructions,
+    raw: f
   }));
 
   if (typeFilter.value !== 'tous') {

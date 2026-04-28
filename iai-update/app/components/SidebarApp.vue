@@ -180,6 +180,8 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleMobileMenu"
+                @mouseenter="handleMouseEnter($event, 'dashboard', { title: 'Tableau de bord' })"
+                @mouseleave="handleMouseLeave"
               >
                 <div
                   :class="[
@@ -219,6 +221,8 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleMobileMenu"
+                @mouseenter="handleMouseEnter($event, 'actualites', { title: 'Actualités' })"
+                @mouseleave="handleMouseLeave"
               >
                 <div
                   :class="[
@@ -243,6 +247,45 @@
                 <div
                   v-if="themeStore.isSidebarOpen && $route.path.startsWith('/actualites')"
                   class="w-1.5 h-1.5 bg-blue-600 rounded-full"
+                ></div>
+              </NuxtLink>
+            </li>
+
+            <!-- Annonces pour tous -->
+            <li>
+              <NuxtLink
+                to="/annonces"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/annonces'
+                    ? 'bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 text-violet-700 dark:text-violet-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+                @mouseenter="handleMouseEnter($event, 'annonces', { title: 'Annonces' })"
+                @mouseleave="handleMouseLeave"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/annonces'
+                      ? 'bg-violet-100 dark:bg-violet-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                  </svg>
+                </div>
+                <span
+                  v-if="themeStore.isSidebarOpen"
+                  class="ml-3 font-medium flex-1"
+                >
+                  Annonces
+                </span>
+                <div
+                  v-if="themeStore.isSidebarOpen && $route.path === '/annonces'"
+                  class="w-1.5 h-1.5 bg-violet-600 rounded-full"
                 ></div>
               </NuxtLink>
             </li>
@@ -277,6 +320,8 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleMobileMenu"
+                @mouseenter="handleMouseEnter($event, 'emploi-du-temps', { title: 'Emploi du temps' })"
+                @mouseleave="handleMouseLeave"
               >
                 <div
                   :class="[
@@ -320,6 +365,8 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleMobileMenu"
+                @mouseenter="handleMouseEnter($event, 'profile', { title: 'Info personnelle' })"
+                @mouseleave="handleMouseLeave"
               >
                 <div
                   :class="[
@@ -896,6 +943,13 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleDropdown('filieres')"
+                @mouseenter="handleMouseEnter($event, 'filieres', { 
+                  title: 'Filières & Parcours', 
+                  links: [
+                    { to: '/filieres/liste', label: 'Liste des filières' }
+                  ] 
+                })"
+                @mouseleave="handleMouseLeave"
               >
                 <div class="flex items-center">
                   <div
@@ -982,6 +1036,15 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleDropdown('matieres')"
+                @mouseenter="handleMouseEnter($event, 'matieres', { 
+                  title: 'Matières & Évaluations', 
+                  links: [
+                    { to: '/ues/liste', label: 'Liste des unités d\'enseignement' },
+                    { to: '/uvs/liste', label: 'Liste des matières' },
+                    { to: '/evaluations/liste', label: 'Liste des évaluations' }
+                  ] 
+                })"
+                @mouseleave="handleMouseLeave"
               >
                 <div class="flex items-center">
                   <div
@@ -1157,6 +1220,44 @@
                 >
               </NuxtLink>
             </li>
+
+            <!-- Jours Fériés -->
+            <li
+              v-if="
+                hasAnyRole([
+                  'directeur-academique',
+                  'admin',
+                  'informaticien',
+                ])
+              "
+            >
+              <NuxtLink
+                to="/admin/jours-feries"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/admin/jours-feries'
+                    ? 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 text-amber-700 dark:text-amber-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/admin/jours-feries'
+                      ? 'bg-amber-100 dark:bg-amber-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                  >Jours fériés</span
+                >
+              </NuxtLink>
+            </li>
             <li
               v-if="
                 hasAnyRole([
@@ -1246,7 +1347,7 @@
             </li>
 
             <!-- Liste globale des relevés -->
-            <!-- <li
+            <li
               v-if="
                 hasAnyRole([
                   'directeur-academique',
@@ -1282,10 +1383,9 @@
                 </div>
                 <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium flex-1">Liste des relevés</span>
               </NuxtLink>
-            </li> -->
+            </li>
           </ul>
         </section>
-
         <!-- SECTION GESTION FINANCIÈRE -->
         <section v-if="showFinanceSection" class="mb-6">
           <div class="flex items-center px-2 mb-2">
@@ -1974,6 +2074,14 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleDropdown('candidatures')"
+                @mouseenter="handleMouseEnter($event, 'candidatures', { 
+                  title: 'Gestion des candidatures', 
+                  links: [
+                    { to: '/admin/liste-des-candidats', label: 'Liste des candidatures' },
+                    { to: '/admin/liste-des-admis', label: 'Liste des admis' }
+                  ] 
+                })"
+                @mouseleave="handleMouseLeave"
               >
                 <div class="flex items-center">
                   <div
@@ -2153,6 +2261,14 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleDropdown('personnel')"
+                @mouseenter="handleMouseEnter($event, 'personnel', { 
+                  title: 'Personnel', 
+                  links: [
+                    { to: '/personnel/enseignants', label: 'Enseignants' },
+                    { to: '/personnel/administratifs', label: 'Administratifs' }
+                  ] 
+                })"
+                @mouseleave="handleMouseLeave"
               >
                 <div class="flex items-center">
                   <div
@@ -2434,6 +2550,40 @@
           </div>
 
           <ul class="space-y-1">
+            <!-- Gérer les annonces -->
+            <li v-if="hasAnyRole(['responsable-marketing', 'admin', 'informaticien', 'directeur-general', 'directeur-general-adjoint', 'superadmin', 'charge-de-la-communication', 'charge-de-communication', 'responsable-de-la-communication', 'responsable-communication'])">
+              <NuxtLink
+                to="/admin/communications"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path.startsWith('/admin/communications')
+                    ? 'bg-pink-50 dark:from-pink-900/20 dark:to-purple-900/20 text-pink-700 dark:text-pink-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path.startsWith('/admin/communications')
+                      ? 'bg-pink-100 dark:bg-pink-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
+                    />
+                  </svg>
+                </div>
+                <span
+                  v-if="themeStore.isSidebarOpen"
+                  class="ml-3 font-medium flex items-center justify-between flex-1"
+                >
+                  Gérer les annonces
+                </span>
+              </NuxtLink>
+            </li>
             <!-- Messages avec badge animé -->
             <li
               v-if="
@@ -2847,7 +2997,35 @@
             
 
             <!-- Galerie -->
-            <!-- <li v-if="hasAnyRole(['responsable-marketing'])">
+            <li v-if="showCommunicationSection">
+              <NuxtLink
+                to="/admin/communications"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/admin/communications'
+                    ? 'bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 text-violet-700 dark:text-violet-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/admin/communications'
+                      ? 'bg-violet-100 dark:bg-violet-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                  >Gestion des annonces</span
+                >
+              </NuxtLink>
+            </li>
+            <li v-if="showCommunicationSection">
               <NuxtLink
                 to="/galerie"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
@@ -2878,7 +3056,7 @@
                   >Galerie</span
                 >
               </NuxtLink>
-            </li> -->
+            </li>
           </ul>
         </section>
 
@@ -2897,6 +3075,51 @@
           </div>
 
           <ul class="space-y-1">
+            <!-- Support & Assistance -->
+            <li>
+              <NuxtLink
+                to="/support/ticket"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path.startsWith('/support')
+                    ? 'bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900 dark:bg-opacity-20 text-indigo-700 dark:text-indigo-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path.startsWith('/support')
+                      ? 'bg-indigo-100 dark:bg-indigo-900 dark:bg-opacity-30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"
+                    />
+                  </svg>
+                </div>
+                <span
+                  v-if="themeStore.isSidebarOpen"
+                  class="ml-3 font-medium flex-1"
+                  >Support & Aide</span
+                >
+                <div
+                  v-if="themeStore.isSidebarOpen && $route.path.startsWith('/support')"
+                  class="w-1.5 h-1.5 bg-indigo-600 rounded-full"
+                ></div>
+              </NuxtLink>
+            </li>
             <!-- <li>
               <NuxtLink
                 to="#"
@@ -2983,6 +3206,8 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleMobileMenu"
+                @mouseenter="handleMouseEnter($event, 'parametre', { title: 'Paramètre' })"
+                @mouseleave="handleMouseLeave"
               >
                 <div
                   :class="[
@@ -3028,6 +3253,8 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleMobileMenu"
+                @mouseenter="handleMouseEnter($event, 'annee-scolaire', { title: 'Années scolaires' })"
+                @mouseleave="handleMouseLeave"
               >
                 <div
                   :class="[
@@ -3113,6 +3340,60 @@
               </NuxtLink>
             </li>
 
+            <li
+              v-if="
+                hasAnyRole([
+                  'directeur-academique',
+                  'directeur-general-adjoint',
+                  'directeur-general',
+                  'admin',
+                  'informaticien',
+                  'charge-de-la-clientele',
+                  'logiticien-academique',
+                ])
+              "
+            >
+              <NuxtLink
+                to="/parametre/niveaux"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/parametre/niveaux'
+                    ? 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 text-amber-700 dark:text-amber-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/parametre/niveaux'
+                      ? 'bg-amber-100 dark:bg-amber-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fill-rule="evenodd"
+                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <span
+                  v-if="themeStore.isSidebarOpen"
+                  class="ml-3 font-medium flex-1"
+                  >Niveaux scolaires</span
+                >
+                <div
+                  v-if="
+                    themeStore.isSidebarOpen &&
+                    $route.path === '/parametre/niveaux'
+                  "
+                  class="w-1.5 h-1.5 bg-amber-600 rounded-full"
+                ></div>
+              </NuxtLink>
+            </li>
+
             <!-- Déconnexion avec séparateur -->
             <li class="pt-2 mt-2 border-t border-gray-200 dark:border-gray-700">
               <button
@@ -3148,11 +3429,47 @@
     >
       Neo EduManager v2.0 • © 2024
     </div>
+    <!-- Flyout Menu (Mini Mode) -->
+    <Teleport to="body">
+      <div
+        v-if="hoveredMenu && !themeStore.isSidebarOpen"
+        class="fixed z-[100] ml-2 bg-white dark:bg-gray-800 shadow-2xl rounded-xl py-2 border border-gray-100 dark:border-gray-700 animate-in fade-in slide-in-from-left-2 duration-200"
+        :style="{
+          top: flyoutTop + 'px',
+          left: '80px',
+          minWidth: '200px',
+        }"
+        @mouseenter="hoveredMenu = hoveredMenu" 
+        @mouseleave="handleMouseLeave"
+      >
+        <div class="px-4 py-1.5 border-b border-gray-50 dark:border-gray-700 mb-1">
+          <p class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+            {{ flyoutData?.title }}
+          </p>
+        </div>
+        <div class="max-h-[70vh] overflow-y-auto py-1">
+          <template v-if="flyoutData?.links && flyoutData.links.length > 0">
+            <NuxtLink
+              v-for="link in flyoutData.links"
+              :key="link.to"
+              :to="link.to"
+              class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              @click="hoveredMenu = null"
+            >
+              {{ link.label }}
+            </NuxtLink>
+          </template>
+          <div v-else class="px-4 py-1 text-sm text-gray-500">
+            {{ flyoutData?.title }}
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </aside>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useThemeStore } from "../../stores/theme";
 import { useLoginStore } from "~~/stores/login";
 import VueCollapsible from "vue-height-collapsible/vue3";
@@ -3166,6 +3483,25 @@ import { useRoute } from "vue-router";
 
 const themeStore = useThemeStore();
 const loginStore = useLoginStore();
+
+// État du Flyout pour le mode réduit
+const hoveredMenu = ref<string | null>(null);
+const flyoutTop = ref(0);
+const flyoutData = ref<any>(null);
+
+const handleMouseEnter = (event: MouseEvent, menuId: string, data: any = null) => {
+  if (!themeStore.isSidebarOpen) {
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    flyoutTop.value = rect.top;
+    hoveredMenu.value = menuId;
+    flyoutData.value = data;
+  }
+};
+
+const handleMouseLeave = () => {
+  hoveredMenu.value = null;
+};
+
 const parametreStore = useParametreStore();
 const messageStore = useMessageStore();
 const reclamationStore = useReclamationStore();
@@ -3189,6 +3525,8 @@ const isEtudiant = ref(false);
 const isProfesseur = ref(false);
 const isStagiaire = ref(false);
 const isSimpleUser = ref(false);
+const isSuperAdmin = ref(false);
+const isChargeCommunication = ref(false);
 const isStudentBlocked = computed(() => {
   try {
     const userData = JSON.parse(localStorage.getItem("user") || "{}");
@@ -3256,6 +3594,7 @@ const getPrimaryRole = (): string => {
   if(isSurveillant.value) return "Surveillant";
   if(isResponsableAchats.value) return "Responsable des achats et de la logistique";
   if(isInformaticien.value) return "Informaticien";
+  if(isChargeCommunication.value) return "Chargé de la communication";
   if(isResponsableAchats.value) return "Responsable des achats et de la logistique";
   return "Utilisateur";
 };
@@ -3289,6 +3628,8 @@ const fetchRoles = () => {
       if (slug === "enseignant") isProfesseur.value = true;
       if (slug === "stagiaire-academie") isStagiaire.value = true;
       if (slug === "utilisateur-de-la-plateforme") isSimpleUser.value = true;
+      if (slug === "superadmin") isSuperAdmin.value = true;
+      if (slug === "charge-de-la-communication" || slug === "charge-de-communication" || slug === "responsable-de-la-communication" || slug === "responsable-communication") isChargeCommunication.value = true;
     }
   } catch (error) {
     console.error("Erreur lors du chargement des rôles:", error);
@@ -3335,6 +3676,13 @@ const hasRole = (roleSlug: string): boolean => {
       return isStagiaire.value;
     case "utilisateur-de-la-plateforme":
       return isSimpleUser.value;
+    case "superadmin":
+      return isSuperAdmin.value;
+    case "charge-de-la-communication":
+    case "charge-de-communication":
+    case "responsable-de-la-communication":
+    case "responsable-communication":
+      return isChargeCommunication.value;
     default:
       return false;
   }
@@ -3412,9 +3760,14 @@ const showCommunicationSection = computed(() => {
     hasAnyRole([
       "directeur-general-adjoint",
       "directeur-general",
-      "responsable-marketing",
-      "responsable-des-achats-et-de-la-logistique",
+      "informaticien",
+      "superadmin",
       "admin",
+      "charge-de-la-communication",
+      "charge-de-communication",
+      "responsable-de-la-communication",
+      "responsable-communication",
+      "responsable-marketing",
     ]) || isAdmin.value
   );
 });

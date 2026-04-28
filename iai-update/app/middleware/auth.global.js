@@ -8,7 +8,7 @@ export default defineNuxtRouteMiddleware((to) => {
   const isAuthenticated = authStore.isAuthenticated();
 
   // Routes publiques - toujours accessibles
-  if (publicRoutes.includes(to.path)) {
+  if (publicRoutes.includes(to.path) || to.path.startsWith('/actualites')) {
     // Si l'utilisateur est connecté et essaie d'aller sur login, rediriger
     if (isAuthenticated && authRoutes.includes(to.path)) {
       return navigateTo('/');

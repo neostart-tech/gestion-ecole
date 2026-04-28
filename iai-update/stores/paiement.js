@@ -315,9 +315,32 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
       this.error = null;
       
       try {
-        const response = await axios.post(
-          `/paiements/store`, // Use the correct Laravel route naming if necessary, or just /paiements
-          {
+        const hasFile = paiementData.justificatif instanceof File || paiementData.justificatif instanceof Blob;
+        let payload;
+        let config = { ...this.authHeaders };
+
+        if (hasFile) {
+          payload = new FormData();
+          payload.append('etudiant_id', paiementData.etudiant_id);
+          payload.append('montant', paiementData.montant);
+          payload.append('mode_paiement', paiementData.mode_paiement);
+          payload.append('nature_paiement', paiementData.nature_paiement || 'scolarite');
+          payload.append('frais_retrait_mm', paiementData.frais_retrait || paiementData.frais_retrait_mm || 0);
+          
+          if (paiementData.reference) payload.append('reference', paiementData.reference);
+          if (paiementData.commentaire) payload.append('commentaire', paiementData.commentaire);
+          if (paiementData.payable_id) {
+            payload.append('payable_id', paiementData.payable_id);
+            const type = paiementData.payable_type || (this.infosEtudiant?.type === 'negocie' ? 'echeance' : 'tranche');
+            payload.append('payable_type', type);
+          }
+          
+          payload.append('justificatif', paiementData.justificatif);
+          
+          // Supprimer le Content-Type par défaut pour laisser le navigateur mettre le bon avec le boundary
+          delete config.headers['Content-Type'];
+        } else {
+          payload = {
             etudiant_id: paiementData.etudiant_id,
             montant: paiementData.montant,
             mode_paiement: paiementData.mode_paiement,
@@ -327,8 +350,13 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
             commentaire: paiementData.commentaire || null,
             payable_id: paiementData.payable_id || null,
             payable_type: paiementData.payable_type || (paiementData.payable_id ? (this.infosEtudiant?.type === 'negocie' ? 'echeance' : 'tranche') : null)
-          },
-          this.authHeaders
+          };
+        }
+
+        const response = await axios.post(
+          `/paiements/store`,
+          payload,
+          config
         );
         
         if (response.data.success) {
@@ -344,6 +372,65 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
       } catch (error) {
         this.error = error.response?.data?.message || error.message || "Erreur lors du paiement";
         console.error("Erreur effectuerPaiement:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    /**
+     * Modifier un paiement existant
+     */
+    async modifierPaiement(paiementId, paiementData) {
+      if (!paiementId) throw new Error("ID paiement requis");
+      
+      this.isLoading = true;
+      this.error = null;
+      
+      try {
+        const hasFile = paiementData.justificatif instanceof File || paiementData.justificatif instanceof Blob;
+        let payload;
+        let config = { ...this.authHeaders };
+
+        if (hasFile) {
+          payload = new FormData();
+          if (paiementData.montant) payload.append('montant', paiementData.montant);
+          if (paiementData.mode_paiement) payload.append('mode_paiement', paiementData.mode_paiement);
+          if (paiementData.reference) payload.append('reference', paiementData.reference);
+          if (paiementData.commentaire) payload.append('commentaire', paiementData.commentaire);
+          if (paiementData.frais_retrait_mm !== undefined) payload.append('frais_retrait_mm', paiementData.frais_retrait_mm);
+          payload.append('justificatif', paiementData.justificatif);
+          
+          delete config.headers['Content-Type'];
+        } else {
+          payload = {
+            montant: paiementData.montant,
+            mode_paiement: paiementData.mode_paiement,
+            reference: paiementData.reference,
+            commentaire: paiementData.commentaire,
+            frais_retrait_mm: paiementData.frais_retrait_mm
+          };
+        }
+
+        const response = await axios.post(
+          `/paiements/${paiementId}/update`,
+          payload,
+          config
+        );
+        
+        if (response.data.success) {
+          // Rafraîchir les données de l'étudiant
+          const etudiantId = response.data.paiement.etudiant_id;
+          await Promise.allSettled([
+            this.getInfosEtudiant(etudiantId),
+            this.getHistorique(etudiantId),
+            this.getRecap(etudiantId)
+          ]);
+        }
+        
+        return response.data;
+      } catch (error) {
+        this.error = error.response?.data?.message || error.message || "Erreur lors de la modification";
         throw error;
       } finally {
         this.isLoading = false;
