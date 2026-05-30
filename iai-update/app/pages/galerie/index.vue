@@ -49,8 +49,15 @@
         </div>
       </div>
 
+      <!-- Loader -->
+      <div v-if="galerieStore.isLoading" class="flex justify-center py-16">
+        <div class="relative">
+          <div class="h-16 w-16 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600"></div>
+        </div>
+      </div>
+
       <!-- État vide -->
-      <div v-if="albumsFiltres.length === 0" class="empty-state">
+      <div v-else-if="albumsFiltres.length === 0" class="empty-state">
         <div class="empty-icon">
           <PhotoIcon class="w-7 h-7 text-gray-400 dark:text-gray-500"/>
         </div>
@@ -180,8 +187,15 @@
         </div>
       </div>
 
+      <!-- Loader -->
+      <div v-if="galerieStore.isLoading" class="flex justify-center py-16">
+        <div class="relative">
+          <div class="h-16 w-16 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600"></div>
+        </div>
+      </div>
+
       <!-- Grille photos -->
-      <div v-if="imagesPaginees.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+      <div v-else-if="imagesPaginees.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
         <div
           v-for="image in imagesPaginees"
           :key="image.id"
@@ -222,7 +236,7 @@
       </div>
 
       <!-- Vide -->
-      <div v-if="imagesFiltrees.length === 0" class="empty-state">
+      <div v-else-if="imagesFiltrees.length === 0 && !galerieStore.isLoading" class="empty-state">
         <div class="empty-icon">
           <PhotoIcon class="w-7 h-7 text-gray-400 dark:text-gray-500"/>
         </div>

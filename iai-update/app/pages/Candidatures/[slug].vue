@@ -1,356 +1,332 @@
 <template>
-  <div class="min-h-screen bg-[#f8f9ff] dark:bg-[#09090b] font-sans transition-colors duration-500 text-slate-900 dark:text-slate-100">
+  <div class="min-h-screen bg-[#f3f3f8] dark:bg-[#08080f] font-sans transition-colors duration-500">
     
-    <!-- Top Header -->
-    <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40">
-      <div class="max-w-[1400px] mx-auto px-4 h-16 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <NuxtLink to="/candidatures/etude-dossier" class="p-2 text-slate-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-lg transition-all">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-            </svg>
-          </NuxtLink>
-          <div class="h-6 w-px bg-slate-200 dark:bg-slate-800"></div>
-          <h1 class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-tight truncate max-w-[200px] sm:max-w-none">
-            {{ isPageLoading ? 'Chargement...' : `Dossier : ${candidat?.nom} ${candidat?.prenom}` }}
-          </h1>
-        </div>
+    <!-- Fond d'ambiance violet -->
+    <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+      <div class="absolute top-0 right-0 w-[50vw] h-[50vw] bg-[#7F45FD]/15 dark:bg-[#7F45FD]/25 blur-[120px] rounded-full translate-x-1/3 -translate-y-1/3"></div>
+      <div class="absolute bottom-0 left-0 w-[40vw] h-[40vw] bg-[#7F45FD]/15 dark:bg-[#7F45FD]/25 blur-[100px] rounded-full -translate-x-1/3 translate-y-1/3"></div>
+      <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48ZyBmaWxsPSIjN0Y0NUZEIiBmaWxsLW9wYWNpdHk9IjAuMDgiPjxwYXRoIGQ9Ik0zNiAzNHYtNGgxdjRoLTF6bTAgM3YtMWgxdjFoLTF6bTAgNHYtMWgxdjFoLTF6Ii8+PC9nPjwvZz48L3N2Zz4=')]"></div>
+    </div>
 
-        <div v-if="!isPageLoading && candidat" class="flex items-center gap-3">
-          <span :class="[
-            'px-3 py-1 rounded-lg text-[10px] font-bold uppercase border transition-all duration-500',
-            getStatutTheme(candidat)
-          ]">
-            {{ getStatutLabel(candidat) }}
-          </span>
+    <!-- Header - Élégant avec accent violet -->
+    <header class="sticky top-0 z-40 bg-white/90 dark:bg-[#0a0a12]/90 backdrop-blur-2xl border-b border-[#e8e8f0] dark:border-[#1a1a2a]">
+      <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
+        <div class="h-20 flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <NuxtLink to="/candidatures/etude-dossier" class="group p-2 text-[#8a8a9a] hover:text-[#7F45FD] transition-all duration-300">
+              <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+              </svg>
+            </NuxtLink>
+            <div class="h-5 w-px bg-[#e8e8f0] dark:bg-[#1a1a2a]"></div>
+            <div class="space-y-0.5">
+              <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8a8a9a] dark:text-[#666]">Dossier</p>
+              <h1 class="text-sm font-semibold text-[#1a1a2a] dark:text-[#fafafe]">
+                {{ isPageLoading ? '...' : `${candidat?.nom} ${candidat?.prenom}` }}
+              </h1>
+            </div>
+          </div>
+
+          <div v-if="!isPageLoading && candidat" class="flex items-center gap-4">
+            <span :class="[
+              'px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] rounded-full',
+              getStatutStyle(candidat)
+            ]">
+              {{ getStatutLabel(candidat) }}
+            </span>
+          </div>
         </div>
       </div>
     </header>
 
-    <main class="max-w-[1400px] mx-auto px-4 py-8">
+    <main class="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-10">
       
       <!-- Skeleton -->
-      <div v-if="isPageLoading" class="animate-pulse space-y-6">
-        <div class="h-32 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800"></div>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="lg:col-span-2 h-96 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800"></div>
-          <div class="h-96 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800"></div>
+      <div v-if="isPageLoading" class="animate-pulse space-y-8">
+        <div class="h-48 bg-white/50 dark:bg-[#111]/50 rounded-2xl border border-[#e8e8f0] dark:border-[#1a1a2a]"></div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div class="lg:col-span-2 h-96 bg-white/50 dark:bg-[#111]/50 rounded-2xl border border-[#e8e8f0] dark:border-[#1a1a2a]"></div>
+          <div class="h-96 bg-white/50 dark:bg-[#111]/50 rounded-2xl border border-[#e8e8f0] dark:border-[#1a1a2a]"></div>
         </div>
       </div>
 
       <!-- Main Content -->
-      <div v-else-if="candidat" class="space-y-6 animate-in fade-in duration-700">
+      <div v-else-if="candidat" class="space-y-8 animate-fade-in">
         
-        <!-- Summary Card: Sleek Profile Strip (Borderless Premium) -->
-        <div class="bg-white dark:bg-slate-900 rounded-xl border-t-[3px] border-t-violet-600 flex flex-col lg:flex-row shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden group">
-           
-           <!-- Portrait Area -->
-           <div class="p-8 lg:p-10 shrink-0 bg-slate-50/40 dark:bg-slate-800/20 flex items-center justify-center">
-              <div class="w-28 h-28 lg:w-36 lg:h-36 rounded-xl bg-white dark:bg-slate-800 p-1.5 shadow-[0_4px_20px_rgba(0,0,0,0.05)] relative">
-                <div class="w-full h-full rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                  <img v-if="candidat.album?.photo" :src="getFullUrl(candidat.album.photo)" class="w-full h-full object-cover grayscale-[0.1] group-hover:grayscale-0 transition-all duration-700" />
-                  <div v-else class="text-5xl font-semibold text-slate-200 uppercase">
-                    {{ candidat.nom?.charAt(0) }}
+        <!-- Profile Header - Violet Premium -->
+        <div class="bg-white dark:bg-[#11111e] rounded-2xl border border-[#e8e8f0] dark:border-[#1a1a2a] shadow-[0_8px_30px_rgba(127,69,253,0.06)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] overflow-hidden">
+          <div class="p-8 lg:p-10">
+            <div class="flex flex-col sm:flex-row gap-8 lg:gap-12 items-start">
+              <!-- Portrait - Cadre violet -->
+              <div class="shrink-0">
+                <div class="w-28 h-28 lg:w-36 lg:h-36 bg-white dark:bg-[#1a1a2a] p-1.5 rounded-2xl border-2 border-[#7F45FD]/30 shadow-[0_4px_20px_rgba(127,69,253,0.15)]">
+                  <div class="w-full h-full rounded-xl overflow-hidden bg-[#f5f5ff] dark:bg-[#1a1a2a] relative flex items-center justify-center">
+                    <span class="text-3xl lg:text-5xl font-black text-[#7F45FD]/40">
+                      {{ candidat.nom?.charAt(0) }}{{ candidat.prenom?.charAt(0) }}
+                    </span>
+                    <img v-if="candidat.album?.photo" :src="getFullUrl(candidat.album.photo)" class="absolute inset-0 w-full h-full object-cover z-10 transition-opacity duration-300" @error="$event.target.style.opacity='0'" />
                   </div>
                 </div>
               </div>
-           </div>
 
-           <!-- Content: Identity & Path (Elite Design) -->
-           <div class="flex-1 p-8 lg:p-12 flex flex-col justify-center">
-              <div class="space-y-6">
-                <!-- Dossier Number Badge -->
-                <div class="inline-flex px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full">
-                  <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Dossier #{{ candidat.id }}</span>
-                </div>
-
-                <div class="space-y-1">
-                  <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white uppercase tracking-tighter leading-none">
-                    {{ candidat.nom }}
+              <!-- Identity & Path -->
+              <div class="flex-1 min-w-0 space-y-5 lg:space-y-6">
+                <div class="space-y-2">
+                  <div class="flex items-center gap-3">
+                    <span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8a8a9a] dark:text-[#666]">Dossier</span>
+                    <span class="text-[10px] font-bold text-[#7F45FD]">#{{ formatId(candidat.id) }}</span>
+                  </div>
+                  <h2 class="flex flex-wrap items-center gap-2 lg:gap-3 text-3xl lg:text-4xl font-bold tracking-tight text-[#1a1a2a] dark:text-[#fafafe] leading-[1.15]">
+                    <span class="font-bold">{{ candidat.nom }}</span>
+                    <span class="text-[#7F45FD]">{{ candidat.prenom }}</span>
                   </h2>
-                  <p class="text-3xl lg:text-4xl font-bold text-violet-600 uppercase tracking-tighter leading-none">
-                    {{ candidat.prenom }}
-                  </p>
                 </div>
 
-                <!-- Horizontal Badges Row -->
-                <div class="flex flex-wrap items-center gap-3 pt-2">
-                   <!-- Filiere Pill -->
-                   <div class="px-4 py-2 bg-violet-600 text-white rounded-xl shadow-lg shadow-violet-600/20 flex items-center gap-3">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
-                      <span class="text-[10px] font-semibold uppercase tracking-widest">{{ candidat.filiere?.nom }}</span>
-                   </div>
-                   <!-- Niveau Pill -->
-                   <div class="px-4 py-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center gap-3">
-                      <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
-                      <span class="text-[10px] font-bold uppercase tracking-widest">{{ candidat.niveau?.libelle || candidat.niveau?.nom }}</span>
-                   </div>
-                   <!-- Status Pill -->
-                   <div class="px-4 py-2 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-xl flex items-center gap-3">
-                      <div class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></div>
-                      <span class="text-[10px] font-bold uppercase tracking-widest">{{ getStatutLabel(candidat) }}</span>
-                   </div>
+                <!-- Badges - Violet Theme -->
+                <div class="flex flex-wrap items-center gap-3 pt-1">
+                  <div class="px-5 py-2.5 bg-[#7F45FD]/10 border border-[#7F45FD]/20 text-[#7F45FD] rounded-xl flex items-start gap-2 max-w-full">
+                    <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                    <span class="text-[9px] font-bold uppercase tracking-[0.15em] whitespace-normal leading-relaxed">{{ getFiliereName }}</span>
+                  </div>
+                  <div class="px-5 py-2.5 bg-white dark:bg-[#1a1a2a] border border-[#e8e8f0] dark:border-[#2a2a3a] text-[#8a8a9a] dark:text-[#888] rounded-xl flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#7F45FD]"></span>
+                    <span class="text-[9px] font-bold uppercase tracking-[0.15em]">{{ getNiveauName }}</span>
+                  </div>
                 </div>
               </div>
-           </div>
+            </div>
 
-           <!-- Right Actions Bar: Decision Center -->
-           <div class="w-full lg:w-[400px] p-8 lg:p-10 bg-slate-50/40 dark:bg-slate-800/10 flex flex-col justify-center gap-5">
-              <template v-if="!candidat.dossier_valide">
-                <!-- Primary Action -->
-                <button @click="handleAction('valider')" class="w-full py-5 bg-violet-600 hover:bg-violet-700 text-white font-semibold text-xs uppercase tracking-[.2em] rounded-xl shadow-lg shadow-violet-600/20 transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+            <!-- Action Panel - Bottom Bar -->
+            <div class="mt-8 lg:mt-10 pt-6 lg:pt-8 border-t border-[#e8e8f0] dark:border-[#1a1a2a]">
+              
+              <div v-if="!candidat.dossier_valide && !candidat.motif && !candidat.rectification_expected" class="flex flex-wrap items-center gap-3">
+                <button @click="handleAction('valider')" class="px-8 py-3.5 bg-[#7F45FD] hover:bg-[#6a35e8] text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_25px_rgba(127,69,253,0.3)] flex items-center justify-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                   Valider le dossier
                 </button>
+                <button @click="handleAction('rectifier')" class="px-6 py-3.5 bg-[#F59E0B] hover:bg-[#D97706] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(245,158,11,0.3)]">Corriger</button>
+                <button @click="handleAction('reorienter')" class="px-6 py-3.5 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(59,130,246,0.3)]">Réorienter</button>
+                <button @click="handleAction('rejeter')" class="px-6 py-3.5 bg-[#ff4757] hover:bg-[#e84118] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(255,71,87,0.3)]">Rejeter</button>
+              </div>
 
-                <!-- Secondary Actions Grid (3 Columns) -->
-                <div class="grid grid-cols-3 gap-3">
-                  <button @click="handleAction('rectifier')" class="py-4 bg-white dark:bg-slate-800 text-amber-600 font-bold text-[9px] uppercase tracking-widest rounded-xl hover:bg-amber-500 hover:text-white transition-all shadow-sm">
-                    Rectifier
-                  </button>
-                  <button @click="handleAction('reorienter')" class="py-4 bg-white dark:bg-slate-800 text-indigo-600 font-bold text-[9px] uppercase tracking-widest rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
-                    Réorienter
-                  </button>
-                  <button @click="handleAction('rejeter')" class="py-4 bg-white dark:bg-slate-800 text-rose-600 font-bold text-[9px] uppercase tracking-widest rounded-xl hover:bg-rose-600 hover:text-white transition-all shadow-sm">
-                    Rejeter
-                  </button>
+              <div v-else-if="candidat.dossier_valide" class="flex items-center gap-4 py-3 px-6 bg-[#7F45FD]/10 border border-[#7F45FD]/20 rounded-xl">
+                <div class="flex items-center gap-2">
+                  <svg class="w-5 h-5 text-[#7F45FD]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                  <p class="text-[#7F45FD] text-sm font-bold">Dossier validé</p>
                 </div>
-              </template>
-              <template v-else>
-                 <div class="flex items-center gap-5 bg-emerald-600 text-white p-6 rounded-2xl shadow-xl shadow-emerald-600/20">
-                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center ring-4 ring-white/10 shrink-0">
-                       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-                    </div>
-                    <div>
-                       <p class="text-[10px] font-semibold uppercase tracking-widest opacity-80 leading-none mb-1.5">Dossier Validé</p>
-                       <NuxtLink v-if="!candidat.etudiant_id" :to="`/candidatures/inscription/${candidat.slug}`" class="text-xs font-semibold text-white hover:underline uppercase tracking-tight flex items-center gap-1.5">Finaliser l'inscription →</NuxtLink>
-                    </div>
-                 </div>
-              </template>
-           </div>
+                <NuxtLink v-if="!candidat.etudiant_id" :to="`/candidatures/inscription/${candidat.slug}`" class="text-[11px] text-[#7F45FD]/70 hover:text-[#7F45FD] underline ml-2">Finaliser l'inscription →</NuxtLink>
+              </div>
+
+              <div v-else-if="candidat.rectification_expected" class="py-3 px-6 bg-[#FFB347]/10 border border-[#FFB347]/20 rounded-xl">
+                <p class="text-[#FFB347] text-sm font-bold">✎ Correction demandée</p>
+              </div>
+
+              <div v-else-if="candidat.motif" class="py-3 px-6 bg-[#ff4757]/10 border border-[#ff4757]/20 rounded-xl">
+                <p class="text-[#ff4757] text-sm font-bold">✕ Dossier rejeté</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="space-y-8 items-start pt-4">
+        <!-- Observations -->
+        <div v-if="candidat.motif" class="bg-[#FFF4F4] dark:bg-[#1a0a0a] border-l-4 border-l-[#ff4757] rounded-xl p-6">
+          <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#ff4757] mb-2">Observation</p>
+          <p class="text-sm text-[#1a1a2a] dark:text-[#fafafe] italic font-medium">"{{ candidat.motif }}"</p>
+        </div>
+
+        <!-- Content Sections - Accordion Violet -->
+        <div class="space-y-4">
           
-          <!-- Information Tabs (Borderless Premium) -->
-          <div class="w-full space-y-6">
-            <div class="bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-[0_10px_40px_rgb(0,0,0,0.03)] min-h-[400px]">
-               <div class="flex bg-slate-50/30 dark:bg-slate-800/20">
-                 <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id"
-                   class="flex-1 py-6 text-xs font-semibold uppercase tracking-[0.2em] relative transition-all"
-                   :class="activeTab === tab.id ? 'text-violet-600 bg-white dark:bg-slate-900' : 'text-slate-400 hover:text-slate-600'">
-                   {{ tab.label }}
-                   <div v-if="activeTab === tab.id" class="absolute bottom-0 left-0 right-0 h-1.5 bg-violet-600"></div>
-                 </button>
-               </div>
-
-               <div class="p-12">
-                  <!-- Profile -->
-                  <div v-if="activeTab === 'perso'" class="grid grid-cols-1 sm:grid-cols-3 gap-y-12 gap-x-16 animate-in slide-in-from-left-4 duration-500">
-                    <div v-for="item in personalItems" :key="item.label" class="space-y-1.5 min-w-0">
-                      <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.2em]">{{ item.label }}</p>
-                      <p class="text-sm sm:text-base font-semibold text-slate-900 dark:text-slate-100 uppercase break-all sm:break-words">{{ item.value || '—' }}</p>
-                    </div>
-                  </div>
-
-                  <!-- Academic -->
-                  <div v-if="activeTab === 'acad'" class="space-y-12 animate-in slide-in-from-left-4 duration-500">
-                    <div class="grid grid-cols-3 gap-8">
-                       <div class="p-8 bg-violet-50/40 dark:bg-violet-900/10 rounded-2xl shadow-sm">
-                          <p class="text-[10px] font-semibold text-violet-400 mb-3 uppercase tracking-[0.2em]">OBTENTION BAC</p>
-                          <p class="text-4xl font-semibold text-violet-700 dark:text-violet-400 leading-none">{{ candidat.annee_bac || '—' }}</p>
-                       </div>
-                       <div class="p-8 bg-indigo-50/40 dark:bg-indigo-900/10 rounded-2xl shadow-sm">
-                          <p class="text-[10px] font-semibold text-indigo-400 mb-3 uppercase tracking-[0.2em]">SÉRIE BAC</p>
-                          <p class="text-4xl font-semibold text-indigo-700 dark:text-indigo-400 leading-none">{{ candidat.serie || '—' }}</p>
-                       </div>
-                    </div>
-                    
-                    <div class="pt-12 border-t border-slate-50 dark:border-slate-800/60">
-                       <h3 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-900 dark:text-white mb-8">Lettre de Motivation</h3>
-                       <p class="text-base text-slate-600 dark:text-slate-400 leading-relaxed font-semibold italic bg-slate-50/40 dark:bg-slate-800/40 p-10 rounded-2xl">
-                          " {{ candidat.lettre_motivation || 'Aucune lettre de motivation annexée à ce dossier.' }} "
-                       </p>
-                    </div>
-                  </div>
-
-                  <!-- Contacts -->
-                  <div v-if="activeTab === 'parents'" class="animate-in slide-in-from-left-4 duration-500">
-                    <div v-if="!candidat.responsable && !candidat.tuteur" class="py-24 text-center space-y-6">
-                       <div class="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-300 ring-8 ring-slate-100/50 dark:ring-slate-800/30">
-                          <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                       </div>
-                       <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest leading-loose max-w-sm mx-auto">Ces informations sont manquantes ou n'ont pas été renseignées lors de l'inscription.</p>
-                    </div>
-                    <div v-else class="space-y-20">
-                      <div v-if="candidat.responsable" class="grid grid-cols-1 sm:grid-cols-3 gap-y-12 gap-x-12">
-                         <div class="col-span-full flex items-center gap-6">
-                            <div class="h-px flex-1 bg-slate-100 dark:bg-slate-800"></div>
-                            <span class="text-[10px] font-semibold uppercase text-violet-600 tracking-[0.4em]">Le Responsable</span>
-                            <div class="h-px flex-1 bg-slate-100 dark:bg-slate-800"></div>
-                         </div>
-                         <div v-for="item in responsableItems" :key="item.label" class="space-y-1.5 min-w-0">
-                           <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">{{ item.label }}</p>
-                           <p class="text-sm sm:text-base font-semibold text-slate-900 dark:text-slate-100 uppercase break-words">{{ item.value || '—' }}</p>
-                         </div>
-                      </div>
-                      <div v-if="candidat.tuteur" class="grid grid-cols-1 sm:grid-cols-3 gap-y-12 gap-x-12">
-                         <div class="col-span-full flex items-center gap-6">
-                            <div class="h-px flex-1 bg-slate-100 dark:bg-slate-800"></div>
-                            <span class="text-[10px] font-semibold uppercase text-indigo-600 tracking-[0.4em]">Le Tuteur</span>
-                            <div class="h-px flex-1 bg-slate-100 dark:bg-slate-800"></div>
-                         </div>
-                         <div v-for="item in tuteurItems" :key="item.label" class="space-y-1.5 min-w-0">
-                           <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">{{ item.label }}</p>
-                           <p class="text-sm sm:text-base font-semibold text-slate-900 dark:text-slate-100 uppercase break-words">{{ item.value || '—' }}</p>
-                         </div>
-                      </div>
-                    </div>
-                  </div>
-               </div>
+          <!-- Section: Profil Civil -->
+          <div class="bg-white dark:bg-[#11111e] rounded-2xl border border-[#e8e8f0] dark:border-[#1a1a2a] shadow-[0_4px_20px_rgba(0,0,0,0.04)] overflow-hidden">
+            <button @click="activeTab = activeTab === 'perso' ? '' : 'perso'" class="w-full px-8 py-5 flex items-center justify-between hover:bg-[#fafafe]/50 dark:hover:bg-[#1a1a2a]/50 transition-colors">
+              <div class="flex items-center gap-4">
+                <div class="w-1 h-6 bg-[#7F45FD] rounded-full"></div>
+                <h3 class="text-sm font-bold text-[#1a1a2a] dark:text-[#fafafe] tracking-tight">Profil Civil</h3>
+              </div>
+              <svg :class="{'rotate-180': activeTab === 'perso'}" class="w-4 h-4 text-[#8a8a9a] transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div v-show="activeTab === 'perso'" class="px-8 pb-8 pt-2 border-t border-[#e8e8f0] dark:border-[#1a1a2a]">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-8 gap-x-12">
+                <div v-for="item in personalItems" :key="item.label" class="space-y-1.5">
+                  <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-[#8a8a9a] dark:text-[#666]">{{ item.label }}</p>
+                  <p class="text-sm font-medium text-[#1a1a2a] dark:text-[#fafafe]">{{ item.value || '—' }}</p>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Documents Section (Scaling Up) -->
-          <div class="w-full space-y-8 pb-20">
-             
-             <!-- Motif/Observations (Larger Alert) -->
-             <div v-if="candidat.motif" class="p-8 bg-amber-50 dark:bg-amber-950/20 rounded-2xl border-l-[6px] border-amber-500 shadow-sm flex items-start gap-8">
-                <div class="w-16 h-16 bg-amber-100 dark:bg-amber-900/50 rounded-2xl flex items-center justify-center text-amber-600 shrink-0 shadow-inner">
-                  <svg class="w-8 h-8 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          <!-- Section: Parcours Académique -->
+          <div class="bg-white dark:bg-[#11111e] rounded-2xl border border-[#e8e8f0] dark:border-[#1a1a2a] shadow-[0_4px_20px_rgba(0,0,0,0.04)] overflow-hidden">
+            <button @click="activeTab = activeTab === 'academique' ? '' : 'academique'" class="w-full px-8 py-5 flex items-center justify-between hover:bg-[#fafafe]/50 dark:hover:bg-[#1a1a2a]/50 transition-colors">
+              <div class="flex items-center gap-4">
+                <div class="w-1 h-6 bg-[#7F45FD] rounded-full"></div>
+                <h3 class="text-sm font-bold text-[#1a1a2a] dark:text-[#fafafe] tracking-tight">Parcours Académique</h3>
+              </div>
+              <svg :class="{'rotate-180': activeTab === 'academique'}" class="w-4 h-4 text-[#8a8a9a] transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div v-show="activeTab === 'academique'" class="px-8 pb-8 pt-2 border-t border-[#e8e8f0] dark:border-[#1a1a2a]">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                <div class="p-6 bg-[#fafafe] dark:bg-[#0a0a12] rounded-xl border border-[#e8e8f0] dark:border-[#2a2a3a]">
+                  <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-[#8a8a9a] dark:text-[#666] mb-1">Année du BAC</p>
+                  <p class="text-3xl font-bold text-[#1a1a2a] dark:text-[#fafafe]">{{ candidat.annee_bac || '—' }}</p>
                 </div>
-                <div class="space-y-2">
-                   <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-amber-700 opacity-70">Observations de l'administration</p>
-                   <p class="text-sm lg:text-base text-slate-800 dark:text-slate-200 font-semibold italic leading-relaxed">" {{ candidat.motif }} "</p>
+                <div class="p-6 bg-[#fafafe] dark:bg-[#0a0a12] rounded-xl border border-[#e8e8f0] dark:border-[#2a2a3a]">
+                  <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-[#8a8a9a] dark:text-[#666] mb-1">Série</p>
+                  <p class="text-3xl font-bold text-[#1a1a2a] dark:text-[#fafafe]">{{ candidat.serie || '—' }}</p>
                 </div>
-             </div>
+              </div>
+              
+              <div class="pt-6 border-t border-[#e8e8f0] dark:border-[#1a1a2a]">
+                <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-[#8a8a9a] dark:text-[#666] mb-3">Lettre de motivation</p>
+                <div class="p-6 bg-[#fafafe] dark:bg-[#0a0a12] rounded-xl border border-[#e8e8f0] dark:border-[#2a2a3a]">
+                  <p class="text-sm text-[#1a1a2a] dark:text-[#fafafe] italic font-medium leading-relaxed">
+                    " {{ candidat.lettre_motivation || 'Aucune lettre de motivation fournie.' }} "
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-             <!-- Documents Grid (Clean & Professional) -->
-             <div class="bg-slate-50/50 dark:bg-slate-800/10 rounded-[2rem] p-10 lg:p-14 shadow-sm">
-                <div class="flex items-center justify-between mb-10">
-                   <h3 class="text-sm font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200 flex items-center gap-4">
-                      <span class="w-2 h-8 bg-violet-600 rounded-full"></span>
-                      Dossier de candidature
-                   </h3>
-                   <div class="hidden sm:flex items-center gap-3 px-5 py-2 bg-emerald-100/50 dark:bg-emerald-950/20 rounded-full">
-                      <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                      <span class="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Dossier Certifié</span>
-                   </div>
+          <!-- Section: Garanties -->
+          <div class="bg-white dark:bg-[#11111e] rounded-2xl border border-[#e8e8f0] dark:border-[#1a1a2a] shadow-[0_4px_20px_rgba(0,0,0,0.04)] overflow-hidden">
+            <button @click="activeTab = activeTab === 'garanties' ? '' : 'garanties'" class="w-full px-8 py-5 flex items-center justify-between hover:bg-[#fafafe]/50 dark:hover:bg-[#1a1a2a]/50 transition-colors">
+              <div class="flex items-center gap-4">
+                <div class="w-1 h-6 bg-[#7F45FD] rounded-full"></div>
+                <h3 class="text-sm font-bold text-[#1a1a2a] dark:text-[#fafafe] tracking-tight">Garanties & Parents</h3>
+              </div>
+              <svg :class="{'rotate-180': activeTab === 'garanties'}" class="w-4 h-4 text-[#8a8a9a] transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div v-show="activeTab === 'garanties'" class="px-8 pb-8 pt-2 border-t border-[#e8e8f0] dark:border-[#1a1a2a]">
+              <div v-if="!hasResponsable && !hasTuteur" class="py-12 text-center">
+                <p class="text-sm text-[#8a8a9a]">Aucune information renseignée</p>
+              </div>
+              <div v-else class="space-y-10">
+                <div v-if="hasResponsable" class="space-y-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-1 h-4 bg-[#7F45FD] rounded-full"></div>
+                    <h4 class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7F45FD]">Responsable Légal</h4>
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-8">
+                    <div v-for="item in responsableItems" :key="item.label" class="space-y-1">
+                      <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-[#8a8a9a] dark:text-[#666]">{{ item.label }}</p>
+                      <p class="text-sm font-medium text-[#1a1a2a] dark:text-[#fafafe]">{{ item.value || '—' }}</p>
+                    </div>
+                  </div>
                 </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8">
-                   <CandidatDocEntry label="Photo d'Identité" :path="candidat.album?.photo" />
-                   <CandidatDocEntry label="Extrait de Naissance" :path="candidat.album?.naissance" />
-                   <CandidatDocEntry label="Certificat Nationalité" :path="candidat.album?.nationalite" />
-                   <CandidatDocEntry label="Attestation de Réussite" :path="candidat.album?.diplome" />
-                   <CandidatDocEntry label="Relevé 1ère" :path="candidat.album?.releve_bac1_path" />
-                   <CandidatDocEntry v-if="candidat.album?.releve_bac2_path" label="Relevé Terminale" :path="candidat.album.releve_bac2_path" />
-                   <CandidatDocEntry label="Visite Médicale" :path="candidat.album?.certificat_medical" />
-                   <CandidatDocEntry label="Lettre d'Engagement" :path="candidat.album?.lettre" />
+                <div v-if="hasTuteur" class="space-y-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-1 h-4 bg-[#8a8a9a] rounded-full"></div>
+                    <h4 class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8a8a9a]">Tuteur en ville</h4>
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-8">
+                    <div v-for="item in tuteurItems" :key="item.label" class="space-y-1">
+                      <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-[#8a8a9a] dark:text-[#666]">{{ item.label }}</p>
+                      <p class="text-sm font-medium text-[#1a1a2a] dark:text-[#fafafe]">{{ item.value || '—' }}</p>
+                    </div>
+                  </div>
                 </div>
+              </div>
+            </div>
+          </div>
 
-                <!-- Scolarité (Ultra-Sleek Design) -->
-                <div v-if="parsedBulletins" class="mt-24 space-y-20">
-                   <div v-for="(paths, niv) in parsedBulletins" :key="niv" class="relative group/level">
-                      <!-- Level Sidebar Indicator -->
-                      <div class="absolute -left-12 top-0 bottom-0 w-px bg-slate-100 dark:bg-slate-800 hidden xl:block">
-                         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white dark:bg-slate-900 border-2 border-violet-600 shadow-[0_0_10px_rgba(124,58,237,0.3)]"></div>
-                      </div>
+          <!-- Section: Documents -->
+          <div class="bg-white dark:bg-[#11111e] rounded-2xl border border-[#e8e8f0] dark:border-[#1a1a2a] shadow-[0_4px_20px_rgba(0,0,0,0.04)] overflow-hidden">
+            <button @click="activeTab = activeTab === 'documents' ? '' : 'documents'" class="w-full px-8 py-5 flex items-center justify-between hover:bg-[#fafafe]/50 dark:hover:bg-[#1a1a2a]/50 transition-colors">
+              <div class="flex items-center gap-4">
+                <div class="w-1 h-6 bg-[#7F45FD] rounded-full"></div>
+                <h3 class="text-sm font-bold text-[#1a1a2a] dark:text-[#fafafe] tracking-tight">Pièces Jointes</h3>
+              </div>
+              <svg :class="{'rotate-180': activeTab === 'documents'}" class="w-4 h-4 text-[#8a8a9a] transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div v-show="activeTab === 'documents'" class="px-8 pb-8 pt-2 border-t border-[#e8e8f0] dark:border-[#1a1a2a]">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <CandidatDocEntry label="Photo d'Identité" :path="candidat.album?.photo" />
+                <CandidatDocEntry label="Extrait de Naissance" :path="candidat.album?.naissance" />
+                <CandidatDocEntry label="Certificat Nationalité" :path="candidat.album?.nationalite" />
+                <CandidatDocEntry label="Attestation de Réussite" :path="candidat.album?.diplome" />
+                <CandidatDocEntry label="Relevé 1ère" :path="candidat.album?.releve_bac1_path" />
+                <CandidatDocEntry v-if="candidat.album?.releve_bac2_path" label="Relevé Terminale" :path="candidat.album.releve_bac2_path" />
+                <CandidatDocEntry label="Visite Médicale" :path="candidat.album?.certificat_medical" />
+                <CandidatDocEntry label="Lettre d'Engagement" :path="candidat.album?.lettre" />
+              </div>
 
-                      <div class="flex flex-col gap-10">
-                         <!-- Header: Minimalist & High-End -->
-                         <div class="flex items-center gap-6">
-                            <div class="flex flex-col">
-                               <h3 class="text-xs font-semibold text-violet-600 uppercase tracking-[.4em] mb-1">Scolarité Antérieure</h3>
-                               <p class="text-2xl font-bold text-slate-900 dark:text-white uppercase tracking-tighter">{{ niv }}</p>
-                            </div>
-                            <div class="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent dark:from-slate-800 dark:to-transparent"></div>
-                         </div>
-
-                         <!-- Grid or High-End Empty State -->
-                         <div v-if="paths && Object.keys(paths).length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-                            <CandidatDocEntry v-for="(p, i) in paths" :key="i" :label="`Bulletin Trimestre ${i+1}`" :path="p" />
-                         </div>
-                         <div v-else class="p-12 rounded-[2rem] bg-slate-50/50 dark:bg-white/5 border-none flex flex-col items-center justify-center text-center gap-4 group/empty">
-                            <div class="w-14 h-14 rounded-full bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-slate-300 group-hover/empty:text-violet-400 transition-colors">
-                               <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                            </div>
-                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-loose">Aucun document numérique<br/>n'a été transmis pour ce niveau</p>
-                         </div>
-                      </div>
-                   </div>
+              <div v-if="parsedBulletins" class="mt-10 pt-8 border-t border-[#e8e8f0] dark:border-[#1a1a2a] space-y-8">
+                <div v-for="(paths, niv) in parsedBulletins" :key="niv" class="space-y-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-1 h-4 bg-[#7F45FD] rounded-full"></div>
+                    <h4 class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8a8a9a]">{{ niv }}</h4>
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <CandidatDocEntry v-for="(p, i) in paths" :key="i" :label="`Bulletin T${i+1}`" :path="p" />
+                  </div>
                 </div>
-             </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </main>
 
-    <!-- Headless UI Modals -->
+    <!-- Modal - Violet Premium -->
     <TransitionRoot appear :show="isModalOpen" as="template">
       <Dialog as="div" @close="closeModal" class="relative z-50">
         <TransitionChild as="template" enter="duration-300 ease-out" enter-from="opacity-0" enter-to="opacity-100" leave="duration-200 ease-in" leave-from="opacity-100" leave-to="opacity-0">
-          <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm" />
+          <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" />
         </TransitionChild>
 
         <div class="fixed inset-0 overflow-y-auto">
-          <div class="flex min-h-full items-center justify-center p-4 text-center">
+          <div class="flex min-h-full items-center justify-center p-4">
             <TransitionChild as="template" enter="duration-300 ease-out" enter-from="opacity-0 scale-95" enter-to="opacity-100 scale-100" leave="duration-200 ease-in" leave-from="opacity-100 scale-100" leave-to="opacity-0 scale-95">
-              <DialogPanel class="w-full max-w-lg transform overflow-hidden rounded-3xl bg-white dark:bg-slate-900 p-10 text-left align-middle shadow-2xl transition-all border border-slate-100 dark:border-slate-800">
+              <DialogPanel class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-[#11111e] border border-[#e8e8f0] dark:border-[#1a1a2a] p-8 text-left align-middle shadow-2xl">
                 
-                <div v-if="modalAction === 'reorienter'" class="space-y-8">
-                  <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-600/20">
-                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                <div v-if="modalAction === 'reorienter'" class="space-y-6">
+                  <div class="flex items-center gap-4 border-b border-[#e8e8f0] dark:border-[#1a1a2a] pb-4">
+                    <div class="w-10 h-10 rounded-xl bg-[#7F45FD]/10 border border-[#7F45FD]/20 flex items-center justify-center text-[#7F45FD]">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-[#1a1a2a] dark:text-[#fafafe]">Réorientation</h3>
+                  </div>
+
+                  <div class="space-y-4">
+                    <div>
+                      <label class="text-[9px] font-bold uppercase tracking-[0.2em] text-[#8a8a9a] dark:text-[#666] block mb-2">Filière</label>
+                      <Select v-model="reorientForm.filiere_id" :options="filiereStore.filieres" optionLabel="nom" optionValue="id" placeholder="Choisir une filière" class="w-full" />
                     </div>
                     <div>
-                      <DialogTitle as="h3" class="text-xl font-semibold text-slate-900 dark:text-white uppercase tracking-tighter">Réorientation</DialogTitle>
-                      <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Modification du parcours académique</p>
+                      <label class="text-[9px] font-bold uppercase tracking-[0.2em] text-[#8a8a9a] dark:text-[#666] block mb-2">Niveau</label>
+                      <Select v-model="reorientForm.niveau_id" :options="niveauStore.niveaux" :optionLabel="(opt) => opt.nom || opt.libelle" optionValue="id" placeholder="Choisir un niveau" class="w-full" />
                     </div>
                   </div>
 
-                  <div class="space-y-6">
-                    <div class="space-y-3">
-                       <label class="text-[9px] font-semibold text-slate-400 uppercase tracking-widest pl-1">Nouvelle Filière</label>
-                       <Select v-model="reorientForm.filiere_id" :options="filiereStore.filieres" optionLabel="nom" optionValue="id" placeholder="Choisir une filière" filter class="w-full prime-select-custom" />
-                    </div>
-                    <div class="space-y-3">
-                       <label class="text-[9px] font-semibold text-slate-400 uppercase tracking-widest pl-1">Niveau d'entrée</label>
-                       <Select v-model="reorientForm.niveau_id" :options="niveauStore.niveaux" :optionLabel="(opt) => opt.nom || opt.libelle" optionValue="id" placeholder="Choisir un niveau" filter class="w-full prime-select-custom" />
-                    </div>
-                  </div>
-
-                  <div class="flex gap-4 pt-4">
-                    <button @click="closeModal" class="flex-1 py-4 text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Annuler</button>
-                    <button @click="confirmReorientation" :disabled="isSubmitting" class="flex-[2] py-4 bg-indigo-600 text-white text-[10px] font-semibold uppercase tracking-widest rounded-2xl shadow-lg shadow-indigo-600/20 active:scale-95 disabled:opacity-50">
-                       {{ isSubmitting ? 'Mise à jour...' : 'Réorienter le candidat' }}
+                  <div class="flex gap-3 pt-4 border-t border-[#e8e8f0] dark:border-[#1a1a2a]">
+                    <button @click="closeModal" class="flex-1 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#8a8a9a] hover:text-[#1a1a2a] dark:hover:text-[#fafafe] transition-colors">Annuler</button>
+                    <button @click="confirmReorientation" :disabled="isSubmitting" class="flex-1 py-3 bg-[#7F45FD] text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl hover:bg-[#6a35e8] disabled:opacity-50 transition-all hover:shadow-[0_4px_15px_rgba(127,69,253,0.3)]">
+                      {{ isSubmitting ? '...' : 'Confirmer' }}
                     </button>
                   </div>
                 </div>
 
-                <div v-else class="space-y-8">
-                  <div class="flex items-center gap-4">
-                    <div :class="modalAction === 'rejeter' ? 'bg-rose-600 shadow-rose-600/20' : 'bg-amber-500 shadow-amber-500/20'" class="w-12 h-12 text-white rounded-2xl flex items-center justify-center shadow-lg">
-                      <svg v-if="modalAction === 'rejeter'" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                      <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                <div v-else class="space-y-6">
+                  <div class="flex items-center gap-4 border-b border-[#e8e8f0] dark:border-[#1a1a2a] pb-4">
+                    <div :class="modalAction === 'rejeter' ? 'bg-[#ff4757]/10 border-[#ff4757]/20 text-[#ff4757]' : 'bg-[#FFB347]/10 border-[#FFB347]/20 text-[#FFB347]'" class="w-10 h-10 rounded-xl border flex items-center justify-center">
+                      <svg v-if="modalAction === 'rejeter'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                      <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                     </div>
-                    <div>
-                      <DialogTitle as="h3" class="text-xl font-semibold text-slate-900 dark:text-white uppercase tracking-tighter">{{ modalTitle }}</DialogTitle>
-                      <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Action administrative requise</p>
-                    </div>
+                    <h3 class="text-lg font-bold text-[#1a1a2a] dark:text-[#fafafe]">{{ modalTitle }}</h3>
                   </div>
 
-                  <div class="space-y-2">
-                     <label class="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">Motif de la décision</label>
-                     <textarea v-model="actionMotif" rows="5" class="w-full p-5 bg-slate-50 dark:bg-slate-800 rounded-3xl border-none font-bold text-sm outline-none focus:ring-2 transition-all" :class="modalAction === 'rejeter' ? 'focus:ring-rose-600' : 'focus:ring-amber-500'"></textarea>
+                  <div>
+                    <label class="text-[9px] font-bold uppercase tracking-[0.2em] text-[#8a8a9a] dark:text-[#666] block mb-2">Motif</label>
+                    <textarea v-model="actionMotif" rows="4" placeholder="Détaillez le motif ici..." class="w-full p-4 bg-[#fafafe] dark:bg-[#0a0a12] rounded-xl border border-[#e8e8f0] dark:border-[#2a2a3a] focus:border-[#7F45FD] focus:ring-2 focus:ring-[#7F45FD]/20 outline-none text-sm text-[#1a1a2a] dark:text-[#fafafe] placeholder-[#8a8a9a]/50 transition-all resize-none"></textarea>
                   </div>
 
-                  <div class="flex gap-4 pt-4">
-                    <button @click="closeModal" class="flex-1 py-4 text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Annuler</button>
+                  <div class="flex gap-3 pt-4 border-t border-[#e8e8f0] dark:border-[#1a1a2a]">
+                    <button @click="closeModal" class="flex-1 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#8a8a9a] hover:text-[#1a1a2a] dark:hover:text-[#fafafe] transition-colors">Annuler</button>
                     <button @click="confirmAction" :disabled="!actionMotif || isSubmitting" 
-                      :class="modalAction === 'rejeter' ? 'bg-rose-600 shadow-rose-600/20' : 'bg-amber-500 shadow-amber-500/20'"
-                      class="flex-[2] py-4 text-white text-[10px] font-semibold uppercase tracking-widest rounded-2xl shadow-lg active:scale-95 disabled:opacity-50">
-                       {{ isSubmitting ? 'Traitement...' : 'Confirmer l\'action' }}
+                      :class="modalAction === 'rejeter' ? 'bg-[#ff4757] hover:bg-[#e63946]' : 'bg-[#FFB347] hover:bg-[#f0a030]'"
+                      class="flex-1 py-3 text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl disabled:opacity-50 transition-all">
+                      {{ isSubmitting ? '...' : 'Confirmer' }}
                     </button>
                   </div>
                 </div>
@@ -364,7 +340,6 @@
 
   </div>
 </template>
-
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -411,31 +386,76 @@ const tabs = [
   { id: 'parents', label: 'Garanties' },
 ]
 
+const getFiliereName = computed(() => {
+  if (candidat.value?.filiere?.nom) return candidat.value.filiere.nom;
+  const f = filiereStore.filieres?.find(f => f.id === candidat.value?.filiere_id);
+  return f ? f.nom : '—';
+});
+
+const getNiveauName = computed(() => {
+  if (candidat.value?.niveau?.libelle) return candidat.value.niveau.libelle;
+  if (candidat.value?.niveau?.nom) return candidat.value.niveau.nom;
+  const n = niveauStore.niveaux?.find(n => n.id === candidat.value?.niveau_id);
+  return n ? (n.libelle || n.nom) : '—';
+});
+
+const hasResponsable = computed(() => {
+  return candidat.value?.responsable || candidat.value?.nom_resp;
+});
+
+const hasTuteur = computed(() => {
+  return candidat.value?.tuteur || candidat.value?.nom_tuteur;
+});
+
 const personalItems = computed(() => [
   { label: 'Nom complet', value: candidat.value?.nom },
   { label: 'Prénoms', value: candidat.value?.prenom },
-  { label: 'Sexe', value: candidat.value?.genre },
+  { label: 'Nom de jeune fille', value: candidat.value?.nom_jeune_fille },
+  { label: 'Genre', value: candidat.value?.genre },
   { label: 'Date de naissance', value: formatDate(candidat.value?.date_naissance, false) },
   { label: 'Lieu de naissance', value: candidat.value?.lieu_naissance },
   { label: 'Nationalité', value: candidat.value?.nationalite },
-  { label: 'Pays de résidence', value: candidat.value?.pays_residence },
+  { label: 'Numéro de Table', value: candidat.value?.numero_table },
+  { label: 'Boîte Postale', value: candidat.value?.bp },
+  { label: 'Fax', value: candidat.value?.fax },
   { label: 'Email', value: candidat.value?.email },
-  { label: 'Contact habituel', value: candidat.value?.tel },
+  { label: 'Téléphone 1', value: candidat.value?.tel },
+  { label: 'Téléphone 2', value: candidat.value?.tel2 },
+  { label: 'Téléphone 3', value: candidat.value?.tel3 },
+  { label: 'Hobbit / Loisirs', value: candidat.value?.hobbit },
 ])
 
-const responsableItems = computed(() => [
-  { label: 'Parent / Garant', value: `${candidat.value?.responsable?.nom || ''} ${candidat.value?.responsable?.prenom || ''}` },
-  { label: 'Activité', value: candidat.value?.responsable?.profession },
-  { label: 'Téléphone', value: candidat.value?.responsable?.tel },
-  { label: 'Domicile', value: candidat.value?.responsable?.adresse },
-])
+const responsableItems = computed(() => {
+  const resp = candidat.value?.responsable || candidat.value || {};
+  const nom = resp.nom_resp || resp.nom || '';
+  const prenom = resp.prenom_resp || resp.prenom || '';
+  return [
+    { label: 'Nom Complet', value: `${nom} ${prenom}`.trim() },
+    { label: 'Profession', value: resp.profession_resp || resp.profession },
+    { label: 'Employeur', value: resp.employeur_resp || resp.employeur },
+    { label: 'Téléphone', value: resp.tel_resp || resp.tel },
+    { label: 'Email', value: resp.email_resp || resp.email },
+    { label: 'Boîte Postale', value: resp.bp_resp || resp.bp },
+    { label: 'Fax', value: resp.fax_resp || resp.fax },
+    { label: 'Adresse / Domicile', value: resp.adresse_resp || resp.adresse },
+  ]
+})
 
-const tuteurItems = computed(() => [
-  { label: 'Référent en ville', value: `${candidat.value?.tuteur?.nom || ''} ${candidat.value?.tuteur?.prenom || ''}` },
-  { label: 'Activité', value: candidat.value?.tuteur?.profession },
-  { label: 'Téléphone', value: candidat.value?.tuteur?.tel },
-  { label: 'Domicile', value: candidat.value?.tuteur?.adresse },
-])
+const tuteurItems = computed(() => {
+  const tut = candidat.value?.tuteur || candidat.value || {};
+  const nom = tut.nom_tuteur || tut.nom || '';
+  const prenom = tut.prenom_tuteur || tut.prenom || '';
+  return [
+    { label: 'Nom Complet', value: `${nom} ${prenom}`.trim() },
+    { label: 'Profession', value: tut.profession_tuteur || tut.profession },
+    { label: 'Employeur', value: tut.employeur_tuteur || tut.employeur },
+    { label: 'Téléphone', value: tut.tel_tuteur || tut.tel },
+    { label: 'Email', value: tut.email_tuteur || tut.email },
+    { label: 'Boîte Postale', value: tut.bp_tuteur || tut.bp },
+    { label: 'Fax', value: tut.fax_tuteur || tut.fax },
+    { label: 'Adresse / Domicile', value: tut.adresse_tuteur || tut.adresse },
+  ]
+})
 
 const fetchCandidat = async () => {
     isPageLoading.value = true
@@ -469,11 +489,11 @@ const getStatutLabel = (c) => {
   return 'En Étude'
 }
 
-const getStatutTheme = (c) => {
-  if (c.dossier_valide) return 'bg-emerald-600 text-white border-emerald-700 shadow-sm shadow-emerald-500/20'
-  if (c.rectification_expected) return 'bg-amber-100 text-amber-700 border-amber-300 shadow-sm shadow-amber-500/10'
-  if (c.motif) return 'bg-rose-600 text-white border-rose-700 shadow-sm shadow-rose-500/20'
-  return 'bg-violet-600 text-white border-violet-700 shadow-sm shadow-violet-500/20'
+const getStatutStyle = (c) => {
+  if (c.dossier_valide) return 'border-emerald-600/30 text-emerald-600 bg-emerald-600/5'
+  if (c.rectification_expected) return 'border-amber-600/30 text-amber-600 bg-amber-600/5'
+  if (c.motif) return 'border-rose-600/30 text-rose-600 bg-rose-600/5'
+  return 'border-[#7F45FD]/30 text-[#7F45FD] bg-[#7F45FD]/10'
 }
 
 const parsedBulletins = computed(() => {
@@ -540,26 +560,12 @@ onMounted(() => {
 </script>
 
 <style scoped>
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
 
-:deep(.prime-select-custom) {
-  border-radius: 12px !important;
-  border: 1px solid #e2e8f0 !important;
-  background: #f8fafc !important;
-  padding: 0.25rem 0.5rem !important;
-}
-.dark :deep(.prime-select-custom) {
-  background: #1e293b !important;
-  border-color: #334155 !important;
-}
-:deep(.prime-select-custom .p-select-label) {
-  font-weight: 700 !important;
-  font-size: 0.875rem !important;
-  color: #334155 !important;
-}
-.dark :deep(.prime-select-custom .p-select-label) {
-  color: #f1f5f9 !important;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>

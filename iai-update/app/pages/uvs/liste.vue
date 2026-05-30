@@ -523,6 +523,18 @@
                 <label for="on_label">Coefficient</label>
               </FloatLabel>
 
+              <Dropdown
+                v-model="form.niveau_id"
+                :options="NiveauxOptions"
+                optionLabel="label"
+                optionValue="value"
+                filter
+                showClear
+                placeholder="Sélectionner un niveau"
+                class="w-full"
+                @change="onNiveauChange"
+              />
+
                <Dropdown
                 v-model="form.filiere_id"
                 :options="FilieresOptions"
@@ -542,13 +554,14 @@
               /> -->
 
               <Dropdown
-                v-model="form.semestre_id"
+                v-model="form.periode_id"
                 :options="SemestreOptions"
                 optionLabel="label"
                 optionValue="value"
                 filter
                 showClear
-                placeholder="Sélectionner un semestre"
+                :disabled="!form.niveau_id"
+                :placeholder="form.niveau_id ? 'Sélectionner un semestre' : 'Sélectionnez d\'abord un niveau'"
                 class="w-full"
               />
 
@@ -589,13 +602,18 @@
                   Annuler
                 </button>
 
-                <button
-                  type="submit"
-                  class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
-                >
-                  Enregistrer
-                </button>
-              </div>
+                  <button
+                    type="submit"
+                    :disabled="isSaving"
+                    class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    <svg v-if="isSaving" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    {{ isSaving ? 'Enregistrement...' : 'Enregistrer' }}
+                  </button>
+                </div>
             </form>
           </DialogPanel>
         </div>
@@ -619,6 +637,7 @@ import { useFiliereStore } from "../../../stores/filiere";
 import { useUvStore } from "~~/stores/unite-valeur";
 import { useUserStore } from "~~/stores/user";
 import { usePeriodeStore } from "~~/stores/periode";
+import { useNiveauStore } from "~~/stores/niveau";
 import ButtonDelete from "~/components/ui/buttonDelete.vue";
 
 const { $toastr, $swal } = useNuxtApp();
@@ -626,9 +645,11 @@ const filiereStore = useFiliereStore();
 const uvStore = useUvStore();
 const userStore = useUserStore();
 const periodeStore = usePeriodeStore();
+const niveauStore = useNiveauStore();
 
 const searchQuery = ref("");
 const loading = ref(true);
+const isSaving = ref(false);
 const showModal = ref(false);
 const modalTitle = ref("");
 const itemsPerPage = ref(5);
@@ -643,7 +664,8 @@ const form = ref({
   coefficient: "",
   enseignant_id: [],
   filiere_id: "",
-  semestre_id: "",
+  periode_id: "",
+  niveau_id: "",
 });
 
 const columns = ref([
@@ -654,6 +676,7 @@ const columns = ref([
   // { field: "tp", title: "Traveaux pratiques", visible: true },
   // { field: "ec", title: "Elements constitutifs", visible: true },
   { field: "coefficient", title: "Coefficient", visible: true },
+  { field: "niveau_label", title: "Niveau", visible: true },
   { field: "filiere", title: "Filiere", visible: false },
   { field: "volume_horaire", title: "Volume Horaire", visible: false },
   { field: "semestre", title: "Semestre", visible: false },
@@ -679,7 +702,9 @@ const rows = computed(() =>
     user: f.user ?? null,
     semestre: f.periode.nom ?? null,
     filiere_id: f.filiere?.id ?? null,
-    semestre_id: f.periode?.id ?? null,
+    periode_id: f.periode?.id ?? null,
+    niveau_id: f.niveau?.id ?? null,
+    niveau_label: f.niveau?.libelle ?? "--",
     enseignant_ids: f.user?.map((u) => u.id) ?? [],
   })),
 );
@@ -710,9 +735,31 @@ const openAddModal = () => {
     coefficient: "",
     enseignant_id: [],
     filiere_id: "",
-    semestre_id: "",
+    periode_id: "",
+    niveau_id: "",
   };
+  filteredPeriodes.value = [];
   showModal.value = true;
+};
+
+const filteredPeriodes = ref([]);
+
+const onNiveauChange = async () => {
+  if (form.value.niveau_id) {
+    try {
+      const periodes = await niveauStore.fetchNiveauPeriodes(form.value.niveau_id);
+      filteredPeriodes.value = periodes;
+      // Optionnel : réinitialiser le semestre si l'actuel n'est pas dans la liste
+      if (form.value.periode_id && !periodes.find(p => p.id === form.value.periode_id)) {
+        form.value.periode_id = "";
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  } else {
+    filteredPeriodes.value = [];
+    form.value.periode_id = "";
+  }
 };
 
 const openEditModal = (f) => {
@@ -727,9 +774,14 @@ const openEditModal = (f) => {
     coefficient: f.coefficient,
 
     filiere_id: f.filiere_id,
-    semestre_id: f.periode_id,
+    periode_id: f.periode_id,
+    niveau_id: f.niveau_id,
     enseignant_id: [...f.enseignant_ids],
   };
+
+  if (f.niveau_id) {
+    onNiveauChange();
+  }
 
   showModal.value = true;
 };
@@ -737,6 +789,7 @@ const openEditModal = (f) => {
 const closeModal = () => (showModal.value = false);
 
 const saveMatiere = async () => {
+  isSaving.value = true;
   try {
     form.value.id
       ? await uvStore.updateUv(form.value.slug, form.value)
@@ -747,7 +800,9 @@ const saveMatiere = async () => {
     closeModal();
   } catch (error) {
     console.log(error);
-    $toastr.error(error.response.data.message);
+    $toastr.error(error.response?.data?.message || "Une erreur est survenue");
+  } finally {
+    isSaving.value = false;
   }
 };
 
@@ -766,10 +821,18 @@ const deleteItem = async (uv) => {
   }
 };
 
-const SemestreOptions = computed(() =>
-  periodeStore.periode.map((p) => ({
+const SemestreOptions = computed(() => {
+  const source = filteredPeriodes.value.length > 0 ? filteredPeriodes.value : periodeStore.periode;
+  return source.map((p) => ({
     label: p.nom,
     value: p.id,
+  }));
+});
+
+const NiveauxOptions = computed(() =>
+  niveauStore.niveaux.map((n) => ({
+    label: n.libelle,
+    value: n.id,
   })),
 );
 
@@ -784,6 +847,7 @@ onMounted(async () => {
   await filiereStore.fetchFilieres();
   await uvStore.fetchUv();
   await userStore.fetchUsersEnseignant();
+  await niveauStore.fetchNiveaux();
   await periodeStore.fetchPeriodeByYear();
   loading.value = false;
 });

@@ -123,6 +123,48 @@
 
 			<!-- Données réelles avec animation d'apparition -->
 			<template v-else>
+				<!-- Carte Situation Financière pour l'étudiant -->
+				<div v-if="userRole === 'etudiant' && financialRecap"
+					class="col-span-full bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border-l-4 border-blue-600 mb-6 animate-fade-in"
+				>
+					<div class="flex flex-col md:flex-row justify-between items-center gap-6">
+						<div class="space-y-1">
+							<h3 class="text-lg font-bold text-gray-800 dark:text-white">Votre situation financière</h3>
+							<p class="text-sm text-gray-500">Année scolaire {{ anneeScolaireActive?.nom }}</p>
+						</div>
+						
+						<div class="flex items-center gap-8">
+							<div class="text-center">
+								<p class="text-xs text-gray-400 uppercase font-semibold">Montant Total</p>
+								<p class="text-xl font-bold text-gray-800 dark:text-white">{{ financialRecap.montant_total.toLocaleString() }} FCFA</p>
+							</div>
+							<div class="text-center">
+								<p class="text-xs text-gray-400 uppercase font-semibold text-green-500">Déjà Payé</p>
+								<p class="text-xl font-bold text-green-600">{{ financialRecap.total_paye.toLocaleString() }} FCFA</p>
+							</div>
+							<div class="text-center">
+								<p class="text-xs text-gray-400 uppercase font-semibold text-red-500">Reste à Payer</p>
+								<p class="text-xl font-bold text-red-600">{{ financialRecap.reste_a_payer.toLocaleString() }} FCFA</p>
+							</div>
+						</div>
+
+						<NuxtLink to="/etudiant/mes-paiements" class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
+							Détails & Paiement
+						</NuxtLink>
+					</div>
+
+					<!-- Barre de progression -->
+					<div class="mt-6">
+						<div class="flex justify-between items-center mb-1 text-xs font-semibold">
+							<span class="text-gray-500">Progression du paiement</span>
+							<span class="text-blue-600">{{ financialRecap.pourcentage }}%</span>
+						</div>
+						<div class="w-full h-2.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+							<div class="h-full bg-blue-600 rounded-full transition-all duration-1000" :style="{ width: financialRecap.pourcentage + '%' }"></div>
+						</div>
+					</div>
+				</div>
+
 				<div
 					v-for="(stat, index) in statsCards"
 					:key="stat.title"
@@ -176,361 +218,176 @@
 			</template>
 		</div>
 
-		<!-- Répartition par Cycle et Graphique -->
+		<!-- Grille 1 : Répartition par Cycle & Évolution des inscriptions -->
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 			<!-- Carte Répartition par Cycle -->
-			<div
-				class="relative overflow-hidden bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700"
-			>
-				<div
-					v-if="isLoading"
-					class="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent"
-				></div>
-
+			<div class="relative overflow-hidden bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+				<div v-if="isLoading" class="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent"></div>
 				<div class="flex items-center gap-3 mb-6">
 					<div class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
-						<svg
-							class="w-5 h-5 text-indigo-600 dark:text-indigo-400"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"
-							/>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"
-							/>
+						<svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
 						</svg>
 					</div>
-					<h3 class="font-semibold text-gray-800 dark:text-white text-lg">
-						Répartition par Cycle
-					</h3>
-
-					<!-- Indicateur de progression pour le chargement -->
-					<div v-if="isLoading" class="ml-auto flex items-center gap-2">
-						<div
-							class="w-16 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"
-						>
-							<div
-								class="h-full bg-indigo-600 dark:bg-indigo-400 rounded-full animate-progress"
-							></div>
-						</div>
-						<span class="text-xs text-gray-500 dark:text-gray-400"
-							>Chargement...</span
-						>
-					</div>
+					<h3 class="font-semibold text-gray-800 dark:text-white text-lg">Répartition par Cycle</h3>
 				</div>
 
-				<div
-					v-if="isLoading"
-					class="flex flex-col md:flex-row items-center gap-6"
-				>
-					<!-- Loading avec effet de pulse pour le pie chart -->
-					<div class="w-48 h-48 md:w-56 md:h-56 relative">
-						<div
-							class="w-full h-full rounded-full bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 animate-pulse"
-						></div>
-						<!-- Cercles concentriques pour effet de profondeur -->
-						<div
-							class="absolute inset-2 rounded-full bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 animate-pulse opacity-50"
-						></div>
-						<div
-							class="absolute inset-4 rounded-full bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 animate-pulse opacity-30"
-						></div>
-					</div>
-
-					<!-- Loading avec effet de vague pour la légende -->
-					<div class="flex-1 space-y-4">
-						<div
-							v-for="n in 2"
-							:key="n"
-							class="relative overflow-hidden bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-600/50 p-3 rounded-lg"
-						>
-							<div
-								class="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent"
-							></div>
-							<div class="flex justify-between items-center mb-2">
-								<div class="flex items-center gap-2">
-									<div
-										class="w-3 h-3 bg-gradient-to-r from-gray-300 to-gray-400 dark:from-gray-600 dark:to-gray-500 rounded-full"
-									></div>
-									<div
-										class="h-4 w-16 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded"
-									></div>
-								</div>
-								<div
-									class="h-4 w-12 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded"
-								></div>
-							</div>
-							<div class="flex justify-between items-center">
-								<div
-									class="h-3 w-24 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded"
-								></div>
-								<div
-									class="h-5 w-10 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-full"
-								></div>
-							</div>
-						</div>
-						<div
-							class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700"
-						>
-							<div class="flex justify-between items-center">
-								<div
-									class="h-4 w-12 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded"
-								></div>
-								<div
-									class="h-6 w-20 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded"
-								></div>
-							</div>
-						</div>
+				<div v-if="isLoading" class="flex flex-col md:flex-row items-center gap-6">
+					<div class="w-48 h-48 rounded-full bg-gray-100 dark:bg-gray-700 animate-pulse"></div>
+					<div class="flex-1 space-y-4 w-full">
+						<div v-for="n in 2" :key="n" class="h-12 bg-gray-50 dark:bg-gray-700/50 rounded-lg animate-pulse"></div>
 					</div>
 				</div>
-
-				<!-- Données réelles avec animation d'apparition -->
-				<div
-					v-else
-					class="flex flex-col md:flex-row items-center gap-6 animate-fade-in"
-				>
-					<!-- Pie Chart -->
-					<div
-						class="w-48 h-48 md:w-56 md:h-56 transition-all duration-500 transform hover:scale-105"
-					>
-						<Pie
-							v-if="totalStudents > 0"
-							:data="cycleData"
-							:options="{
-								responsive: true,
-								maintainAspectRatio: true,
-								plugins: {
-									legend: {
-										display: false,
-									},
-									tooltip: {
-										backgroundColor: '#1F2937',
-										titleColor: '#F9FAFB',
-										bodyColor: '#F3F4F6',
-										padding: 12,
-										cornerRadius: 8,
-										callbacks: {
-											label: (context) => {
-												const label = context.label || '';
-												const value = context.raw || 0;
-												const percentage = (
-													(value / totalStudents) *
-													100
-												).toFixed(1);
-												return `${label}: ${value} étudiants (${percentage}%)`;
-											},
-										},
-									},
-								},
-								cutout: '0%',
-							}"
-						/>
-						<div
-							v-else
-							class="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-full"
-						>
-							<p class="text-gray-400 dark:text-gray-500 text-sm">
-								Aucune donnée
-							</p>
+				<div v-else class="flex flex-col md:flex-row items-center gap-6 animate-fade-in">
+					<div class="w-48 h-48 md:w-56 md:h-56">
+						<Pie v-if="totalStudents > 0" :data="cycleData" :options="{ responsive: true, plugins: { legend: { display: false } } }" />
+						<div v-else class="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-full">
+							<p class="text-gray-400 text-sm">Aucune donnée</p>
 						</div>
 					</div>
-
-					<!-- Légende et statistiques -->
-					<div class="flex-1 space-y-4">
-						<div
-							v-for="(cycle, index) in cycles"
-							:key="cycle.name"
-							:class="[
-								'p-3 rounded-lg transition-all duration-300 hover:shadow-md animate-slide-in-right',
-								cycle.bgClass,
-							]"
-							:style="{ animationDelay: index * 100 + 'ms' }"
-						>
+					<div class="flex-1 space-y-4 w-full">
+						<div v-for="(cycle, index) in cycles" :key="cycle.name" :class="['p-3 rounded-lg', cycle.bgClass]">
 							<div class="flex justify-between items-center mb-1">
 								<div class="flex items-center gap-2">
-									<span
-										:class="['w-3 h-3 rounded-full', cycle.dotColor]"
-									></span>
-									<span class="font-medium text-gray-700 dark:text-gray-300">{{
-										cycle.name
-									}}</span>
+									<span :class="['w-3 h-3 rounded-full', cycle.dotColor]"></span>
+									<span class="font-medium text-gray-700 dark:text-gray-300">{{ cycle.name }}</span>
 								</div>
-								<span :class="['text-sm font-semibold', cycle.percentColor]">
-									{{ cycle.percent.toFixed(1) }}%
-								</span>
+								<span :class="['text-sm font-semibold', cycle.percentColor]">{{ cycle.percent.toFixed(1) }}%</span>
 							</div>
-							<div class="flex justify-between items-center text-sm">
-								<span class="text-gray-500 dark:text-gray-400"
-									>{{ cycle.value }} étudiants</span
-								>
-								<span
-									:class="[
-										'text-xs px-2 py-0.5 rounded-full',
-										cycle.badgeClass,
-									]"
-								>
-									{{ cycle.percentage }}%
-								</span>
-							</div>
-						</div>
-
-						<!-- Total -->
-						<div
-							class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 animate-fade-in"
-						>
-							<div class="flex justify-between items-center">
-								<span class="text-sm text-gray-500 dark:text-gray-400"
-									>Total</span
-								>
-								<div class="text-right">
-									<span
-										class="text-lg font-bold text-gray-800 dark:text-white animate-count-up"
-									>
-										{{ totalStudents }}
-									</span>
-									<span class="text-xs text-gray-500 dark:text-gray-400 ml-1"
-										>étudiants</span
-									>
-								</div>
+							<div class="flex justify-between items-center text-sm text-gray-500">
+								<span>{{ cycle.value }} étudiants</span>
+								<span :class="['text-xs px-2 py-0.5 rounded-full', cycle.badgeClass]">{{ cycle.percentage }}%</span>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 
-			<!-- Graphique : Nombre d'étudiants par année scolaire -->
-			<div
-				class="relative overflow-hidden bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700"
-			>
-				<div
-					v-if="isLoading"
-					class="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent"
-				></div>
-
+			<!-- Carte Évolution des inscriptions -->
+			<div class="relative overflow-hidden bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+				<div v-if="isLoading" class="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent"></div>
 				<div class="flex items-center gap-3 mb-6">
 					<div class="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
-						<svg
-							class="w-5 h-5 text-purple-600 dark:text-purple-400"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-							/>
+						<svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
 						</svg>
 					</div>
-					<h3 class="font-semibold text-gray-800 dark:text-white text-lg">
-						Évolution des inscriptions
-					</h3>
+					<h3 class="font-semibold text-gray-800 dark:text-white text-lg">Évolution des inscriptions</h3>
 				</div>
-
 				<div class="h-72">
-					<!-- Loading avec effet de vague -->
-					<template v-if="isLoading">
-						<div
-							class="h-full flex items-end justify-around gap-2 px-4 relative"
-						>
-							<div
-								v-for="n in 5"
-								:key="n"
-								class="relative w-12 bg-gradient-to-t from-purple-200 to-purple-300 dark:from-purple-900/30 dark:to-purple-800/30 rounded-t-lg overflow-hidden"
-								:style="{ height: Math.random() * 60 + 20 + '%' }"
-							>
-								<div
-									class="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/40 dark:via-white/10 to-transparent"
-								></div>
+					<Bar v-if="!isLoading && etudiantsParAnneeData.labels.length > 0" :data="etudiantsParAnneeData" :options="{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }" />
+					<div v-else-if="isLoading" class="h-full flex items-center justify-center">Chargement...</div>
+					<div v-else class="h-full flex items-center justify-center text-gray-400 italic text-sm">Aucune donnée disponible</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Grille 2 : Tendance Assiduité & Top Filières -->
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+			<!-- Tendance de l'assiduité -->
+			<div class="relative overflow-hidden bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+				<div class="flex items-center justify-between mb-6">
+					<div class="flex items-center gap-3">
+						<div class="p-2 bg-green-50 dark:bg-green-900/30 rounded-lg">
+							<svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+							</svg>
+						</div>
+						<h3 class="font-semibold text-gray-800 dark:text-white text-lg">Tendance de l'assiduité</h3>
+					</div>
+					<div class="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full dark:bg-green-900/20">6 derniers mois</div>
+				</div>
+				<div class="h-72">
+					<Line v-if="!isLoading && presenceTrendData.labels.length > 0" :data="presenceTrendData" :options="{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }" />
+					<div v-else-if="isLoading" class="h-full flex items-center justify-center text-gray-400">Chargement...</div>
+					<div v-else class="h-full flex items-center justify-center text-gray-400 italic text-sm">Données insuffisantes</div>
+				</div>
+			</div>
+
+			<!-- Top Filières -->
+			<div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+				<div class="flex items-center gap-3 mb-6">
+					<div class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
+						<svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+						</svg>
+					</div>
+					<h3 class="font-semibold text-gray-800 dark:text-white text-lg">Top Filières</h3>
+				</div>
+				<div class="space-y-4">
+					<div v-if="isLoading" class="space-y-4">
+						<div v-for="n in 5" :key="n" class="h-10 bg-gray-50 dark:bg-gray-700/50 rounded-lg animate-pulse"></div>
+					</div>
+					<template v-else-if="statistiqueStore.stats.topFilieres.length > 0">
+						<div v-for="(filiere, idx) in statistiqueStore.stats.topFilieres" :key="filiere.name" class="flex items-center gap-4">
+							<div class="w-6 h-6 rounded bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-400">{{ idx + 1 }}</div>
+							<div class="flex-1 min-w-0">
+								<p class="text-sm font-medium text-gray-700 dark:text-gray-200 truncate">{{ filiere.name }}</p>
+								<div class="w-full bg-gray-100 dark:bg-gray-700 h-1 rounded-full mt-1 overflow-hidden">
+									<div class="bg-indigo-500 h-full rounded-full" :style="{ width: (filiere.total / statistiqueStore.stats.topFilieres[0].total * 100) + '%' }"></div>
+								</div>
 							</div>
-							<!-- Barres de progression animées -->
-							<div
-								class="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-300 to-indigo-300 dark:from-purple-700 dark:to-indigo-700 animate-pulse"
-							></div>
+							<div class="text-right"><span class="text-sm font-bold text-gray-800 dark:text-white">{{ filiere.total }}</span></div>
 						</div>
 					</template>
+					<div v-else class="text-center py-8 text-gray-400 italic text-sm">Aucune donnée</div>
+				</div>
+			</div>
+		</div>
 
-					<!-- Données réelles -->
-					<template v-else>
-						<Bar
-							v-if="etudiantsParAnneeData.labels.length > 0"
-							:data="etudiantsParAnneeData"
-							:options="{
-								responsive: true,
-								maintainAspectRatio: false,
-								animation: {
-									duration: 1000,
-									easing: 'easeInOutQuart',
-								},
-								plugins: {
-									legend: {
-										display: false,
-									},
-									tooltip: {
-										backgroundColor: '#1F2937',
-										titleColor: '#F9FAFB',
-										bodyColor: '#F3F4F6',
-										padding: 12,
-										cornerRadius: 8,
-										displayColors: false,
-									},
-								},
-								scales: {
-									y: {
-										beginAtZero: true,
-										grid: {
-											color: 'rgba(0, 0, 0, 0.05)',
-										},
-										ticks: {
-											color: '#6B7280',
-											font: { size: 11 },
-										},
-									},
-									x: {
-										grid: { display: false },
-										ticks: {
-											color: '#6B7280',
-											font: { size: 11 },
-										},
-									},
-								},
-							}"
-						/>
-
-						<div
-							v-else
-							class="h-full flex items-center justify-center animate-fade-in"
-						>
-							<div class="text-center">
-								<svg
-									class="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3 animate-bounce"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-									/>
-								</svg>
-								<p class="text-gray-400 dark:text-gray-500 text-sm">
-									Aucune donnée disponible
-								</p>
+		<!-- Grille 3 : Évaluations & Autres -->
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+			<div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+				<div class="flex items-center justify-between mb-6">
+					<div class="flex items-center gap-3">
+						<div class="p-2 bg-amber-50 dark:bg-amber-900/30 rounded-lg">
+							<svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+							</svg>
+						</div>
+						<h3 class="font-bold text-gray-800 dark:text-white text-lg">Activité des Évaluations</h3>
+					</div>
+					<!-- Sélecteur de Période -->
+					<select 
+						v-model="selectedPeriodeId"
+						@change="updateEvalStats"
+						class="text-xs bg-gray-50 dark:bg-gray-900 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 py-1 pl-2 pr-8 text-gray-600 dark:text-gray-400"
+					>
+						<option :value="null">Année entière</option>
+						<option v-for="p in statistiqueStore.stats.periodes" :key="p.id" :value="p.id">
+							{{ p.nom }}
+						</option>
+					</select>
+				</div>
+				<div class="space-y-6">
+					<div class="flex items-center justify-between">
+						<div class="space-y-1">
+							<p class="text-sm text-gray-500">Taux de réussite {{ selectedPeriodeId ? 'périodique' : 'global' }}</p>
+							<p class="text-2xl font-bold text-gray-800 dark:text-white">{{ statistiqueStore.stats.evalStats.reussite }}%</p>
+						</div>
+						<div class="w-20 h-20 relative">
+							<svg class="w-full h-full transform -rotate-90">
+								<circle cx="40" cy="40" r="35" stroke="currentColor" stroke-width="6" fill="transparent" class="text-gray-100 dark:text-gray-700" />
+								<circle cx="40" cy="40" r="35" stroke="currentColor" stroke-width="6" fill="transparent" 
+									:stroke-dasharray="2 * Math.PI * 35" 
+									:stroke-dashoffset="2 * Math.PI * 35 * (1 - statistiqueStore.stats.evalStats.reussite / 100)" 
+									class="text-indigo-600 transition-all duration-1000" stroke-linecap="round" />
+							</svg>
+							<div class="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-indigo-600 px-1 text-center leading-tight">
+								{{ selectedPeriodeName }}
 							</div>
 						</div>
-					</template>
+					</div>
+					<div class="grid grid-cols-2 gap-4">
+						<div class="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+							<p class="text-xs text-gray-500 mb-1 uppercase">Programmés</p>
+							<p class="text-lg font-bold">{{ statistiqueStore.stats.evaluations }}</p>
+						</div>
+						<div class="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+							<p class="text-xs text-gray-500 mb-1 uppercase">Validés</p>
+							<p class="text-lg font-bold">{{ statistiqueStore.stats.evalStats.validees }}</p>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -547,24 +404,56 @@
 	import { useLoginStore } from "~~/stores/login";
 	import axios from "axios";
 	import { Chart, registerables } from "chart.js";
-	import { Bar, Pie } from "vue-chartjs";
+	import { Bar, Pie, Line } from "vue-chartjs";
 
 	Chart.register(...registerables);
 
+	const selectedPeriodeId = ref(null);
+
+	const selectedPeriodeName = computed(() => {
+		if (!selectedPeriodeId.value) return 'Année';
+		const periode = statistiqueStore.stats.periodes.find(p => p.id === selectedPeriodeId.value);
+		return periode ? periode.nom : 'Année';
+	});
+
+	const updateEvalStats = async () => {
+		await statistiqueStore.fetchEvalStats({ periode_id: selectedPeriodeId.value });
+	};
+
 	const isLoading = ref(true);
+	const financialRecap = ref(null);
+	const userRole = ref('');
 	const anneeScolaireStore = useAnneScolaireStore();
 	const loginStore = useLoginStore();
+	const { $api } = useNuxtApp();
 
 	const userData = computed(() => {
 		try {
 			if (process.client) {
-				return JSON.parse(localStorage.getItem("user") || "{}");
+				const user = JSON.parse(localStorage.getItem("user") || "{}");
+				if (user && user.roles && user.roles.length > 0) {
+					userRole.value = user.roles[0].slug;
+				}
+				return user;
 			}
 			return {};
 		} catch {
 			return {};
 		}
 	});
+
+	const fetchFinancialRecap = async () => {
+		if (userRole.value === 'etudiant' && userData.value.id) {
+			try {
+				const response = await $api.get(`/paiements/recap/${userData.value.id}`);
+				if (response.success) {
+					financialRecap.value = response.data;
+				}
+			} catch (error) {
+				console.error('Erreur recap financier:', error);
+			}
+		}
+	};
 
 	const showNationaliteAlert = computed(() => {
 		const user = userData.value;
@@ -611,38 +500,79 @@
 		{
 			title: "Étudiants",
 			value: stats.value.students,
-			borderColor:
-				"border-gray-100 dark:border-gray-700 hover:border-indigo-200 dark:hover:border-indigo-700",
-			hoverColor:
-				"group-hover:text-indigo-600 dark:group-hover:text-indigo-400",
+			borderColor: "border-gray-100 dark:border-gray-700 hover:border-indigo-200 dark:hover:border-indigo-700",
+			hoverColor: "group-hover:text-indigo-600 dark:group-hover:text-indigo-400",
 			bgColor: "bg-indigo-50 dark:bg-indigo-900/30",
-			hoverBgColor:
-				"group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50",
+			hoverBgColor: "group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50",
 			iconColor: "text-indigo-600 dark:text-indigo-400",
 			dotColor: "bg-indigo-400 dark:bg-indigo-500",
 			subtitle: "Total inscrits",
 			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />',
 		},
 		{
+			title: "Enseignants",
+			value: statistiqueStore.stats.enseignants,
+			borderColor: "border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-700",
+			hoverColor: "group-hover:text-blue-600 dark:group-hover:text-blue-400",
+			bgColor: "bg-blue-50 dark:bg-blue-900/30",
+			hoverBgColor: "group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50",
+			iconColor: "text-blue-600 dark:text-blue-400",
+			dotColor: "bg-blue-400 dark:bg-blue-500",
+			subtitle: "Corps professoral",
+			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6m-6 4h10" />',
+		},
+		{
 			title: "Filières",
 			value: filiereStore.nombreFiliere,
-			borderColor:
-				"border-gray-100 dark:border-gray-700 hover:border-emerald-200 dark:hover:border-emerald-700",
-			hoverColor:
-				"group-hover:text-emerald-600 dark:group-hover:text-emerald-400",
+			borderColor: "border-gray-100 dark:border-gray-700 hover:border-emerald-200 dark:hover:border-emerald-700",
+			hoverColor: "group-hover:text-emerald-600 dark:group-hover:text-emerald-400",
 			bgColor: "bg-emerald-50 dark:bg-emerald-900/30",
-			hoverBgColor:
-				"group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50",
+			hoverBgColor: "group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50",
 			iconColor: "text-emerald-600 dark:text-emerald-400",
 			dotColor: "bg-emerald-400 dark:bg-emerald-500",
 			subtitle: "Programmes actifs",
 			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />',
 		},
 		{
-			title: "Salles utilisées",
+			title: "Taux Présence",
+			value: statistiqueStore.stats.presenceTaux + "%",
+			borderColor: "border-gray-100 dark:border-gray-700 hover:border-green-200 dark:hover:border-green-700",
+			hoverColor: "group-hover:text-green-600 dark:group-hover:text-green-400",
+			bgColor: "bg-green-50 dark:bg-green-900/30",
+			hoverBgColor: "group-hover:bg-green-100 dark:group-hover:bg-green-900/50",
+			iconColor: "text-green-600 dark:text-green-400",
+			dotColor: "bg-green-400 dark:bg-green-500",
+			subtitle: "Moyenne globale",
+			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />',
+		},
+		{
+			title: "Évaluations",
+			value: statistiqueStore.stats.evaluations,
+			borderColor: "border-gray-100 dark:border-gray-700 hover:border-purple-200 dark:hover:border-purple-700",
+			hoverColor: "group-hover:text-purple-600 dark:group-hover:text-purple-400",
+			bgColor: "bg-purple-50 dark:bg-purple-900/30",
+			hoverBgColor: "group-hover:bg-purple-100 dark:group-hover:bg-purple-900/50",
+			iconColor: "text-purple-600 dark:text-purple-400",
+			dotColor: "bg-purple-400 dark:bg-purple-500",
+			subtitle: "Examens programmés",
+			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />',
+		},
+		{
+			title: "Candidatures",
+			value: statistiqueStore.stats.candidaturesEnAttente,
+			borderColor: "border-gray-100 dark:border-gray-700 hover:border-orange-200 dark:hover:border-orange-700",
+			hoverColor: "group-hover:text-orange-600 dark:group-hover:text-orange-400",
+			bgColor: "bg-orange-50 dark:bg-orange-900/30",
+			hoverBgColor: "group-hover:bg-orange-100 dark:group-hover:bg-orange-900/50",
+			iconColor: "text-orange-600 dark:text-orange-400",
+			dotColor: "bg-orange-400 dark:bg-orange-500",
+			subtitle: "À valider",
+			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />',
+		},
+		{
+			title: "Salles occupées",
 			value: stats.value.sallesUtilisees,
-			borderColor:
-				"border-gray-100 dark:border-gray-700 hover:border-amber-200 dark:hover:border-amber-700",
+			borderColor: "border-gray-100 dark:border-gray-700 hover:border-amber-200 dark:hover:border-amber-700",
 			hoverColor: "group-hover:text-amber-600 dark:group-hover:text-amber-400",
 			bgColor: "bg-amber-50 dark:bg-amber-900/30",
 			hoverBgColor: "group-hover:bg-amber-100 dark:group-hover:bg-amber-900/50",
@@ -654,14 +584,13 @@
 		{
 			title: "Salles disponibles",
 			value: stats.value.sallesDispos,
-			borderColor:
-				"border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-700",
-			hoverColor: "group-hover:text-blue-600 dark:group-hover:text-blue-400",
-			bgColor: "bg-blue-50 dark:bg-blue-900/30",
-			hoverBgColor: "group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50",
-			iconColor: "text-blue-600 dark:text-blue-400",
-			dotColor: "bg-blue-400 dark:bg-blue-500",
-			subtitle: "Libres pour réservation",
+			borderColor: "border-gray-100 dark:border-gray-700 hover:border-cyan-200 dark:hover:border-cyan-700",
+			hoverColor: "group-hover:text-cyan-600 dark:group-hover:text-cyan-400",
+			bgColor: "bg-cyan-50 dark:bg-cyan-900/30",
+			hoverBgColor: "group-hover:bg-cyan-100 dark:group-hover:bg-cyan-900/50",
+			iconColor: "text-cyan-600 dark:text-cyan-400",
+			dotColor: "bg-cyan-400 dark:bg-cyan-500",
+			subtitle: "Libres maintenant",
 			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />',
 		},
 	]);
@@ -757,6 +686,21 @@
 		],
 	});
 
+	// Données pour le graphique de tendance de l'assiduité
+	const presenceTrendData = ref({
+		labels: [],
+		datasets: [
+			{
+				label: "Taux d'assiduité (%)",
+				borderColor: "#10B981",
+				backgroundColor: "rgba(16, 185, 129, 0.1)",
+				data: [],
+				fill: true,
+				tension: 0.4,
+			},
+		],
+	});
+
 	const createGradient = (ctx, area) => {
 		const gradient = ctx.createLinearGradient(0, area.bottom, 0, area.top);
 		gradient.addColorStop(0, "rgba(79, 70, 229, 0.8)");
@@ -823,6 +767,36 @@
 		}
 	};
 
+	// Récupère les données de tendance de présence
+	const fetchPresenceTrend = async () => {
+		try {
+			const response = await axios.get("/statistiques/presences/tendance", {
+				headers: {
+					Authorization: `Bearer ${localStorage.getItem("gest-ecole-token")}`,
+				},
+			});
+			presenceTrendData.value = {
+				labels: response.data.labels,
+				datasets: [
+					{
+						label: "Taux d'assiduité (%)",
+						borderColor: "#10B981",
+						backgroundColor: "rgba(16, 185, 129, 0.1)",
+						data: response.data.data,
+						fill: true,
+						tension: 0.4,
+						pointBackgroundColor: "#10B981",
+						pointBorderColor: "#fff",
+						pointHoverRadius: 6,
+						pointRadius: 4,
+					},
+				],
+			};
+		} catch (error) {
+			console.error("Erreur tendance présence:", error);
+		}
+	};
+
 	// Chargement des données avec gestion d'erreur
 	const loadData = async () => {
 		isLoading.value = true;
@@ -847,7 +821,10 @@
 					.catch((err) => console.error("Erreur stats:", err)),
 			]);
 
-			await fetchEtudiantsParAnnee();
+			await Promise.all([
+				fetchEtudiantsParAnnee(),
+				fetchPresenceTrend(),
+			]);
 		} catch (error) {
 			console.error("Erreur globale lors du chargement:", error);
 		} finally {
@@ -871,6 +848,9 @@
 		}
 		
 		await loadData();
+		if (userRole.value === 'etudiant') {
+			await fetchFinancialRecap();
+		}
 	});
 </script>
 

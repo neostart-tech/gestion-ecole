@@ -69,5 +69,17 @@ export const useNiveauStore = defineStore("niveau", {
         this.isLoading = false;
       }
     },
+    async fetchNiveauPeriodes(id) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(`/niveau/${id}/periodes`, this.authHeaders());
+        return response.data;
+      } catch (error) {
+        console.error("Erreur chargement des périodes du niveau:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
   },
 });

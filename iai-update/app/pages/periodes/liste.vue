@@ -111,10 +111,10 @@
           :per-page="itemsPerPage"
           skin="bh-table-striped bh-table-hover"
         >
-          <template #action="{ row }">
+          <template #action="{ value }">
             <div class="flex justify-center gap-3">
               <button
-                @click="openDetailModal(row)"
+                @click="openDetailModal(value)"
                 class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
               >
                 <svg
@@ -141,7 +141,7 @@
               <!-- Edit -->
               <Can action="update-semestre">
                 <button
-                  @click="openEditModal(row)"
+                  @click="openEditModal(value)"
                   class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
                 >
                   <svg
@@ -162,7 +162,7 @@
               <!-- Delete -->
               <Can action="delete-semestre">
                 <button
-                  @click="deleteItem(row)"
+                  @click="deleteItem(value)"
                   class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
                 >
                 <ButtonDelete/>
@@ -458,9 +458,14 @@
 
                 <button
                   type="submit"
-                  class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+                  :disabled="isSaving"
+                  class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  Enregistrer
+                  <svg v-if="isSaving" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {{ isSaving ? 'Enregistrement...' : 'Enregistrer' }}
                 </button>
               </div>
             </form>
@@ -496,6 +501,7 @@ const periodeStore = usePeriodeStore();
 
 const searchQuery = ref("");
 const loading = ref(true);
+const isSaving = ref(false);
 const showModal = ref(false);
 const modalTitle = ref("");
 const itemsPerPage = ref(5);
@@ -577,6 +583,7 @@ const openEditModal = (f) => {
 const closeModal = () => (showModal.value = false);
 
 const savePeriode = async () => {
+  isSaving.value = true;
   try {
     form.value.id
       ? await periodeStore.updatePeriode(form.value.slug, form.value)
@@ -587,7 +594,9 @@ const savePeriode = async () => {
     closeModal();
   } catch (error) {
     console.log(error);
-    $toastr.error(error.response.data.message);
+    $toastr.error(error.response?.data?.message || "Une erreur est survenue");
+  } finally {
+    isSaving.value = false;
   }
 };
 

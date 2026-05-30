@@ -491,6 +491,44 @@
                 >
               </NuxtLink>
             </li>
+            <li v-if="hasAnyRole(['etudiant'])">
+              <NuxtLink
+                to="/etudiant/syllabuses"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path.startsWith('/etudiant/syllabuses')
+                    ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path.startsWith('/etudiant/syllabuses')
+                      ? 'bg-blue-100 dark:bg-blue-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18 18.247 18.477 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                    />
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                  >Syllabus des cours</span
+                >
+              </NuxtLink>
+            </li>
             <li
               v-if="
                 hasAnyRole([
@@ -561,7 +599,45 @@
                 >
               </NuxtLink>
             </li>
-            <li v-if="hasAnyRole(['enseignant', 'delegue', 'etudiant'])">
+            <li v-if="hasAnyRole(['enseignant', 'admin', 'professeur', 'directeur-academique'])">
+              <NuxtLink
+                to="/enseignant/syllabuses"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path.startsWith('/enseignant/syllabuses')
+                    ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path.startsWith('/enseignant/syllabuses')
+                      ? 'bg-blue-100 dark:bg-blue-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18 18.247 18.477 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                    />
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                  >Gestion Syllabuses</span
+                >
+              </NuxtLink>
+            </li>
+            <li v-if="hasAnyRole(['enseignant', 'delegue', 'admin', 'directeur-academique', 'surveillant'])">
               <NuxtLink
                 to="/presences/liste-des-presences"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
@@ -673,7 +749,7 @@
               </NuxtLink>
             </li>
             <!-- Mes paiements -->
-            <!-- <li v-if="hasAnyRole(['etudiant'])">
+            <li v-if="hasAnyRole(['etudiant'])">
               <NuxtLink
                 to="/etudiant/mes-paiements"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
@@ -683,6 +759,8 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleMobileMenu"
+                @mouseenter="handleMouseEnter($event, 'payments', { title: 'Mes paiements' })"
+                @mouseleave="handleMouseLeave"
               >
                 <div
                   :class="[
@@ -701,11 +779,15 @@
                     />
                   </svg>
                 </div>
-                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium flex-1"
                   >Mes paiements</span
                 >
+                <div
+                  v-if="themeStore.isSidebarOpen && $route.path === '/etudiant/mes-paiements'"
+                  class="w-1.5 h-1.5 bg-blue-600 rounded-full"
+                ></div>
               </NuxtLink>
-            </li> -->
+            </li>
             <li v-if="hasAnyRole(['etudiant'])">
               <NuxtLink
                 to="/etudiant/mes-notes"
@@ -1382,6 +1464,45 @@
                   </svg>
                 </div>
                 <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium flex-1">Liste des relevés</span>
+              </NuxtLink>
+            </li>
+
+            <!-- Cartes d'étudiants -->
+            <li
+              v-if="
+                hasAnyRole([
+                  'directeur-academique',
+                  'logiticien-academique',
+                  'directeur-general',
+                  'directeur-general-adjoint',
+                  'informaticien',
+                  'admin'
+                ])
+              "
+            >
+              <NuxtLink
+                to="/admin/etudiants/cartes"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/admin/etudiants/cartes'
+                    ? 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 text-amber-700 dark:text-amber-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/admin/etudiants/cartes'
+                      ? 'bg-amber-100 dark:bg-amber-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 003-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium flex-1">Cartes d'étudiants</span>
               </NuxtLink>
             </li>
           </ul>
@@ -2550,13 +2671,13 @@
           </div>
 
           <ul class="space-y-1">
-            <!-- Gérer les annonces -->
-            <li v-if="hasAnyRole(['responsable-marketing', 'admin', 'informaticien', 'directeur-general', 'directeur-general-adjoint', 'superadmin', 'charge-de-la-communication', 'charge-de-communication', 'responsable-de-la-communication', 'responsable-communication'])">
+            <!-- Tableau de bord -->
+            <li v-if="hasAnyRole(['responsable-marketing', 'admin', 'directeur-general', 'directeur-general-adjoint', 'superadmin'])">
               <NuxtLink
-                to="/admin/communications"
+                to="/admin/communications/dashboard"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
                 :class="[
-                  $route.path.startsWith('/admin/communications')
+                  $route.path === '/admin/communications/dashboard'
                     ? 'bg-pink-50 dark:from-pink-900/20 dark:to-purple-900/20 text-pink-700 dark:text-pink-400'
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
@@ -2565,7 +2686,40 @@
                 <div
                   :class="[
                     'p-1 rounded-lg',
-                    $route.path.startsWith('/admin/communications')
+                    $route.path === '/admin/communications/dashboard'
+                      ? 'bg-pink-100 dark:bg-pink-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                  </svg>
+                </div>
+                <span
+                  v-if="themeStore.isSidebarOpen"
+                  class="ml-3 font-medium flex items-center justify-between flex-1"
+                >
+                  Tableau de bord
+                </span>
+              </NuxtLink>
+            </li>
+
+            <!-- Gérer les annonces -->
+            <li v-if="hasAnyRole(['responsable-marketing', 'admin', 'informaticien', 'directeur-general', 'directeur-general-adjoint', 'superadmin', 'charge-de-la-communication', 'charge-de-communication', 'responsable-de-la-communication', 'responsable-communication'])">
+              <NuxtLink
+                to="/admin/communications"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path.startsWith('/admin/communications') && !$route.path.startsWith('/admin/communications/dashboard')
+                    ? 'bg-pink-50 dark:from-pink-900/20 dark:to-purple-900/20 text-pink-700 dark:text-pink-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path.startsWith('/admin/communications') && !$route.path.startsWith('/admin/communications/dashboard')
                       ? 'bg-pink-100 dark:bg-pink-900/30'
                       : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
                   ]"
@@ -2638,6 +2792,50 @@
                   >
                     {{ messageStore.totalUnread }}
                   </span>
+                </span>
+              </NuxtLink>
+            </li>
+
+            <!-- Prospects / Brochures -->
+            <li
+              v-if="
+                hasAnyRole([
+                  'charge-de-la-clientele',
+                  'directeur-general',
+                  'directeur-general-adjoint',
+                  'admin',
+                  'responsable-marketing',
+                  'collaborateur-commercial',
+                ])
+              "
+            >
+              <NuxtLink
+                to="/admin/prospects"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/admin/prospects'
+                    ? 'bg-pink-50 dark:from-pink-900/20 dark:to-purple-900/20 text-pink-700 dark:text-pink-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/admin/prospects'
+                      ? 'bg-pink-100 dark:bg-pink-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                  </svg>
+                </div>
+                <span
+                  v-if="themeStore.isSidebarOpen"
+                  class="ml-3 font-medium flex items-center justify-between flex-1"
+                >
+                  Prospects & Brochures
                 </span>
               </NuxtLink>
             </li>
@@ -3022,6 +3220,35 @@
                 </div>
                 <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
                   >Gestion des annonces</span
+                >
+              </NuxtLink>
+            </li>
+            <li v-if="showCommunicationSection">
+              <NuxtLink
+                to="/communications/newsletter"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/communications/newsletter'
+                    ? 'bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 text-violet-700 dark:text-violet-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/communications/newsletter'
+                      ? 'bg-violet-100 dark:bg-violet-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                  >Abonnés Newsletter</span
                 >
               </NuxtLink>
             </li>
@@ -3527,6 +3754,7 @@ const isStagiaire = ref(false);
 const isSimpleUser = ref(false);
 const isSuperAdmin = ref(false);
 const isChargeCommunication = ref(false);
+const isDelegue = ref(false);
 const isStudentBlocked = computed(() => {
   try {
     const userData = JSON.parse(localStorage.getItem("user") || "{}");
@@ -3595,7 +3823,7 @@ const getPrimaryRole = (): string => {
   if(isResponsableAchats.value) return "Responsable des achats et de la logistique";
   if(isInformaticien.value) return "Informaticien";
   if(isChargeCommunication.value) return "Chargé de la communication";
-  if(isResponsableAchats.value) return "Responsable des achats et de la logistique";
+  if(isDelegue.value) return "Délégué";
   return "Utilisateur";
 };
 
@@ -3629,6 +3857,7 @@ const fetchRoles = () => {
       if (slug === "stagiaire-academie") isStagiaire.value = true;
       if (slug === "utilisateur-de-la-plateforme") isSimpleUser.value = true;
       if (slug === "superadmin") isSuperAdmin.value = true;
+      if (slug === "delegue") isDelegue.value = true;
       if (slug === "charge-de-la-communication" || slug === "charge-de-communication" || slug === "responsable-de-la-communication" || slug === "responsable-communication") isChargeCommunication.value = true;
     }
   } catch (error) {
@@ -3678,6 +3907,8 @@ const hasRole = (roleSlug: string): boolean => {
       return isSimpleUser.value;
     case "superadmin":
       return isSuperAdmin.value;
+    case "delegue":
+      return isDelegue.value;
     case "charge-de-la-communication":
     case "charge-de-communication":
     case "responsable-de-la-communication":
@@ -3712,6 +3943,7 @@ const showMonEspaceSection = computed(() => {
       "stagiaire-academie",
       "utilisateur-de-la-plateforme",
       "responsable-marketing",
+      "delegue",
     ]) || isAdmin.value
   );
 });

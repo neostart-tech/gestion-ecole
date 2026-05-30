@@ -33,11 +33,11 @@
       <div v-else-if="candidat" class="space-y-8">
         
         <!-- Student Identity Card (Hero Section) -->
-        <div class="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-gray-800">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-8 border border-gray-200 dark:border-gray-800">
           <div class="flex flex-col md:flex-row items-center gap-8">
             <!-- Photo / Avatar -->
             <div class="relative group">
-              <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl overflow-hidden bg-gray-100 dark:bg-gray-800 border-4 border-white dark:border-gray-900 shadow-sm">
+              <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800 border-4 border-white dark:border-gray-900 shadow-sm">
                 <img v-if="candidat.album?.photo" :src="getFullUrl(candidat.album.photo)" class="w-full h-full object-cover" />
                 <div v-else class="w-full h-full flex items-center justify-center text-3xl font-semibold text-gray-400">
                   {{ candidat.nom?.charAt(0) }}{{ candidat.prenom?.charAt(0) }}
@@ -77,7 +77,7 @@
           <div class="lg:col-span-2 space-y-8">
             
             <!-- Section: Groupe d'étude -->
-            <div class="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-gray-800">
+            <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-8 border border-gray-200 dark:border-gray-800">
               <div class="flex items-center gap-4 mb-8">
                 <div class="w-10 h-10 rounded-2xl bg-violet-50 dark:bg-violet-900/20 flex items-center justify-center text-violet-600">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
@@ -99,7 +99,7 @@
                   <div v-if="filteredGroups.length > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div v-for="g in filteredGroups" :key="g.id" 
                       @click="enrollForm.group_id = g.id"
-                      class="relative cursor-pointer group transition-all duration-200 p-4 border rounded-3xl"
+                      class="relative cursor-pointer group transition-all duration-200 p-4 border rounded-2xl"
                       :class="enrollForm.group_id === g.id 
                         ? 'bg-indigo-50 dark:bg-indigo-900/10 border-indigo-500/50 ring-2 ring-indigo-500/20' 
                         : 'bg-white dark:bg-gray-950 border-gray-200 dark:border-gray-800 hover:border-indigo-300 dark:hover:border-indigo-800'">
@@ -118,7 +118,7 @@
                       </div>
                     </div>
                   </div>
-                  <div v-else class="p-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-3xl bg-gray-50 dark:bg-gray-900/50">
+                  <div v-else class="p-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-2xl bg-gray-50 dark:bg-gray-900/50">
                     <p class="text-sm text-gray-400 font-medium italic">Aucun groupe configuré pour ce niveau.</p>
                   </div>
                 </div>
@@ -140,7 +140,7 @@
             </div>
 
             <!-- Section: Financement -->
-            <div class="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-gray-800">
+            <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-8 border border-gray-200 dark:border-gray-800">
               <div class="flex items-center gap-4 mb-8">
                 <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -151,9 +151,9 @@
                 </div>
               </div>
 
-              <div class="p-6 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-3xl border border-indigo-100 dark:border-indigo-900/30">
+              <div class="p-6 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-2xl border border-indigo-100 dark:border-indigo-900/30">
                 <div class="flex flex-col sm:flex-row items-center gap-6">
-                  <div class="w-16 h-16 shrink-0 bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-indigo-100 dark:border-indigo-900 flex items-center justify-center">
+                  <div class="w-16 h-16 shrink-0 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-indigo-100 dark:border-indigo-900 flex items-center justify-center">
                     <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                   </div>
                   <div class="flex-1 space-y-4 text-center sm:text-left">
@@ -184,7 +184,7 @@
             </div>
 
             <!-- Section: Paiement Initial -->
-            <div class="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-gray-800">
+            <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-8 border border-gray-200 dark:border-gray-800">
               <div class="flex items-center justify-between mb-8">
                 <div class="flex items-center gap-4">
                   <div class="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600">
@@ -233,7 +233,7 @@
                   </div>
                 </div>
 
-                <div class="p-6 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg shadow-indigo-500/20">
+                <div class="p-6 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg shadow-indigo-500/20">
                   <div>
                     <p class="text-[10px] font-bold text-indigo-100 uppercase tracking-widest">Montant Total à Percevoir</p>
                     <p class="text-[10px] text-indigo-200/70 font-medium italic mt-1">Frais scolarité + Frais annexes (si applicable)</p>
@@ -252,7 +252,7 @@
             <div class="sticky top-8 space-y-6">
               
               <!-- Completion Card -->
-              <div class="bg-indigo-600 dark:bg-indigo-700 rounded-3xl p-8 text-white">
+              <div class="bg-indigo-600 dark:bg-indigo-700 rounded-2xl p-8 text-white">
                 <h3 class="text-sm font-semibold uppercase tracking-widest mb-6 border-b border-white/10 pb-4">Résumé Admission</h3>
                 
                 <div class="space-y-4">
@@ -283,7 +283,7 @@
               </div>
 
               <!-- Information Tooltip -->
-              <div class="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl">
+              <div class="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl">
                 <div class="flex items-center gap-3 mb-4">
                   <div class="w-8 h-8 rounded-lg bg-orange-50 dark:bg-orange-900/20 text-orange-600 flex items-center justify-center">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>

@@ -978,11 +978,12 @@ onMounted(async () => {
         nom: etudiant.nom,
         prenom: etudiant.prenom,
         matricule: etudiant.matricule,
-        niveau: etudiant.dernier_groupe?.niveau?.libelle,
+        niveau: etudiant.dernier_groupe?.niveau?.nom || etudiant.dernier_groupe?.niveau?.libelle,
         niveau_id: etudiant.dernier_groupe?.niveau?.id,
         filiere: etudiant.dernier_groupe?.filiere?.nom,
         filiere_id: etudiant.dernier_groupe?.filiere?.id,
-        genre: etudiant.genre
+        genre: etudiant.genre,
+        mode_formation: etudiant.dernier_groupe?.mode_formation
       }
     }))
     
@@ -1125,7 +1126,7 @@ async function loadFraisDisponibles(etudiant) {
     const tousFrais = fraisStore.frais || []
     
     // Filtrer selon l'étudiant
-    fraisDisponibles.value = tousFrais.filter(f => {
+    let filtered = tousFrais.filter(f => {
       // Même année scolaire (par défaut ou sélectionnée)
       const memeAnnee = !form.annee_scolaire_id || f.annee_scolaire?.id === form.annee_scolaire_id
       
@@ -1136,10 +1137,31 @@ async function loadFraisDisponibles(etudiant) {
       const memeFiliere = !f.filiere || !etudiant.filiere_id || f.filiere.id === etudiant.filiere_id
       
       // Même genre ou genre non spécifié
-      const memeGenre = !f.genre || !etudiant.genre || f.genre === etudiant.genre
+      const memeGenre = !f.genre || f.genre === 'Tous' || !etudiant.genre || f.genre === etudiant.genre
+
+      // Même mode de formation ou mode non spécifié
+      const memeModeFormation = !f.mode_formation || f.mode_formation === 'Tous' || !etudiant.mode_formation || f.mode_formation === etudiant.mode_formation
       
-      return memeAnnee && memeNiveau && memeFiliere && memeGenre
+      return memeAnnee && memeNiveau && memeFiliere && memeGenre && memeModeFormation
     })
+
+    // Conserver uniquement le frais le plus spécifique (priorité à la filière exacte, au mode de formation exact et au genre)
+    const hasSpecificFiliere = filtered.some(f => f.filiere && etudiant.filiere_id && f.filiere.id === etudiant.filiere_id)
+    if (hasSpecificFiliere) {
+      filtered = filtered.filter(f => f.filiere && f.filiere.id === etudiant.filiere_id)
+    }
+
+    const hasSpecificModeFormation = filtered.some(f => f.mode_formation && f.mode_formation !== 'Tous' && etudiant.mode_formation && f.mode_formation === etudiant.mode_formation)
+    if (hasSpecificModeFormation) {
+      filtered = filtered.filter(f => f.mode_formation === etudiant.mode_formation)
+    }
+    
+    const hasSpecificGenre = filtered.some(f => f.genre && f.genre !== 'Tous' && etudiant.genre && f.genre === etudiant.genre)
+    if (hasSpecificGenre) {
+      filtered = filtered.filter(f => f.genre === etudiant.genre)
+    }
+
+    fraisDisponibles.value = filtered
     
     console.log('Frais disponibles:', fraisDisponibles.value)
     

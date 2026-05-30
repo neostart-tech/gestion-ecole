@@ -132,5 +132,22 @@ export const useGroupeStore = defineStore("groupe", {
         this.isLoading = false;
       }
     },
+
+    async assignDelegue(payload) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          "/groups/assign-delegue",
+          payload,
+          this.authHeaders()
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Erreur lors de l'assignation du délégué:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
   },
 });

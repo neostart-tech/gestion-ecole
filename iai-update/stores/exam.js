@@ -911,6 +911,26 @@ export const useExamStore = defineStore("exam", {
       }
     },
 
+    async publishEvaluation(evaluationId) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          `/evaluations/${evaluationId}/publier`,
+          this.authHeaders()
+        );
+        
+        if (this.currentEvaluation && (this.currentEvaluation.id == evaluationId || this.currentEvaluation.slug == evaluationId)) {
+          this.currentEvaluation.published = 1;
+        }
+        
+        return response.data;
+      } catch (error) {
+        this.handleError(error, "Erreur lors de la publication des résultats");
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
     // ========== STATISTIQUES ==========
     async getExamStatistics(evaluationId) {
       this.isLoading = true;

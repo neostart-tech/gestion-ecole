@@ -862,14 +862,56 @@ const formatEventTime = (start: any, end: any) => {
   return `${format(new Date(start), "dd MMMM yyyy HH:mm", { locale: fr })} - ${format(new Date(end), "HH:mm")}`;
 };
 
-const getRecurrenceText = (props: any) => {
-  if (!props?.recurrence_type || props.recurrence_type === "aucune") return "Pas de récurrence";
-  let text = props.recurrence_type === "hebdomadaire" ? "Toutes les semaines" : "Tous les jours";
-  if (props.recurrence_days) {
-    const days = props.recurrence_days.split(",").map((d: string) => dayMapping[d.trim()] || d).join(", ");
-    text += ` (${days})`;
+const getRecurrenceText = (props: any): string => {
+  if (!props?.recurrence_type || props.recurrence_type === "aucune") {
+    return "Pas de récurrence";
   }
-  if (props.recurrence_end_date) text += ` jusqu'au ${format(new Date(props.recurrence_end_date), "dd/MM/yyyy")}`;
+
+  const typeMap: { [key: string]: string } = {
+    quotidienne: "Tous les jours",
+    hebdomadaire: "Toutes les semaines",
+  };
+
+  let text = typeMap[props.recurrence_type] || props.recurrence_type;
+
+  if (props.recurrence_type === "hebdomadaire" && props.recurrence_days) {
+    // Ordre de la semaine pour le tri
+    const dayOrder = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
+    
+    let daysArray: string[] = [];
+    if (Array.isArray(props.recurrence_days)) {
+      daysArray = props.recurrence_days;
+    } else {
+      daysArray = String(props.recurrence_days).split(",").map(d => d.trim());
+    }
+
+    const days = daysArray
+      .map(d => d.toUpperCase())
+      .filter(d => d)
+      .sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b))
+      .map(d => dayMapping[d] || d);
+
+    if (days.length > 0) {
+      text += ` (${days.join(", ")})`;
+    }
+  }
+
+  // Ajouter la date de fin si elle existe
+  const endDateRaw = props.recurrence_end_date || props.date_fin;
+  if (endDateRaw && props.recurrence_type !== "aucune") {
+    try {
+      // Nettoyer la date (garder seulement YYYY-MM-DD)
+      const cleanEndDate = String(endDateRaw).split(' ')[0].split('T')[0];
+      const endDate = new Date(cleanEndDate);
+      
+      if (!isNaN(endDate.getTime())) {
+        text += ` jusqu'au ${format(endDate, "dd MMMM yyyy", { locale: fr })}`;
+      }
+    } catch (error) {
+      console.warn("Erreur parsing date fin récurrence:", error);
+    }
+  }
+
   return text;
 };
 
@@ -1089,7 +1131,14 @@ const confirmDelete = async (event: any) => {
   }
 };
 
-const MatieresOptions = computed(() => UvStore.uvs.map(u => ({ label: u.nom, value: u.id || u.slug })));
+const MatieresOptions = computed(() => {
+  return UvStore.uvs
+    .filter((u: any) => {
+      if (!u.user || !Array.isArray(u.user)) return false;
+      return u.user.some((user: any) => user.id == slug.value || user.slug == slug.value);
+    })
+    .map((u: any) => ({ label: u.nom, value: u.id || u.slug }));
+});
 const GroupesOptions = computed(() => groupStore.groupes.map(g => ({ label: `${g.niveau?.libelle || ''} ${g.nom}`, value: g.id || g.slug })));
 const sallesOptions = computed(() => salleStore.salles.map(s => ({ label: s.nom, value: s.id || s.slug })));
 const TypeOptions = [ { label: "Cours", value: "Cours" }, { label: "Évaluation", value: "Évaluation" } ];

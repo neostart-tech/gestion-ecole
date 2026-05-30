@@ -611,6 +611,7 @@
                         optionValue="value"
                         filter
                         showClear
+                        :disabled="!form.uv_id"
                         placeholder=""
                         class="w-full"
                       />
@@ -2119,12 +2120,17 @@ const getRecurrenceText = (extendedProps: any): string => {
   let text =
     typeMap[extendedProps.recurrence_type] || extendedProps.recurrence_type;
 
-  if (extendedProps.recurrence_days) {
-    // Convertir les jours abrégés en jours complets
+  if (extendedProps.recurrence_type === "hebdomadaire" && extendedProps.recurrence_days) {
+    // Ordre de la semaine pour le tri
+    const dayOrder = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
+    
+    // Convertir les jours abrégés en jours complets et les trier
     const days = extendedProps.recurrence_days
       .split(",")
-      .map((d: string) => dayMapping[d.trim()] || d.trim())
-      .filter((d: string) => d);
+      .map((d: string) => d.trim().toUpperCase())
+      .filter((d: string) => d)
+      .sort((a: string, b: string) => dayOrder.indexOf(a) - dayOrder.indexOf(b))
+      .map((d: string) => dayMapping[d] || d);
 
     if (days.length > 0) {
       text += ` (${days.join(", ")})`;
@@ -2132,16 +2138,18 @@ const getRecurrenceText = (extendedProps: any): string => {
   }
 
   // Ajouter la date de fin si elle existe
-  if (extendedProps.recurrence_end_date) {
+  const endDateRaw = extendedProps.recurrence_end_date || extendedProps.date_fin;
+  if (endDateRaw && extendedProps.recurrence_type !== "aucune") {
     try {
-      const endDate = parse(
-        extendedProps.recurrence_end_date,
-        "yyyy-MM-dd",
-        new Date(),
-      );
-      text += ` jusqu'au ${format(endDate, "dd/MM/yyyy")}`;
+      // Nettoyer la date (garder seulement YYYY-MM-DD)
+      const cleanEndDate = String(endDateRaw).split(' ')[0].split('T')[0];
+      const endDate = parse(cleanEndDate, "yyyy-MM-dd", new Date());
+      
+      if (!isNaN(endDate.getTime())) {
+        text += ` jusqu'au ${format(endDate, "dd MMMM yyyy", { locale: fr })}`;
+      }
     } catch (error) {
-      text += ` jusqu'au ${extendedProps.recurrence_end_date}`;
+      console.warn("Erreur parsing date fin récurrence:", error);
     }
   }
 
@@ -2539,10 +2547,40 @@ const GroupesOptions = computed(() => {
 });
 
 const EnseignantsOptions = computed(() => {
-  const all = [...userStore.enseignants, ...userStore.users];
-  const unique = Array.from(new Map(all.map(item => [item.id || item.slug, item])).values());
-  return unique.map(e => ({ label: `${e.nom || ''} ${e.prenom || ''}`.trim() || e.username || e.email, value: e.id || e.slug }));
+  if (!form.value.uv_id) {
+    const all = [...userStore.enseignants, ...userStore.users];
+    const unique = Array.from(new Map(all.map(item => [item.id || item.slug, item])).values());
+    return unique.map(e => ({ label: `${e.nom || ''} ${e.prenom || ''}`.trim() || e.username || e.email, value: e.id || e.slug }));
+  }
+
+  // Trouver l'UV sélectionnée dans le store
+  const selectedUv = UvStore.uvs.find((u: any) => (u.id === form.value.uv_id || u.slug === form.value.uv_id));
+  
+  if (selectedUv && selectedUv.user && Array.isArray(selectedUv.user) && selectedUv.user.length > 0) {
+    return selectedUv.user.map((e: any) => ({
+      label: `${e.nom || ''} ${e.prenom || ''}`.trim() || e.username || e.email,
+      value: e.id || e.slug
+    }));
+  }
+
+  // Si l'UV n'a pas d'enseignants rattachés, on retourne une liste vide pour forcer le respect de la règle
+  return [];
 });
+
+// Watch pour réinitialiser l'enseignant si l'UV change et que l'enseignant n'est plus valide
+watch(() => form.value.uv_id, (newUvId) => {
+  if (newUvId) {
+    const selectedUv = UvStore.uvs.find((u: any) => (u.id === newUvId || u.slug === newUvId));
+    if (selectedUv) {
+      const teachers = selectedUv.user || [];
+      const isValid = teachers.some((e: any) => (e.id === form.value.teacher || e.slug === form.value.teacher));
+      if (!isValid) {
+        form.value.teacher = "";
+      }
+    }
+  }
+});
+
 
 const TypeOptions = computed(() => {
   return [

@@ -44,6 +44,20 @@
         </div>
       </div>
 
+      <div v-else-if="examStatus === 'termine' && !canSeeCorrection" class="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-semibold text-blue-800 dark:text-blue-300">Examen terminé - Correction en cours</h3>
+            <p class="text-sm text-blue-600 dark:text-blue-400">L'examen est officiellement terminé. Les résultats seront affichés dès que le professeur aura validé et publié les notes.</p>
+          </div>
+        </div>
+      </div>
+
       <div v-else-if="hasSubmitted" class="mb-6 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
         <div class="flex items-center gap-3">
           <div class="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-full">
@@ -53,7 +67,7 @@
           </div>
           <div>
             <h3 class="font-semibold text-emerald-800 dark:text-emerald-300">Copie soumise avec succès</h3>
-            <p class="text-sm text-emerald-600 dark:text-emerald-400">Votre participation a été enregistrée. Les résultats seront disponibles une fois l'examen officiellement terminé ({{ formatDateTime(examStore.currentEvaluation && examStore.currentEvaluation.fin) }}).</p>
+            <p class="text-sm text-emerald-600 dark:text-emerald-400">Votre participation a été enregistrée. Les résultats seront disponibles une fois l'examen officiellement terminé et les notes publiées.</p>
           </div>
         </div>
       </div>
@@ -119,6 +133,22 @@
             <p class="text-xs text-gray-500 dark:text-gray-400">Note obtenue</p>
             <p class="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
               {{ getStudentTotalNote() }}/{{ examStore.totalPoints }}
+            </p>
+          </div>
+          <div class="w-px h-10 bg-gray-200 dark:bg-gray-700"></div>
+          <div class="text-center">
+            <p class="text-xs text-gray-500 dark:text-gray-400">Terminé le</p>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+              {{ formatDate(examStore.currentEvaluation && examStore.currentEvaluation.fin) }}
+            </p>
+          </div>
+        </div>
+
+        <div v-else-if="examStatus === 'termine'" class="flex items-center gap-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-3 border border-gray-100 dark:border-gray-700">
+          <div class="text-center px-4">
+            <p class="text-xs text-gray-500 dark:text-gray-400">Statut</p>
+            <p class="text-sm font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+              En cours de correction
             </p>
           </div>
           <div class="w-px h-10 bg-gray-200 dark:bg-gray-700"></div>
@@ -252,7 +282,61 @@
       </TransitionRoot>
 
       <template v-if="examStatus === 'en_cours' || examStatus === 'termine'">
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- ========== ÉTAT VIDE (DESIGN ULTRA-LIGHT ELITE) ========== -->
+        <div v-if="examStore.parts.length === 0" class="max-w-4xl mx-auto py-20 px-6">
+          <div class="relative bg-white/60 dark:bg-white/5 backdrop-blur-xl rounded-[40px] border border-white dark:border-white/10 shadow-2xl shadow-indigo-100 dark:shadow-none p-10 md:p-16 overflow-hidden">
+            <!-- Cercles de lumière colorés -->
+            <div class="absolute -top-20 -left-20 w-64 h-64 bg-blue-100/50 dark:bg-blue-500/10 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-purple-100/50 dark:bg-purple-500/10 rounded-full blur-3xl"></div>
+
+            <div class="relative flex flex-col items-center text-center">
+              <!-- Illustration "Crystal" -->
+              <div class="mb-10">
+                <div class="w-28 h-28 bg-gradient-to-tr from-blue-50 to-indigo-100 dark:from-indigo-900/40 dark:to-purple-900/40 rounded-[32px] flex items-center justify-center shadow-inner relative group">
+                  <svg class="w-14 h-14 text-indigo-500 dark:text-indigo-300 transform group-hover:scale-110 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                  
+                  <!-- Particules brillantes -->
+                  <div class="absolute -top-1 -right-1 w-4 h-4 bg-yellow-300 rounded-full blur-[2px] animate-pulse"></div>
+                  <div class="absolute bottom-2 left-0 w-2 h-2 bg-blue-400 rounded-full blur-[1px]"></div>
+                </div>
+              </div>
+
+              <!-- Titre et Message -->
+              <div class="max-w-lg space-y-6">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white tracking-tight">
+                  Espace en cours de <span class="text-indigo-600 dark:text-indigo-400">préparation</span>
+                </h2>
+                <p class="text-gray-500 dark:text-gray-300 text-base md:text-lg leading-relaxed">
+                  L'examen est bien répertorié, mais les questions n'ont pas encore été activées. Votre session s'ouvrira dès que le contenu sera disponible.
+                </p>
+              </div>
+
+              <!-- Actions Lumineuses -->
+              <div class="mt-12 flex flex-col sm:flex-row items-center gap-4">
+                <button 
+                  @click="handleRefreshData"
+                  class="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold transition-all shadow-lg shadow-indigo-200 dark:shadow-none hover:scale-105 active:scale-95 flex items-center gap-3"
+                >
+                  <svg class="w-5 h-5" :class="{ 'animate-spin': isPageLoading }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Vérifier à nouveau
+                </button>
+                
+                <NuxtLink 
+                  to="/evaluations/etudiant/mes-examens"
+                  class="px-8 py-4 bg-white dark:bg-white/10 text-indigo-600 dark:text-white border border-indigo-100 dark:border-white/20 rounded-2xl font-bold hover:bg-indigo-50 dark:hover:bg-white/20 transition-all"
+                >
+                  Quitter l'examen
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="grid grid-cols-1 lg:grid-cols-4 gap-6">
           
           <!-- ========== COLONNE DE GAUCHE - SOMMAIRE ========== -->
           <div class="lg:col-span-1 space-y-4">
@@ -309,7 +393,7 @@
                         {{ getQuestionStatus(q).icon }}
                       </span>
                       <span class="text-xs truncate flex-1">{{ truncateText(stripHtml(q.content), 25) }}</span>
-                      <span class="text-[10px] text-gray-500 dark:text-gray-400">{{ getQuestionTotalPoints(q) }} pts</span>
+                      <span v-if="(examStatus === 'en_cours' && !hasSubmitted) || canSeeCorrection" class="text-[10px] text-gray-500 dark:text-gray-400">{{ getQuestionTotalPoints(q) }} pts</span>
                     </button>
                   </div>
                 </div>
@@ -405,7 +489,7 @@
                       <span class="text-xs px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full">
                         {{ getTypeLabel(question.type) }}
                       </span>
-                      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ getQuestionTotalPoints(question) }} pts</span>
+                      <span v-if="(examStatus === 'en_cours' && !hasSubmitted) || canSeeCorrection" class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ getQuestionTotalPoints(question) }} pts</span>
                       
                       <!-- Badge pour examen terminé (note obtenue) -->
                       <span v-if="canSeeCorrection" 
@@ -795,7 +879,7 @@
                                         </template>
                                         
                                         <!-- Points de la cellule -->
-                                        <div v-if="getCellQuestion(question, rowIdx, colIdx) && getCellQuestion(question, rowIdx, colIdx).points" class="text-xs text-gray-500 text-right">
+                                        <div v-if="((examStatus === 'en_cours' && !hasSubmitted) || canSeeCorrection) && getCellQuestion(question, rowIdx, colIdx) && getCellQuestion(question, rowIdx, colIdx).points" class="text-xs text-gray-500 text-right">
                                           {{ getCellQuestion(question, rowIdx, colIdx).points }} pts
                                         </div>
                                       </div>
@@ -831,7 +915,7 @@
                               <span class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">
                                 {{ getTypeLabel(part.type) }}
                               </span>
-                              <span class="text-sm font-medium">{{ part.points }} pts</span>
+                              <span v-if="(examStatus === 'en_cours' && !hasSubmitted) || canSeeCorrection" class="text-sm font-medium">{{ part.points }} pts</span>
                             </div>
                             
                             <p class="text-sm mb-3">{{ part.consigne }}</p>
@@ -1127,7 +1211,17 @@ const hasSubmitted = computed(() => {
 })
 
 const canSeeCorrection = computed(() => {
-  return examStatus.value === 'termine'
+  if (!examStore.currentEvaluation || examStatus.value !== 'termine') return false
+  
+  const isPublished = Number(examStore.currentEvaluation.published) === 1
+  
+  // Nouvelle sécurité : vérifier si la copie est entièrement corrigée
+  // On considère une copie corrigée si toutes les questions ont une note (même 0, mais pas null)
+  const hasSubmissions = examStore.submissions && examStore.submissions.length > 0
+  const allGraded = hasSubmissions && examStore.submissions.every(s => s && s.points_obtenus !== null)
+  
+  // On ne montre la correction que si c'est publié ET que le prof a fini de noter
+  return isPublished && allGraded
 })
 
 // Récupérer l'utilisateur depuis localStorage

@@ -220,7 +220,7 @@
                   />
                 </svg>
               </button>
-               <Can :action="['view-cours']">
+              <!-- <Can :action="['view-cours']">
                 <NuxtLink
                   :to="`/personnel/${data.value.slug}/emploi-du-temps`"
                   class="p-2 rounded-lg text-purple-600 hover:bg-purple-100 dark:text-purple-400 dark:hover:bg-purple-900/30 transition-colors duration-200"
@@ -240,7 +240,7 @@
                     />
                   </svg>
                 </NuxtLink>
-              </Can>
+              </Can> -->
 
               <Can action="update-user">
                 <NuxtLink

@@ -26,7 +26,36 @@
           Sélectionner un cours
         </h2>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Système de Onglets de filtrage -->
+          <div class="flex flex-wrap items-center gap-2 mb-6 p-1 bg-gray-100 dark:bg-gray-700/50 rounded-xl w-fit">
+            <button
+              v-for="tab in [
+                { id: 'all', label: 'Tous', icon: 'M4 6h16M4 10h16M4 14h16M4 18h16' },
+                { id: 'current', label: 'En cours', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
+                { id: 'upcoming', label: 'À venir', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
+                { id: 'past', label: 'Terminés', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' }
+              ]"
+              :key="tab.id"
+              @click="activeTab = tab.id"
+              class="flex items-center gap-2 px-4 py-2 text-xs font-medium rounded-lg transition-all duration-200"
+              :class="activeTab === tab.id 
+                ? 'bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-gray-200 dark:ring-gray-600' 
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="tab.icon" />
+              </svg>
+              {{ tab.label }}
+              <span 
+                class="ml-1 px-1.5 py-0.5 rounded-md text-[10px]"
+                :class="activeTab === tab.id ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600' : 'bg-gray-200 dark:bg-gray-600 text-gray-500'"
+              >
+                {{ getTabCount(tab.id) }}
+              </span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Liste déroulante des cours -->
           <div>
             <label
@@ -102,6 +131,10 @@
             <span class="text-gray-600 dark:text-gray-300">{{
               selectedCours.salle?.nom
             }}</span>
+            <span class="text-gray-400">•</span>
+            <span class="text-indigo-600 dark:text-indigo-400 font-medium">
+              Prof: {{ selectedCours.owner?.nom }} {{ selectedCours.owner?.prenom }}
+            </span>
 
             <!-- Badge de statut -->
             <span
@@ -138,6 +171,26 @@
           >
             {{ coursStatus.message }}
           </p>
+
+          <!-- Traçabilité : Qui a fait l'appel ? -->
+          <div 
+            v-if="selectedCours && (selectedCours.created_by_user || selectedCours.updated_by_user)"
+            class="mt-3 p-3 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800/50 flex items-center gap-3 text-xs"
+          >
+            <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div class="text-indigo-700 dark:text-indigo-300">
+              <span v-if="selectedCours.updated_by_user">
+                Dernière mise à jour par <span class="font-bold">{{ selectedCours.updated_by_user.nom }}</span> 
+                le {{ formatDate(selectedCours.updated_at) }}
+              </span>
+              <span v-else-if="selectedCours.created_by_user">
+                Enregistré par <span class="font-bold">{{ selectedCours.created_by_user.nom }}</span> 
+                le {{ formatDate(selectedCours.created_at) }}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -319,6 +372,11 @@
                       <option value="absent">Absent</option>
                       <option value="retard">Retard</option>
                       <option value="justifie">Justifié</option>
+                      <!-- Statuts avancés (Lecture seule pour profs/délégués si besoin) -->
+                      <option value="malade">Malade</option>
+                      <option value="sortie_anticipee">Sortie anticipée</option>
+                      <option value="exclu_temporairement">Exclu</option>
+                      <option value="dispense">Dispensé</option>
                     </select>
                   </td>
                   <td class="px-4 py-3">
@@ -536,21 +594,146 @@
         <p class="text-sm text-gray-400 dark:text-gray-500 mt-2">
           Pour voir la liste des étudiants de ce cours
         </p>
-      </div>
     </div>
+    </div>
+
+    <!-- Modal d'exportation Headless UI -->
+    <TransitionRoot appear :show="isExportModalOpen" as="template">
+      <Dialog as="div" @close="isExportModalOpen = false" class="relative z-50">
+        <TransitionChild
+          as="template"
+          enter="duration-300 ease-out"
+          enter-from="opacity-0"
+          enter-to="opacity-100"
+          leave="duration-200 ease-in"
+          leave-from="opacity-100"
+          leave-to="opacity-0"
+        >
+          <div class="fixed inset-0 bg-black/30 backdrop-blur-sm" />
+        </TransitionChild>
+
+        <div class="fixed inset-0 overflow-y-auto">
+          <div class="flex min-h-full items-center justify-center p-4 text-center">
+            <TransitionChild
+              as="template"
+              enter="duration-300 ease-out"
+              enter-from="opacity-0 scale-95"
+              enter-to="opacity-100 scale-100"
+              leave="duration-200 ease-in"
+              leave-from="opacity-100 scale-100"
+              leave-to="opacity-0 scale-95"
+            >
+              <DialogPanel class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all border border-gray-100 dark:border-gray-700">
+                <div class="flex items-center justify-center mb-6">
+                  <div class="bg-indigo-100 dark:bg-indigo-900/30 p-4 rounded-full">
+                    <svg class="w-12 h-12 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </div>
+
+                <DialogTitle as="h3" class="text-2xl font-bold text-center leading-6 text-gray-900 dark:text-white mb-2">
+                  Exporter les présences
+                </DialogTitle>
+                
+                <p class="text-center text-gray-500 dark:text-gray-400 text-sm mb-8">
+                  Choisissez le format et les filtres pour votre export
+                </p>
+
+                <div class="space-y-5">
+                  <!-- Type d'export -->
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Type d'export</label>
+                    <div class="grid grid-cols-2 gap-3">
+                      <button 
+                        @click="exportOptions.type = 'simple'"
+                        class="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all"
+                        :class="exportOptions.type === 'simple' ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600' : 'border-gray-100 dark:border-gray-700 hover:border-gray-200'"
+                      >
+                        <span class="font-bold text-sm">Simple</span>
+                        <span class="text-[10px] opacity-70">Tout inclure</span>
+                      </button>
+                      <button 
+                        @click="exportOptions.type = 'filtered'"
+                        class="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all"
+                        :class="exportOptions.type === 'filtered' ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600' : 'border-gray-100 dark:border-gray-700 hover:border-gray-200'"
+                      >
+                        <span class="font-bold text-sm">Filtré</span>
+                        <span class="text-[10px] opacity-70">Personnalisé</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Filtres additionnels (affichés si type === 'filtered') -->
+                  <div v-if="exportOptions.type === 'filtered'" class="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div>
+                      <label class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Statut</label>
+                      <select v-model="exportOptions.statut" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 focus:ring-2 focus:ring-indigo-500">
+                        <option value="">Tous les statuts</option>
+                        <option value="present">Présent</option>
+                        <option value="absent">Absent</option>
+                        <option value="retard">Retard</option>
+                        <option value="justifie">Justifié</option>
+                      </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                      <div>
+                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Du</label>
+                        <input type="date" v-model="exportOptions.date_debut" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 focus:ring-2 focus:ring-indigo-500" />
+                      </div>
+                      <div>
+                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Au</label>
+                        <input type="date" v-model="exportOptions.date_fin" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 focus:ring-2 focus:ring-indigo-500" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-10 flex gap-3">
+                  <button
+                    type="button"
+                    class="flex-1 inline-flex justify-center rounded-xl border border-transparent bg-indigo-600 px-4 py-3 text-sm font-bold text-white hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 shadow-lg shadow-indigo-200 dark:shadow-none transition-all"
+                    @click="confirmerExportation"
+                  >
+                    Exporter
+                  </button>
+                  <button
+                    type="button"
+                    class="flex-1 inline-flex justify-center rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-3 text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none transition-all"
+                    @click="isExportModalOpen = false"
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
+        </div>
+      </Dialog>
+    </TransitionRoot>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
+import {
+  TransitionRoot,
+  TransitionChild,
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/vue";
 import Dropdown from "primevue/dropdown";
 import Breadcrumb from "~/components/Breadcrumb.vue";
 import { usePresenceStore } from "~~/stores/presence";
 import { useEtudiantStore } from "~~/stores/etudiant";
+import { useLoginStore } from "~~/stores/login";
 
 const { $toastr, $swal } = useNuxtApp();
 const presenceStore = usePresenceStore();
 const etudiantStore = useEtudiantStore();
+const loginStore = useLoginStore();
 
 // États
 const searchQuery = ref("");
@@ -560,18 +743,56 @@ const savingPresences = ref(false);
 const coursStatus = ref(null);
 const exportLoading = ref(false);
 const etudiantsCharges = ref(false);
+const activeTab = ref("current"); // Par défaut sur les cours en cours
+
+// États pour le modal d'export Headless UI
+const isExportModalOpen = ref(false);
+const exportOptions = ref({
+  type: "simple",
+  statut: "",
+  date_debut: "",
+  date_fin: "",
+});
 
 // Récupérer les cours du professeur
 const mesCours = computed(() => presenceStore.mesCours || []);
 
-// Options pour le dropdown des cours
+// Options pour le dropdown des cours avec filtrage par onglet
 const coursOptions = computed(() => {
-  return mesCours.value.map((cours) => ({
-    label: `${cours.uv?.nom || "Sans titre"} - ${cours.group?.niveau?.libelle} ${cours.group?.nom || "Groupe"} (${formatDateShort(cours.debut)} - ${cours.salle?.nom || "Salle"})`,
+  const now = new Date();
+  let cours = [...mesCours.value];
+
+  // Filtrage par onglet
+  if (activeTab.value === "current") {
+    cours = cours.filter((c) => {
+      const debut = new Date(c.debut);
+      const fin = new Date(c.fin);
+      return now >= debut && now <= fin;
+    });
+  } else if (activeTab.value === "upcoming") {
+    cours = cours.filter((c) => new Date(c.debut) > now);
+  } else if (activeTab.value === "past") {
+    cours = cours.filter((c) => new Date(c.fin) < now);
+  }
+
+  return cours.map((cours) => ({
+    label: `${cours.uv?.nom || "Sans titre"} - ${cours.owner?.nom || ""} ${cours.owner?.prenom || ""} - ${cours.group?.niveau?.libelle || ""} ${cours.group?.nom || "Groupe"} (${formatDateShort(cours.debut)} - ${cours.salle?.nom || "Salle"})`,
     value: cours.id,
     details: cours,
   }));
 });
+
+// Compteur pour les onglets
+const getTabCount = (tabId) => {
+  const now = new Date();
+  const cours = mesCours.value;
+  
+  if (tabId === 'all') return cours.length;
+  if (tabId === 'current') return cours.filter(c => now >= new Date(c.debut) && now <= new Date(c.fin)).length;
+  if (tabId === 'upcoming') return cours.filter(c => new Date(c.debut) > now).length;
+  if (tabId === 'past') return cours.filter(c => new Date(c.fin) < now).length;
+  return 0;
+};
 
 // Vérifier si le cours est modifiable
 const isModifiable = computed(() => {
@@ -921,7 +1142,7 @@ const sauvegarderPresences = async () => {
 };
 
 // Exporter les présences - TOUJOURS disponible
-const exporterPresences = async () => {
+const exporterPresences = () => {
   if (!selectedCours.value) {
     $toastr?.warning("Veuillez sélectionner un cours");
     return;
@@ -932,63 +1153,30 @@ const exporterPresences = async () => {
     return;
   }
 
-  // Demander confirmation avec options
-  const { value: exportOptions } = await $swal?.fire({
-    title: "Exporter les présences",
-    text: "Choisissez le format d'export",
-    icon: "question",
-    input: "select",
-    inputOptions: {
-      simple: "Export simple (toutes les présences)",
-      filtered: "Export avec filtres",
-    },
-    inputPlaceholder: "Sélectionnez une option",
-    showCancelButton: true,
-    confirmButtonText: "Exporter",
-    cancelButtonText: "Annuler",
-  });
+  // Initialiser les options par défaut
+  exportOptions.value = {
+    type: "simple",
+    statut: "",
+    date_debut: "",
+    date_fin: "",
+  };
 
-  if (!exportOptions) return;
+  // Ouvrir le modal Headless UI
+  isExportModalOpen.value = true;
+};
 
-  if (exportOptions === "filtered") {
-    // Afficher les options de filtrage
-    const { value: filters } = await $swal?.fire({
-      title: "Filtres d'export",
-      html: `
-        <div class="text-left">
-          <label class="block text-sm font-medium text-gray-700">Statut</label>
-          <select id="statut" class="w-full mt-1 mb-3 p-2 border rounded">
-            <option value="">Tous</option>
-            <option value="present">Présent</option>
-            <option value="absent">Absent</option>
-            <option value="retard">Retard</option>
-            <option value="justifie">Justifié</option>
-          </select>
-          
-          <label class="block text-sm font-medium text-gray-700">Date début</label>
-          <input type="date" id="date_debut" class="w-full mt-1 mb-3 p-2 border rounded">
-          
-          <label class="block text-sm font-medium text-gray-700">Date fin</label>
-          <input type="date" id="date_fin" class="w-full mt-1 mb-3 p-2 border rounded">
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: "Exporter",
-      cancelButtonText: "Annuler",
-      preConfirm: () => {
-        return {
-          statut: document.getElementById("statut").value,
-          date_debut: document.getElementById("date_debut").value,
-          date_fin: document.getElementById("date_fin").value,
-        };
-      },
-    });
-
-    if (!filters) return;
-    await downloadPresences(filters);
-  } else {
-    await downloadPresences();
+// Confirmer l'exportation depuis le modal
+const confirmerExportation = async () => {
+  const filters = {};
+  
+  if (exportOptions.value.type === "filtered") {
+    if (exportOptions.value.statut) filters.statut = exportOptions.value.statut;
+    if (exportOptions.value.date_debut) filters.date_debut = exportOptions.value.date_debut;
+    if (exportOptions.value.date_fin) filters.date_fin = exportOptions.value.date_fin;
   }
+
+  isExportModalOpen.value = false;
+  await downloadPresences(filters);
 };
 
 // Fonction de téléchargement
@@ -996,7 +1184,7 @@ const downloadPresences = async (filters = {}) => {
   exportLoading.value = true;
 
   try {
-    const response = await presenceStore.exportPresences(
+    const response = await presenceStore.exportPresencesCours(
       selectedCours.value.id,
       filters,
     );
@@ -1035,6 +1223,15 @@ const downloadPresences = async (filters = {}) => {
 // Watch pour réinitialiser la recherche quand on change de cours
 watch(selectedCoursId, () => {
   searchQuery.value = "";
+});
+
+// Watch pour réinitialiser la sélection quand on change d'onglet
+watch(activeTab, () => {
+  selectedCoursId.value = null;
+  selectedCours.value = null;
+  coursStatus.value = null;
+  etudiantStore.etudiants = [];
+  etudiantsCharges.value = false;
 });
 
 // Chargement initial

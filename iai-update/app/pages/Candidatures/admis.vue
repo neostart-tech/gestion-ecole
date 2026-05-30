@@ -142,9 +142,26 @@
           </div>
         </Transition>
 
-        <div v-if="isLoading" class="py-32 flex flex-col items-center justify-center gap-6">
-          <div class="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
-          <p class="text-[10px] font-medium text-violet-500 uppercase tracking-widest animate-pulse">Initialisation du Portail...</p>
+        <!-- SKELETON LOADER -->
+        <div v-if="isLoading" class="space-y-4">
+          <div v-for="i in 5" :key="i" class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 animate-pulse shadow-sm">
+            <div class="flex items-center gap-4 flex-1">
+              <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+              <div class="space-y-3">
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48"></div>
+                <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+              </div>
+            </div>
+            <div class="hidden lg:flex flex-col gap-3 flex-1">
+              <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+              <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+            </div>
+            <div class="w-24 h-6 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+            <div class="flex gap-2 shrink-0">
+              <div class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+              <div class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+            </div>
+          </div>
         </div>
 
         <template v-else-if="filteredAdmis.length > 0">

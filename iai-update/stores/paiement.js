@@ -167,19 +167,13 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
      * Obtenir les informations de paiement d'un étudiant
      * CORRIGÉ pour gérer les erreurs sans bloquer
      */
-    async getInfosEtudiant(etudiantId) {
-      if (!etudiantId) {
-        throw new Error("ID étudiant requis");
-      }
-
+    async getInfosEtudiant(etudiantId = null) {
       this.isLoading = true;
       this.error = null;
       
       try {
-        const response = await axios.get(
-          `/paiements/infos/${etudiantId}`,
-          this.authHeaders
-        );
+        const url = etudiantId ? `/paiements/infos/${etudiantId}` : `/paiements/infos`;
+        const response = await axios.get(url, this.authHeaders);
         
         if (response.data.success) {
           this.infosEtudiant = response.data.data;
@@ -216,19 +210,13 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
      * Obtenir le récapitulatif des paiements
      * CORRIGÉ pour gérer les erreurs
      */
-    async getRecap(etudiantId) {
-      if (!etudiantId) {
-        throw new Error("ID étudiant requis");
-      }
-
+    async getRecap(etudiantId = null) {
       this.isLoading = true;
       this.error = null;
       
       try {
-        const response = await axios.get(
-          `/paiements/recap/${etudiantId}`,
-          this.authHeaders
-        );
+        const url = etudiantId ? `/paiements/recap/${etudiantId}` : `/paiements/recap`;
+        const response = await axios.get(url, this.authHeaders);
         
         if (response.data.success) {
           this.recap = response.data.data;
@@ -260,19 +248,13 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
     /**
      * Obtenir l'historique des paiements d'un étudiant
      */
-    async getHistorique(etudiantId) {
-      if (!etudiantId) {
-        throw new Error("ID étudiant requis");
-      }
-
+    async getHistorique(etudiantId = null) {
       this.isLoading = true;
       this.error = null;
       
       try {
-        const response = await axios.get(
-          `/paiements/historique/${etudiantId}`,
-          this.authHeaders
-        );
+        const url = etudiantId ? `/paiements/historique/${etudiantId}` : `/paiements/historique`;
+        const response = await axios.get(url, this.authHeaders);
         
         if (response.data.success) {
           this.historiquePaiements = response.data.data || [];
@@ -361,7 +343,7 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
         
         if (response.data.success) {
           // Rafraîchir toutes les données après le paiement
-          await Promise.allSettled([ // Utiliser allSettled pour ne pas bloquer si une requête échoue
+          await Promise.allSettled([ 
             this.getInfosEtudiant(paiementData.etudiant_id),
             this.getHistorique(paiementData.etudiant_id),
             this.getRecap(paiementData.etudiant_id)
@@ -372,6 +354,27 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
       } catch (error) {
         this.error = error.response?.data?.message || error.message || "Erreur lors du paiement";
         console.error("Erreur effectuerPaiement:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    /**
+     * Initier un paiement via SEMOA (USSD/Direct Pay)
+     */
+    async initierPaiementSemoa(paiementData) {
+      this.isLoading = true;
+      this.error = null;
+      try {
+        const response = await axios.post(
+          '/semoa/initiate',
+          paiementData,
+          this.authHeaders
+        );
+        return response.data;
+      } catch (error) {
+        this.error = error.response?.data?.message || "Erreur SEMOA";
         throw error;
       } finally {
         this.isLoading = false;

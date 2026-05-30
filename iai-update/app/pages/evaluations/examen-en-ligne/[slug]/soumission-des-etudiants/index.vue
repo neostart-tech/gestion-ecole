@@ -27,16 +27,53 @@
 
     <template v-else>
       <!-- ========== BREADCRUMB ========== -->
-      <Breadcrumb
-        :items="[
-          { label: 'Examens', to: '/examens' },
-          { label: 'Correction', to: '/examens/correction' },
-          { label: examStore.examTitle, to: null }
-        ]"
-        :title="examStore.examTitle"
-        title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
-        spacing="mb-4 sm:mb-6"
-      />
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <Breadcrumb
+          :items="[
+            { label: 'Examens', to: '/examens' },
+            { label: 'Correction', to: '/examens/correction' },
+            { label: examStore.examTitle, to: null }
+          ]"
+          :title="examStore.examTitle"
+          title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
+          spacing="mb-0"
+        />
+
+        <div class="flex items-center gap-3">
+          <button
+            v-if="examStore.currentEvaluation && examStore.currentEvaluation.published !== 1"
+            @click="confirmPublish"
+            class="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all font-semibold text-sm shadow-sm flex items-center gap-2"
+            :disabled="isPublishing"
+          >
+            <svg v-if="!isPublishing" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <svg v-else class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ isPublishing ? 'Publication...' : 'Publier les résultats' }}
+          </button>
+          
+          <div v-else-if="examStore.currentEvaluation?.published === 1" class="px-4 py-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-xl border border-emerald-200 dark:border-emerald-800 flex items-center gap-2 text-sm font-semibold">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Résultats publiés
+          </div>
+
+          <button
+            @click="handleRefreshData"
+            class="p-2.5 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm"
+            title="Rafraîchir"
+          >
+            <svg class="w-5 h-5" :class="{ 'animate-spin': isPageLoading }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+        </div>
+      </div>
 
       <!-- ========== FILTRES ET STATISTIQUES ========== -->
       <div class="mb-6 grid grid-cols-1 lg:grid-cols-4 gap-4">
@@ -495,6 +532,7 @@ import { Dialog, DialogPanel, DialogTitle, TransitionRoot, TransitionChild } fro
 import Breadcrumb from '~/components/Breadcrumb.vue'
 import { useExamStore } from '~~/stores/exam'
 import { useEtudiantStore } from '~~/stores/etudiant'
+import Swal from 'sweetalert2'
 
 const route = useRoute()
 const examStore = useExamStore()
@@ -512,10 +550,70 @@ const showCorrectionModal = ref(false)
 const selectedEtudiant = ref(null)
 const selectedPartCorrection = ref(null)
 const isSavingAll = ref(false)
+const isPublishing = ref(false)
 const showToast = ref(false)
 const toastMessage = ref('')
 const correctionForm = ref({})
 const isAnalysingIA = ref({})
+
+const confirmPublish = () => {
+  if (questionsNonCorrigees.value > 0) {
+    Swal.fire({
+      title: 'Attention',
+      text: `Il reste encore ${questionsNonCorrigees.value} questions à corriger. Voulez-vous vraiment publier les résultats maintenant ?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Oui, publier',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        publishResults()
+      }
+    })
+  } else {
+    Swal.fire({
+      title: 'Publier les résultats ?',
+      text: "Les étudiants pourront consulter leurs notes et la correction dès la publication.",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Oui, publier',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        publishResults()
+      }
+    })
+  }
+}
+
+const publishResults = async () => {
+  if (isPublishing.value) return
+  
+  isPublishing.value = true
+  try {
+    await examStore.publishEvaluation(evaluationId)
+    showToastMessage('Résultats publiés avec succès')
+    
+    // Alerte de succès
+    Swal.fire({
+      title: 'Félicitations !',
+      text: 'Les résultats ont été publiés. Les étudiants peuvent désormais les consulter.',
+      icon: 'success',
+      confirmButtonColor: '#10b981'
+    })
+  } catch (error) {
+    console.error('Erreur publication:', error)
+    Swal.fire('Erreur', 'Une erreur est survenue lors de la publication.', 'error')
+  } finally {
+    isPublishing.value = false
+  }
+}
 
 const getAISuggestion = async (question) => {
   if (!selectedEtudiant.value || !question) return

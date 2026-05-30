@@ -9,133 +9,149 @@
       title-class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white"
     />
 
-    <!-- Recherche Étudiant -->
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8">
-      <div class="flex flex-col md:flex-row gap-4 items-end">
-        <div class="flex-1 space-y-2">
-          <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Rechercher l'étudiant à réinscrire</label>
-          <div class="relative">
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Saisissez le matricule ou le nom de l'étudiant..."
-              class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 outline-none focus:ring-2 focus:ring-purple-500/50"
-              @keyup.enter="searchEtudiant"
-            />
-            <svg class="w-5 h-5 absolute left-3 top-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-        </div>
-        <button 
-          @click="searchEtudiant"
-          class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition-transform hover:scale-105 active:scale-95"
+    <!-- Sélection Étudiant -->
+    <div class="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-3xl shadow-[0_8px_30px_rgba(127,69,253,0.04)] border border-gray-100 dark:border-gray-700 mb-8">
+      <div class="max-w-3xl mx-auto space-y-4">
+        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Sélectionner l'étudiant à réinscrire</label>
+        <Select 
+          v-model="selectedEtudiantToPromote" 
+          :options="studentsList" 
+          filter 
+          optionLabel="nomComplet" 
+          placeholder="Rechercher et sélectionner un étudiant..." 
+          class="w-full prime-select-enroll"
         >
-          Rechercher
-        </button>
+          <template #option="slotProps">
+             <div class="flex items-center gap-4 py-1">
+               <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 font-bold shrink-0">
+                 {{ slotProps.option.nom?.charAt(0) }}{{ slotProps.option.prenom?.charAt(0) }}
+               </div>
+               <div class="flex flex-col">
+                 <span class="font-bold text-sm text-gray-900 dark:text-white">{{ slotProps.option.nom }} {{ slotProps.option.prenom }}</span>
+                 <span class="text-[10px] text-gray-500 font-mono mt-0.5">{{ slotProps.option.matricule || 'Sans matricule' }}</span>
+               </div>
+             </div>
+          </template>
+        </Select>
       </div>
 
-      <!-- Résultat Recherche -->
-      <div v-if="foundEtudiants.length > 0" class="mt-8 overflow-hidden rounded-xl border border-gray-100 dark:border-gray-700">
-        <table class="w-full whitespace-nowrap">
-           <thead class="bg-gray-50 dark:bg-gray-800/50 text-left text-xs font-semibold text-gray-500 uppercase tracking-widest border-b dark:border-gray-700">
-             <tr>
-               <th class="px-6 py-4">Matricule</th>
-               <th class="px-6 py-4">Étudiant</th>
-               <th class="px-6 py-4">Niveau / Filière Actuel</th>
-               <th class="px-6 py-4 text-right">Action</th>
-             </tr>
-           </thead>
-           <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-             <tr v-for="e in foundEtudiants" :key="e.id" class="text-sm">
-               <td class="px-6 py-4 font-mono font-bold text-purple-600">{{ e.matricule || 'Sans Matricule' }}</td>
-               <td class="px-6 py-4">
-                 <div class="flex items-center gap-2">
-                   <div class="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 font-bold">
-                     {{ e.nom?.charAt(0) }}
-                   </div>
-                   <span class="font-medium">{{ e.nom }} {{ e.prenom }}</span>
-                 </div>
-               </td>
-               <td class="px-6 py-4">
-                 <span v-if="e.group" class="text-gray-600">{{ e.group?.niveau?.nom }} - {{ e.group?.filiere?.nom }}</span>
-                 <span v-else class="text-gray-400 italic">Non affecté</span>
-               </td>
-               <td class="px-6 py-4 text-right">
-                 <button 
-                  @click="initReinscription(e)"
-                  class="px-4 py-2 text-indigo-600 font-bold border-2 border-indigo-100 dark:border-indigo-900/30 rounded-lg hover:bg-indigo-600 hover:text-white transition-all"
-                 >
-                   Promouvoir
-                 </button>
-               </td>
-             </tr>
-           </tbody>
-        </table>
-      </div>
+      <!-- Résultat Sélectionné -->
+      <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0 translate-y-4" enter-to-class="opacity-100 translate-y-0">
+        <div v-if="selectedEtudiantToPromote" class="mt-8 bg-white dark:bg-gray-800 rounded-3xl shadow-xl shadow-indigo-500/10 border border-gray-100 dark:border-gray-700 overflow-hidden">
+          
+          <!-- En-tête : Infos Académiques & Bouton Promouvoir -->
+          <div class="p-6 md:p-8 flex flex-col md:flex-row items-start justify-between gap-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+            <div class="flex items-start gap-6 w-full md:w-auto">
+              <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white text-3xl font-black shadow-lg shadow-indigo-500/30 shrink-0 mt-2">
+                {{ selectedEtudiantToPromote.nom?.charAt(0) }}
+              </div>
+              <div class="space-y-4 flex-1">
+                <div>
+                  <h2 class="text-2xl font-black text-gray-900 dark:text-white leading-none mb-1">{{ selectedEtudiantToPromote.nom }} {{ selectedEtudiantToPromote.prenom }}</h2>
+                  <p class="text-indigo-600 dark:text-indigo-400 font-medium">{{ selectedEtudiantToPromote.matricule }}</p>
+                  
+                  <div class="flex flex-wrap gap-2 mt-3">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-600 border border-gray-200">
+                      Niveau actuel: {{ selectedEtudiantToPromote.dernier_groupe?.niveau?.nom || 'N/A' }}
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-indigo-100 text-indigo-700 border border-indigo-200 shadow-sm shadow-indigo-500/10">
+                      Passage vers: {{ nextNiveauToPromote ? nextNiveauToPromote.libelle : 'Fin de cursus' }}
+                    </span>
+                    <span v-if="selectedEtudiantToPromote.dernier_groupe?.filiere" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                      {{ selectedEtudiantToPromote.dernier_groupe?.filiere?.nom }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <button 
+              @click="confirmReinscription(selectedEtudiantToPromote)"
+              :disabled="!nextNiveauToPromote || isSubmitting"
+              class="w-full md:w-auto px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-bold text-sm uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-500/30 transition-transform hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap self-center"
+            >
+              <span v-if="isSubmitting">Traitement...</span>
+              <span v-else>Promouvoir</span>
+            </button>
+          </div>
+
+          <!-- Section Financière Détaillée -->
+          <div class="p-6 md:p-8">
+            <h4 class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-6 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              Situation Financière Détaillée
+            </h4>
+
+            <div v-if="isLoadingFinances" class="flex justify-center items-center py-10">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+              <span class="ml-3 text-sm font-medium text-gray-500">Chargement de la situation financière...</span>
+            </div>
+
+            <div v-else>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+                <div class="bg-indigo-50/70 dark:bg-indigo-900/10 rounded-2xl p-5 border border-indigo-100/50 dark:border-indigo-800/30">
+                  <p class="text-[11px] font-bold text-indigo-500 uppercase mb-1">Montant Total Dû</p>
+                  <p class="text-2xl font-black text-indigo-700 dark:text-indigo-400">{{ formatMontant(situationFinanciere?.montant_apres_bourse) }}</p>
+                </div>
+                <div class="bg-emerald-50/70 dark:bg-emerald-900/10 rounded-2xl p-5 border border-emerald-100/50 dark:border-emerald-800/30">
+                  <p class="text-[11px] font-bold text-emerald-600/70 uppercase mb-1">Déjà Payé</p>
+                  <p class="text-2xl font-black text-emerald-600 dark:text-emerald-400">{{ formatMontant(calculerTotalPaye(situationFinanciere)) }}</p>
+                </div>
+                <div class="bg-amber-50/70 dark:bg-amber-900/10 rounded-2xl p-5 border border-amber-100/50 dark:border-amber-800/30 relative overflow-hidden">
+                  <p class="text-[11px] font-bold text-amber-600/70 uppercase mb-1">Reste à payer</p>
+                  <p class="text-2xl font-black text-amber-600 dark:text-amber-400">{{ formatMontant((Number(situationFinanciere?.montant_apres_bourse) || 0) - calculerTotalPaye(situationFinanciere)) }}</p>
+                  <div v-if="situationFinanciere && (Number(situationFinanciere?.montant_apres_bourse) || 0) - calculerTotalPaye(situationFinanciere) > 0" class="absolute top-0 right-0 bg-amber-500 text-white text-[9px] font-black uppercase px-2 py-1 rounded-bl-lg">Solde en cours</div>
+                </div>
+              </div>
+
+              <!-- Barre de progression de paiement -->
+              <div class="mb-8" v-if="situationFinanciere">
+                <div class="flex items-center justify-between text-xs mb-2">
+                  <span class="font-bold text-gray-500">Progression globale du paiement</span>
+                  <span class="font-black" :class="calculateProgression(situationFinanciere) >= 100 ? 'text-emerald-600' : 'text-indigo-600'">{{ calculateProgression(situationFinanciere) }}%</span>
+                </div>
+                <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+                  <div class="h-3 rounded-full transition-all duration-1000 ease-out" 
+                       :class="calculateProgression(situationFinanciere) >= 100 ? 'bg-emerald-500' : 'bg-gradient-to-r from-indigo-500 to-purple-500'" 
+                       :style="{ width: `${calculateProgression(situationFinanciere)}%` }">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Liste des échéances -->
+              <div v-if="getEcheancesDetails(situationFinanciere).length > 0">
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Détail des échéances</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div v-for="(ech, idx) in getEcheancesDetails(situationFinanciere)" :key="idx" class="flex items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center gap-3">
+                      <div :class="ech.reste <= 0 ? 'bg-emerald-100 text-emerald-600' : (new Date(ech.date_limite) < new Date() ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600')" class="w-10 h-10 rounded-full flex items-center justify-center shrink-0">
+                        <svg v-if="ech.reste <= 0" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                        <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                      </div>
+                      <div>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white leading-tight">{{ ech.libelle }}</p>
+                        <p class="text-[10px] text-gray-500 font-medium">Limite: {{ ech.date_limite_formatted }}</p>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-sm font-black text-gray-900 dark:text-white">{{ ech.montant_formatted }}</p>
+                      <p class="text-[11px] font-bold" :class="ech.reste <= 0 ? 'text-emerald-500' : (new Date(ech.date_limite) < new Date() ? 'text-red-500' : 'text-amber-500')">Reste: {{ ech.reste_formatted }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-6 text-center border border-dashed border-gray-200 dark:border-gray-700 mt-4">
+                <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <p class="text-sm font-bold text-gray-700 dark:text-gray-300">Aucun détail financier disponible</p>
+                <p class="text-xs text-gray-500 mt-1">L'historique des paiements de cet étudiant est introuvable.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
     </div>
 
-    <!-- Modal Formulaire Réinscription -->
-    <Modal :show="showModal" @close="showModal = false" title="Passage au niveau supérieur">
-      <div v-if="selectedEtudiant" class="flex gap-4 items-center mb-6 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800">
-        <div class="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 font-bold shrink-0">
-          {{ selectedEtudiant.nom?.charAt(0) }}
-        </div>
-        <div>
-          <p class="text-sm font-bold text-indigo-900 dark:text-indigo-300">Réinscription de {{ selectedEtudiant.nom }} {{ selectedEtudiant.prenom }}</p>
-          <p class="text-xs text-indigo-600 dark:text-indigo-400 italic">Préparez le passage vers son futur parcours académique.</p>
-        </div>
-      </div>
 
-      <form id="reinscriptionForm" @submit.prevent="submitReinscription" class="space-y-5">
-        <div>
-          <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Choisir le nouveau niveau :</label>
-          <select v-model="form.niveau_id" required class="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all">
-            <option value="">Sélectionnez le niveau</option>
-            <option v-for="n in niveaux" :key="n.id" :value="n.id">{{ n.nom }}</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Affectation Groupe (Auto ou manuel) :</label>
-          <select v-model="form.group_id" class="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all">
-            <option :value="''">Auto-sélection par défaut</option>
-            <option v-for="g in filteredGroups" :key="g.id" :value="g.id">{{ g.nom }} ({{ g.filiere?.nom }})</option>
-          </select>
-          <p class="text-[10px] text-gray-400 mt-2 flex items-center gap-1">
-            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/></svg>
-            Le système choisira le groupe unique si possible.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <div>
-            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Partenaire de suivi :</label>
-            <select v-model="form.advertiser_id" class="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all">
-              <option :value="null">Inchangé</option>
-              <option v-for="adv in advertisers" :key="adv.id" :value="adv.id">{{ adv.name }}</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Année Promotion :</label>
-            <input v-model="form.promotion" type="text" placeholder="ex: 2024-2025" class="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all" />
-          </div>
-        </div>
-      </form>
-
-      <template #footer>
-        <button type="button" @click="showModal = false" class="px-5 py-2.5 text-gray-600 font-bold hover:bg-gray-100 rounded-2xl transition-colors">Annuler</button>
-        <button 
-          form="reinscriptionForm"
-          type="submit" 
-          :disabled="isSubmitting"
-          class="px-8 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-extrabold rounded-2xl shadow-lg hover:shadow-indigo-500/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
-        >
-          <span v-if="isSubmitting">Finalisation...</span>
-          <span v-else>Valider la réinscription</span>
-        </button>
-      </template>
-    </Modal>
   </div>
 </template>
 
@@ -145,6 +161,7 @@ import { useEtudiantStore } from '~~/stores/etudiant'
 import { useNiveauStore } from '~~/stores/niveau'
 import { useGroupeStore } from '~~/stores/group'
 import { useAdvertiserStore } from '~~/stores/adverstiser'
+import { useNegociationStore } from '~~/stores/negociation'
 import Breadcrumb from '~/components/Breadcrumb.vue'
 import Modal from '~/components/Modal.vue'
 
@@ -152,6 +169,7 @@ const etudiantStore = useEtudiantStore()
 const niveauStore = useNiveauStore()
 const groupStore = useGroupeStore()
 const advertiserStore = useAdvertiserStore()
+const negociationStore = useNegociationStore()
 const { $toastr, $swal } = useNuxtApp()
 
 // États
@@ -160,6 +178,9 @@ const foundEtudiants = ref([])
 const isSubmitting = ref(false)
 const showModal = ref(false)
 const selectedEtudiant = ref(null)
+const selectedEtudiantToPromote = ref(null)
+const situationFinanciere = ref(null)
+const isLoadingFinances = ref(false)
 
 const form = ref({
   niveau_id: '',
@@ -172,70 +193,83 @@ const form = ref({
 const niveaux = computed(() => niveauStore.niveaux || [])
 const advertisers = computed(() => advertiserStore.advertisers || [])
 
+const studentsList = computed(() => {
+  return etudiantStore.etudiants.map(e => ({
+    ...e,
+    nomComplet: `${e.nom} ${e.prenom} (${e.matricule || 'Sans matricule'})`
+  }))
+})
+
 // Groupes filtrés par le niveau sélectionné dans le formulaire
 const filteredGroups = computed(() => {
   if (!form.value.niveau_id) return []
-  return groupStore.groups.filter(g => g.niveau_id == form.value.niveau_id)
+  return groupStore.groupes.filter(g => g.niveau_id == form.value.niveau_id)
 })
 
 const searchEtudiant = async () => {
-  if (searchQuery.value.length < 3) {
-    $toastr.warning('Veuillez saisir au moins 3 caractères')
-    return
-  }
-  
-  try {
-    // Si la route de recherche n'existe pas, on filtre en local après fetch
-    // Mais ici on suppose que fetchEtudiants ramène tout ou qu'on a déjà chargé
-    if (etudiantStore.etudiants.length === 0) {
-      await etudiantStore.fetchEtudiants()
-    }
-    
-    const q = searchQuery.value.toLowerCase()
-    foundEtudiants.value = etudiantStore.etudiants.filter(e => 
-      e.nom?.toLowerCase().includes(q) || 
-      e.prenom?.toLowerCase().includes(q) || 
-      e.matricule?.toLowerCase().includes(q)
-    )
-    
-    if (foundEtudiants.value.length === 0) {
-      $toastr.error('Aucun étudiant trouvé')
-    }
-  } catch (e) {
-    $toastr.error('Erreur lors de la recherche')
-  }
+  // Not used anymore as we pick from dropdown, kept for compatibility if needed elsewhere
 }
 
-const initReinscription = (etudiant) => {
-  selectedEtudiant.value = etudiant
-  form.value = {
-    niveau_id: '',
-    group_id: '',
-    advertiser_id: etudiant.advertiser_id,
-    promotion: getCurrentPromotion(),
+const nextNiveauToPromote = computed(() => {
+  if (!selectedEtudiantToPromote.value) return null
+  const currentNiveau = selectedEtudiantToPromote.value.dernier_groupe?.niveau;
+  if (currentNiveau) {
+     const fullCurrentNiveau = niveaux.value.find(n => n.id === currentNiveau.id) || currentNiveau;
+     const currentOrdre = Number(fullCurrentNiveau.ordre);
+     if (!isNaN(currentOrdre)) {
+        return niveaux.value.find(n => Number(n.ordre) === (currentOrdre + 1));
+     }
   }
-  showModal.value = true
-}
+  return null
+})
 
-const submitReinscription = async () => {
-  if (!form.value.niveau_id) {
-    $toastr.error('Veuillez sélectionner un niveau')
+const confirmReinscription = async (etudiant) => {
+  const nextNiveau = nextNiveauToPromote.value;
+  if (!nextNiveau) {
+    $toastr.error('Fin de cursus ou niveau supérieur introuvable.')
     return
   }
 
+  const result = await $swal.fire({
+    title: 'Confirmer la promotion ?',
+    html: `Voulez-vous vraiment promouvoir <b>${etudiant.nom} ${etudiant.prenom}</b> vers le niveau <b>${nextNiveau.libelle}</b> pour l'année scolaire <b>${getCurrentPromotion()}</b> ?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#4f46e5',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Oui, promouvoir',
+    cancelButtonText: 'Annuler',
+    customClass: {
+      confirmButton: 'px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-700',
+      cancelButton: 'px-6 py-2.5 bg-gray-200 text-gray-800 font-bold rounded-xl hover:bg-gray-300'
+    },
+    buttonsStyling: false
+  })
+
+  if (result.isConfirmed) {
+    form.value = {
+      niveau_id: nextNiveau.id,
+      group_id: '',
+      advertiser_id: etudiant.advertiser_id,
+      promotion: getCurrentPromotion(),
+    }
+    await submitReinscription(etudiant)
+  }
+}
+
+const submitReinscription = async (etudiant) => {
   isSubmitting.value = true
   try {
-    await etudiantStore.reinscrire(selectedEtudiant.value.id, form.value)
+    await etudiantStore.reinscrire(etudiant.id, form.value)
     
     await $swal.fire({
       title: 'Réinscription réussie !',
-      text: `${selectedEtudiant.value.nom} a été promu avec succès.`,
-      icon: 'success'
+      text: `${etudiant.nom} a été promu avec succès.`,
+      icon: 'success',
+      confirmButtonColor: '#4f46e5'
     })
     
-    showModal.value = false
-    foundEtudiants.value = []
-    searchQuery.value = ''
+    selectedEtudiantToPromote.value = null
   } catch (error) {
     $toastr.error(error.response?.data?.message || 'Erreur lors de la réinscription')
   } finally {
@@ -251,9 +285,60 @@ const getCurrentPromotion = () => {
   return `${year - 1}-${year}`
 }
 
+const formatMontant = (montant) => {
+  if (!montant && montant !== 0) return '0 FCFA'
+  return new Intl.NumberFormat('fr-FR').format(montant) + ' FCFA'
+}
+
+const calculerTotalPaye = (negociation) => {
+  if (!negociation || !negociation.echeances) return 0
+  return negociation.echeances.reduce((sum, e) => sum + (Number(e.montant_paye) || 0), 0)
+}
+
+const calculateProgression = (negociation) => {
+  if (!negociation) return 0
+  const total = Number(negociation.montant_apres_bourse) || 0
+  if (total === 0) return 0
+  const paye = calculerTotalPaye(negociation)
+  return Math.min(100, Math.round((paye / total) * 100))
+}
+
+const getEcheancesDetails = (negociation) => {
+  if (!negociation || !negociation.echeances) return []
+  return negociation.echeances.map(e => {
+    const montant = Number(e.montant) || 0
+    const paye = Number(e.montant_paye) || 0
+    const reste = montant - paye
+    return {
+      libelle: e.libelle,
+      date_limite: e.date_limite,
+      date_limite_formatted: new Date(e.date_limite).toLocaleDateString('fr-FR'),
+      montant_formatted: formatMontant(montant),
+      reste: reste,
+      reste_formatted: formatMontant(reste)
+    }
+  })
+}
+
+watch(selectedEtudiantToPromote, async (newVal) => {
+  situationFinanciere.value = null
+  if (newVal) {
+    isLoadingFinances.value = true
+    try {
+      const data = await negociationStore.fetchNegociationByEtudiant(newVal.id)
+      situationFinanciere.value = data
+    } catch (e) {
+      console.warn('Pas de données financières trouvées pour cet étudiant')
+    } finally {
+      isLoadingFinances.value = false
+    }
+  }
+})
+
 onMounted(() => {
+  etudiantStore.fetchEtudiants()
   niveauStore.fetchNiveaux()
-  groupStore.fetchGroups()
+  groupStore.fetchGroupes()
   advertiserStore.fetchAdvertisers()
 })
 </script>

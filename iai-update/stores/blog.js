@@ -176,7 +176,88 @@ export const useBlogStore = defineStore("blog", {
         throw error;
       } finally {
         this.isLoading = false;
-      }a
+      }
+    },
+    
+    async fetchComments(blogId) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          `/admin/web-communications/comments?blog_id=${blogId}`,
+          this.authHeaders()
+        );
+        return response.data;
+      } catch (error) {
+        console.error(`Erreur chargement des commentaires du blog ${blogId}:`, error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async updateCommentStatus(commentId, status) {
+      this.isLoading = true;
+      try {
+        const response = await axios.put(
+          `/admin/web-communications/comments/${commentId}/status`,
+          { status },
+          this.authHeaders()
+        );
+        return response.data;
+      } catch (error) {
+        console.error(`Erreur maj statut commentaire ${commentId}:`, error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async deleteComment(commentId) {
+      this.isLoading = true;
+      try {
+        const response = await axios.delete(
+          `/admin/web-communications/comments/${commentId}`,
+          this.authHeaders()
+        );
+        return response.data;
+      } catch (error) {
+        console.error(`Erreur suppression commentaire ${commentId}:`, error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async fetchNewsletterSubscribers() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          `/admin/web-communications/newsletter`,
+          this.authHeaders()
+        );
+        return response.data;
+      } catch (error) {
+        console.error(`Erreur chargement des abonnés newsletter:`, error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async deleteNewsletterSubscriber(subscriberId) {
+      this.isLoading = true;
+      try {
+        const response = await axios.delete(
+          `/admin/web-communications/newsletter/${subscriberId}`,
+          this.authHeaders()
+        );
+        return response.data;
+      } catch (error) {
+        console.error(`Erreur suppression abonné newsletter ${subscriberId}:`, error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
     },
    
   },

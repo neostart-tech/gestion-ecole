@@ -30,6 +30,7 @@ export const rolePermissions = {
     "statistiques/*",
     "/chat/*",
     "/evaluations/professeur/mes-examens",
+    "/enseignant/syllabuses/*",
     "personnel/*"
   ],
 
@@ -69,6 +70,7 @@ export const rolePermissions = {
     "/statistiques/*",
     "/chat/*",
     "/evaluations/professeur/mes-examens",
+    "/enseignant/syllabuses/*",
     "/evaluations/examen-en-ligne/*",
   ],
 
@@ -217,11 +219,26 @@ export const rolePermissions = {
     "/messages/*",
     "/notifications/*",
     "/chat/*",
+    "/evaluations/etudiant/mes-examens",
+    "/evaluations/examen-en-ligne/*",
+    '/actualites/*',
+    "/annonces",
+    "/etudiant/syllabuses/*",
+  ],
+
+  delegue: [
+    "/profile/*",
+    "/etudiant/*",
+    "/emploi-du-temps/*",
+    "/messages/*",
+    "/notifications/*",
+    "/chat/*",
     "/presences/*",
     "/evaluations/etudiant/mes-examens",
     "/evaluations/examen-en-ligne/*",
     '/actualites/*',
     "/annonces",
+    "/etudiant/syllabuses/*",
   ],
 
   // Utilisateur simple

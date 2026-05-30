@@ -118,7 +118,13 @@
                 v-if="value === 1 || value === true"
                 class="flex items-center"
               >
-                <!-- ... badge vert existant ... -->
+                <span class="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5 shadow-sm uppercase tracking-wider">
+                  <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  Publié
+                </span>
               </div>
 
               <!-- Si non publié -->
