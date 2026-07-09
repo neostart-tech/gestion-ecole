@@ -517,12 +517,19 @@
             :title="userInfo.name"
           >
             <div
+              v-if="!userPhoto"
               class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md group-hover:shadow-lg transition-shadow"
             >
               <span class="text-xs sm:text-sm font-semibold">{{
                 userInitials
               }}</span>
             </div>
+            <img
+              v-else
+              :src="userPhoto"
+              class="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover shadow-md group-hover:shadow-lg transition-shadow"
+              alt="Profile photo"
+            />
             <div class="hidden md:block text-left">
               <p
                 class="text-xs sm:text-sm font-semibold text-gray-800 dark:text-gray-200 max-w-[120px] truncate"
@@ -568,12 +575,19 @@
               >
                 <div class="flex items-center gap-3">
                   <div
+                    v-if="!userPhoto"
                     class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white"
                   >
                     <span class="text-sm font-semibold">{{
                       userInitials
                     }}</span>
                   </div>
+                  <img
+                    v-else
+                    :src="userPhoto"
+                    class="w-10 h-10 rounded-full object-cover"
+                    alt="Profile photo"
+                  />
                   <div class="flex-1 min-w-0">
                     <p
                       class="text-sm font-semibold text-gray-900 dark:text-white truncate"
@@ -647,6 +661,7 @@ import { useNotificationStore } from "~~/stores/notification";
 import { useLoginStore } from "../../stores/login";
 import { formatDistanceToNow, format } from "date-fns";
 import { fr } from "date-fns/locale";
+import config from "~~/config";
 
 const { $toastr, $swal } = useNuxtApp();
 
@@ -674,6 +689,10 @@ const userInitials = computed(() => {
     return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
   }
   return name.substring(0, 2).toUpperCase();
+});
+
+const userPhoto = computed(() => {
+  return null; // Forcer l'affichage des initiales pour le moment
 });
 
 // Notifications typed to any[] to avoid inference issues with the store

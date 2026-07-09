@@ -9,8 +9,8 @@
     </div>
 
     <!-- Header - Élégant avec accent violet -->
-    <header class="sticky top-0 z-40 bg-white/90 dark:bg-[#0a0a12]/90 backdrop-blur-2xl border-b border-[#e8e8f0] dark:border-[#1a1a2a]">
-      <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
+    <header class="sticky top-0 z-30 bg-white/90 dark:bg-[#0a0a12]/90 backdrop-blur-2xl border-b border-[#e8e8f0] dark:border-[#1a1a2a]">
+      <div class="max-w-[1600px] mx-auto px-6 sm:px-8 lg:px-10">
         <div class="h-20 flex items-center justify-between">
           <div class="flex items-center gap-4">
             <NuxtLink to="/candidatures/etude-dossier" class="group p-2 text-[#8a8a9a] hover:text-[#7F45FD] transition-all duration-300">
@@ -39,7 +39,7 @@
       </div>
     </header>
 
-    <main class="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-10">
+    <main class="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-8 lg:px-10 py-10">
       
       <!-- Skeleton -->
       <div v-if="isPageLoading" class="animate-pulse space-y-8">
@@ -74,7 +74,7 @@
                 <div class="space-y-2">
                   <div class="flex items-center gap-3">
                     <span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8a8a9a] dark:text-[#666]">Dossier</span>
-                    <span class="text-[10px] font-bold text-[#7F45FD]">#{{ formatId(candidat.id) }}</span>
+                    <span class="text-[10px] font-bold text-[#7F45FD]">#{{ formatId(candidat.code) }}</span>
                   </div>
                   <h2 class="flex flex-wrap items-center gap-2 lg:gap-3 text-3xl lg:text-4xl font-bold tracking-tight text-[#1a1a2a] dark:text-[#fafafe] leading-[1.15]">
                     <span class="font-bold">{{ candidat.nom }}</span>
@@ -100,21 +100,34 @@
             <div class="mt-8 lg:mt-10 pt-6 lg:pt-8 border-t border-[#e8e8f0] dark:border-[#1a1a2a]">
               
               <div v-if="!candidat.dossier_valide && !candidat.motif && !candidat.rectification_expected" class="flex flex-wrap items-center gap-3">
-                <button @click="handleAction('valider')" class="px-8 py-3.5 bg-[#7F45FD] hover:bg-[#6a35e8] text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_25px_rgba(127,69,253,0.3)] flex items-center justify-center gap-2">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                <button @click="handleAction('valider')" :disabled="isSubmitting" class="px-8 py-3.5 bg-[#7F45FD] hover:bg-[#6a35e8] text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_25px_rgba(127,69,253,0.3)] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                  <span v-if="isSubmitting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                   Valider le dossier
                 </button>
-                <button @click="handleAction('rectifier')" class="px-6 py-3.5 bg-[#F59E0B] hover:bg-[#D97706] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(245,158,11,0.3)]">Corriger</button>
-                <button @click="handleAction('reorienter')" class="px-6 py-3.5 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(59,130,246,0.3)]">Réorienter</button>
-                <button @click="handleAction('rejeter')" class="px-6 py-3.5 bg-[#ff4757] hover:bg-[#e84118] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(255,71,87,0.3)]">Rejeter</button>
+                <button @click="handleAction('rectifier')" :disabled="isSubmitting" class="px-6 py-3.5 bg-[#F59E0B] hover:bg-[#D97706] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(245,158,11,0.3)] disabled:opacity-60 disabled:cursor-not-allowed">Corriger</button>
+                <button @click="handleAction('reorienter')" :disabled="isSubmitting" class="px-6 py-3.5 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(59,130,246,0.3)] disabled:opacity-60 disabled:cursor-not-allowed">Réorienter</button>
+                <button @click="handleAction('rejeter')" :disabled="isSubmitting" class="px-6 py-3.5 bg-[#ff4757] hover:bg-[#e84118] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(255,71,87,0.3)] disabled:opacity-60 disabled:cursor-not-allowed">Rejeter</button>
               </div>
 
-              <div v-else-if="candidat.dossier_valide" class="flex items-center gap-4 py-3 px-6 bg-[#7F45FD]/10 border border-[#7F45FD]/20 rounded-xl">
+              <div v-else-if="candidat.dossier_valide && nextStep" :class="[
+                'flex items-center gap-4 py-3 px-6 rounded-xl border',
+                nextStep.tone === 'rose' ? 'bg-[#ff4757]/10 border-[#ff4757]/20' : nextStep.tone === 'emerald' ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-[#7F45FD]/10 border-[#7F45FD]/20'
+              ]">
                 <div class="flex items-center gap-2">
-                  <svg class="w-5 h-5 text-[#7F45FD]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                  <p class="text-[#7F45FD] text-sm font-bold">Dossier validé</p>
+                  <svg :class="[
+                    'w-5 h-5',
+                    nextStep.tone === 'rose' ? 'text-[#ff4757]' : nextStep.tone === 'emerald' ? 'text-emerald-500' : 'text-[#7F45FD]'
+                  ]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                  <p :class="[
+                    'text-sm font-bold',
+                    nextStep.tone === 'rose' ? 'text-[#ff4757]' : nextStep.tone === 'emerald' ? 'text-emerald-500' : 'text-[#7F45FD]'
+                  ]">{{ nextStep.text }}</p>
                 </div>
-                <NuxtLink v-if="!candidat.etudiant_id" :to="`/candidatures/inscription/${candidat.slug}`" class="text-[11px] text-[#7F45FD]/70 hover:text-[#7F45FD] underline ml-2">Finaliser l'inscription →</NuxtLink>
+                <NuxtLink v-if="nextStep.linkText" :to="nextStep.to" :class="[
+                  'text-[11px] underline ml-2',
+                  nextStep.tone === 'rose' ? 'text-[#ff4757]/70 hover:text-[#ff4757]' : nextStep.tone === 'emerald' ? 'text-emerald-500/70 hover:text-emerald-500' : 'text-[#7F45FD]/70 hover:text-[#7F45FD]'
+                ]">{{ nextStep.linkText }}</NuxtLink>
               </div>
 
               <div v-else-if="candidat.rectification_expected" class="py-3 px-6 bg-[#FFB347]/10 border border-[#FFB347]/20 rounded-xl">
@@ -166,25 +179,34 @@
               <svg :class="{'rotate-180': activeTab === 'academique'}" class="w-4 h-4 text-[#8a8a9a] transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div v-show="activeTab === 'academique'" class="px-8 pb-8 pt-2 border-t border-[#e8e8f0] dark:border-[#1a1a2a]">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 <div class="p-6 bg-[#fafafe] dark:bg-[#0a0a12] rounded-xl border border-[#e8e8f0] dark:border-[#2a2a3a]">
-                  <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-[#8a8a9a] dark:text-[#666] mb-1">Année du BAC</p>
-                  <p class="text-3xl font-bold text-[#1a1a2a] dark:text-[#fafafe]">{{ candidat.annee_bac || '—' }}</p>
+                  <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-[#8a8a9a] dark:text-[#666] mb-1">Type de diplôme</p>
+                  <p class="text-xl font-bold text-[#1a1a2a] dark:text-[#fafafe]">{{ candidat.dernier_diplome || candidat.album?.type_diplome || candidat.type_diplome || '—' }}</p>
+                </div>
+                <div class="p-6 bg-[#fafafe] dark:bg-[#0a0a12] rounded-xl border border-[#e8e8f0] dark:border-[#2a2a3a]">
+                  <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-[#8a8a9a] dark:text-[#666] mb-1">Établissement</p>
+                  <p class="text-xl font-bold text-[#1a1a2a] dark:text-[#fafafe]">{{ candidat.etablissement_diplome || '—' }}</p>
+                </div>
+                <div class="p-6 bg-[#fafafe] dark:bg-[#0a0a12] rounded-xl border border-[#e8e8f0] dark:border-[#2a2a3a]">
+                  <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-[#8a8a9a] dark:text-[#666] mb-1">Année d'obtention</p>
+                  <p class="text-xl font-bold text-[#1a1a2a] dark:text-[#fafafe]">{{ candidat.annee_bac || '—' }}</p>
                 </div>
                 <div class="p-6 bg-[#fafafe] dark:bg-[#0a0a12] rounded-xl border border-[#e8e8f0] dark:border-[#2a2a3a]">
                   <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-[#8a8a9a] dark:text-[#666] mb-1">Série</p>
-                  <p class="text-3xl font-bold text-[#1a1a2a] dark:text-[#fafafe]">{{ candidat.serie || '—' }}</p>
+                  <p class="text-xl font-bold text-[#1a1a2a] dark:text-[#fafafe]">{{ candidat.serie || '—' }}</p>
+                </div>
+                <div class="p-6 bg-[#fafafe] dark:bg-[#0a0a12] rounded-xl border border-[#e8e8f0] dark:border-[#2a2a3a]">
+                  <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-[#8a8a9a] dark:text-[#666] mb-1">Mention au BAC</p>
+                  <p class="text-xl font-bold text-[#1a1a2a] dark:text-[#fafafe]">{{ candidat.mention_bac || '—' }}</p>
+                </div>
+                <div class="p-6 bg-[#fafafe] dark:bg-[#0a0a12] rounded-xl border border-[#e8e8f0] dark:border-[#2a2a3a]">
+                  <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-[#8a8a9a] dark:text-[#666] mb-1">Numéro de table</p>
+                  <p class="text-xl font-bold text-[#1a1a2a] dark:text-[#fafafe]">{{ candidat.numero_table || '—' }}</p>
                 </div>
               </div>
               
-              <div class="pt-6 border-t border-[#e8e8f0] dark:border-[#1a1a2a]">
-                <p class="text-[9px] font-bold uppercase tracking-[0.15em] text-[#8a8a9a] dark:text-[#666] mb-3">Lettre de motivation</p>
-                <div class="p-6 bg-[#fafafe] dark:bg-[#0a0a12] rounded-xl border border-[#e8e8f0] dark:border-[#2a2a3a]">
-                  <p class="text-sm text-[#1a1a2a] dark:text-[#fafafe] italic font-medium leading-relaxed">
-                    " {{ candidat.lettre_motivation || 'Aucune lettre de motivation fournie.' }} "
-                  </p>
-                </div>
-              </div>
+
             </div>
           </div>
 
@@ -240,15 +262,25 @@
               <svg :class="{'rotate-180': activeTab === 'documents'}" class="w-4 h-4 text-[#8a8a9a] transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div v-show="activeTab === 'documents'" class="px-8 pb-8 pt-2 border-t border-[#e8e8f0] dark:border-[#1a1a2a]">
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <CandidatDocEntry label="Photo d'Identité" :path="candidat.album?.photo" />
-                <CandidatDocEntry label="Extrait de Naissance" :path="candidat.album?.naissance" />
-                <CandidatDocEntry label="Certificat Nationalité" :path="candidat.album?.nationalite" />
-                <CandidatDocEntry label="Attestation de Réussite" :path="candidat.album?.diplome" />
-                <CandidatDocEntry label="Relevé 1ère" :path="candidat.album?.releve_bac1_path" />
-                <CandidatDocEntry v-if="candidat.album?.releve_bac2_path" label="Relevé Terminale" :path="candidat.album.releve_bac2_path" />
-                <CandidatDocEntry label="Visite Médicale" :path="candidat.album?.certificat_medical" />
-                <CandidatDocEntry label="Lettre d'Engagement" :path="candidat.album?.lettre" />
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+                <template v-if="candidat.expected_docs && candidat.expected_docs.length > 0">
+                  <CandidatDocEntry 
+                    v-for="doc in candidat.expected_docs" 
+                    :key="doc.document_type?.document_key || doc.id" 
+                    :label="(doc.document_type?.nom_affichage || 'Document') + (doc.is_obligatoire ? '' : ' (Facultatif)')" 
+                    :path="candidat.album?.[doc.document_type?.document_key]" 
+                  />
+                </template>
+                <template v-else>
+                  <CandidatDocEntry label="Photo d'Identité" :path="candidat.album?.photo" />
+                  <CandidatDocEntry label="Extrait de Naissance" :path="candidat.album?.naissance" />
+                  <CandidatDocEntry label="Certificat Nationalité" :path="candidat.album?.nationalite" />
+                  <CandidatDocEntry label="Attestation de Réussite" :path="candidat.album?.diplome" />
+                  <CandidatDocEntry label="Relevé 1ère" :path="candidat.album?.releve_bac1_path" />
+                  <CandidatDocEntry v-if="candidat.album?.releve_bac2_path" label="Relevé Terminale" :path="candidat.album.releve_bac2_path" />
+                  <CandidatDocEntry label="Visite Médicale" :path="candidat.album?.certificat_medical" />
+                  <CandidatDocEntry label="Lettre d'Engagement" :path="candidat.album?.lettre" />
+                </template>
               </div>
 
               <div v-if="parsedBulletins" class="mt-10 pt-8 border-t border-[#e8e8f0] dark:border-[#1a1a2a] space-y-8">
@@ -257,7 +289,7 @@
                     <div class="w-1 h-4 bg-[#7F45FD] rounded-full"></div>
                     <h4 class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8a8a9a]">{{ niv }}</h4>
                   </div>
-                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
                     <CandidatDocEntry v-for="(p, i) in paths" :key="i" :label="`Bulletin T${i+1}`" :path="p" />
                   </div>
                 </div>
@@ -346,6 +378,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useCandidatureStore } from '~~/stores/candidature'
 import { useFiliereStore } from '~~/stores/filiere'
 import { useNiveauStore } from '~~/stores/niveau'
+import { getStorageBaseUrl } from '~/utils/storageUrl'
 import {
   TransitionRoot, TransitionChild, Dialog, DialogPanel, DialogTitle,
 } from '@headlessui/vue'
@@ -415,45 +448,30 @@ const personalItems = computed(() => [
   { label: 'Date de naissance', value: formatDate(candidat.value?.date_naissance, false) },
   { label: 'Lieu de naissance', value: candidat.value?.lieu_naissance },
   { label: 'Nationalité', value: candidat.value?.nationalite },
-  { label: 'Numéro de Table', value: candidat.value?.numero_table },
-  { label: 'Boîte Postale', value: candidat.value?.bp },
-  { label: 'Fax', value: candidat.value?.fax },
   { label: 'Email', value: candidat.value?.email },
   { label: 'Téléphone 1', value: candidat.value?.tel },
   { label: 'Téléphone 2', value: candidat.value?.tel2 },
-  { label: 'Téléphone 3', value: candidat.value?.tel3 },
-  { label: 'Hobbit / Loisirs', value: candidat.value?.hobbit },
 ])
 
 const responsableItems = computed(() => {
-  const resp = candidat.value?.responsable || candidat.value || {};
-  const nom = resp.nom_resp || resp.nom || '';
-  const prenom = resp.prenom_resp || resp.prenom || '';
+  const resp = candidat.value?.responsable || {};
   return [
-    { label: 'Nom Complet', value: `${nom} ${prenom}`.trim() },
-    { label: 'Profession', value: resp.profession_resp || resp.profession },
-    { label: 'Employeur', value: resp.employeur_resp || resp.employeur },
-    { label: 'Téléphone', value: resp.tel_resp || resp.tel },
-    { label: 'Email', value: resp.email_resp || resp.email },
-    { label: 'Boîte Postale', value: resp.bp_resp || resp.bp },
-    { label: 'Fax', value: resp.fax_resp || resp.fax },
-    { label: 'Adresse / Domicile', value: resp.adresse_resp || resp.adresse },
+    { label: 'Nom Complet', value: `${resp.nom || ''} ${resp.prenom || ''}`.trim() },
+    { label: 'Profession', value: resp.profession },
+    { label: 'Téléphone', value: resp.tel },
+    { label: 'Email', value: resp.email },
+    { label: 'Adresse / Domicile', value: resp.adresse },
   ]
 })
 
 const tuteurItems = computed(() => {
-  const tut = candidat.value?.tuteur || candidat.value || {};
-  const nom = tut.nom_tuteur || tut.nom || '';
-  const prenom = tut.prenom_tuteur || tut.prenom || '';
+  const tut = candidat.value?.tuteur || {};
   return [
-    { label: 'Nom Complet', value: `${nom} ${prenom}`.trim() },
-    { label: 'Profession', value: tut.profession_tuteur || tut.profession },
-    { label: 'Employeur', value: tut.employeur_tuteur || tut.employeur },
-    { label: 'Téléphone', value: tut.tel_tuteur || tut.tel },
-    { label: 'Email', value: tut.email_tuteur || tut.email },
-    { label: 'Boîte Postale', value: tut.bp_tuteur || tut.bp },
-    { label: 'Fax', value: tut.fax_tuteur || tut.fax },
-    { label: 'Adresse / Domicile', value: tut.adresse_tuteur || tut.adresse },
+    { label: 'Nom Complet', value: `${tut.nom || ''} ${tut.prenom || ''}`.trim() },
+    { label: 'Profession', value: tut.profession },
+    { label: 'Téléphone', value: tut.tel },
+    { label: 'Email', value: tut.email },
+    { label: 'Adresse / Domicile', value: tut.adresse },
   ]
 })
 
@@ -470,8 +488,7 @@ const fetchCandidat = async () => {
 const getFullUrl = (path) => {
     if (!path) return null
     if (path.startsWith('http')) return path
-    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-    return `${apiBase}/storage/${path}`
+    return `${getStorageBaseUrl()}/storage/${path}`
 }
 
 const formatId = (id) => (id || 0).toString().padStart(6, '0')
@@ -495,6 +512,39 @@ const getStatutStyle = (c) => {
   if (c.motif) return 'border-rose-600/30 text-rose-600 bg-rose-600/5'
   return 'border-[#7F45FD]/30 text-[#7F45FD] bg-[#7F45FD]/10'
 }
+
+// Une candidature suit le mode concours uniquement si sa session le précise explicitement
+// (même logique que le backend). Une candidature sans session suit toujours le mode dossier
+// uniquement — aucun repli sur un paramètre global.
+const suitModeConcours = computed(() => Boolean(candidat.value?.avec_epreuve_ecrite))
+
+const nextStep = computed(() => {
+  const c = candidat.value
+  if (!c) return null
+
+  if (c.etudiant_id) {
+    return { tone: 'emerald', text: 'Étudiant inscrit', linkText: null, to: null }
+  }
+  if (!suitModeConcours.value) {
+    return { tone: 'purple', text: 'Dossier validé', linkText: "Finaliser l'inscription →", to: `/candidatures/inscription/${c.slug}` }
+  }
+  if (!c.frais_paye) {
+    return { tone: 'purple', text: 'Dossier validé — en attente du paiement des frais de concours', linkText: 'Voir les paiements →', to: '/candidatures/payement' }
+  }
+  if (!c.participation_date) {
+    return { tone: 'purple', text: 'Frais payés — en attente du contrôle de présence à l\'épreuve', linkText: 'Contrôle de présence →', to: '/candidatures/controle-presence' }
+  }
+  if (!c.participation) {
+    return { tone: 'rose', text: 'Absent à l\'épreuve écrite', linkText: null, to: null }
+  }
+  if (!c.admission_date) {
+    return { tone: 'purple', text: 'Présent à l\'épreuve — en attente de la décision d\'admission', linkText: 'Décision d\'admission →', to: '/candidatures/declaration-admission' }
+  }
+  if (!c.admission) {
+    return { tone: 'rose', text: 'Non admis au concours', linkText: null, to: null }
+  }
+  return { tone: 'purple', text: 'Admis au concours', linkText: "Finaliser l'inscription →", to: `/candidatures/inscription/${c.slug}` }
+})
 
 const parsedBulletins = computed(() => {
   if (!candidat.value?.album?.bulletins_lycee_paths) return null

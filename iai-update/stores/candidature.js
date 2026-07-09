@@ -137,6 +137,10 @@ export const useCandidatureStore = defineStore("candidature", {
           this.authHeaders(),
         );
         this.candidature = response.data.data || response.data;
+        // Attach dynamic expected documents
+        if (response.data.expected_docs) {
+            this.candidature.expected_docs = response.data.expected_docs;
+        }
         return this.candidature;
       } catch (error) {
         console.error("Erreur chargement détail candidature:", error);
@@ -284,7 +288,7 @@ export const useCandidatureStore = defineStore("candidature", {
           "/candidature/choix-de-groupe",
           this.authHeaders(),
         );
-        this.groupes = response.data.data || response.data;
+        this.groupes = response.data.groups || response.data.data || response.data;
         return this.groupes;
       } catch (error) {
         console.error("Erreur chargement groupes:", error);
@@ -307,7 +311,7 @@ export const useCandidatureStore = defineStore("candidature", {
           this.authHeaders(),
         );
         this.groupeActuel = group;
-        this.candidaturesGroupe = response.data.data || response.data;
+        this.candidaturesGroupe = response.data.candidatures || response.data.data || response.data;
         return this.candidaturesGroupe;
       } catch (error) {
         console.error("Erreur chargement attribution groupe:", error);
@@ -647,6 +651,68 @@ export const useCandidatureStore = defineStore("candidature", {
         
       } catch (error) {
         console.error("Erreur export CSV:", error);
+        throw error;
+      } finally {
+        this.exportEnCours = false;
+      }
+    },
+
+    // Export Excel de la liste des candidats admis (prêts pour l'inscription définitive)
+    // GET api/candidature/export/excel
+    async exportCandidatsAdmisExcel() {
+      this.exportEnCours = true;
+      try {
+        const response = await axios.get("/candidature/export/excel", {
+          ...this.authHeaders(),
+          responseType: "blob",
+        });
+
+        const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.setAttribute(
+          "download",
+          `candidats_admis_${new Date().toISOString().slice(0, 10)}.xlsx`,
+        );
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(blobUrl);
+      } catch (error) {
+        console.error("Erreur export Excel des admis:", error);
+        this.error =
+          error.response?.data?.message || "Erreur lors de l'export Excel.";
+        throw error;
+      } finally {
+        this.exportEnCours = false;
+      }
+    },
+
+    // Export Excel de la liste des candidatures en étude de dossier
+    // GET api/candidature/export/etude-dossier
+    async exportEtudeDossierExcel() {
+      this.exportEnCours = true;
+      try {
+        const response = await axios.get("/candidature/export/etude-dossier", {
+          ...this.authHeaders(),
+          responseType: "blob",
+        });
+
+        const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.setAttribute(
+          "download",
+          `candidatures_etude_dossier_${new Date().toISOString().slice(0, 10)}.xlsx`,
+        );
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(blobUrl);
+      } catch (error) {
+        console.error("Erreur export Excel étude de dossier:", error);
+        this.error =
+          error.response?.data?.message || "Erreur lors de l'export Excel.";
         throw error;
       } finally {
         this.exportEnCours = false;

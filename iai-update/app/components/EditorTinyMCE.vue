@@ -34,7 +34,7 @@ const emit = defineEmits(['update:modelValue'])
 const content = ref(props.modelValue)
 
 // Votre clé API TinyMCE
-const TINYMCE_API_KEY = 'ktf8z0z55enm2wd9xyeoo6qzzoy7w9b629e51wii9y8lw4dx'
+const TINYMCE_API_KEY = '2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl'
 
 watch(() => props.modelValue, (newValue) => {
   content.value = newValue

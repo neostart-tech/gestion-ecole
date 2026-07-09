@@ -377,6 +377,21 @@
                   <p v-if="errors.type_diplome" class="mt-1 text-sm text-red-600">{{ errors.type_diplome }}</p>
                 </div>
 
+                <!-- Etablissement -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Établissement <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    v-model="form.etablissement_diplome"
+                    type="text"
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+                    :class="{ 'border-red-500': errors.etablissement_diplome }"
+                    @blur="validateField('etablissement_diplome')"
+                  />
+                  <p v-if="errors.etablissement_diplome" class="mt-1 text-sm text-red-600">{{ errors.etablissement_diplome }}</p>
+                </div>
+
                 <!-- Lettre de motivation -->
                 <div class="lg:col-span-3">
                   <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -1533,6 +1548,7 @@ const form = reactive({
   filiere_id: "",
   niveau_id: "",
   type_diplome: "",
+  etablissement_diplome: "",
   lettre_motivation: "",
   connaissance: "",
   autre_connaissance: "",
@@ -1627,6 +1643,7 @@ const validateField = (field) => {
     filiere_id: "La filière est requise",
     niveau_id: "Le niveau est requis",
     type_diplome: "Le type de diplôme est requis",
+    etablissement_diplome: "L'établissement est requis",
     nom_resp: "Le nom du responsable est requis",
     prenom_resp: "Le prénom du responsable est requis",
     email_resp: "L'email du responsable est requis",

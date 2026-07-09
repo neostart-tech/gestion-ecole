@@ -8,7 +8,14 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-4">
             <div class="relative">
+              <img
+                v-if="userPhoto"
+                :src="userPhoto"
+                class="w-16 h-16 rounded-2xl object-cover shadow-lg shadow-blue-200/50 dark:shadow-blue-900/30"
+                alt="Profile photo"
+              />
               <div
+                v-else
                 class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 dark:from-blue-400 dark:to-purple-500 flex items-center justify-center text-white shadow-lg shadow-blue-200/50 dark:shadow-blue-900/30"
               >
                 <span class="text-2xl font-light">{{ userInitials }}</span>
@@ -93,13 +100,13 @@
           <div class="lg:col-span-2 space-y-6">
             <!-- Carte d'identité avec dégradé -->
             <div
-              class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-blue-100/50 dark:shadow-blue-900/10 border border-blue-100 dark:border-blue-900/30 overflow-hidden"
+              class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-blue-200/50 dark:shadow-blue-900/10 border border-blue-100 dark:border-blue-900/30 overflow-hidden"
             >
               <div
-                class="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 border-b border-blue-100 dark:border-blue-900/30"
+                class="px-6 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 border-b border-transparent"
               >
                 <h2
-                  class="text-sm font-medium text-blue-600 dark:text-blue-400 flex items-center"
+                  class="text-sm font-bold text-white flex items-center"
                 >
                   <svg
                     class="w-4 h-4 mr-2"
@@ -147,13 +154,13 @@
 
             <!-- Coordonnées avec dégradé -->
             <div
-              class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-purple-100/50 dark:shadow-purple-900/10 border border-purple-100 dark:border-purple-900/30 overflow-hidden"
+              class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-purple-200/50 dark:shadow-purple-900/10 border border-purple-100 dark:border-purple-900/30 overflow-hidden"
             >
               <div
-                class="px-6 py-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10 border-b border-purple-100 dark:border-purple-900/30"
+                class="px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-600 border-b border-transparent"
               >
                 <h2
-                  class="text-sm font-medium text-purple-600 dark:text-purple-400 flex items-center"
+                  class="text-sm font-bold text-white flex items-center"
                 >
                   <svg
                     class="w-4 h-4 mr-2"
@@ -204,13 +211,13 @@
           <div class="space-y-6">
             <!-- Informations académiques -->
             <div
-              class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-emerald-100/50 dark:shadow-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 overflow-hidden"
+              class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-emerald-200/50 dark:shadow-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 overflow-hidden"
             >
               <div
-                class="px-6 py-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10 border-b border-emerald-100 dark:border-emerald-900/30"
+                class="px-6 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 border-b border-transparent"
               >
                 <h2
-                  class="text-sm font-medium text-emerald-600 dark:text-emerald-400 flex items-center"
+                  class="text-sm font-bold text-white flex items-center"
                 >
                   <svg
                     class="w-4 h-4 mr-2"
@@ -230,34 +237,34 @@
               </div>
               <div class="p-6 space-y-4">
                 <div
-                  class="flex items-center justify-between p-3 bg-gradient-to-r from-emerald-50 to-transparent dark:from-emerald-900/10 rounded-lg"
+                  class="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-100 rounded-lg"
                 >
-                  <p class="text-xs text-emerald-600 dark:text-emerald-400">
+                  <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">
                     Matricule
                   </p>
                   <p
-                    class="text-sm font-mono text-gray-900 dark:text-white bg-white dark:bg-gray-700 px-2 py-1 rounded-lg"
+                    class="text-sm font-mono font-bold text-gray-900 dark:text-white bg-white dark:bg-gray-700 px-2 py-1 rounded-lg border border-emerald-200"
                   >
                     {{ user.matricule || "—" }}
                   </p>
                 </div>
                 <div
-                  class="flex items-center justify-between p-3 bg-gradient-to-r from-teal-50 to-transparent dark:from-teal-900/10 rounded-lg"
+                  class="flex items-center justify-between p-3 bg-teal-50 border border-teal-100 rounded-lg"
                 >
-                  <p class="text-xs text-teal-600 dark:text-teal-400">
+                  <p class="text-xs font-bold uppercase tracking-wider text-teal-700">
                     Année d'admission
                   </p>
-                  <p class="text-sm text-gray-900 dark:text-white">
+                  <p class="text-sm font-medium text-gray-900 dark:text-white">
                     {{ user.annee_admission || "—" }}
                   </p>
                 </div>
                 <div
-                  class="flex items-center justify-between p-3 bg-gradient-to-r from-cyan-50 to-transparent dark:from-cyan-900/10 rounded-lg"
+                  class="flex items-center justify-between p-3 bg-cyan-50 border border-cyan-100 rounded-lg"
                 >
-                  <p class="text-xs text-cyan-600 dark:text-cyan-400">
+                  <p class="text-xs font-bold uppercase tracking-wider text-cyan-700">
                     Superviseur
                   </p>
-                  <p class="text-sm text-gray-900 dark:text-white">
+                  <p class="text-sm font-medium text-gray-900 dark:text-white">
                     {{ user.supervisor_type || "—" }}
                   </p>
                 </div>
@@ -266,13 +273,13 @@
 
             <!-- Statistiques compte avec dégradé -->
             <div
-              class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-orange-100/50 dark:shadow-orange-900/10 border border-orange-100 dark:border-orange-900/30 overflow-hidden"
+              class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-orange-200/50 dark:shadow-orange-900/10 border border-orange-100 dark:border-orange-900/30 overflow-hidden"
             >
               <div
-                class="px-6 py-4 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/10 dark:to-amber-900/10 border-b border-orange-100 dark:border-orange-900/30"
+                class="px-6 py-4 bg-gradient-to-r from-orange-500 to-amber-600 border-b border-transparent"
               >
                 <h2
-                  class="text-sm font-medium text-orange-600 dark:text-orange-400 flex items-center"
+                  class="text-sm font-bold text-white flex items-center"
                 >
                   <svg
                     class="w-4 h-4 mr-2"
@@ -292,11 +299,11 @@
               </div>
               <div class="p-6 space-y-4">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs text-orange-600 dark:text-orange-400"
+                  <span class="text-xs font-bold uppercase tracking-wider text-orange-700"
                     >Statut</span
                   >
                   <span
-                    class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r from-emerald-400 to-teal-400 text-white shadow-sm"
+                    class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm"
                   >
                     <span
                       class="w-1.5 h-1.5 bg-white rounded-full mr-1.5 animate-pulse"
@@ -305,22 +312,22 @@
                   </span>
                 </div>
                 <div
-                  class="relative p-4 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-xl"
+                  class="relative p-4 bg-orange-50 border border-orange-100 rounded-xl"
                 >
-                  <p class="text-xs text-orange-600 dark:text-orange-400 mb-1">
+                  <p class="text-xs font-bold uppercase tracking-wider text-orange-700 mb-1">
                     Membre depuis
                   </p>
-                  <p class="text-lg font-light text-gray-900 dark:text-white">
+                  <p class="text-lg font-medium text-gray-900 dark:text-white">
                     {{ formatDate(user.created_at, true) }}
                   </p>
                 </div>
                 <div
-                  class="relative p-4 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 rounded-xl"
+                  class="relative p-4 bg-amber-50 border border-amber-100 rounded-xl"
                 >
-                  <p class="text-xs text-amber-600 dark:text-amber-400 mb-1">
+                  <p class="text-xs font-bold uppercase tracking-wider text-amber-700 mb-1">
                     Dernière modification
                   </p>
-                  <p class="text-lg font-light text-gray-900 dark:text-white">
+                  <p class="text-lg font-medium text-gray-900 dark:text-white">
                     {{ formatDate(user.updated_at, true) }}
                   </p>
                 </div>
@@ -948,6 +955,7 @@ import {
 
 import { useUserStore } from "~~/stores/user";
 import FileUpload from "~/components/FileUpload.vue";
+import config from "~~/config";
 
 const { $toastr } = useNuxtApp();
 const loginStore = useLoginStore();
@@ -1056,6 +1064,10 @@ const userInitials = computed(() => {
   const first = user.value.prenom?.[0] || "";
   const last = user.value.nom?.[0] || "";
   return (first + last).toUpperCase() || "U";
+});
+
+const userPhoto = computed(() => {
+  return null; // Forcer l'affichage des initiales
 });
 
 // Force du mot de passe
@@ -1240,13 +1252,13 @@ const InfoItem = defineComponent({
   },
   setup(props) {
     const colorClasses: Record<string, string> = {
-      blue: "text-blue-600 dark:text-blue-400",
-      indigo: "text-indigo-600 dark:text-indigo-400",
-      purple: "text-purple-600 dark:text-purple-400",
-      pink: "text-pink-600 dark:text-pink-400",
-      teal: "text-teal-600 dark:text-teal-400",
-      orange: "text-orange-600 dark:text-orange-400",
-      gray: "text-gray-600 dark:text-gray-400",
+      blue: "text-blue-700 dark:text-blue-400",
+      indigo: "text-indigo-700 dark:text-indigo-400",
+      purple: "text-purple-700 dark:text-purple-400",
+      pink: "text-pink-700 dark:text-pink-400",
+      teal: "text-teal-700 dark:text-teal-400",
+      orange: "text-orange-700 dark:text-orange-400",
+      gray: "text-gray-700 dark:text-gray-400",
     };
 
     return () =>
@@ -1254,13 +1266,13 @@ const InfoItem = defineComponent({
         "div",
         {
           class:
-            "space-y-1 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors",
+            "space-y-1 p-3 rounded-xl bg-gray-50 border border-gray-100 hover:shadow-md transition-all",
         },
         [
           h(
             "p",
             {
-              class: `text-xs ${colorClasses[props.color as string] || colorClasses.gray}`,
+              class: `text-xs uppercase tracking-wider font-bold ${colorClasses[props.color as string] || colorClasses.gray}`,
             },
             props.label,
           ),

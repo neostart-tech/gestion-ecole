@@ -564,24 +564,6 @@
                     Vérifier disponibilité
                   </button>
 
-                  <!-- UV -->
-                  <div>
-                    <FloatLabel variant="on">
-                      <Dropdown
-                        id="uv_s_id"
-                        v-model="form.uv_id"
-                        :options="MatieresOptions"
-                        optionLabel="label"
-                        optionValue="value"
-                        filter
-                        showClear
-                        placeholder=""
-                        class="w-full"
-                      />
-                      <label for="uv_s_id">Sélectionner une matière</label>
-                    </FloatLabel>
-                  </div>
-
                   <!-- Groupe -->
                   <div>
                     <FloatLabel variant="on">
@@ -595,8 +577,45 @@
                         showClear
                         placeholder=""
                         class="w-full"
+                        @change="form.periode_id = ''; form.uv_id = ''"
                       />
                       <label for="grade_s_id">Sélectionnez un groupe</label>
+                    </FloatLabel>
+                  </div>
+
+                  <!-- Semestre -->
+                  <div>
+                    <FloatLabel variant="on">
+                      <Dropdown
+                        id="periode_s_id"
+                        v-model="form.periode_id"
+                        :options="SemestresOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        class="w-full"
+                        :disabled="!form.grade"
+                        @change="form.uv_id = ''"
+                      />
+                      <label for="periode_s_id">Sélectionnez un semestre</label>
+                    </FloatLabel>
+                  </div>
+
+                  <!-- UV -->
+                  <div>
+                    <FloatLabel variant="on">
+                      <Dropdown
+                        id="uv_s_id"
+                        v-model="form.uv_id"
+                        :options="MatieresOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        filter
+                        showClear
+                        placeholder=""
+                        class="w-full"
+                        :disabled="!form.periode_id"
+                      />
+                      <label for="uv_s_id">Sélectionner une matière</label>
                     </FloatLabel>
                   </div>
 
@@ -1294,21 +1313,23 @@ import {
   TransitionRoot,
 } from "@headlessui/vue";
 
-import { useCalendarStore } from "~~/stores/calendar";
 import { useSalleStore } from "~~/stores/salle";
-import { useUserStore } from "~~/stores/user";
 import { useUvStore } from "~~/stores/unite-valeur";
-import { useGroupeStore } from "~~/stores/group";
 import { useUeStore } from "~~/stores/unite-enseignement";
+import { useGroupeStore } from "~~/stores/group";
+import { useUserStore } from "~~/stores/user";
+import { useCalendarStore } from "~~/stores/calendar";
+import { useNiveauStore } from "~~/stores/niveau";
+import { useRoute } from "vue-router";
 
 const route = useRoute();
-const salleStore = useSalleStore();
-const calendarStore = useCalendarStore();
-const UeStore = useUeStore();
 const userStore = useUserStore();
+const salleStore = useSalleStore();
+const UeStore = useUeStore();
 const UvStore = useUvStore();
 const groupStore = useGroupeStore();
-
+const calendarStore = useCalendarStore();
+const niveauStore = useNiveauStore();
 const { $toastr, $swal } = useNuxtApp();
 
 // Références
@@ -1365,6 +1386,7 @@ const form = ref({
   date: "",
   debut: "",
   fin: "",
+  periode_id: "",
   uv_id: "",
   type: "",
   grade: "",
@@ -2257,6 +2279,7 @@ const openEditModal = async (event: any) => {
     date: format(new Date(event.start), "yyyy-MM-dd"),
     debut: format(new Date(event.start), "HH:mm"),
     fin: format(new Date(event.end), "HH:mm"),
+    periode_id: p.periode_id || p.semestre_id || (p.uv && p.uv.periode_id) || "",
     uv_id: findItemValue(UvStore.uvs, p.uv_id || p.matiere_id || p.id_uv || (typeof p.uv === 'object' ? p.uv?.id : p.uv) || p.uv_name || p.displayUv || p.matiere || p.titre),
     type: p.type || p.type_programme || "Cours",
     grade: findItemValue(groupStore.groupes, p.group_id || p.grade_id || p.id_groupe || (typeof p.grade === 'object' ? p.grade?.id : (typeof p.group === 'object' ? p.group?.id : (p.grade || p.group))) || p.grade_name || p.displayGroup || p.group),
@@ -2506,6 +2529,7 @@ const resetForm = () => {
     date: "",
     debut: "08:00",
     fin: "10:00",
+    periode_id: "",
     uv_id: "",
     type: "Cours",
     grade: "",
@@ -2528,10 +2552,60 @@ const closeEventModal = () => {
   selectedEvent.value = null;
 };
 
+const SemestresOptions = ref([]);
+
+watch(() => form.value.grade, async (newVal) => {
+  if (newVal) {
+    const currentGroup = groupStore.groupes.find((g: any) => g.slug === newVal || g.id == newVal);
+    const gNiveauId = currentGroup?.niveau_id || currentGroup?.niveau?.id;
+    if (gNiveauId) {
+      const periodes = await niveauStore.fetchNiveauPeriodes(gNiveauId);
+      const periodesArray = periodes?.data || periodes || [];
+      SemestresOptions.value = Array.isArray(periodesArray) ? periodesArray.map((p: any) => ({ label: p.nom, value: p.id })) : [];
+    } else {
+      SemestresOptions.value = [];
+    }
+  } else {
+    SemestresOptions.value = [];
+  }
+});
+
 const MatieresOptions = computed(() => {
-  return UvStore.uvs.map((u: any) => {
+  const currentGroup = groupStore.groupes.find((g: any) => g.slug === form.value.grade || g.id == form.value.grade);
+  let filtered = UvStore.uvs;
+
+  if (currentGroup) {
+    const gFiliereId = currentGroup.filiere_id || currentGroup.filiere?.id;
+    const gNiveauId = currentGroup.niveau_id || currentGroup.niveau?.id;
+
+    filtered = UvStore.uvs.filter((u: any) => {
+      const uFiliereId = u.filiere_id || u.filiere?.id;
+      const uNiveauId = u.niveau_id || u.niveau?.id;
+
+      // Filtre strict par niveau : l'UV DOIT avoir le même niveau que le groupe
+      if (gNiveauId && uNiveauId != gNiveauId) return false;
+
+      // Filtre optionnel par filière : si l'UV a une filière, elle doit correspondre à celle du groupe
+      if (gFiliereId && uFiliereId && gFiliereId != uFiliereId) return false;
+      
+      // Filtre strict par semestre si sélectionné
+      if (form.value.periode_id) {
+        const uPeriodeId = u.periode_id || u.periode?.id || u.semestre_id || u.semestre?.id;
+        if (uPeriodeId != form.value.periode_id) return false;
+      }
+      
+      return true;
+    });
+  }
+
+  return filtered.map((u: any) => {
+    const parts = [];
+    if (u.periode?.nom) parts.push(u.periode.nom);
+    
+    const details = parts.length > 0 ? ` - ${parts.join(' / ')}` : '';
+    const codeName = u.code ? ` (${u.code})` : '';
     return {
-      label: u.nom,
+      label: `${u.nom}${details}${codeName}`,
       value: u.id || u.slug,
     };
   });

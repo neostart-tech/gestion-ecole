@@ -6,7 +6,7 @@
         { label: 'Administration', to: '/' },
         { label: 'Candidatures', to: '/candidatures' },
       ]"
-      title="Admission à IAI-Togo"
+      :title="`Admission à ${appName}`"
       title-class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white"
     />
 
@@ -51,6 +51,7 @@
               <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Candidat</th>
               <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Choix</th>
               <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Dossier</th>
+              <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Moyenne concours</th>
               <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Admission</th>
               <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Actions</th>
             </tr>
@@ -75,6 +76,12 @@
               <td class="px-6 py-4">
                 <span v-if="c.dossier_valide" class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Validé</span>
                 <span v-else class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">En cours</span>
+              </td>
+              <td class="px-6 py-4">
+                <span v-if="c.moyenne_concours !== null && c.moyenne_concours !== undefined" class="text-sm font-bold" :class="c.moyenne_concours >= 10 ? 'text-green-600' : 'text-rose-600'">
+                  {{ c.moyenne_concours }}/20
+                </span>
+                <span v-else class="text-xs text-gray-400 italic">Dossier uniquement</span>
               </td>
               <td class="px-6 py-4">
                  <div class="flex items-center gap-2">
@@ -120,17 +127,21 @@
 import { ref, computed, onMounted, reactive } from 'vue'
 import { useCandidatureStore } from '~~/stores/candidature'
 import { useFiliereStore } from '~~/stores/filiere'
+import { useParametreStore } from '~~/stores/parametre'
 import Breadcrumb from '~/components/Breadcrumb.vue'
 
 const candidatureStore = useCandidatureStore()
 const filiereStore = useFiliereStore()
+const parametreStore = useParametreStore()
 const { $toastr, $swal } = useNuxtApp()
+
+const appName = computed(() => parametreStore.getAppName || "l'établissement")
 
 const searchQuery = ref('')
 const filterFiliere = ref('')
 const isRefreshing = ref(false)
 const isSubmitting = ref(false)
-const isLoading = ref(false)
+const isLoading = ref(true)
 
 const decisionMap = reactive({})
 
@@ -154,6 +165,7 @@ const filteredCandidatures = computed(() => {
 
 const refreshData = async () => {
   isRefreshing.value = true
+  isLoading.value = true
   try {
     await candidatureStore.fetchCandidatures()
     // Initialiser le map des décisions locales
@@ -162,6 +174,7 @@ const refreshData = async () => {
     })
   } finally {
     isRefreshing.value = false
+    isLoading.value = false
   }
 }
 
@@ -184,5 +197,8 @@ const finalSubmit = async () => {
 onMounted(() => {
   refreshData()
   filiereStore.fetchFilieres()
+  if (!parametreStore.parametres?.length) {
+    parametreStore.fetchParametres()
+  }
 })
 </script>

@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Header avec gradient subtil -->
     <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <Breadcrumb
@@ -39,7 +39,7 @@
     </div>
 
     <!-- Contenu principal -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div v-if="loading" class="flex justify-center py-12">
         <div class="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
       </div>

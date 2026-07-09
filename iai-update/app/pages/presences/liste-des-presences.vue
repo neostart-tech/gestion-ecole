@@ -354,34 +354,24 @@
                     <select
                       v-model="etudiant.statut"
                       @change="updateStatut(etudiant)"
-                      class="px-2 py-1.5 text-xs border rounded-lg w-24 font-medium"
-                      :class="{
-                        'bg-green-50 text-green-700 border-green-300':
-                          etudiant.statut === 'present',
-                        'bg-red-50 text-red-700 border-red-300':
-                          etudiant.statut === 'absent',
-                        'bg-yellow-50 text-yellow-700 border-yellow-300':
-                          etudiant.statut === 'retard',
-                        'bg-orange-50 text-orange-700 border-orange-300':
-                          etudiant.statut === 'justifie',
-                        'opacity-75': !isModifiable,
-                      }"
+                      class="px-2 py-1.5 text-xs border rounded-lg w-28 font-medium"
+                      :class="getStatutClass(etudiant.statut)"
                       :disabled="!isModifiable"
                     >
                       <option value="present">Présent</option>
                       <option value="absent">Absent</option>
+                      <option value="absent_justifie">Absent justifié</option>
                       <option value="retard">Retard</option>
-                      <option value="justifie">Justifié</option>
-                      <!-- Statuts avancés (Lecture seule pour profs/délégués si besoin) -->
+                      <option value="retard_justifie">Retard justifié</option>
+                      <option value="dispense">Dispensé</option>
+                      <option value="exclu_temporairement">Exclu</option>
                       <option value="malade">Malade</option>
                       <option value="sortie_anticipee">Sortie anticipée</option>
-                      <option value="exclu_temporairement">Exclu</option>
-                      <option value="dispense">Dispensé</option>
                     </select>
                   </td>
                   <td class="px-4 py-3">
                     <input
-                      v-if="etudiant.statut === 'retard'"
+                      v-if="['retard', 'retard_justifie', 'present'].includes(etudiant.statut)"
                       v-model="etudiant.heureArrivee"
                       type="time"
                       class="w-22 px-2 py-1.5 text-xs border rounded-lg"
@@ -433,26 +423,28 @@
                 Tous présents
               </button>
 
-              <!-- Bouton Réinitialiser - UNIQUEMENT si modifiable -->
+              <!-- Bouton Appel par QR (Mode principal de présence) -->
               <button
                 v-if="isModifiable"
-                @click="resetPresences"
-                class="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 font-medium transition-colors flex items-center gap-1"
+                @click="openQrModal"
+                class="px-6 py-2 text-sm bg-purple-600 text-white rounded-xl hover:bg-purple-700 font-bold transition-all shadow-md hover:shadow-lg flex items-center gap-2 border border-purple-700"
               >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                  />
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                 </svg>
-                Réinitialiser
+                Démarrer l'appel (Générer QR)
+              </button>
+
+              <button
+                @click="chargerEtudiants"
+                v-if="etudiantsDuCours.length > 0"
+                class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 font-medium transition-colors flex items-center gap-2 shadow-sm"
+                title="Actualiser la liste"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Actualiser
               </button>
 
               <!-- Bouton Enregistrer - UNIQUEMENT si modifiable -->
@@ -499,7 +491,7 @@
                 {{
                   savingPresences
                     ? "Enregistrement..."
-                    : "Enregistrer les présences"
+                    : "Enregistrer"
                 }}
               </button>
 
@@ -596,6 +588,69 @@
         </p>
     </div>
     </div>
+
+    <!-- Modal QR Code -->
+    <TransitionRoot appear :show="isQrModalOpen" as="template">
+      <Dialog as="div" @close="closeQrModal" class="relative z-50">
+        <TransitionChild
+          as="template"
+          enter="duration-300 ease-out"
+          enter-from="opacity-0"
+          enter-to="opacity-100"
+          leave="duration-200 ease-in"
+          leave-from="opacity-100"
+          leave-to="opacity-0"
+        >
+          <div class="fixed inset-0 bg-black/75 backdrop-blur-sm" />
+        </TransitionChild>
+
+        <div class="fixed inset-0 overflow-y-auto">
+          <div class="flex min-h-full items-center justify-center p-4 text-center">
+            <TransitionChild
+              as="template"
+              enter="duration-300 ease-out"
+              enter-from="opacity-0 scale-95"
+              enter-to="opacity-100 scale-100"
+              leave="duration-200 ease-in"
+              leave-from="opacity-100 scale-100"
+              leave-to="opacity-0 scale-95"
+            >
+              <DialogPanel class="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-8 text-left align-middle shadow-xl transition-all border border-gray-100 dark:border-gray-700">
+                <DialogTitle as="h3" class="text-3xl font-bold text-center leading-6 text-gray-900 dark:text-white mb-2">
+                  Appel par QR Code
+                </DialogTitle>
+                <p class="text-center text-gray-500 mb-8">Demandez aux étudiants de scanner ce code depuis leur espace. <br> Le code change toutes les 10 secondes pour éviter la triche.</p>
+
+                <div class="flex flex-col items-center justify-center space-y-6">
+                  <div class="bg-white p-4 rounded-xl shadow-inner border border-gray-100 flex items-center justify-center min-h-[300px] min-w-[300px]">
+                    <img v-if="qrToken" :src="'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + qrToken" alt="QR Code" class="w-64 h-64" />
+                    <div v-else class="flex flex-col items-center justify-center text-purple-600">
+                      <div class="animate-spin mb-4 h-10 w-10 border-4 border-purple-500 border-t-transparent rounded-full"></div>
+                      <span>Génération en cours...</span>
+                    </div>
+                  </div>
+                  
+                  <div class="text-sm font-medium text-purple-600 bg-purple-50 px-4 py-2 rounded-full flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></div>
+                    Actualisation dans {{ qrRefreshTimer }} secondes
+                  </div>
+                </div>
+
+                <div class="mt-10 flex justify-center">
+                  <button
+                    type="button"
+                    class="rounded-xl border border-transparent bg-gray-100 px-6 py-3 text-sm font-bold text-gray-700 hover:bg-gray-200 focus:outline-none transition-all"
+                    @click="closeQrModal"
+                  >
+                    Fermer et recharger la liste
+                  </button>
+                </div>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
+        </div>
+      </Dialog>
+    </TransitionRoot>
 
     <!-- Modal d'exportation Headless UI -->
     <TransitionRoot appear :show="isExportModalOpen" as="template">
@@ -729,6 +784,7 @@ import Breadcrumb from "~/components/Breadcrumb.vue";
 import { usePresenceStore } from "~~/stores/presence";
 import { useEtudiantStore } from "~~/stores/etudiant";
 import { useLoginStore } from "~~/stores/login";
+import { getApiBaseUrl } from "~/utils/storageUrl";
 
 const { $toastr, $swal } = useNuxtApp();
 const presenceStore = usePresenceStore();
@@ -753,6 +809,55 @@ const exportOptions = ref({
   date_debut: "",
   date_fin: "",
 });
+
+// États et logique pour le système de QR Code
+const isQrModalOpen = ref(false);
+const qrToken = ref(null);
+const qrRefreshTimer = ref(10);
+let qrInterval = null;
+let qrCountdown = null;
+
+const openQrModal = async () => {
+  if (!selectedCoursId.value) return;
+  isQrModalOpen.value = true;
+  await refreshQrCode();
+  
+  qrInterval = setInterval(refreshQrCode, 10000);
+  
+  qrCountdown = setInterval(() => {
+    qrRefreshTimer.value--;
+    if (qrRefreshTimer.value <= 0) qrRefreshTimer.value = 10;
+  }, 1000);
+};
+
+const closeQrModal = () => {
+  isQrModalOpen.value = false;
+  qrToken.value = null;
+  if (qrInterval) clearInterval(qrInterval);
+  if (qrCountdown) clearInterval(qrCountdown);
+  // On recharge la liste des étudiants pour voir qui a flashé
+  chargerEtudiants();
+};
+
+const refreshQrCode = async () => {
+  if (!selectedCoursId.value) return;
+  try {
+    const token = localStorage.getItem("gest-ecole-token");
+    const response = await $fetch(`${getApiBaseUrl()}/presence/cours/${selectedCoursId.value}/generate-qr`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    
+    if (response && response.qr_token) {
+      qrToken.value = response.qr_token;
+      qrRefreshTimer.value = 10;
+    }
+  } catch (error) {
+    console.error('Erreur génération QR:', error);
+  }
+};
 
 // Récupérer les cours du professeur
 const mesCours = computed(() => presenceStore.mesCours || []);
@@ -848,7 +953,7 @@ const chargerEtudiants = async () => {
         return {
           ...etudiant,
           statut: presenceExistante.statut || "absent",
-          heureArrivee: presenceExistante.heure_arrivee || "",
+          heureArrivee: presenceExistante.heure_arrivee ? presenceExistante.heure_arrivee.substring(0, 5) : "",
           commentaire: presenceExistante.commentaire || "",
           sanction: presenceExistante.sanction || null,
           presence_id: presenceExistante.id
@@ -954,7 +1059,8 @@ const getCommentairePlaceholder = (statut) => {
     present: "Comportement, participation...",
     retard: "Raison du retard...",
     absent: "Motif de l'absence...",
-    justifie: "Justification...",
+    absent_justifie: "Justification...",
+    retard_justifie: "Justification du retard...",
   };
   return placeholders[statut] || "Commentaire...";
 };
@@ -964,9 +1070,25 @@ const getCommentaireTitle = (statut) => {
     present: "Noter le comportement ou la participation",
     retard: "Noter la raison du retard",
     absent: "Noter le motif de l'absence",
-    justifie: "Noter la justification",
+    absent_justifie: "Noter la justification",
+    retard_justifie: "Noter la justification du retard",
   };
   return titles[statut] || "Ajouter un commentaire";
+};
+
+const getStatutClass = (statut) => {
+  const classes = {
+    'present': 'bg-green-50 text-green-700 border-green-300',
+    'absent': 'bg-red-50 text-red-700 border-red-300',
+    'absent_justifie': 'bg-blue-50 text-blue-700 border-blue-300',
+    'retard': 'bg-yellow-50 text-yellow-700 border-yellow-300',
+    'retard_justifie': 'bg-orange-50 text-orange-700 border-orange-300',
+    'dispense': 'bg-purple-50 text-purple-700 border-purple-300',
+    'exclu_temporairement': 'bg-gray-50 text-gray-700 border-gray-300',
+    'malade': 'bg-pink-50 text-pink-700 border-pink-300',
+    'sortie_anticipee': 'bg-indigo-50 text-indigo-700 border-indigo-300',
+  };
+  return classes[statut] || 'bg-gray-50 text-gray-700 border-gray-300';
 };
 
 // Actions sur les présences - UNIQUEMENT si modifiable

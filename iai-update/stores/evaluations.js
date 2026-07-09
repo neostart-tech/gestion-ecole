@@ -50,6 +50,22 @@ export const useEvaluationStore = defineStore("evaluation", {
         this.isLoading = false;
       }
     },
+     async fetchMyEvaluations() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          "/evaluations/get-mes-evaluations",
+          this.authHeaders(),
+        );
+
+        this.evaluations = response.data.data;
+      } catch (error) {
+        console.error("Erreur chargement de mes evaluations:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
      async fetchEvaluationsForStudent() {
       this.isLoading = true;
       try {

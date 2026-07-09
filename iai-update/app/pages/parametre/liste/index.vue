@@ -205,6 +205,49 @@
           </div>
         </div>
 
+        <!-- SECTION 5: Candidatures -->
+        <div
+          class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
+        >
+          <div
+            class="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700"
+          >
+            <h2
+              class="text-base font-semibold text-gray-900 dark:text-white flex items-center"
+            >
+              <div class="w-1 h-5 bg-blue-600 rounded-full mr-3"></div>
+              <svg
+                class="w-5 h-5 mr-2 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              Candidatures
+            </h2>
+          </div>
+
+          <div class="p-6 space-y-3">
+            <!-- Mode de sélection des candidats -->
+            <DynamicParamField
+              v-if="parametres.mode_selection_candidats"
+              :param="parametres.mode_selection_candidats"
+              v-model="formData.mode_selection_candidats"
+            />
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              Ce mode s'applique à toute candidature qui n'est liée à aucune session de concours. Une session de
+              concours créée dans <span class="font-medium">Paramètres &gt; Sessions de concours</span> peut
+              individuellement suivre un mode différent.
+            </p>
+          </div>
+        </div>
+
         <!-- Barre d'actions flottante -->
         <div
           class="sticky bottom-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 mt-8"

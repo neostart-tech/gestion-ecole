@@ -85,12 +85,31 @@
           <template #action="{ value }">
             <div class="flex justify-center gap-2">
               <button
+                v-if="isAuthorized"
+                @click="openPeriodeModal(value)"
+                class="p-2 rounded-lg text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+                title="Gérer les semestres"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </button>
+              <button
                 @click="openEditModal(value)"
                 class="p-2 rounded-lg text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
                 title="Modifier"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button
+                @click="openDocumentModal(value)"
+                class="p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+                title="Gérer les pièces jointes à fournir"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </button>
             </div>
@@ -205,11 +224,199 @@
         </div>
       </Dialog>
     </TransitionRoot>
+
+    <!-- Document Modal -->
+    <TransitionRoot appear :show="showDocModal" as="template">
+      <Dialog as="div" class="relative z-50" @close="closeDocModal">
+        <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
+          <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" />
+        </TransitionChild>
+
+        <div class="fixed inset-0 overflow-y-auto">
+          <div class="flex min-h-full items-center justify-center p-4">
+            <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 scale-95" enter-to="opacity-100 scale-100" leave="ease-in duration-200" leave-from="opacity-100 scale-100" leave-to="opacity-0 scale-95">
+              <DialogPanel class="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-2xl transition-all">
+                <DialogTitle class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                  <div class="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  Pièces à fournir pour : {{ selectedNiveau?.libelle }}
+                </DialogTitle>
+
+                <!-- Liste des documents -->
+                <div class="mb-6 bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                  <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Documents actuellement exigés pour l'inscription</h3>
+                  
+                  <div v-if="isDocLoading" class="flex justify-center py-4">
+                    <div class="h-6 w-6 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent"></div>
+                  </div>
+                  <div v-else-if="documents.length === 0" class="text-center py-6 text-gray-500 text-sm bg-white dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
+                    Aucun document n'est exigé pour ce niveau actuellement. Les étudiants n'auront aucune pièce à fournir.
+                  </div>
+                  <div v-else class="space-y-2 max-h-64 overflow-y-auto pr-2">
+                    <div v-for="doc in documents" :key="doc.id" class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
+                      <div class="flex items-center gap-3">
+                        <span class="w-2 h-2 rounded-full mt-1 shrink-0" :class="doc.is_obligatoire ? 'bg-rose-500' : 'bg-sky-500'"></span>
+                        <div>
+                          <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ doc.nom_affichage }}</p>
+                          <p class="text-[11px] text-gray-500 font-mono mt-0.5">Clé : {{ doc.document_key }}</p>
+                          <p v-if="doc.description" class="text-[11px] text-gray-500 mt-0.5 italic">{{ doc.description }}</p>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-3">
+                        <div class="flex flex-col gap-1 items-end">
+                          <span v-if="doc.is_photo" class="text-[10px] uppercase font-bold px-2 py-1 rounded-md bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" title="Utilisé comme photo de profil">
+                            Photo Profil
+                          </span>
+                          <span v-if="doc.is_multiple" class="text-[10px] uppercase font-bold px-2 py-1 rounded-md bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" title="Plusieurs fichiers autorisés">
+                            Multiple
+                          </span>
+                          <span class="text-[10px] uppercase font-bold px-2 py-1 rounded-md" :class="doc.is_obligatoire ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' : 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400'">
+                            {{ doc.is_obligatoire ? 'Obligatoire' : 'Facultatif' }}
+                          </span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                          <button @click="editDocument(doc)" class="text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 p-1.5 rounded-md transition-colors" title="Modifier">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                          </button>
+                          <button @click="deleteDocument(doc.id)" class="text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-1.5 rounded-md transition-colors" title="Supprimer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Formulaire d'ajout / édition -->
+                <form @submit.prevent="saveDocument" class="bg-emerald-50/50 dark:bg-emerald-900/10 p-4 rounded-xl border border-emerald-100 dark:border-emerald-900/30 transition-all" :class="{'ring-2 ring-emerald-500 shadow-md': docForm.id}">
+                  <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-sm font-semibold text-emerald-900 dark:text-emerald-300">
+                      {{ docForm.id ? 'Modifier l\'exigence' : 'Exiger un nouveau document' }}
+                    </h3>
+                    <button v-if="docForm.id" type="button" @click="cancelEdit" class="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 underline">Annuler la modification</button>
+                  </div>
+                  <div class="grid grid-cols-1 gap-4">
+                    <div>
+                      <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Type de Document</label>
+                      <Dropdown 
+                        v-model="docForm.document_type_id" 
+                        :options="availableDocumentTypes" 
+                        optionLabel="nom_affichage" 
+                        optionValue="id" 
+                        placeholder="Sélectionner dans le catalogue..."
+                        class="w-full !rounded-lg !border-gray-300 dark:!border-gray-700"
+                        :filter="true"
+                        filterPlaceholder="Rechercher..."
+                      >
+                        <template #option="slotProps">
+                          <div class="flex flex-col">
+                            <span class="font-medium text-sm">{{ slotProps.option.nom_affichage }}</span>
+                            <span class="text-[10px] text-gray-500">{{ slotProps.option.is_photo ? 'Photo Profil' : (slotProps.option.is_multiple ? 'Fichiers multiples' : 'Standard') }}</span>
+                          </div>
+                        </template>
+                      </Dropdown>
+                    </div>
+                    <div>
+                      <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Description <span class="font-normal text-gray-400">(optionnel)</span></label>
+                      <textarea
+                        v-model="docForm.description"
+                        rows="2"
+                        placeholder="Ex : Photo d'identité récente, fond blanc..."
+                        class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                      ></textarea>
+                      <p class="text-[11px] text-gray-500 mt-1">Affichée aux candidats sur le formulaire public, sous le nom du document.</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between mt-4">
+                    <div class="flex gap-4">
+                      <label class="flex items-center gap-2 cursor-pointer group">
+                        <input v-model="docForm.is_obligatoire" type="checkbox" class="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800" />
+                        <span class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">Pièce obligatoire</span>
+                      </label>
+                    </div>
+                    
+                    <button type="submit" :disabled="isDocSaving" class="px-4 py-2 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm transition-all flex items-center gap-2 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                      <span v-if="isDocSaving" class="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      {{ docForm.id ? 'Mettre à jour' : 'Ajouter à la liste' }}
+                    </button>
+                  </div>
+                </form>
+
+                <div class="flex justify-end mt-6">
+                  <button type="button" @click="closeDocModal" class="px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors border border-gray-200 dark:border-gray-700">
+                    Terminer
+                  </button>
+                </div>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+
+    <!-- Periode Modal -->
+    <TransitionRoot appear :show="showPeriodeModal" as="template">
+      <Dialog as="div" class="relative z-50" @close="closePeriodeModal">
+        <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
+          <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" />
+        </TransitionChild>
+
+        <div class="fixed inset-0 overflow-y-auto">
+          <div class="flex min-h-full items-center justify-center p-4">
+            <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 scale-95" enter-to="opacity-100 scale-100" leave="ease-in duration-200" leave-from="opacity-100 scale-100" leave-to="opacity-0 scale-95">
+              <DialogPanel class="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-2xl transition-all">
+                <DialogTitle class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                  <div class="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  Associer les semestres : {{ selectedNiveau?.libelle }}
+                </DialogTitle>
+
+                <div v-if="isPeriodeLoading" class="flex justify-center py-10">
+                  <div class="h-8 w-8 animate-spin rounded-full border-4 border-amber-600 border-t-transparent"></div>
+                </div>
+                
+                <form v-else @submit.prevent="savePeriodes" class="space-y-4">
+                  <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Sélectionnez les semestres concernés</label>
+                    <MultiSelect
+                      v-model="selectedPeriodes"
+                      :options="periodeStore.periodes"
+                      optionLabel="nom"
+                      optionValue="id"
+                      placeholder="Choisir un ou plusieurs semestres..."
+                      filter
+                      class="w-full !rounded-lg !border-gray-300 dark:!border-gray-700"
+                      display="chip"
+                    />
+                  </div>
+
+                  <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" @click="closePeriodeModal" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors border border-gray-200 dark:border-gray-700">
+                      Annuler
+                    </button>
+                    <button type="submit" :disabled="isPeriodeSaving" class="px-6 py-2 text-sm font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg shadow-md transition-all flex items-center gap-2">
+                      <span v-if="isPeriodeSaving" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      Enregistrer
+                    </button>
+                  </div>
+                </form>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
+        </div>
+      </Dialog>
+    </TransitionRoot>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, nextTick } from 'vue';
 import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
 import {
@@ -219,20 +426,61 @@ import {
   TransitionRoot,
   TransitionChild,
 } from "@headlessui/vue";
+import Dropdown from "primevue/dropdown";
+import MultiSelect from "primevue/multiselect";
 import Breadcrumb from "~/components/Breadcrumb.vue";
 import { useNiveauStore } from "~~/stores/niveau";
+import { usePeriodeStore } from "~~/stores/periode";
 
-const { $toastr, $swal } = useNuxtApp();
+const { $toastr, $swal, $axios } = useNuxtApp();
 const niveauStore = useNiveauStore();
+const periodeStore = usePeriodeStore();
 
 const searchQuery = ref("");
 const showModal = ref(false);
+const showDocModal = ref(false);
+const showPeriodeModal = ref(false);
+const selectedNiveau = ref(null);
+const documents = ref([]);
+const isDocLoading = ref(false);
+const isDocSaving = ref(false);
+const isPeriodeLoading = ref(false);
+const isPeriodeSaving = ref(false);
+const selectedPeriodes = ref([]);
+
+const isAuthorized = computed(() => {
+  if (typeof localStorage === 'undefined') return false;
+  try {
+    const userData = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRoles = userData?.roles || [];
+    const allowedRoles = [
+      'directeur-general', 
+      'directeur-general-adjoint',
+      'directeur-academique', 
+      'directeur-des-etudes',
+      'informaticien'
+    ];
+    return userRoles.some(role => allowedRoles.includes(role.slug));
+  } catch {
+    return false;
+  }
+});
+
 const form = ref({
   id: null,
   libelle: "",
   code: "",
   ordre: null
 });
+
+const docForm = ref({
+  id: null,
+  document_type_id: null,
+  is_obligatoire: true,
+  description: ""
+});
+
+const availableDocumentTypes = ref([]);
 
 const columns = [
   { field: "libelle", title: "Niveau", sort: true },
@@ -334,6 +582,161 @@ watch(() => form.value.libelle, (newVal) => {
     form.value.code = generateCode(newVal);
   }
 });
+
+const generateSlug = (str) => {
+  if (!str) return "";
+  return str.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Enlève les accents
+    .replace(/[^a-z0-9]/g, '_') // Remplace caractères spéciaux par _
+    .replace(/_+/g, '_') // Enlève les _ multiples
+    .replace(/^_|_$/g, ''); // Enlève les _ aux extrémités
+};
+
+const fetchAvailableDocumentTypes = async () => {
+  try {
+    const res = await $axios.get('/document-types', niveauStore.authHeaders());
+    availableDocumentTypes.value = (res.data || []).map((type) => ({ ...type, id: Number(type.id) }));
+  } catch (error) {
+    console.error("Erreur chargement types documents", error);
+  }
+};
+
+const openDocumentModal = async (niveau) => {
+  selectedNiveau.value = niveau;
+  showDocModal.value = true;
+  await fetchDocuments();
+  await fetchAvailableDocumentTypes();
+};
+
+const closeDocModal = () => {
+  showDocModal.value = false;
+  selectedNiveau.value = null;
+  docForm.value = { id: null, document_type_id: null, is_obligatoire: true, description: "" };
+};
+
+const cancelEdit = () => {
+  docForm.value = { id: null, document_type_id: null, is_obligatoire: true, description: "" };
+};
+
+const editDocument = async (doc) => {
+  // On repasse d'abord par un état vide avant de réaffecter : certains composants
+  // (le Dropdown PrimeVue en particulier) peuvent ne pas re-synchroniser correctement
+  // leur valeur affichée si on saute directement d'une sélection à une autre dans le
+  // même "tick" — le nextTick force un vrai cycle de rendu entre les deux.
+  docForm.value = { id: null, document_type_id: null, is_obligatoire: true, description: "" };
+  await nextTick();
+  docForm.value = {
+    id: doc.id,
+    document_type_id: doc.document_type_id != null ? Number(doc.document_type_id) : null,
+    is_obligatoire: !!doc.is_obligatoire,
+    description: doc.description || ""
+  };
+};
+
+const fetchDocuments = async () => {
+  if (!selectedNiveau.value) return;
+  isDocLoading.value = true;
+  try {
+    const res = await niveauStore.fetchDocumentRequirements(selectedNiveau.value.id);
+    documents.value = res || [];
+  } catch (error) {
+    $toastr.error("Impossible de charger les documents.");
+  } finally {
+    isDocLoading.value = false;
+  }
+};
+
+const saveDocument = async () => {
+  if (!docForm.value.document_type_id) return;
+  isDocSaving.value = true;
+  try {
+    if (docForm.value.id) {
+      // Modification
+      await niveauStore.updateDocumentRequirement(docForm.value.id, {
+        document_type_id: docForm.value.document_type_id,
+        is_obligatoire: docForm.value.is_obligatoire,
+        description: docForm.value.description
+      });
+      $toastr.success("Exigence mise à jour avec succès !");
+    } else {
+      // Ajout
+      await niveauStore.addDocumentRequirement(selectedNiveau.value.id, {
+        document_type_id: docForm.value.document_type_id,
+        is_obligatoire: docForm.value.is_obligatoire,
+        description: docForm.value.description
+      });
+      $toastr.success("Document exigé avec succès !");
+    }
+    
+    docForm.value = { id: null, document_type_id: null, is_obligatoire: true, description: "" };
+    await fetchDocuments();
+  } catch (error) {
+    $toastr.error(error.response?.data?.message || "Erreur lors de l'enregistrement.");
+  } finally {
+    isDocSaving.value = false;
+  }
+};
+
+const deleteDocument = async (id) => {
+  const res = await $swal.fire({
+    title: "Retirer ce document ?",
+    text: "Les candidats n'auront plus à fournir ce document.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Oui, retirer",
+    cancelButtonText: "Annuler",
+    confirmButtonColor: "#ef4444"
+  });
+
+  if (res.isConfirmed) {
+    try {
+      await niveauStore.deleteDocumentRequirement(id);
+      $toastr.success("Document retiré avec succès.");
+      await fetchDocuments();
+    } catch (error) {
+      $toastr.error("Erreur lors de la suppression.");
+    }
+  }
+};
+
+const openPeriodeModal = async (niveau) => {
+  selectedNiveau.value = niveau;
+  showPeriodeModal.value = true;
+  isPeriodeLoading.value = true;
+  selectedPeriodes.value = [];
+  try {
+    if (periodeStore.periodes.length === 0) {
+      await periodeStore.fetchPeriode();
+    }
+    const assignedPeriodes = await niveauStore.fetchNiveauPeriodes(niveau.id);
+    const assignedArray = assignedPeriodes?.data || assignedPeriodes || [];
+    selectedPeriodes.value = assignedArray.map(p => p.id);
+  } catch (error) {
+    $toastr.error("Erreur lors du chargement des semestres.");
+  } finally {
+    isPeriodeLoading.value = false;
+  }
+};
+
+const closePeriodeModal = () => {
+  showPeriodeModal.value = false;
+  selectedNiveau.value = null;
+  selectedPeriodes.value = [];
+};
+
+const savePeriodes = async () => {
+  if (!selectedNiveau.value) return;
+  isPeriodeSaving.value = true;
+  try {
+    await niveauStore.assignPeriodesToNiveau(selectedNiveau.value.id, selectedPeriodes.value);
+    $toastr.success("Semestres associés avec succès !");
+    closePeriodeModal();
+  } catch (error) {
+    $toastr.error(error?.response?.data?.message || "Erreur lors de l'association.");
+  } finally {
+    isPeriodeSaving.value = false;
+  }
+};
 
 onMounted(() => {
   niveauStore.fetchNiveaux();

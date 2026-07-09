@@ -27,7 +27,7 @@
 
     <template v-else>
       <!-- ========== BREADCRUMB ========== -->
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+      <div class="flex flex-col gap-4 mb-6 w-full overflow-hidden">
         <Breadcrumb
           :items="[
             { label: 'Examens', to: '/examens' },
@@ -38,8 +38,33 @@
           title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
           spacing="mb-0"
         />
+        <div class="flex flex-wrap items-center gap-3 w-full">
+          <!-- Déverrouiller (Admin) -->
+          <button
+            v-if="examStore.currentEvaluation?.correction_submission_date && !isTeacher"
+            @click="confirmUnlockCorrections"
+            class="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all font-semibold text-sm shadow-sm flex items-center gap-2 whitespace-nowrap"
+            :disabled="isValidating"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+            </svg>
+            Invalider / Déverrouiller
+          </button>
 
-        <div class="flex items-center gap-3">
+          <!-- Valider (Admin uniquement) -->
+          <button
+            v-if="!examStore.currentEvaluation?.correction_submission_date && !isTeacher"
+            @click="confirmValidateCorrections"
+            class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-semibold text-sm shadow-sm flex items-center gap-2 whitespace-nowrap"
+            :disabled="isValidating"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {{ isValidating ? 'Validation...' : 'Valider les notes' }}
+          </button>
+
           <button
             v-if="examStore.currentEvaluation && examStore.currentEvaluation.published !== 1"
             @click="confirmPublish"
@@ -433,7 +458,7 @@
                               step="0.5"
                               class="w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                               @input="validatePoints(question)"
-                              :disabled="isQuestionCorrigee(selectedEtudiant?.id, question.id)"
+                              :disabled="isCorrectionsLocked"
                             />
                           </div>
                           
@@ -448,11 +473,11 @@
                                 placeholder="Écrire un commentaire..."
                                 rows="2"
                                 class="flex-1 px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 disabled:bg-gray-100 dark:disabled:bg-gray-800/50 resize-y min-h-[42px]"
-                                :readonly="isQuestionCorrigee(selectedEtudiant?.id, question.id)"
+                                :readonly="isCorrectionsLocked"
                               ></textarea>
                               <!-- Bouton Suggestion IA -->
                               <button
-                                v-if="!isQuestionCorrigee(selectedEtudiant?.id, question.id)"
+                                v-if="!isCorrectionsLocked"
                                 @click="getAISuggestion(question)"
                                 class="px-3 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors flex items-center gap-1 shrink-0"
                                 :disabled="isAnalysingIA[question.id]"
@@ -492,7 +517,7 @@
                       <button
                         @click="saveAllCorrections"
                         class="px-6 py-2 text-sm bg-violet-600 text-white rounded-lg hover:bg-violet-700 shadow-sm transition-all font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
-                        :disabled="isSavingAll || isAllGraded(selectedEtudiant?.id)"
+                        :disabled="isSavingAll || isCorrectionsLocked"
                       >
                         {{ isSavingAll ? 'Enregistrement...' : 'Enregistrer tout' }}
                       </button>
@@ -532,6 +557,7 @@ import { Dialog, DialogPanel, DialogTitle, TransitionRoot, TransitionChild } fro
 import Breadcrumb from '~/components/Breadcrumb.vue'
 import { useExamStore } from '~~/stores/exam'
 import { useEtudiantStore } from '~~/stores/etudiant'
+import { useState } from '#app'
 import Swal from 'sweetalert2'
 
 const route = useRoute()
@@ -551,10 +577,88 @@ const selectedEtudiant = ref(null)
 const selectedPartCorrection = ref(null)
 const isSavingAll = ref(false)
 const isPublishing = ref(false)
+const isValidating = ref(false)
 const showToast = ref(false)
 const toastMessage = ref('')
 const correctionForm = ref({})
 const isAnalysingIA = ref({})
+
+const currentUser = computed(() => {
+  const userState = useState('user')
+  if (userState.value) return userState.value
+  if (process.client) {
+    const userStr = localStorage.getItem('user')
+    if (userStr) return JSON.parse(userStr)
+  }
+  return null
+})
+
+const isTeacher = computed(() => {
+  const user = currentUser.value
+  if (!user || !user.roles) return true;
+  const roles = user.roles.map(r => r.nom ? r.nom.toLowerCase() : '');
+  const hasTeacherRole = roles.some(r => ['enseignant', 'professeur'].includes(r));
+  const hasAdminRole = roles.some(r => ['admin', 'directeur général', 'directeur académique', 'informaticien', 'super admin', 'super-admin', 'super administrateur', 'administrateur'].includes(r));
+  return hasTeacherRole && !hasAdminRole;
+})
+
+const isCorrectionsLocked = computed(() => {
+  return isTeacher.value && examStore.currentEvaluation?.correction_submission_date !== null
+})
+
+const confirmValidateCorrections = () => {
+  Swal.fire({
+    title: 'Valider les notes ?',
+    text: "Une fois validées, vous ne pourrez plus modifier les notes sans contacter l'administration.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#2563eb',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Oui, valider',
+    cancelButtonText: 'Annuler',
+    reverseButtons: true
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      isValidating.value = true
+      try {
+        await examStore.validateCorrections(evaluationId)
+        examStore.currentEvaluation.correction_submission_date = new Date().toISOString()
+        showToastMessage('Notes validées avec succès')
+      } catch (error) {
+        showToastMessage("Erreur lors de la validation", "error")
+      } finally {
+        isValidating.value = false
+      }
+    }
+  })
+}
+
+const confirmUnlockCorrections = () => {
+  Swal.fire({
+    title: 'Déverrouiller les notes ?',
+    text: "Le professeur pourra à nouveau modifier les notes.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#f97316',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Oui, déverrouiller',
+    cancelButtonText: 'Annuler',
+    reverseButtons: true
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      isValidating.value = true
+      try {
+        await examStore.unlockCorrections(evaluationId)
+        examStore.currentEvaluation.correction_submission_date = null
+        showToastMessage('Évaluation déverrouillée avec succès')
+      } catch (error) {
+        showToastMessage("Erreur lors du déverrouillage", "error")
+      } finally {
+        isValidating.value = false
+      }
+    }
+  })
+}
 
 const confirmPublish = () => {
   if (questionsNonCorrigees.value > 0) {
@@ -1018,6 +1122,7 @@ const saveQuestionCorrection = async (question) => {
         formData.commentaire || ''
       )
       // await examStore.finalizeGrade(evaluationId, selectedEtudiant.value.id)
+      await handleRefreshData()
       showToastMessage('Correction enregistrée')
     } else {
       showToastMessage('Soumission non trouvée')
@@ -1054,6 +1159,7 @@ const saveAllCorrections = async () => {
       // Finaliser la note globale de l'étudiant
       // await examStore.finalizeGrade(evaluationId, selectedEtudiant.value.id)
       
+      await handleRefreshData()
       showToastMessage('Toutes les corrections ont été enregistrées')
       closeCorrectionModal()
     } else {

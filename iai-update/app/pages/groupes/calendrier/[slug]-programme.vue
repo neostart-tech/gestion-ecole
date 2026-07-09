@@ -252,6 +252,21 @@
                     </div>
                   </div>
 
+                  <!-- Semestre -->
+                  <div>
+                    <FloatLabel variant="on">
+                      <Dropdown
+                        v-model="form.periode_id"
+                        :options="SemestresOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        class="w-full"
+                        @change="form.uv_id = ''"
+                      />
+                      <label>Semestre</label>
+                    </FloatLabel>
+                  </div>
+
                   <!-- UV -->
                   <div>
                     <FloatLabel variant="on">
@@ -263,6 +278,7 @@
                         filter
                         showClear
                         class="w-full"
+                        :disabled="!form.periode_id"
                       />
                       <label>Matière</label>
                     </FloatLabel>
@@ -556,6 +572,7 @@ import { useUvStore } from "~~/stores/unite-valeur";
 import { useGroupeStore } from "~~/stores/group";
 import { useUserStore } from "~~/stores/user";
 import { useCalendarStore } from "~~/stores/calendar";
+import { useNiveauStore } from "~~/stores/niveau";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
@@ -564,6 +581,7 @@ const salleStore = useSalleStore();
 const UvStore = useUvStore();
 const userStore = useUserStore();
 const calendarStore = useCalendarStore();
+const niveauStore = useNiveauStore();
 const { $toastr, $swal } = useNuxtApp();
 
 // Références
@@ -592,6 +610,7 @@ const form = ref({
   date: "",
   debut: "",
   fin: "",
+  periode_id: "",
   uv_id: "",
   type: "Cours",
   grade: "",
@@ -926,7 +945,7 @@ const getEventTypeClass = (type: string) => {
   return type === "Évaluation" ? `${base} bg-orange-100 text-orange-800` : `${base} bg-blue-100 text-blue-800`;
 };
 
-const openCreateModal = () => { isEditing.value = false; showFormModal.value = true; };
+
 const findItemValue = (items: any[], searchValue: any, searchBy: string[] = ["id", "slug", "nom", "username", "email"]) => {
   if (!searchValue) return "";
   const s = String(searchValue).toLowerCase().trim();
@@ -950,31 +969,56 @@ const findItemValue = (items: any[], searchValue: any, searchBy: string[] = ["id
   return "";
 };
 
+// Ouvrir modal de création
+const openCreateModal = () => {
+  // Vérifier si le jour sélectionné est férié
+  const selectedDateStr = form.value.date ? format(new Date(form.value.date), 'yyyy-MM-dd') : null;
+  if (selectedDateStr) {
+    const isHoliday = calendarStore.holidays.some(h => h.date.split('T')[0] === selectedDateStr);
+    if (isHoliday) {
+      $swal.fire({
+        icon: 'warning',
+        title: 'Jour Férié',
+        text: 'Vous ne pouvez pas programmer de cours sur un jour férié.',
+        confirmButtonColor: '#6366f1'
+      });
+      return;
+    }
+  }
+
+  isEditing.value = false;
+  showFormModal.value = true;
+};
+
+// Ouvrir modal d'édition depuis le calendrier
 const openEditModal = async (event: any) => {
   // S'assurer que les listes sont chargées
   if (userStore.enseignants.length === 0) await userStore.fetchUsersEnseignant();
   if (userStore.users.length === 0) await userStore.fetchUsers();
   if (UvStore.uvs.length === 0) await UvStore.fetchUv();
   if (salleStore.salles.length === 0) await salleStore.fetchSalles();
-  
-  const p = event.extendedProps;
-  console.log("DEBUG - extendedProps:", p);
+
+  selectedEvent.value = event;
+  const p = event.extendedProps || {};
+
   form.value = {
-    id: event.id,
+    id: p.id || p.originalId || event.id || "",
     slug: event.id,
     date: format(new Date(event.start), "yyyy-MM-dd"),
     debut: format(new Date(event.start), "HH:mm"),
     fin: format(new Date(event.end), "HH:mm"),
+    periode_id: p.periode_id || p.semestre_id || (p.uv && p.uv.periode_id) || "",
     uv_id: findItemValue(UvStore.uvs, p.uv_id || p.matiere_id || p.id_uv || (typeof p.uv === 'object' ? p.uv?.id : p.uv) || p.uv_name || p.displayUv || p.matiere || p.titre),
     type: p.type || p.type_programme || "Cours",
     grade: slug.value,
     teacher: findItemValue([...userStore.enseignants, ...userStore.users], p.teacher_id || p.enseignant_id || p.id_enseignant || (typeof p.teacher === 'object' ? p.teacher?.id : (typeof p.enseignant === 'object' ? p.enseignant?.id : (p.teacher || p.enseignant))) || p.teacher_name || p.displayTeacher || p.enseignant),
-    salle: findItemValue(salleStore.salles, p.salle_id || p.salle?.id || p.id_salle || p.salle || p.salle_name || p.displaySalle),
+    salle: findItemValue(salleStore.salles, p.salle_id || p.id_salle || (typeof p.salle === 'object' ? p.salle?.id : p.salle) || p.salle_name || p.displaySalle),
     details: p.details || "",
     recurrence_type: p.recurrence_type || "aucune",
     recurrence_days: p.recurrence_days ? (Array.isArray(p.recurrence_days) ? p.recurrence_days : p.recurrence_days.split(",")) : [],
     recurrence_end_date: p.recurrence_end_date ? new Date(p.recurrence_end_date) : (p.date_fin ? new Date(p.date_fin) : null),
   };
+
   enableRecurrence.value = form.value.recurrence_type !== "aucune";
   isEditing.value = true;
   showFormModal.value = true;
@@ -985,8 +1029,25 @@ const openEventModal = (event: any) => { selectedEvent.value = event; showEventM
 const closeFormModal = () => { showFormModal.value = false; resetForm(); };
 const closeEventModal = () => { showEventModal.value = false; selectedEvent.value = null; };
 
+// Réinitialiser le formulaire
 const resetForm = () => {
-  form.value = { id: "", date: "", debut: "08:00", fin: "10:00", uv_id: "", type: "Cours", grade: slug.value, teacher: "", salle: "", details: "", recurrence_type: "aucune", recurrence_days: [], recurrence_end_date: "" };
+  form.value = {
+    id: "",
+    slug: "",
+    date: "",
+    debut: "08:00",
+    fin: "10:00",
+    periode_id: "",
+    uv_id: "",
+    type: "Cours",
+    grade: slug.value,
+    teacher: "",
+    salle: "",
+    details: "",
+    recurrence_type: "aucune",
+    recurrence_days: [],
+    recurrence_end_date: "",
+  };
   enableRecurrence.value = false;
 };
 
@@ -1119,7 +1180,66 @@ const confirmDelete = async (event: any) => {
   }
 };
 
-const MatieresOptions = computed(() => UvStore.uvs.map(u => ({ label: u.nom, value: u.id || u.slug })));
+const periodesDuGroup = ref([]);
+
+const fetchPeriodes = async () => {
+  const currentGroup = groupStore.groupes.find(g => g.slug === slug.value || g.id == slug.value);
+  const gNiveauId = currentGroup?.niveau_id || currentGroup?.niveau?.id;
+  if (gNiveauId) {
+    periodesDuGroup.value = await niveauStore.fetchNiveauPeriodes(gNiveauId);
+  }
+};
+
+onMounted(() => {
+  fetchPeriodes();
+});
+
+const SemestresOptions = computed(() => {
+  const periodes = periodesDuGroup.value?.data || periodesDuGroup.value || [];
+  if (!Array.isArray(periodes)) return [];
+  return periodes.map((p: any) => ({ label: p.nom, value: p.id }));
+});
+
+const MatieresOptions = computed(() => {
+  const currentGroup = groupStore.groupes.find(g => g.slug === slug.value || g.id == slug.value);
+  let filtered = UvStore.uvs;
+
+  if (currentGroup) {
+    const gFiliereId = currentGroup.filiere_id || currentGroup.filiere?.id;
+    const gNiveauId = currentGroup.niveau_id || currentGroup.niveau?.id;
+
+    filtered = UvStore.uvs.filter(u => {
+      const uFiliereId = u.filiere_id || u.filiere?.id;
+      const uNiveauId = u.niveau_id || u.niveau?.id;
+
+      // Filtre strict par niveau : l'UV DOIT avoir le même niveau que le groupe
+      if (gNiveauId && uNiveauId != gNiveauId) return false;
+
+      // Filtre optionnel par filière : si l'UV a une filière, elle doit correspondre à celle du groupe
+      if (gFiliereId && uFiliereId && gFiliereId != uFiliereId) return false;
+      
+      // Filtre strict par semestre si sélectionné dans le formulaire
+      if (form.value.periode_id) {
+        const uPeriodeId = u.periode_id || u.periode?.id || u.semestre_id || u.semestre?.id;
+        if (uPeriodeId != form.value.periode_id) return false;
+      }
+      
+      return true;
+    });
+  }
+
+  return filtered.map((u: any) => {
+    const parts = [];
+    if (u.periode?.nom) parts.push(u.periode.nom);
+    
+    const details = parts.length > 0 ? ` - ${parts.join(' / ')}` : '';
+    const codeName = u.code ? ` (${u.code})` : '';
+    return {
+      label: `${u.nom}${details}${codeName}`,
+      value: u.id || u.slug,
+    };
+  });
+});
 const EnseignantsOptions = computed(() => {
   if (!form.value.uv_id) {
     const all = [...userStore.enseignants, ...userStore.users];

@@ -81,5 +81,49 @@ export const useNiveauStore = defineStore("niveau", {
         this.isLoading = false;
       }
     },
+    async assignPeriodesToNiveau(id, periodeIds) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(`/niveau/${id}/assign-periodes`, { periode_ids: periodeIds }, this.authHeaders());
+        return response.data;
+      } catch (error) {
+        console.error("Erreur lors de l'assignation des périodes:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async fetchDocumentRequirements(id) {
+      try {
+        const response = await axios.get(`/niveau/${id}/documents`, this.authHeaders());
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async addDocumentRequirement(id, form) {
+      try {
+        const response = await axios.post(`/niveau/${id}/documents`, form, this.authHeaders());
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async updateDocumentRequirement(docId, form) {
+      try {
+        const response = await axios.put(`/niveau/documents/${docId}`, form, this.authHeaders());
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async deleteDocumentRequirement(docId) {
+      try {
+        const response = await axios.delete(`/niveau/documents/${docId}`, this.authHeaders());
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    }
   },
 });

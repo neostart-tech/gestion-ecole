@@ -11,7 +11,7 @@
     <div class="relative z-10 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
       
       <!-- Header Intégré & Professionnel -->
-      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
           <div class="flex items-center gap-3 mb-2">
             <div class="w-1.5 h-8 bg-[#7F45FD] rounded-full"></div>
@@ -20,21 +20,83 @@
           <p class="text-sm text-[#8a8a9a] font-medium ml-4">Gestion centralisée et validation des candidatures entrantes</p>
         </div>
 
-        <!-- Statistiques discrètes -->
-        <div class="flex items-center gap-3 overflow-x-auto pb-2 lg:pb-0 no-scrollbar">
-           <div class="px-4 py-2 bg-white dark:bg-[#11111e] rounded-xl border border-[#e8e8f0] dark:border-[#1a1a2a] flex items-center gap-3 whitespace-nowrap shadow-sm">
-              <span class="w-2 h-2 rounded-full bg-[#3B82F6]"></span>
-              <span class="text-[10px] font-bold uppercase tracking-[0.1em] text-[#8a8a9a] dark:text-[#888]">{{ candidatureStore.candidatures.length }} TOTAL</span>
-           </div>
-           <div class="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-3 whitespace-nowrap shadow-sm">
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span class="text-[10px] font-bold uppercase tracking-[0.1em] text-emerald-700 dark:text-emerald-400">{{ candidatureStore.candidatures.filter(c => c.dossier_valide).length }} VALIDÉS</span>
-           </div>
-           <div class="px-4 py-2 bg-[#7F45FD]/5 dark:bg-[#7F45FD]/10 rounded-xl border border-[#7F45FD]/20 flex items-center gap-3 whitespace-nowrap shadow-sm">
-              <span class="w-2 h-2 rounded-full bg-[#7F45FD]"></span>
-              <span class="text-[10px] font-bold uppercase tracking-[0.1em] text-[#7F45FD]">{{ candidatureStore.candidatures.filter(c => !c.dossier_valide && !c.motif).length }} EN ÉTUDE</span>
-           </div>
-        </div>
+        <button
+          @click="exportExcel"
+          :disabled="candidatureStore.exportEnCours"
+          class="inline-flex items-center gap-2 px-5 py-3 bg-[#7F45FD] hover:bg-[#6a35e8] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-300 hover:shadow-[0_8px_25px_rgba(127,69,253,0.3)] disabled:opacity-60"
+        >
+          <svg v-if="!candidatureStore.exportEnCours" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2-8H8a2 2 0 00-2 2v14a2 2 0 002 2h8a2 2 0 002-2V8a2 2 0 00-2-2z" /></svg>
+          <span v-else class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          {{ candidatureStore.exportEnCours ? 'Export en cours...' : 'Exporter en Excel' }}
+        </button>
+      </div>
+
+      <!-- Onglets Filtres (Segmented Control Premium) -->
+      <div class="bg-[#ededf4] dark:bg-[#151525] p-1.5 rounded-2xl flex flex-wrap lg:flex-nowrap gap-1 border border-[#e8e8f0]/40 dark:border-[#1a1a2a]/40 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
+        <button 
+          @click="filterStatut = ''"
+          :class="[
+            filterStatut === '' 
+              ? 'bg-white dark:bg-[#202035] text-[#7F45FD] dark:text-[#a882ff] shadow-md border-transparent scale-[1.02]' 
+              : 'text-[#8a8a9a] dark:text-[#888] hover:text-[#1a1a2a] dark:hover:text-[#fafafe] border-transparent'
+          ]"
+          class="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all duration-300 transform active:scale-95"
+        >
+          <span class="w-2.5 h-2.5 rounded-full bg-[#3B82F6] shrink-0"></span>
+          <span>Total ({{ candidatureStore.candidatures.length }})</span>
+        </button>
+
+        <button 
+          @click="filterStatut = 'valide'"
+          :class="[
+            filterStatut === 'valide' 
+              ? 'bg-white dark:bg-[#202035] text-[#7F45FD] dark:text-[#a882ff] shadow-md border-transparent scale-[1.02]' 
+              : 'text-[#8a8a9a] dark:text-[#888] hover:text-[#1a1a2a] dark:hover:text-[#fafafe] border-transparent'
+          ]"
+          class="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all duration-300 transform active:scale-95"
+        >
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+          <span>Validés ({{ candidatureStore.candidatures.filter(c => c.dossier_valide).length }})</span>
+        </button>
+
+        <button 
+          @click="filterStatut = 'en_attente'"
+          :class="[
+            filterStatut === 'en_attente' 
+              ? 'bg-white dark:bg-[#202035] text-[#7F45FD] dark:text-[#a882ff] shadow-md border-transparent scale-[1.02]' 
+              : 'text-[#8a8a9a] dark:text-[#888] hover:text-[#1a1a2a] dark:hover:text-[#fafafe] border-transparent'
+          ]"
+          class="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all duration-300 transform active:scale-95"
+        >
+          <span class="w-2.5 h-2.5 rounded-full bg-[#7F45FD] shrink-0"></span>
+          <span>En étude ({{ candidatureStore.candidatures.filter(c => !c.dossier_valide && !c.motif && !c.rectification_expected).length }})</span>
+        </button>
+
+        <button 
+          @click="filterStatut = 'rectification'"
+          :class="[
+            filterStatut === 'rectification' 
+              ? 'bg-white dark:bg-[#202035] text-[#7F45FD] dark:text-[#a882ff] shadow-md border-transparent scale-[1.02]' 
+              : 'text-[#8a8a9a] dark:text-[#888] hover:text-[#1a1a2a] dark:hover:text-[#fafafe] border-transparent'
+          ]"
+          class="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all duration-300 transform active:scale-95"
+        >
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
+          <span>A corriger ({{ candidatureStore.candidatures.filter(c => c.rectification_expected).length }})</span>
+        </button>
+
+        <button 
+          @click="filterStatut = 'rejete'"
+          :class="[
+            filterStatut === 'rejete' 
+              ? 'bg-white dark:bg-[#202035] text-[#7F45FD] dark:text-[#a882ff] shadow-md border-transparent scale-[1.02]' 
+              : 'text-[#8a8a9a] dark:text-[#888] hover:text-[#1a1a2a] dark:hover:text-[#fafafe] border-transparent'
+          ]"
+          class="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all duration-300 transform active:scale-95"
+        >
+          <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0"></span>
+          <span>Rejetés ({{ candidatureStore.candidatures.filter(c => c.motif && !c.rectification_expected).length }})</span>
+        </button>
       </div>
 
       <!-- Barre d'outils flottante -->
@@ -73,8 +135,8 @@
             </Menu>
           </div>
 
-          <!-- Filtres alignés deux par deux sur mobile, en ligne sur grand écran -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 xl:flex xl:flex-nowrap gap-3 shrink-0">
+          <!-- Filtres (Filières, Niveaux et Actualiser) -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 xl:flex xl:flex-nowrap gap-3 shrink-0">
             <select v-model="filterFiliere" class="w-full px-4 py-3 text-sm bg-[#fafafe] dark:bg-[#0a0a12] border border-[#e8e8f0] dark:border-[#1a1a2a] rounded-xl outline-none focus:border-[#7F45FD] text-[#1a1a2a] dark:text-white">
               <option value="">Filières</option>
               <option v-for="f in filiereStore.filieres" :key="f.id" :value="f.id">{{ f.nom }}</option>
@@ -85,15 +147,7 @@
               <option v-for="n in niveauStore.niveaux" :key="n.id" :value="n.id">{{ n.nom || n.libelle }}</option>
             </select>
 
-            <select v-model="filterStatut" class="w-full px-4 py-3 text-sm bg-[#fafafe] dark:bg-[#0a0a12] border border-[#e8e8f0] dark:border-[#1a1a2a] rounded-xl outline-none focus:border-[#7F45FD] text-[#1a1a2a] dark:text-white">
-              <option value="">Statuts</option>
-              <option value="en_attente">En étude</option>
-              <option value="valide">Validés</option>
-              <option value="rejete">Rejetés</option>
-              <option value="rectification">Correction</option>
-            </select>
-
-            <button @click="refreshData" class="w-full flex items-center justify-center p-3 bg-[#fafafe] dark:bg-[#0a0a12] border border-[#e8e8f0] dark:border-[#1a1a2a] text-[#8a8a9a] hover:text-[#7F45FD] rounded-xl shadow-sm transition-all">
+            <button @click="refreshData" class="w-full sm:w-auto flex items-center justify-center p-3 bg-[#fafafe] dark:bg-[#0a0a12] border border-[#e8e8f0] dark:border-[#1a1a2a] text-[#8a8a9a] hover:text-[#7F45FD] rounded-xl shadow-sm transition-all">
               <svg class="w-5 h-5" :class="{ 'animate-spin': isRefreshing }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
@@ -210,12 +264,22 @@ import { ref, computed, onMounted } from 'vue'
 import { useCandidatureStore } from '~~/stores/candidature'
 import { useFiliereStore } from '~~/stores/filiere'
 import { useNiveauStore } from '~~/stores/niveau'
+import { getStorageBaseUrl } from '~/utils/storageUrl'
 import Vue3Datatable from '@bhplugin/vue3-datatable'
 import { Menu, MenuButton, MenuItems } from '@headlessui/vue'
 
 const candidatureStore = useCandidatureStore()
 const filiereStore = useFiliereStore()
 const niveauStore = useNiveauStore()
+const { $toastr } = useNuxtApp()
+
+const exportExcel = async () => {
+  try {
+    await candidatureStore.exportEtudeDossierExcel()
+  } catch (error) {
+    $toastr.error(candidatureStore.error || "Erreur lors de l'export Excel.")
+  }
+}
 
 const searchQuery = ref('')
 const filterFiliere = ref('')
@@ -271,8 +335,7 @@ const getStatutBadgeClass = (c) => {
 const getFullUrl = (path) => {
   if (!path) return null
   if (path.startsWith('http')) return path
-  const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-  return `${apiBase}/storage/${path}`
+  return `${getStorageBaseUrl()}/storage/${path}`
 }
 
 const refreshData = async () => {

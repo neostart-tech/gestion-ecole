@@ -236,7 +236,7 @@
                     Contexte de l'étude de cas <span class="text-red-500">*</span>
                   </label>
                   <Editor
-                    api-key="ktf8z0z55enm2wd9xyeoo6qzzoy7w9b629e51wii9y8lw4dx"
+                    api-key="2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl"
                     v-model="newPart.contexte"
                     :init="{
                       height: 150,
@@ -539,7 +539,7 @@
                 </button>
               </div>
               <Editor
-                api-key="ktf8z0z55enm2wd9xyeoo6qzzoy7w9b629e51wii9y8lw4dx"
+                api-key="2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl"
                 v-model="questionForm.content"
                 :init="{
                   height: 200,

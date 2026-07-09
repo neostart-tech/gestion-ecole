@@ -17,7 +17,8 @@ export default defineNuxtRouteMiddleware((to) => {
 		"/unauthorized",
         "/actualites",
         "/annonces",
-        "/support/ticket"
+        "/support/ticket",
+        "/concours"
 	];
 	if (publicRoutes.includes(to.path) || to.path.startsWith("/actualites/") || to.path.startsWith("/annonces/")) {
 		return;
@@ -25,6 +26,27 @@ export default defineNuxtRouteMiddleware((to) => {
 
 	const userData = JSON.parse(localStorage.getItem("user") || "{}");
 	const userRoles = userData?.roles || [];
+
+	// Routes réservées strictement à certains rôles, même pour les comptes
+	// ayant par ailleurs un accès total ("*"), comme l'admin.
+	const strictRoleOnlyRoutes = {
+		"/enseignant/syllabuses": ["enseignant"],
+	};
+	const strictPrefix = Object.keys(strictRoleOnlyRoutes).find((prefix) =>
+		to.path.startsWith(prefix)
+	);
+	if (strictPrefix) {
+		const allowedRoles = strictRoleOnlyRoutes[strictPrefix];
+		const isAllowed = userRoles.some((role) => allowedRoles.includes(role.slug));
+		if (!isAllowed) {
+			const { $toastr } = useNuxtApp();
+			$toastr.error(
+				`Accès refusé car vous n'avez pas la permission d'accéder à cette page!`,
+			);
+			return navigateTo("/emploi-du-temps");
+		}
+		return;
+	}
 
 	// Liste des rôles autorisés à voir la page d'accueil (/)
 	const rolesWithHomeAccess = [
@@ -43,22 +65,26 @@ export default defineNuxtRouteMiddleware((to) => {
 		'directeur-academique'
 	];
 
-	// Vérifier si l'utilisateur a un rôle avec accès total
-	const hasFullAccess = userRoles.some((role) =>
-		rolesWithHomeAccess.includes(role.slug)
-	);
-
 	// REDIRECTION SPÉCIALE POUR LA PAGE D'ACCUEIL (/)
 	if (to.path === "/") {
-		// Si l'utilisateur n'a pas accès total, rediriger vers sa page par défaut
-		if (!hasFullAccess) {
-			// Redirection par défaut pour tous les utilisateurs sans accès total
+		const hasHomeAccess = userRoles.some((role) =>
+			rolesWithHomeAccess.includes(role.slug)
+		);
+		// Si l'utilisateur n'a pas accès à l'accueil, rediriger vers sa page par défaut
+		if (!hasHomeAccess) {
 			return navigateTo("/emploi-du-temps");
 		}
-		
-		// Si l'utilisateur a accès total, on le laisse voir /
+
+		// Sinon on le laisse voir /
 		return;
 	}
+
+	// Accès total réel : uniquement les rôles ayant la permission "*"
+	// (ne pas confondre avec rolesWithHomeAccess, qui ne concerne que la page d'accueil)
+	const hasFullAccess = userRoles.some((role) => {
+		const permissions = rolePermissions[role.slug];
+		return permissions && permissions.includes("*");
+	});
 
 	if (hasFullAccess) {
 		return; // Accès autorisé à tout

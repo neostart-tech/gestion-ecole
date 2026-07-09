@@ -25,7 +25,19 @@
           </svg>
           <span class="hidden sm:inline">{{ isLoading ? 'Chargement...' : 'Rafraîchir' }}</span>
         </button>
-        
+
+        <button
+          @click="exportExcel"
+          class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all disabled:opacity-50"
+          :disabled="candidatureStore.exportEnCours"
+        >
+          <svg v-if="!candidatureStore.exportEnCours" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2-8H8a2 2 0 00-2 2v14a2 2 0 002 2h8a2 2 0 002-2V8a2 2 0 00-2-2z" />
+          </svg>
+          <span v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          <span class="hidden sm:inline">{{ candidatureStore.exportEnCours ? 'Export en cours...' : 'Exporter en Excel' }}</span>
+        </button>
+
       </div>
     </div>
 
@@ -295,6 +307,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useCandidatureStore } from '~~/stores/candidature'
 import { useFiliereStore } from '~~/stores/filiere'
 import { useNiveauStore } from '~~/stores/niveau'
+import { getStorageBaseUrl } from '~/utils/storageUrl'
 import {
   Menu, MenuButton, MenuItems,
   TransitionRoot, TransitionChild, Dialog, DialogPanel, DialogTitle
@@ -360,8 +373,12 @@ const onRowSelect = (rows) => {
   selectedIds.value = rows.map(r => r.id)
 }
 
-const exportExcel = () => {
-  window.open('/api/candidature/export/excel', '_blank')
+const exportExcel = async () => {
+  try {
+    await candidatureStore.exportCandidatsAdmisExcel()
+  } catch (error) {
+    $toastr.error(candidatureStore.error || 'Erreur lors de l\'export Excel.')
+  }
 }
 
 const bulkReject = () => {
@@ -422,8 +439,7 @@ const rejectCandidate = (candidate) => {
 const getFullUrl = (path) => {
   if (!path) return null
   if (path.startsWith('http')) return path
-  const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-  return `${apiBase}/storage/${path}`
+  return `${getStorageBaseUrl()}/storage/${path}`
 }
 
 const formatDate = (dateString) => {

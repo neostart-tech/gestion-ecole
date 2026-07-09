@@ -240,6 +240,22 @@
                 </svg>
               </NuxtLink>
 
+              <!-- Validation des copies / Corrections -->
+              <NuxtLink
+                class="p-2 rounded-lg text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors duration-200"
+                title="Corrections & Validation"
+                :to="`/evaluations/examen-en-ligne/${value.slug}/soumission-des-etudiants`"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </NuxtLink>
+
               <Can action="update-evaluation">
                 <button
                   @click="openConfigModal(value)"

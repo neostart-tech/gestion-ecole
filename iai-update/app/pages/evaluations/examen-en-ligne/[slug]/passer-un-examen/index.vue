@@ -531,11 +531,11 @@
                     <div class="space-y-4">
                       <!-- QCM Unique -->
                       <div v-if="question.type === 'qcm_unique'" class="space-y-2">
-                        <div v-for="option in question.options" :key="option.id" 
+                        <div v-for="option in question.options" :key="option.id"
                              class="flex items-center p-2 rounded-lg"
                              :class="{
-                               'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800': examStatus === 'termine' && option.is_correct,
-                               'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800': examStatus === 'termine' && isOptionSelected(question.id, option.id) && !option.is_correct
+                               'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800': canSeeCorrection && option.is_correct,
+                               'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800': canSeeCorrection && isOptionSelected(question.id, option.id) && !option.is_correct
                              }">
                           <label class="flex items-center gap-3 cursor-pointer w-full">
                             <input
@@ -582,8 +582,8 @@
                         <div v-for="option in question.options" :key="option.id"
                              class="flex items-center p-2 rounded-lg"
                              :class="{
-                               'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800': examStatus === 'termine' && option.is_correct,
-                               'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800': examStatus === 'termine' && isOptionSelected(question.id, option.id) && !option.is_correct
+                               'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800': canSeeCorrection && option.is_correct,
+                               'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800': canSeeCorrection && isOptionSelected(question.id, option.id) && !option.is_correct
                              }">
                           <label class="flex items-center gap-3 cursor-pointer w-full">
                             <input
@@ -720,7 +720,7 @@
                       <!-- Texte long avec TinyMCE -->
                       <div v-else-if="question.type === 'texte_long'">
                         <Editor
-                          api-key="ktf8z0z55enm2wd9xyeoo6qzzoy7w9b629e51wii9y8lw4dx"
+                          api-key="2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl"
                           v-model="responses[question.id]"
                           :init="{
                             height: 300,
@@ -989,7 +989,7 @@
                             </div>
                             
                             <Editor
-                            api-key="ktf8z0z55enm2wd9xyeoo6qzzoy7w9b629e51wii9y8lw4dx"
+                            api-key="2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl"
                               v-model="responses[question.id]"
                               :init="{
                                 height: 300,

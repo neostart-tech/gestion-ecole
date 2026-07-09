@@ -164,9 +164,9 @@
         <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
           <div v-for="photo in existingPhotos" :key="photo.id" class="flex flex-col">
             <div class="group relative aspect-square rounded-[5px] overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-100 dark:border-gray-800">
-              <img 
-                :src="config.app_dev_storage_url + '/storage/' + photo.file_path" 
-                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+              <img
+                :src="photo.file_url || (config.app_dev_storage_url + '/storage/' + photo.file_path)"
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
               <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                 <!-- Edit Title -->

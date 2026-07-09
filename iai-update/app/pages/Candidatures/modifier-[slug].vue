@@ -199,6 +199,12 @@
                 <option value="Master">Master</option>
               </select>
             </div>
+
+            <!-- Etablissement -->
+            <div>
+              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Établissement</label>
+              <input v-model="formData.etablissement_diplome" type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+            </div>
           </div>
         </div>
 
@@ -412,6 +418,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useCandidatureStore } from '~~/stores/candidature';
 import { useFiliereStore } from '~~/stores/filiere';
 import { useNiveauStore } from '~~/stores/niveau';
+import { getStorageBaseUrl } from '~/utils/storageUrl';
 import Swal from 'sweetalert2';
 import Breadcrumb from "~/components/Breadcrumb.vue"
 import NationaliteSelector from "~/components/NationaliteSelector.vue"
@@ -474,6 +481,7 @@ const formData = reactive({
   annee_bac: '',
   lettre_motivation: '',
   type_diplome: 'Bac',
+  etablissement_diplome: '',
   nom_resp: '',
   prenom_resp: '',
   profession_resp: '',
@@ -524,8 +532,7 @@ const existingFiles = reactive({
 const getFullUrl = (path) => {
     if (!path) return null
     if (path.startsWith('http')) return path
-    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-    return `${apiBase}/storage/${path}`
+    return `${getStorageBaseUrl()}/storage/${path}`
 };
 
 const loadData = async () => {

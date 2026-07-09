@@ -108,14 +108,11 @@
               </div>
               <div>
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                  {{ frais.niveau?.libelle || 'Niveau non spécifié' }}
+                  {{ frais.niveau?.libelle || 'Niveau non spécifié' }}{{ frais.filiere ? ' ' + frais.filiere.nom : '' }}{{ frais.mode_formation === 'En ligne' ? ' en ligne' : '' }}
                 </h3>
                 <div class="flex flex-wrap gap-2 mt-1">
                   <span class="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 px-2 py-0.5 rounded-full">
                     {{ frais.annee_scolaire?.nom || 'Année non définie' }}
-                  </span>
-                  <span v-if="frais.filiere" class="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 px-2 py-0.5 rounded-full">
-                    {{ frais.filiere.nom }}
                   </span>
                   <span v-if="frais.genre" class="text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 px-2 py-0.5 rounded-full">
                     {{ frais.genre }}

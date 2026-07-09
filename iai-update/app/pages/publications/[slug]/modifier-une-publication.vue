@@ -183,7 +183,7 @@
           <div class="border border-gray-300 rounded-lg overflow-hidden">
             <ClientOnly>
               <Editor
-                api-key="ktf8z0z55enm2wd9xyeoo6qzzoy7w9b629e51wii9y8lw4dx"
+                api-key="2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl"
                 v-model="form.content"
                 :init="{
                   height: 250,

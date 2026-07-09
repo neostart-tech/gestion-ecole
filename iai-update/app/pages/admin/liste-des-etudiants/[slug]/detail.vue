@@ -39,7 +39,7 @@
             <div class="relative group">
               <div class="w-24 h-24 md:w-32 md:h-32 bg-white dark:bg-gray-700 rounded-3xl p-1.5 shadow-xl border border-gray-100 dark:border-gray-600">
                 <div class="w-full h-full rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center overflow-hidden">
-                  <img v-if="etudiantStore.etudiant.image" :src="etudiantStore.etudiant.image" class="w-full h-full object-cover" alt="Profile" />
+                  <img v-if="studentPhoto" :src="studentPhoto" class="w-full h-full object-cover" alt="Profile" />
                   <span v-else class="text-3xl md:text-4xl font-black text-indigo-600 dark:text-indigo-400">{{ initials }}</span>
                 </div>
               </div>
@@ -225,26 +225,40 @@
 
           <!-- Onglet Dossier -->
           <div v-if="activeTab === 'dossier'" class="animate-in fade-in duration-500">
-            <div v-if="hasDocuments" class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+            <div v-if="loadingDocs" class="flex justify-center py-12">
+               <div class="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <div v-else-if="documentRequirements.length > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                 <div 
-                    v-for="(label, key) in documentLabels" 
-                    :key="key"
-                    v-show="etudiantStore.etudiant.album[key]"
-                    class="group bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500"
+                    v-for="req in documentRequirements" 
+                    :key="req.id"
+                    class="group bg-white dark:bg-gray-800 rounded-3xl border overflow-hidden shadow-sm transition-all duration-500"
+                    :class="etudiantStore.etudiant.album && etudiantStore.etudiant.album[req.document_key] ? 'border-gray-100 dark:border-gray-700 hover:shadow-xl' : 'border-dashed border-red-200 dark:border-red-900/30 opacity-75'"
                 >
-                    <div class="h-32 md:h-40 bg-gray-100 dark:bg-gray-900 flex items-center justify-center overflow-hidden">
-                        <img v-if="isImage(etudiantStore.etudiant.album[key])" :src="getFileUrl(etudiantStore.etudiant.album[key])" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                        <div v-else class="flex flex-col items-center text-gray-400">
-                            <svg class="w-10 h-10 md:w-12 md:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                            <span class="text-[10px] font-black uppercase mt-2 tracking-widest">{{ getFileExtension(etudiantStore.etudiant.album[key]) }}</span>
+                    <template v-if="etudiantStore.etudiant.album && etudiantStore.etudiant.album[req.document_key]">
+                        <div class="h-32 md:h-40 bg-gray-100 dark:bg-gray-900 flex items-center justify-center overflow-hidden">
+                            <img v-if="isImage(etudiantStore.etudiant.album[req.document_key])" :src="getFileUrl(etudiantStore.etudiant.album[req.document_key])" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                            <div v-else class="flex flex-col items-center text-gray-400">
+                                <svg class="w-10 h-10 md:w-12 md:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                <span class="text-[10px] font-black uppercase mt-2 tracking-widest">{{ getFileExtension(etudiantStore.etudiant.album[req.document_key]) }}</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="p-4 md:p-5 flex items-center justify-between gap-2">
-                        <h4 class="text-[10px] md:text-xs font-black text-gray-800 dark:text-white uppercase tracking-tight truncate">{{ label }}</h4>
-                        <a :href="getFileUrl(etudiantStore.etudiant.album[key])" target="_blank" class="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-lg hover:bg-indigo-600 hover:text-white transition-all shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                        </a>
-                    </div>
+                        <div class="p-4 md:p-5 flex items-center justify-between gap-2">
+                            <h4 class="text-[10px] md:text-xs font-black text-gray-800 dark:text-white uppercase tracking-tight truncate">{{ req.nom_affichage }}</h4>
+                            <a :href="getFileUrl(etudiantStore.etudiant.album[req.document_key])" target="_blank" class="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-lg hover:bg-indigo-600 hover:text-white transition-all shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                            </a>
+                        </div>
+                    </template>
+                    <template v-else>
+                        <div class="h-32 md:h-40 bg-gray-50 dark:bg-gray-900/50 flex flex-col items-center justify-center text-red-400 dark:text-red-500/50">
+                            <svg class="w-8 h-8 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                            <span class="text-xs font-bold px-4 text-center">Document manquant</span>
+                        </div>
+                        <div class="p-4 md:p-5 flex items-center justify-between gap-2 border-t border-dashed border-red-100 dark:border-red-900/30">
+                            <h4 class="text-[10px] md:text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-tight truncate">{{ req.nom_affichage }} <span v-if="req.is_obligatoire" class="text-red-500">*</span></h4>
+                        </div>
+                    </template>
                 </div>
             </div>
             <div v-else class="text-center py-16 md:py-20 bg-gray-50 dark:bg-gray-800/30 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700">
@@ -384,6 +398,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import axios from "axios";
 import { useRoute } from "vue-router";
 import { Dialog, DialogPanel, DialogTitle, TransitionRoot } from "@headlessui/vue";
 import Dropdown from "primevue/dropdown";
@@ -421,12 +436,34 @@ const isGenerating = ref(false);
 const form = ref({ periode_id: "" });
 const menu = ref(null);
 
+const documentRequirements = ref([]);
+const loadingDocs = ref(false);
+
+const loadDocuments = async () => {
+    const niveauId = etudiantStore.etudiant?.dernier_groupe?.niveau?.id;
+    if (niveauId) {
+        loadingDocs.value = true;
+        try {
+            const { data } = await axios.get(`/niveau/${niveauId}/documents`, etudiantStore.authHeaders ? etudiantStore.authHeaders() : {});
+            documentRequirements.value = data || [];
+        } catch (error) {
+            console.error("Erreur lors du chargement des documents", error);
+        } finally {
+            loadingDocs.value = false;
+        }
+    }
+};
+
 const initials = computed(() => {
     if (!etudiantStore.etudiant) return "";
     return (etudiantStore.etudiant.nom.charAt(0) + etudiantStore.etudiant.prenom.charAt(0)).toUpperCase();
 });
 
 const studentName = computed(() => etudiantStore.etudiant ? `${etudiantStore.etudiant.nom} ${etudiantStore.etudiant.prenom}` : "Chargement...");
+
+const studentPhoto = computed(() => {
+  return null; // Forcer l'affichage des initiales
+});
 
 const tabs = [
     { id: 'info', label: 'Informations', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
@@ -473,20 +510,11 @@ const menuItems = computed(() => [
 const toggleMenu = (event) => menu.value.toggle(event);
 
 const hasDocuments = computed(() => {
-    if (!etudiantStore.etudiant?.album) return false;
-    return Object.keys(documentLabels).some(key => etudiantStore.etudiant.album[key]);
+    if (!etudiantStore.etudiant?.album || !documentRequirements.value.length) return false;
+    return documentRequirements.value.some(req => etudiantStore.etudiant.album[req.document_key]);
 });
 
-const documentLabels = {
-    naissance: "Acte de naissance",
-    diplome: "Diplôme / Attestation BAC",
-    nationalite: "Nationalité",
-    photo: "Photo d'identité",
-    certificat_medical: "Certificat Médical",
-    cv: "CV / Expériences",
-    releve_bac1_path: "Relevé BAC 1",
-    releve_bac2_path: "Relevé BAC 2",
-};
+const documentLabels = {};
 
 const currentReleve = computed(() => activeReleve.value);
 const currentUVs = computed(() => {
@@ -503,7 +531,7 @@ const currentUVs = computed(() => {
 const periodeOptions = computed(() => periodeStore.periode.map(p => ({ label: p.nom, value: p.id })));
 
 const formatDate = (date) => date ? new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) : '—';
-const getFileUrl = (path) => `${process.dev ? config.app_dev_storage_url : config.app_prod_storage_url}/${path}`;
+const getFileUrl = (path) => `${process.dev ? config.app_dev_storage_url : config.app_prod_storage_url}/storage/${path}`;
 const isImage = (path) => /\.(jpg|jpeg|png|webp|svg)$/i.test(path);
 const getFileExtension = (path) => path?.split('.').pop().toUpperCase();
 
@@ -579,6 +607,7 @@ const downloadCurrentPDF = async () => {
 
 onMounted(async () => {
     await etudiantStore.fetchEtudiant(route.params.slug);
+    await loadDocuments();
     await periodeStore.fetchPeriodeByYear();
     await relevenoteStore.getReleveNotes(route.params.slug);
     await parametreStore.fetchParametres();

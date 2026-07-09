@@ -600,6 +600,17 @@
 
               <button
                 v-if="estModifiable"
+                @click="openQrModal"
+                class="px-6 py-2 text-sm bg-purple-600 text-white rounded-xl hover:bg-purple-700 font-bold transition-all shadow-md hover:shadow-lg flex items-center gap-2 border border-purple-700"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                </svg>
+                Démarrer l'appel (Générer QR)
+              </button>
+
+              <button
+                v-if="estModifiable"
                 @click="sauvegarderPresences"
                 :disabled="savingPresences || etudiantsDuCours.length === 0"
                 class="px-4 py-1.5 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors flex items-center gap-2 shadow-sm"
@@ -612,6 +623,18 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                 </svg>
                 {{ savingPresences ? "Enregistrement..." : "Enregistrer" }}
+              </button>
+
+              <button
+                @click="chargerEtudiants"
+                v-if="etudiantsDuCours.length > 0"
+                class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 font-medium transition-colors flex items-center gap-2 shadow-sm"
+                title="Actualiser la liste"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Actualiser
               </button>
 
               <!-- Messages d'état -->
@@ -684,6 +707,69 @@
       </div>
     </div>
 
+    <!-- Modal QR Code -->
+    <TransitionRoot appear :show="isQrModalOpen" as="template">
+      <Dialog as="div" @close="closeQrModal" class="relative z-50">
+        <TransitionChild
+          as="template"
+          enter="duration-300 ease-out"
+          enter-from="opacity-0"
+          enter-to="opacity-100"
+          leave="duration-200 ease-in"
+          leave-from="opacity-100"
+          leave-to="opacity-0"
+        >
+          <div class="fixed inset-0 bg-black/75 backdrop-blur-sm" />
+        </TransitionChild>
+
+        <div class="fixed inset-0 overflow-y-auto">
+          <div class="flex min-h-full items-center justify-center p-4 text-center">
+            <TransitionChild
+              as="template"
+              enter="duration-300 ease-out"
+              enter-from="opacity-0 scale-95"
+              enter-to="opacity-100 scale-100"
+              leave="duration-200 ease-in"
+              leave-from="opacity-100 scale-100"
+              leave-to="opacity-0 scale-95"
+            >
+              <DialogPanel class="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-8 text-left align-middle shadow-xl transition-all border border-gray-100 dark:border-gray-700">
+                <DialogTitle as="h3" class="text-3xl font-bold text-center leading-6 text-gray-900 dark:text-white mb-2">
+                  Appel par QR Code
+                </DialogTitle>
+                <p class="text-center text-gray-500 mb-8">Demandez aux étudiants de scanner ce code depuis leur espace. <br> Le code change toutes les 10 secondes pour éviter la triche.</p>
+
+                <div class="flex flex-col items-center justify-center space-y-6">
+                  <div class="bg-white p-4 rounded-xl shadow-inner border border-gray-100 flex items-center justify-center min-h-[300px] min-w-[300px]">
+                    <img v-if="qrToken" :src="'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + qrToken" alt="QR Code" class="w-64 h-64" />
+                    <div v-else class="flex flex-col items-center justify-center text-purple-600">
+                      <div class="animate-spin mb-4 h-10 w-10 border-4 border-purple-500 border-t-transparent rounded-full"></div>
+                      <span>Génération en cours...</span>
+                    </div>
+                  </div>
+                  
+                  <div class="text-sm font-medium text-purple-600 bg-purple-50 px-4 py-2 rounded-full flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></div>
+                    Actualisation dans {{ qrRefreshTimer }} secondes
+                  </div>
+                </div>
+
+                <div class="mt-10 flex justify-center">
+                  <button
+                    type="button"
+                    class="rounded-xl border border-transparent bg-gray-100 px-6 py-3 text-sm font-bold text-gray-700 hover:bg-gray-200 focus:outline-none transition-all"
+                    @click="closeQrModal"
+                  >
+                    Fermer et recharger la liste
+                  </button>
+                </div>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+
     <!-- Modal pour justificatif -->
     <Dialog v-model:visible="showJustificatifModal" header="Ajouter un justificatif" :modal="true" class="p-4">
       <div v-if="selectedEtudiant" class="space-y-4">
@@ -725,6 +811,7 @@ import Dialog from "primevue/dialog";
 import Breadcrumb from "~/components/Breadcrumb.vue";
 import { usePresenceStore } from "~~/stores/presence";
 import { useEtudiantStore } from "~~/stores/etudiant";
+import { getApiBaseUrl } from "~/utils/storageUrl";
 import axios from "axios";
 
 const { $toastr, $swal } = useNuxtApp();
@@ -748,6 +835,63 @@ const seances = ref([]);
 const minDate = ref('');
 const maxDate = ref('');
 const seanceInfo = ref(null);
+
+// Import components for Headless UI Modal
+import {
+  TransitionRoot,
+  TransitionChild,
+  Dialog as HeadlessDialog,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/vue";
+
+// QR Modal State
+const isQrModalOpen = ref(false);
+const qrToken = ref(null);
+const qrRefreshTimer = ref(10);
+let qrInterval = null;
+let qrCountdown = null;
+
+const openQrModal = async () => {
+  if (!selectedCoursId.value) return;
+  isQrModalOpen.value = true;
+  await refreshQrCode();
+  
+  qrInterval = setInterval(refreshQrCode, 10000);
+  
+  qrCountdown = setInterval(() => {
+    qrRefreshTimer.value--;
+    if (qrRefreshTimer.value <= 0) qrRefreshTimer.value = 10;
+  }, 1000);
+};
+
+const closeQrModal = () => {
+  isQrModalOpen.value = false;
+  qrToken.value = null;
+  if (qrInterval) clearInterval(qrInterval);
+  if (qrCountdown) clearInterval(qrCountdown);
+  chargerEtudiants();
+};
+
+const refreshQrCode = async () => {
+  if (!selectedCoursId.value) return;
+  try {
+    const token = localStorage.getItem("gest-ecole-token");
+    const response = await $fetch(`${getApiBaseUrl()}/presence/cours/${selectedCoursId.value}/generate-qr`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    
+    if (response && response.qr_token) {
+      qrToken.value = response.qr_token;
+      qrRefreshTimer.value = 10;
+    }
+  } catch (error) {
+    console.error('Erreur génération QR:', error);
+  }
+};
 
 // Getters computed
 const tousLesCours = computed(() => presenceStore.mesCours || []);

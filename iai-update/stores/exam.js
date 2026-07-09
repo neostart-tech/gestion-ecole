@@ -911,6 +911,38 @@ export const useExamStore = defineStore("exam", {
       }
     },
 
+    async validateCorrections(evaluationId) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          `/exam/${evaluationId}/validate-corrections`,
+          {},
+          this.authHeaders()
+        );
+        return response.data;
+      } catch (error) {
+        this.handleError(error, "Erreur lors de la validation des notes");
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async unlockCorrections(evaluationId) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          `/exam/${evaluationId}/unlock-corrections`,
+          {},
+          this.authHeaders()
+        );
+        return response.data;
+      } catch (error) {
+        this.handleError(error, "Erreur lors du déverrouillage de l'évaluation");
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
     async publishEvaluation(evaluationId) {
       this.isLoading = true;
       try {

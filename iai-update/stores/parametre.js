@@ -69,6 +69,22 @@ export const useParametreStore = defineStore("parametre", {
 			return param ? param.value : null;
 		},
 
+		getModeSelectionCandidats: (state) => {
+			const param = state.parametres.find(
+				(p) => p.key === "mode_selection_candidats",
+			);
+
+			return param ? param.value : "dossier";
+		},
+
+		isConcoursMode: (state) => {
+			const param = state.parametres.find(
+				(p) => p.key === "mode_selection_candidats",
+			);
+
+			return (param ? param.value : "dossier") === "concours";
+		},
+
 		getSelectOptions: (state) => (key) => {
 			const param = state.parametres.find((p) => p.key === key);
 			if (!param || param.type !== "select" || !param.options) return [];

@@ -472,6 +472,52 @@
                       </p>
                     </div>
                   </div>
+
+                  <!-- Section Répondre -->
+                  <div
+                    v-if="selectedMessage?.email && selectedMessage.email !== '--'"
+                    class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-5"
+                  >
+                    <h3
+                      class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M3 10h10a8 8 0 018 8v1M3 10l6 6M3 10l6-6"
+                        />
+                      </svg>
+                      Répondre par email à {{ selectedMessage?.email }}
+                    </h3>
+
+                    <textarea
+                      v-model="replyText"
+                      rows="4"
+                      placeholder="Rédigez votre réponse, elle sera envoyée par email à cette personne..."
+                      class="w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    ></textarea>
+
+                    <div class="flex justify-end mt-3">
+                      <button
+                        @click="sendReply"
+                        :disabled="!replyText.trim() || isSendingReply"
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                      >
+                        <span
+                          v-if="isSendingReply"
+                          class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
+                        ></span>
+                        Envoyer la réponse par email
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Actions -->
@@ -545,6 +591,8 @@ const modalTitle = ref("");
 const itemsPerPage = ref(5);
 const showDetailModal = ref(false);
 const selectedMessage = ref(null);
+const replyText = ref("");
+const isSendingReply = ref(false);
 
 const form = ref({
   nom: "",
@@ -577,12 +625,30 @@ const rows = computed(() =>
 
 const openDetailModal = (item) => {
   selectedMessage.value = item;
+  replyText.value = "";
   showDetailModal.value = true;
 };
 
 const closeDetailModal = () => {
   showDetailModal.value = false;
   selectedMessage.value = null;
+  replyText.value = "";
+};
+
+const sendReply = async () => {
+  if (!replyText.value.trim() || !selectedMessage.value) return;
+
+  isSendingReply.value = true;
+  try {
+    await messageStore.replyToMessage(selectedMessage.value.slug, replyText.value.trim());
+    $toastr.success(`Réponse envoyée par email à ${selectedMessage.value.email}`);
+    replyText.value = "";
+    await messageStore.fetchMessages();
+  } catch (error) {
+    $toastr.error(error.response?.data?.message || "Erreur lors de l'envoi de la réponse.");
+  } finally {
+    isSendingReply.value = false;
+  }
 };
 
 const closeModal = () => (showModal.value = false);

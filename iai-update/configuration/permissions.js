@@ -30,7 +30,6 @@ export const rolePermissions = {
     "statistiques/*",
     "/chat/*",
     "/evaluations/professeur/mes-examens",
-    "/enseignant/syllabuses/*",
     "personnel/*"
   ],
 
@@ -69,7 +68,8 @@ export const rolePermissions = {
     "/notifications/*",
     "/statistiques/*",
     "/chat/*",
-    "/evaluations/professeur/mes-examens",
+    "/evaluations/professeur/mes-programmations",
+    "/evaluations/professeur/detail-examen/*",
     "/enseignant/syllabuses/*",
     "/evaluations/examen-en-ligne/*",
   ],
@@ -129,6 +129,7 @@ export const rolePermissions = {
     "/frais-de-scolarite/*",
     "/bourses/*",
     "/annonces",
+    "/admin/liste-des-etudiants",
   ],
 
   "responsable-marketing": [
@@ -219,7 +220,7 @@ export const rolePermissions = {
     "/messages/*",
     "/notifications/*",
     "/chat/*",
-    "/evaluations/etudiant/mes-examens",
+    "/evaluations/etudiant/*",
     "/evaluations/examen-en-ligne/*",
     '/actualites/*',
     "/annonces",
@@ -234,7 +235,7 @@ export const rolePermissions = {
     "/notifications/*",
     "/chat/*",
     "/presences/*",
-    "/evaluations/etudiant/mes-examens",
+    "/evaluations/etudiant/*",
     "/evaluations/examen-en-ligne/*",
     '/actualites/*',
     "/annonces",
@@ -266,7 +267,8 @@ export const publicRoutes = [
   "/register",
   "/mot-de-passe-oublie",
   "/reset-password",
-  "/actualites"
+  "/actualites",
+  "/concours"
 ];
 
 // Routes interdites pour les utilisateurs connectés (comme login)

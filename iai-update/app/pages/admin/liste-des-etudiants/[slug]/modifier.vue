@@ -290,11 +290,11 @@
                       <div class="space-y-3">
                         <p class="text-base font-bold text-indigo-900 dark:text-indigo-300">Rappel des pièces attendues :</p>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
-                          <div v-for="doc in requiredDocsList" :key="doc" class="flex items-center gap-3 text-sm text-indigo-700/80 dark:text-indigo-400/80">
+                          <div v-for="req in documentRequirements" :key="req.id" class="flex items-center gap-3 text-sm text-indigo-700/80 dark:text-indigo-400/80">
                             <span class="w-5 h-5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-full flex items-center justify-center shrink-0">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
                             </span>
-                            {{ doc }}
+                            {{ req.nom_affichage }}
                           </div>
                         </div>
                       </div>
@@ -304,83 +304,40 @@
 
                 <!-- Zone d'Upload Globale -->
                 <div class="p-8 space-y-12">
-                  <!-- Section 1: Identité -->
                   <div class="space-y-6">
                     <div class="flex items-center gap-4">
-                        <h4 class="text-sm font-black text-gray-400 uppercase tracking-widest">Documents d'Identité</h4>
+                        <h4 class="text-sm font-black text-gray-400 uppercase tracking-widest">Documents Exigés</h4>
                         <div class="h-px bg-gray-100 dark:bg-gray-700 flex-1"></div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div class="space-y-3">
-                        <label class="text-xs font-bold text-gray-700 dark:text-gray-300 ml-1">Photo d'identité (JPEG/PNG)</label>
-                        <FileUpload v-model="files.photo_identite_file" id="photo_up" accept=".jpg,.jpeg,.png" :existing-file="etudiant?.album?.photo" />
-                      </div>
-                      <div class="space-y-3">
-                        <label class="text-xs font-bold text-gray-700 dark:text-gray-300 ml-1">Pièce d'identité / Passeport (PDF)</label>
-                        <FileUpload v-model="files.nationalite_file" id="nat_up" accept=".pdf,.jpg,.jpeg,.png" :existing-file="etudiant?.album?.nationalite" />
-                      </div>
-                      <div class="space-y-3">
-                        <label class="text-xs font-bold text-gray-700 dark:text-gray-300 ml-1">Acte de naissance</label>
-                        <FileUpload v-model="files.naissance_file" id="birth_up" accept=".pdf,.jpg,.jpeg,.png" :existing-file="etudiant?.album?.naissance" />
-                      </div>
-                      <div class="space-y-3">
-                        <label class="text-xs font-bold text-gray-700 dark:text-gray-300 ml-1">Certificat médical</label>
-                        <FileUpload v-model="files.certificat_medical_file" id="med_up" accept=".pdf,.jpg,.jpeg,.png" :existing-file="etudiant?.album?.certificat_medical" />
-                      </div>
+                    
+                    <div v-if="loadingDocs" class="flex justify-center p-8">
+                      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
                     </div>
-                  </div>
+                    
+                    <div v-else-if="documentRequirements.length === 0" class="text-center p-8 text-gray-500 italic">
+                      Aucun document configuré pour ce niveau dans le catalogue.
+                    </div>
 
-                  <!-- Section 2: Académique -->
-                  <div class="space-y-6">
-                    <div class="flex items-center gap-4">
-                        <h4 class="text-sm font-black text-gray-400 uppercase tracking-widest">Parcours Académique</h4>
-                        <div class="h-px bg-gray-100 dark:bg-gray-700 flex-1"></div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div class="space-y-3">
-                        <label class="text-xs font-bold text-gray-700 dark:text-gray-300 ml-1">{{ isMaster ? 'Dernier diplôme universitaire' : 'Attestation de BAC / Diplôme' }}</label>
-                        <FileUpload v-model="files.diplome_file" id="dip_up" accept=".pdf,.jpg,.jpeg,.png" :existing-file="etudiant?.album?.diplome" />
-                      </div>
-                      <div v-if="isMaster" class="space-y-3">
-                        <label class="text-xs font-bold text-gray-700 dark:text-gray-300 ml-1">Curriculum Vitæ (CV)</label>
-                        <FileUpload v-model="files.cv_file" id="cv_up" accept=".pdf,.doc,.docx" :existing-file="etudiant?.album?.cv" />
-                      </div>
-                      <div v-if="!isMaster" class="space-y-3">
-                        <label class="text-xs font-bold text-gray-700 dark:text-gray-300 ml-1">{{ isLicence1 ? 'Relevé de notes du BAC' : 'Relevés de notes BAC 1 / Année 1' }}</label>
-                        <MultipleFileUpload v-model="files.releve_bac1" id="rel1_up" accept=".pdf" :existing-files="etudiant?.album?.releve_bac1_path ? [etudiant.album.releve_bac1_path] : []" />
-                      </div>
-                      <div v-if="isLicence3 || isMaster" class="space-y-3">
-                        <label class="text-xs font-bold text-gray-700 dark:text-gray-300 ml-1">Relevés de notes BAC 2 / Année 2</label>
-                        <MultipleFileUpload v-model="files.releve_bac2" id="rel2_up" accept=".pdf" :existing-files="etudiant?.album?.releve_bac2_path ? [etudiant.album.releve_bac2_path] : []" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Section 3: Bulletins (Aéré) -->
-                  <div class="space-y-8">
-                    <div class="flex items-center gap-4">
-                        <h4 class="text-sm font-black text-gray-400 uppercase tracking-widest">Bulletins du Lycée</h4>
-                        <div class="h-px bg-gray-100 dark:bg-gray-700 flex-1"></div>
-                    </div>
-                    <div class="grid grid-cols-1 gap-8">
-                      <div class="space-y-4 p-5 bg-gray-50/50 dark:bg-gray-900/30 rounded-3xl border border-gray-100 dark:border-gray-800 flex flex-col">
-                        <h5 class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-tighter text-center mb-1">Classe de Seconde</h5>
-                        <div class="flex-1 min-w-0">
-                          <MultipleFileUpload v-model="files.bulletins_seconde" id="bul2_up" accept=".pdf" :existing-files="bulletinsPaths?.seconde || []" />
-                        </div>
-                      </div>
-                      <div class="space-y-4 p-5 bg-gray-50/50 dark:bg-gray-900/30 rounded-3xl border border-gray-100 dark:border-gray-800 flex flex-col">
-                        <h5 class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-tighter text-center mb-1">Classe de Première</h5>
-                        <div class="flex-1 min-w-0">
-                          <MultipleFileUpload v-model="files.bulletins_premiere" id="bul1_up" accept=".pdf" :existing-files="bulletinsPaths?.premiere || []" />
-                        </div>
-                      </div>
-                      <div class="space-y-4 p-5 bg-gray-50/50 dark:bg-gray-900/30 rounded-3xl border border-gray-100 dark:border-gray-800 flex flex-col">
-                        <h5 class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-tighter text-center mb-1">Classe de Terminale</h5>
-                        <div class="flex-1 min-w-0">
-                          <MultipleFileUpload v-model="files.bulletins_terminale" id="bulT_up" accept=".pdf" :existing-files="bulletinsPaths?.terminale || []" />
-                        </div>
-                      </div>
+                    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                       <div v-for="req in documentRequirements" :key="req.id" class="space-y-3">
+                         <label class="text-xs font-bold text-gray-700 dark:text-gray-300 ml-1">
+                           {{ req.nom_affichage }} <span v-if="req.is_obligatoire" class="text-red-500">*</span>
+                         </label>
+                         <MultipleFileUpload 
+                           v-if="req.is_multiple" 
+                           v-model="files[req.document_key]" 
+                           :id="`upload_${req.document_key}`" 
+                           :accept="getAcceptString(req.accepted_formats)" 
+                           :existing-files="getExistingMultipleFiles(req.document_key)" 
+                         />
+                         <FileUpload 
+                           v-else 
+                           v-model="files[req.document_key]" 
+                           :id="`upload_${req.document_key}`" 
+                           :accept="getAcceptString(req.accepted_formats)" 
+                           :existing-url="getFileUrl(getExistingSingleFile(req.document_key))" 
+                         />
+                       </div>
                     </div>
                   </div>
                 </div>
@@ -404,6 +361,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from "vue";
+import axios from "axios";
 import { useRoute, useRouter } from "vue-router";
 import Dropdown from "primevue/dropdown";
 import Breadcrumb from "~/components/Breadcrumb.vue";
@@ -414,6 +372,7 @@ import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
 import { useEtudiantStore } from "~~/stores/etudiant";
 import { useGroupeStore } from "~~/stores/group";
+import { getStorageBaseUrl } from "~/utils/storageUrl";
 
 const route = useRoute();
 const router = useRouter();
@@ -447,59 +406,52 @@ const form = ref({
   responsable: { nom: "", prenom: "", tel: "", email: "", profession: "", adresse: "" },
 });
 
-// Fichiers sélectionnés (Tous facultatifs)
-const files = reactive({
-  lettre_file: null,
-  naissance_file: null,
-  diplome_file: null,
-  nationalite_file: null,
-  photo_identite_file: null,
-  certificat_medical_file: null,
-  coupon_file: null,
-  cv_file: null,
-  bulletins_seconde: [],
-  bulletins_premiere: [],
-  bulletins_terminale: [],
-  releve_bac1: [],
-  releve_bac2: [],
-});
+const files = ref({});
+const documentRequirements = ref([]);
+const loadingDocs = ref(false);
 
 const studentName = computed(() => {
   return etudiant.value ? `${etudiant.value.nom} ${etudiant.value.prenom}` : "Chargement...";
 });
 
-const niveauName = computed(() => {
-  const nom = etudiant.value?.dernier_groupe?.niveau?.nom || '';
-  return nom.toLowerCase();
-});
+const getAcceptString = (format) => {
+  if (format === 'image') return '.jpg,.jpeg,.png,.webp';
+  if (format === 'pdf') return '.pdf';
+  return '*';
+};
 
-const isLicence1 = computed(() => niveauName.value.includes('licence 1') || niveauName.value === 'l1');
-const isLicence2 = computed(() => niveauName.value.includes('licence 2') || niveauName.value === 'l2');
-const isLicence3 = computed(() => niveauName.value.includes('licence 3') || niveauName.value === 'l3');
-const isMaster = computed(() => niveauName.value.includes('master') || niveauName.value.includes('executive'));
+const getFileUrl = (path) => {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    const baseUrl = getStorageBaseUrl();
+    if (path.startsWith('/storage/')) return `${baseUrl}${path}`;
+    return `${baseUrl}/storage/${path}`;
+};
 
-const requiredDocsList = computed(() => {
-  const common = [
-    'Photos d\'identité',
-    'Pièce d\'identité / Passeport',
-    'Acte de naissance',
-    'Certificat médical',
-  ];
-  if (isMaster.value) return [...common, 'Dernier diplôme universitaire', 'Curriculum Vitæ (CV)'];
-  if (isLicence3.value) return [...common, 'Attestation BAC ou BTS', 'Relevé de BAC ou BTS', 'Relevés Année 1 & 2'];
-  if (isLicence2.value) return [...common, 'Attestation de BAC', 'Relevé de BAC', 'Relevé Année 1'];
-  return [...common, 'Attestation de BAC', 'Relevé de BAC'];
-});
+const getExistingSingleFile = (documentKey) => {
+  if (!etudiant.value || !etudiant.value.album) return null;
+  return etudiant.value.album[documentKey] || null;
+};
 
-const bulletinsPaths = computed(() => {
+const getExistingMultipleFiles = (documentKey) => {
+  if (!etudiant.value || !etudiant.value.album) return [];
   try {
-    const raw = etudiant.value?.album?.bulletins_lycee_paths;
-    if (!raw) return null;
-    return typeof raw === 'string' ? JSON.parse(raw) : raw;
+    const val = etudiant.value.album[documentKey];
+    if (!val) return [];
+    
+    let files = [];
+    if (typeof val === 'string') {
+        files = JSON.parse(val);
+    } else if (Array.isArray(val)) {
+        files = val;
+    } else {
+        files = [val];
+    }
+    return files.map(file => getFileUrl(file));
   } catch (e) {
-    return null;
+    return [];
   }
-});
+};
 
 const groupOptions = computed(() => {
   if (!etudiant.value || !etudiant.value.dernier_groupe) return [];
@@ -557,6 +509,20 @@ const loadData = async () => {
           adresse: etudiant.value.responsable?.adresse || ""
         }
       };
+
+      // Load documents
+      const niveauId = etudiant.value.dernier_groupe?.niveau?.id;
+      if (niveauId) {
+        loadingDocs.value = true;
+        try {
+          const { data } = await axios.get(`/niveau/${niveauId}/documents`, etudiantStore.authHeaders ? etudiantStore.authHeaders() : {});
+          documentRequirements.value = data || [];
+        } catch (e) {
+          console.error("Erreur lors du chargement des documents requis", e);
+        } finally {
+          loadingDocs.value = false;
+        }
+      }
     }
   } catch (error) {
     toast.add({ severity: 'error', summary: 'Erreur', detail: 'Échec du chargement', life: 3000 });
@@ -581,18 +547,17 @@ const handleUpdate = async () => {
       }
     });
 
-    const fileFields = ['lettre_file', 'naissance_file', 'diplome_file', 'nationalite_file', 'photo_identite_file', 'certificat_medical_file', 'coupon_file', 'cv_file'];
-    fileFields.forEach(field => { if (files[field]) formDataToSend.append(field, files[field]); });
-
-    ['seconde', 'premiere', 'terminale'].forEach(n => {
-      if (files[`bulletins_${n}`] && files[`bulletins_${n}`].length > 0) {
-        files[`bulletins_${n}`].forEach((file, index) => formDataToSend.append(`bulletins_${n}[${index}]`, file));
-      }
-    });
-
-    ['releve_bac1', 'releve_bac2'].forEach(field => {
-      if (files[field] && files[field].length > 0) {
-        files[field].forEach((file, index) => formDataToSend.append(`${field}[${index}]`, file));
+    // Dynamic file appending based on requirements
+    documentRequirements.value.forEach(req => {
+      const fieldKey = req.document_key;
+      if (files.value[fieldKey]) {
+        if (req.is_multiple && Array.isArray(files.value[fieldKey])) {
+          files.value[fieldKey].forEach((file, index) => {
+             formDataToSend.append(`${fieldKey}[${index}]`, file);
+          });
+        } else {
+          formDataToSend.append(fieldKey, files.value[fieldKey]);
+        }
       }
     });
 

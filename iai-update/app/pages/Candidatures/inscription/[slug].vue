@@ -311,6 +311,7 @@ import { useAdvertiserStore } from '~~/stores/adverstiser'
 import { useBourseStore } from '~~/stores/bourse'
 import { useGroupeStore } from '~~/stores/group'
 import { useFraisInscriptionStore } from '~~/stores/frais-inscription'
+import { getStorageBaseUrl } from '~/utils/storageUrl'
 import { Switch } from '@headlessui/vue'
 
 const route = useRoute()
@@ -370,8 +371,7 @@ const init = async () => {
 const getFullUrl = (path) => {
     if (!path) return null
     if (path.startsWith('http')) return path
-    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-    return `${apiBase}/storage/${path}`
+    return `${getStorageBaseUrl()}/storage/${path}`
 }
 
 const filteredGroups = computed(() => {
