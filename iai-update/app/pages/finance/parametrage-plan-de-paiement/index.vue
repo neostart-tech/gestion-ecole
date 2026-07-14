@@ -1,113 +1,129 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 transition-colors">
-    <!-- Breadcrumb -->
-    <Breadcrumb
-      :items="[
-        { label: 'Finance', to: '/finance' },
-        { label: 'Plans de paiement', to: null }
-      ]"
-      :title="'Gestion des plans de paiement'"
-      title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
-      spacing="mb-4"
-    />
+  <div class="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-slate-200 dark:from-slate-900 dark:via-gray-900 dark:to-slate-800 p-4 md:p-8 transition-all duration-500 font-sans relative overflow-hidden">
+    
+    <!-- Décorations d'arrière-plan -->
+    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/0 blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-gradient-to-tl from-emerald-500/10 to-teal-500/0 blur-3xl pointer-events-none"></div>
 
-    <!-- Loading skeleton -->
-    <div v-if="isPageLoading" class="space-y-4">
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-6 animate-pulse">
-        <div class="h-8 w-64 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
-        <div class="space-y-3">
-          <div v-for="i in 3" :key="i" class="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+    <div class="relative z-10">
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
+        <div class="space-y-1">
+          <h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-slate-500 dark:from-white dark:to-slate-400 tracking-tighter uppercase drop-shadow-sm">
+            Plans de Paiement
+          </h1>
+          <p class="text-slate-500 dark:text-gray-400 font-semibold text-sm flex items-center gap-2">
+            <span class="w-2.5 h-2.5 bg-gradient-to-tr from-indigo-500 to-blue-500 rounded-full shadow-[0_0_10px_rgba(79,70,229,0.5)] animate-pulse"></span>
+            Modèles de règlement et échéanciers types
+          </p>
         </div>
+
+        <button
+          @click="openModal('ajouter')"
+          class="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+          </svg>
+          Nouveau plan
+        </button>
       </div>
-    </div>
 
-    <!-- Contenu principal -->
-    <div v-else class="space-y-6">
-      <!-- Header avec statistiques -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Total plans -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-600 dark:text-gray-400">Total plans</p>
-              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ plans.length }}</p>
-            </div>
-            <div class="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
-              <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <!-- Plans actifs -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-600 dark:text-gray-400">Plans actifs</p>
-              <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ plansActifs }}</p>
-            </div>
-            <div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-              <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <!-- Plans inactifs -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-600 dark:text-gray-400">Plans inactifs</p>
-              <p class="text-2xl font-bold text-gray-600 dark:text-gray-400">{{ plansInactifs }}</p>
-            </div>
-            <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <svg class="w-6 h-6 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <!-- Types de plans -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-600 dark:text-gray-400">Types</p>
-              <p class="text-sm font-medium text-gray-900 dark:text-white mt-1">
-                {{ statsTypes.standard }} Standard • {{ statsTypes.tranches_fixes }} Fixes • {{ statsTypes.negociation }} Négociation
-              </p>
-            </div>
-            <div class="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-              <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l5 5a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-5-5A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-              </svg>
-            </div>
-          </div>
+      <!-- Loading skeleton -->
+      <div v-if="isPageLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div v-for="i in 4" :key="i" class="bg-white/40 dark:bg-gray-800/40 backdrop-blur-md rounded-2xl p-6 border border-white/50 dark:border-gray-700/50 animate-pulse">
+          <div class="h-4 w-20 bg-slate-200 dark:bg-gray-700 rounded mb-3"></div>
+          <div class="h-8 w-24 bg-slate-300 dark:bg-gray-600 rounded"></div>
         </div>
       </div>
 
-      <!-- Barre d'actions et recherche -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
-        <div class="flex flex-col sm:flex-row gap-4 justify-between items-center">
-          <div class="relative w-full sm:w-96">
+      <!-- Contenu principal -->
+      <div v-else class="space-y-8">
+        <!-- Header avec statistiques -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Total plans -->
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-slate-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-md">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest leading-none mb-1">Total plans</p>
+                <p class="text-3xl font-black text-slate-800 dark:text-white leading-none">{{ plans.length }}</p>
+              </div>
+              <div class="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
+                <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plans actifs -->
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-slate-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-md">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest leading-none mb-1">Plans actifs</p>
+                <p class="text-3xl font-black text-emerald-600 dark:text-emerald-400 leading-none">{{ plansActifs }}</p>
+              </div>
+              <div class="p-3 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl">
+                <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plans inactifs -->
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-slate-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-md">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest leading-none mb-1">Inactifs</p>
+                <p class="text-3xl font-black text-slate-500 dark:text-gray-400 leading-none">{{ plansInactifs }}</p>
+              </div>
+              <div class="p-3 bg-slate-50 dark:bg-gray-700 rounded-xl">
+                <svg class="w-6 h-6 text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Types de plans -->
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-slate-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-md">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <p class="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest leading-none mb-1">Répartition</p>
+                <div class="flex items-center gap-1 mt-1 overflow-x-auto no-scrollbar whitespace-nowrap">
+                   <span class="text-[9px] font-black text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 px-1.5 py-0.5 rounded">{{ statsTypes.standard }} S</span>
+                   <span class="text-[9px] font-black text-purple-600 bg-purple-50 dark:bg-purple-900/30 px-1.5 py-0.5 rounded">{{ statsTypes.tranches_fixes }} F</span>
+                   <span class="text-[9px] font-black text-amber-600 bg-amber-50 dark:bg-amber-900/30 px-1.5 py-0.5 rounded">{{ statsTypes.negociation }} N</span>
+                </div>
+              </div>
+              <div class="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
+                <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l5 5a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-5-5A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Barre d'actions et recherche -->
+        <div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-md rounded-2xl p-4 border border-white/50 dark:border-gray-700/50 shadow-sm flex flex-col lg:flex-row gap-4 items-center justify-between">
+          <div class="relative w-full lg:w-96 group">
             <input
               v-model="searchQuery"
               type="search"
               placeholder="Rechercher un plan..."
-              class="w-full px-4 py-2.5 pl-10 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              class="w-full bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all dark:text-white dark:placeholder-gray-500"
             />
-            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 group-focus-within:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
 
-          <div class="flex gap-3 w-full sm:w-auto">
-            <!-- Filtre par type -->
+          <div class="flex flex-wrap gap-2 w-full lg:w-auto">
             <select
               v-model="typeFilter"
-              class="px-4 py-2.5 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              class="flex-1 lg:w-48 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl px-4 py-2 text-xs font-bold text-slate-600 dark:text-gray-300 outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="">Tous les types</option>
               <option value="standard">Standard</option>
@@ -115,31 +131,18 @@
               <option value="negociation">Négociation</option>
             </select>
 
-            <!-- Filtre statut -->
             <select
               v-model="statusFilter"
-              class="px-4 py-2.5 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              class="flex-1 lg:w-40 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl px-4 py-2 text-xs font-bold text-slate-600 dark:text-gray-300 outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="">Tous les statuts</option>
               <option value="actif">Actifs</option>
               <option value="inactif">Inactifs</option>
             </select>
-
-            <!-- Bouton ajouter -->
-            <button
-              @click="openModal('ajouter')"
-              class="px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white rounded-lg transition-all duration-200 shadow-sm hover:shadow flex items-center gap-2"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              <span>Nouveau plan</span>
-            </button>
           </div>
         </div>
-      </div>
 
-      <!-- Liste des plans -->
+        <!-- Liste des plans -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div
           v-for="plan in filteredPlans"
@@ -431,6 +434,7 @@
         </div>
       </Dialog>
     </TransitionRoot>
+    </div>
   </div>
 </template>
 

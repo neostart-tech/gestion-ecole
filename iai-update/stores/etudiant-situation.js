@@ -24,6 +24,7 @@ export const useEtudiantSituationStore = defineStore("etudiantSituation", {
       niveau_id: null,
       statut: null,
       annee_id: null,
+      statut_acces: null, // 'actif' ou 'bloque'
     },
 
     // Statistiques calculées
@@ -34,6 +35,7 @@ export const useEtudiantSituationStore = defineStore("etudiantSituation", {
         en_cours: 0,
         en_retard: 0,
         aucun_frais: 0,
+        bloques: 0,
       },
       montants: {
         total_a_payer: 0,
@@ -58,7 +60,7 @@ export const useEtudiantSituationStore = defineStore("etudiantSituation", {
         filiere_nom: e.filiere || "Non assigné",
         niveau_libelle: e.niveau || "Non assigné",
         statut_classe: e.statut,
-        statut_libelle: e.statut_libelle,
+        statut_libelle: e.statut === 'en_cours' ? 'À jour' : e.statut_libelle,
         en_retard: e.en_retard,
         progression: e.taux_progression,
         montant_restant_formatted: e.montant_restant_formatted,
@@ -86,6 +88,11 @@ export const useEtudiantSituationStore = defineStore("etudiantSituation", {
         result = result.filter((e) => e.statut === state.filtres.statut);
       }
 
+      // Filtre par statut d'accès
+      if (state.filtres.statut_acces) {
+        result = result.filter((e) => e.statut_global === state.filtres.statut_acces);
+      }
+
       return result;
     },
 
@@ -100,6 +107,7 @@ export const useEtudiantSituationStore = defineStore("etudiantSituation", {
           en_cours: 0,
           en_retard: 0,
           aucun_frais: 0,
+          bloques: 0,
         },
         montants: {
           total_a_payer: 0,
@@ -116,8 +124,13 @@ export const useEtudiantSituationStore = defineStore("etudiantSituation", {
       let sommeJoursRetard = 0;
 
       filtered.forEach((e) => {
-        // Compter par statut
+        // Compter par statut de paiement
         stats.par_statut[e.statut]++;
+
+        // Compter les bloqués
+        if (e.statut_global === 'bloque') {
+          stats.par_statut.bloques++;
+        }
 
         // Fonction pour extraire le nombre depuis une chaîne formatée
         const extraireMontant = (valeur) => {
@@ -181,7 +194,7 @@ export const useEtudiantSituationStore = defineStore("etudiantSituation", {
               color: "text-emerald-600",
             },
             {
-              label: "En cours",
+              label: "À jour",
               value: stats.par_statut.en_cours,
               color: "text-amber-600",
             },
@@ -266,9 +279,8 @@ export const useEtudiantSituationStore = defineStore("etudiantSituation", {
       statuts: [
         { value: null, label: "Tous les statuts" },
         { value: "solde", label: "Soldé", color: "emerald" },
-        { value: "en_cours", label: "En cours", color: "amber" },
+        { value: "en_cours", label: "À jour", color: "amber" },
         { value: "en_retard", label: "En retard", color: "red" },
-        { value: "aucun_frais", label: "Aucun frais", color: "gray" },
       ],
     }),
   },
@@ -521,7 +533,34 @@ export const useEtudiantSituationStore = defineStore("etudiantSituation", {
       } finally {
         this.isExporting = false;
       }
+    },
+
+    // Mettre à jour le statut en masse
+    async bulkUpdateStatut(ids, statut) {
+      try {
+        const response = await axios.post(
+          "/etudiants/situation/bulk-status",
+          { ids, statut },
+          this.authHeaders()
+        );
+
+        if (response.data.success) {
+          // Mettre à jour localement les statuts
+          this.etudiants = this.etudiants.map(e => {
+            if (ids.includes(e.id)) {
+              return { ...e, statut_global: statut };
+            }
+            return e;
+          });
+          return response.data;
+        }
+        throw new Error(response.data.message || "Erreur lors de la mise à jour");
+      } catch (error) {
+        console.error("Erreur bulkUpdateStatut:", error);
+        throw error;
+      }
     }
+
   
   },
 });

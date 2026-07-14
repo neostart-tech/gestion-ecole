@@ -194,7 +194,6 @@
 			plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
 			initialView: calendarView.value,
 			locale: frLocale,
-			initialDate: "2025-01-01",
 			height: "auto",
 			headerToolbar: {
 				left: "prev,next today",
@@ -242,20 +241,61 @@
 			nowIndicator: true,
 			dayMaxEvents: true,
 
-			dateClick: (info: any) => {
-				console.log("Date cliquée:", info.dateStr);
-				alert(`Date cliquée: ${info.dateStr}`);
-			},
+      dayCellClassNames: (arg: any) => {
+        return [];
+      },
 
 			eventClick: (info: any) => {
 				console.log("Événement cliqué:", info.event.title);
-				alert(`Événement: ${info.event.title}`);
 			},
 
-			// Personnalisation
-			eventColor: "#3b82f6",
-			eventBackgroundColor: "#3b82f6",
-			eventTextColor: "#ffffff",
+      eventContent: (arg: any) => {
+        const type = arg.event.extendedProps?.type || "Cours";
+        const title = arg.event.title || "";
+        const viewType = arg.view.type;
+        const isEval = type === "Évaluation";
+
+        // Vue Liste
+        if (viewType.startsWith("list")) {
+          return {
+            html: `
+              <div style="display:flex;align-items:center;gap:6px;padding:2px 4px;">
+                <span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;background:${isEval ? '#f97316' : '#2563eb'}"></span>
+                <span style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${title}</span>
+              </div>
+            `
+          };
+        }
+
+        // Vue Mois — Design en "pilule" colorée
+        if (viewType.startsWith("dayGrid")) {
+          const isHoliday = type === "Jour Férié";
+          const pillBg = isHoliday ? "#dc2626" : (isEval ? "#f97316" : "#3b82f6");
+          
+          return {
+            html: `
+              <div style="display:flex;align-items:center;padding:2px 8px;width:100%;background:${pillBg};border-radius:4px;overflow:hidden;margin:1px 0;">
+                <span style="font-size:11px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">${title}</span>
+              </div>
+            `
+          };
+        }
+
+        // Vue Semaine / Jour — design premium
+        const gradient = isEval ? "linear-gradient(135deg,#f97316,#ea580c)" : "linear-gradient(135deg,#2563eb,#1d4ed8)";
+        const accent = isEval ? "rgba(251,146,60,0.4)" : "rgba(96,165,250,0.4)";
+
+        return {
+          html: `
+            <div style="display:flex;flex-direction:column;padding:6px 8px;width:100%;height:100%;min-height:100%;background:${gradient};border-radius:6px;border:1px solid ${accent};box-shadow:0 1px 3px rgba(0,0,0,0.2);overflow:hidden;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-bottom:3px;border-bottom:1px solid rgba(255,255,255,0.2);">
+                <span style="font-size:9px;font-weight:900;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.9);">${arg.timeText || ""}</span>
+              </div>
+              <div style="font-size:11px;font-weight:700;color:#fff;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">${title}</div>
+            </div>
+          `,
+        };
+      },
 		};
 	});
 
@@ -276,145 +316,55 @@
 	}
 </script>
 
-<style>
-	/* Styles globaux pour FullCalendar */
-	.custom-calendar {
-		width: 100%;
-		min-height: 500px;
-	}
+<style scoped>
+:deep(.fc) {
+  --fc-border-color: #e5e7eb;
+  --fc-page-bg-color: #ffffff;
+  --fc-list-event-hover-bg-color: #f3f4f6;
+  --fc-today-bg-color: rgba(79, 70, 229, 0.05);
+}
 
-	@media (min-width: 640px) {
-		.custom-calendar {
-			min-height: 600px;
-		}
-	}
+:deep(.dark .fc) {
+  --fc-border-color: #374151;
+  --fc-page-bg-color: #1f2937;
+  --fc-list-event-hover-bg-color: #374151;
+  --fc-neutral-bg-color: #111827;
+  --fc-today-bg-color: rgba(79, 70, 229, 0.15);
+}
 
-	.fc {
-		--fc-border-color: #e5e7eb;
-		--fc-button-bg-color: #3b82f6;
-		--fc-button-border-color: #3b82f6;
-		--fc-button-hover-bg-color: #2563eb;
-		--fc-button-active-bg-color: #1d4ed8;
-		--fc-button-text-color: white;
-		--fc-today-bg-color: #eff6ff;
-		--fc-page-bg-color: white;
-	}
+:deep(.fc-toolbar-title) {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+}
 
-	.fc .fc-toolbar-title {
-		font-size: 1.125rem;
-		font-weight: 600;
-		color: #1f2937;
-	}
+:deep(.dark .fc-toolbar-title) {
+  color: #f9fafb;
+}
 
-	@media (min-width: 640px) {
-		.fc .fc-toolbar-title {
-			font-size: 1.25rem;
-		}
-	}
+:deep(.holiday-cell) {
+  background-color: #fee2e2 !important;
+}
 
-	.fc .fc-button {
-		border-radius: 0.375rem;
-		padding: 0.25rem 0.5rem;
-		font-weight: 500;
-		font-size: 0.75rem;
-	}
+:deep(.dark .holiday-cell) {
+  background-color: rgba(220, 38, 38, 0.25) !important;
+}
 
-	@media (min-width: 640px) {
-		.fc .fc-button {
-			padding: 0.375rem 0.75rem;
-			font-size: 0.875rem;
-		}
-	}
+:deep(.fc-event) {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
 
-	.fc .fc-daygrid-day-frame {
-		min-height: 80px;
-		padding: 2px;
-	}
+:deep(.fc-v-event), :deep(.fc-h-event) {
+  background-color: transparent !important;
+  border: none !important;
+}
 
-	@media (min-width: 640px) {
-		.fc .fc-daygrid-day-frame {
-			min-height: 100px;
-			padding: 4px;
-		}
-	}
-
-	.fc .fc-event {
-		border-radius: 0.25rem;
-		border: none;
-		padding: 1px 4px;
-		margin: 1px;
-		font-size: 0.7rem;
-		font-weight: 500;
-	}
-
-	@media (min-width: 640px) {
-		.fc .fc-event {
-			padding: 2px 6px;
-			font-size: 0.75rem;
-		}
-	}
-
-	.fc .fc-day-today {
-		background-color: #eff6ff !important;
-	}
-
-	.fc .fc-daygrid-day-number {
-		font-weight: 500;
-		color: #374151;
-		padding: 2px 4px;
-		font-size: 0.75rem;
-	}
-
-	@media (min-width: 640px) {
-		.fc .fc-daygrid-day-number {
-			padding: 4px;
-			font-size: 0.875rem;
-		}
-	}
-
-	.fc .fc-col-header-cell {
-		background-color: #f9fafb;
-		padding: 8px 2px;
-		font-weight: 600;
-		color: #374151;
-		text-transform: uppercase;
-		font-size: 0.7rem;
-		border-bottom: 2px solid #e5e7eb;
-	}
-
-	@media (min-width: 640px) {
-		.fc .fc-col-header-cell {
-			padding: 12px 4px;
-			font-size: 0.75rem;
-		}
-	}
-
-	.fc .fc-daygrid-day {
-		border: 1px solid #e5e7eb;
-	}
-
-	.fc .fc-daygrid-day:hover {
-		background-color: #f9fafb;
-	}
-
-	.fc .fc-daygrid-more-link {
-		color: #3b82f6;
-		font-weight: 500;
-		font-size: 0.7rem;
-	}
-
-	@media (min-width: 640px) {
-		.fc .fc-daygrid-more-link {
-			font-size: 0.75rem;
-		}
-	}
-
-	.fc .fc-timegrid-slot {
-		height: 2.5em;
-		border-color: #e5e7eb;
-	}
-
-	.fc .fc-list-event:hover td {
-		background-color: #f3f4f6;
-	}
+:deep(.fc-event-main) {
+  padding: 0 !important;
+  color: white !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
 </style>

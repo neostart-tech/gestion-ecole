@@ -13,6 +13,7 @@ export const useCandidatureStore = defineStore("candidature", {
     isLoading: false,
     error: null,
     exportEnCours: false,
+    totalATraiter: 0,
   }),
 
   actions: {
@@ -23,6 +24,19 @@ export const useCandidatureStore = defineStore("candidature", {
           Authorization: token ? `Bearer ${token}` : "",
         },
       };
+    },
+
+    // GET  api/candidature/count-a-traiter
+    async fetchCountATraiter() {
+      try {
+        const response = await axios.get(
+          "/candidature/count-a-traiter",
+          this.authHeaders(),
+        );
+        this.totalATraiter = response.data.count || 0;
+      } catch (error) {
+        console.error("Erreur chargement du nombre de candidatures à traiter:", error);
+      }
     },
 
     // Headers pour l'upload de fichiers
@@ -91,13 +105,36 @@ export const useCandidatureStore = defineStore("candidature", {
           formData,
           this.multipartHeaders(),
         );
-        await this.fetchCandidatures();
+        await Promise.all([this.fetchCandidatures(), this.fetchCountATraiter()]);
         return response.data;
       } catch (error) {
         console.error("Erreur création candidature:", error);
         this.error =
           error.response?.data?.message ||
           "Erreur lors de la création de la candidature";
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    
+    // POST  api/candidature/{candidature}/update-by-admin
+    async updateByAdmin(slug, formData) {
+      this.isLoading = true;
+      this.error = null;
+      try {
+        const response = await axios.post(
+          `/candidature/${slug}/update-by-admin`,
+          formData,
+          this.multipartHeaders(),
+        );
+        await this.fetchCandidatures();
+        return response.data;
+      } catch (error) {
+        console.error("Erreur mise à jour candidature:", error);
+        this.error =
+          error.response?.data?.message ||
+          "Erreur lors de la mise à jour de la candidature";
         throw error;
       } finally {
         this.isLoading = false;
@@ -114,6 +151,10 @@ export const useCandidatureStore = defineStore("candidature", {
           this.authHeaders(),
         );
         this.candidature = response.data.data || response.data;
+        // Attach dynamic expected documents
+        if (response.data.expected_docs) {
+            this.candidature.expected_docs = response.data.expected_docs;
+        }
         return this.candidature;
       } catch (error) {
         console.error("Erreur chargement détail candidature:", error);
@@ -218,7 +259,8 @@ export const useCandidatureStore = defineStore("candidature", {
           "/candidature/liste-des-admis",
           this.authHeaders(),
         );
-        return response.data.data || response.data;
+        this.candidatures = response.data.data || response.data;
+        return this.candidatures;
       } catch (error) {
         console.error("Erreur chargement candidatures admis:", error);
         this.error =
@@ -260,7 +302,7 @@ export const useCandidatureStore = defineStore("candidature", {
           "/candidature/choix-de-groupe",
           this.authHeaders(),
         );
-        this.groupes = response.data.data || response.data;
+        this.groupes = response.data.groups || response.data.data || response.data;
         return this.groupes;
       } catch (error) {
         console.error("Erreur chargement groupes:", error);
@@ -283,7 +325,7 @@ export const useCandidatureStore = defineStore("candidature", {
           this.authHeaders(),
         );
         this.groupeActuel = group;
-        this.candidaturesGroupe = response.data.data || response.data;
+        this.candidaturesGroupe = response.data.candidatures || response.data.data || response.data;
         return this.candidaturesGroupe;
       } catch (error) {
         console.error("Erreur chargement attribution groupe:", error);
@@ -387,6 +429,29 @@ export const useCandidatureStore = defineStore("candidature", {
 
     // ============ ROUTES D'ACTIONS SUR UNE CANDIDATURE ============
 
+    // PUT  api/candidature/{candidature}/transmettre-academie
+    async transmettreAcademie(candidature, data = {}) {
+      this.isLoading = true;
+      this.error = null;
+      try {
+        const response = await axios.put(
+          `/candidature/${candidature}/transmettre-academie`,
+          data,
+          this.authHeaders(),
+        );
+        await Promise.all([this.fetchCandidatures(), this.fetchCountATraiter()]);
+        return response.data;
+      } catch (error) {
+        console.error("Erreur transmission académie:", error);
+        this.error =
+          error.response?.data?.message ||
+          "Erreur lors de la transmission à l'académie";
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
     // PUT  api/candidature/{candidature}/valider
     async validerDossier(candidature, data = {}) {
       this.isLoading = true;
@@ -397,7 +462,7 @@ export const useCandidatureStore = defineStore("candidature", {
           data,
           this.authHeaders(),
         );
-        await this.fetchCandidatures();
+        await Promise.all([this.fetchCandidatures(), this.fetchCountATraiter()]);
         return response.data;
       } catch (error) {
         console.error("Erreur validation dossier:", error);
@@ -419,7 +484,7 @@ export const useCandidatureStore = defineStore("candidature", {
           { motif },
           this.authHeaders(),
         );
-        await this.fetchCandidatures();
+        await Promise.all([this.fetchCandidatures(), this.fetchCountATraiter()]);
         return response.data;
       } catch (error) {
         console.error("Erreur rejet dossier:", error);
@@ -440,7 +505,7 @@ export const useCandidatureStore = defineStore("candidature", {
           data,
           this.authHeaders(),
         );
-        await this.fetchCandidatures();
+        await Promise.all([this.fetchCandidatures(), this.fetchCountATraiter()]);
         return response.data;
       } catch (error) {
         console.error("Erreur demande rectification:", error);
@@ -629,6 +694,68 @@ export const useCandidatureStore = defineStore("candidature", {
       }
     },
 
+    // Export Excel de la liste des candidats admis (prêts pour l'inscription définitive)
+    // GET api/candidature/export/excel
+    async exportCandidatsAdmisExcel() {
+      this.exportEnCours = true;
+      try {
+        const response = await axios.get("/candidature/export/excel", {
+          ...this.authHeaders(),
+          responseType: "blob",
+        });
+
+        const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.setAttribute(
+          "download",
+          `candidats_admis_${new Date().toISOString().slice(0, 10)}.xlsx`,
+        );
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(blobUrl);
+      } catch (error) {
+        console.error("Erreur export Excel des admis:", error);
+        this.error =
+          error.response?.data?.message || "Erreur lors de l'export Excel.";
+        throw error;
+      } finally {
+        this.exportEnCours = false;
+      }
+    },
+
+    // Export Excel de la liste des candidatures en étude de dossier
+    // GET api/candidature/export/etude-dossier
+    async exportEtudeDossierExcel() {
+      this.exportEnCours = true;
+      try {
+        const response = await axios.get("/candidature/export/etude-dossier", {
+          ...this.authHeaders(),
+          responseType: "blob",
+        });
+
+        const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.setAttribute(
+          "download",
+          `candidatures_etude_dossier_${new Date().toISOString().slice(0, 10)}.xlsx`,
+        );
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(blobUrl);
+      } catch (error) {
+        console.error("Erreur export Excel étude de dossier:", error);
+        this.error =
+          error.response?.data?.message || "Erreur lors de l'export Excel.";
+        throw error;
+      } finally {
+        this.exportEnCours = false;
+      }
+    },
+
     // ============ RESET STATE ============
 
     // Reset state
@@ -687,7 +814,6 @@ export const useCandidatureStore = defineStore("candidature", {
     },
 
     hasError: (state) => state.error !== null,
-    isLoading: (state) => state.isLoading,
     isExporting: (state) => state.exportEnCours,
   },
 });

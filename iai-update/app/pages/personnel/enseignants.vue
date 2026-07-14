@@ -8,7 +8,7 @@
         { label: 'Administration', to: '/' },
         { label: 'Membres', to: null },
       ]"
-      title="Liste des membres des enseignants"
+      title="Liste des enseignants"
       title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
       spacing="mb-4"
     />
@@ -139,25 +139,27 @@
             Importer
           </button> -->
 
-          <!-- Bouton ajouter -->
-          <NuxtLink
-            to="/personnel/ajouter"
-            class="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-          >
-            <svg
-              class="w-5 h-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
+          <!-- Bouton ajouter (enseignant) -->
+          <Can :action="['create-enseignant']">
+            <NuxtLink
+              to="/personnel/ajouter-un-enseignant"
+              class="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
             >
-              <path
-                d="M12 5v14M5 12h14"
-                stroke-width="2"
-                stroke-linecap="round"
-              />
-            </svg>
-            Ajouter
-          </NuxtLink>
+              <svg
+                class="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  d="M12 5v14M5 12h14"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+              Ajouter
+            </NuxtLink>
+          </Can>
         </div>
       </div>
     </div>
@@ -184,76 +186,84 @@
             <div class="flex justify-center gap-3">
               <!-- View -->
               <button
-                class="p-2 rounded-lg text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors duration-200"
-                @click="openViewModal(data.value)"
-                title="Voir détails"
+                class="p-2 rounded-lg text-cyan-600 hover:bg-cyan-100 dark:hover:bg-cyan-900/30 transition-colors duration-200"
+                @click="navigateTo(`/personnel/${data.value.slug}/details`)"
+                title="Voir détails complets"
               >
                 <svg
                   class="w-5 h-5"
-                  viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
                   <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    stroke-width="2"
-                    stroke-linecap="round"
                   />
                   <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    stroke-width="2"
-                    stroke-linecap="round"
                   />
                 </svg>
               </button>
-
-              <NuxtLink
-                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
-                :to="`/personnel/${data.value.slug}/modifier-un-utilisateur`"
-                title="Modifier"
-              >
-                <svg
-                  class="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
+              <!-- Modifier (update-enseignant requis) -->
+              <Can :action="['update-enseignant']">
+                <NuxtLink
+                  class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
+                  :to="`/personnel/${data.value.slug}/modifier-un-enseignant`"
+                  title="Modifier"
                 >
-                  <path
-                    d="M4 20h4l10-10-4-4L4 16v4z"
-                    stroke-width="2"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </NuxtLink>
-
-              <NuxtLink
-                :to="`/personnel/${data.value.slug}/emploi-du-temps`"
-                class="p-2 rounded-lg text-purple-600 hover:bg-purple-100 dark:text-purple-400 dark:hover:bg-purple-900/30 transition-colors duration-200"
-                title="Voir dans le calendrier"
-              >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                  <svg
+                    class="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      d="M4 20h4l10-10-4-4L4 16v4z"
+                      stroke-width="2"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </NuxtLink>
+              </Can>
+            
+              <Can :action="['view-cours']">
+                <NuxtLink
+                  :to="`/personnel/${data.value.slug}/emploi-du-temps`"
+                  class="p-2 rounded-lg text-purple-600 hover:bg-purple-100 dark:text-purple-400 dark:hover:bg-purple-900/30 transition-colors duration-200"
+                  title="Voir dans le calendrier"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1.8"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </NuxtLink>
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.8"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                </NuxtLink>
+              </Can>
 
-              <!-- Delete -->
-              <button
-                class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
-                @click="confirmDelete(data.value)"
-                title="Supprimer"
-              >
-                <ButtonDelete />
-              </button>
+              <!-- Supprimer (delete-enseignant requis) -->
+              <Can :action="['delete-enseignant']">
+                <button
+                  class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
+                  @click="confirmDelete(data.value)"
+                  title="Supprimer"
+                >
+                  <ButtonDelete />
+                </button>
+              </Can>
             </div>
           </template>
         </Vue3Datatable>
@@ -1032,6 +1042,13 @@ const columns = ref([
   { field: "genre", title: "Genre", sortable: true, visible: true },
   { field: "tel", title: "Téléphone", sortable: true, visible: true },
   {
+    field: "nationalite",
+    title: "Nationalité",
+    sortable: true,
+    visible: false,
+  },
+  { field: "nif", title: "Nif", sortable: true, visible: false },
+  {
     field: "supervisor_type_value",
     title: "Type surveillant",
     sortable: true,
@@ -1278,7 +1295,7 @@ const processExport = async () => {
 // Fonctions de gestion des utilisateurs (existantes)
 const openEditModal = (user) => {
   editForm.value = {
-    id: user.id,
+    slug: user.slug,
     nom: user.nom,
     prenom: user.prenom,
     email: user.email,
@@ -1340,7 +1357,7 @@ const confirmDelete = async (user) => {
 
 const submitUpdate = async () => {
   try {
-    await userStore.updateUser(editForm.value.id, editForm.value);
+    await userStore.updateUser(editForm.value.slug, editForm.value);
 
     // Fermer la modale et rafraîchir
     showEditModal.value = false;

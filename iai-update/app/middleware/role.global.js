@@ -4,6 +4,13 @@ import { rolePermissions } from "~~/configuration/permissions";
 export default defineNuxtRouteMiddleware((to) => {
 	if (process.server) return;
 
+	// L'espace candidat a son propre système d'authentification, indépendant
+	// des permissions du staff/étudiant gérées ici. Attention : "/candidat" est
+	// un préfixe de "/candidatures" (pages staff de gestion des candidatures) —
+	// il faut exiger un "/" après pour ne pas les exclure par erreur des
+	// vérifications de permission ci-dessous.
+	if (to.path === '/candidat' || to.path.startsWith('/candidat/')) return;
+
 	const authStore = useLoginStore();
 
 	if (!authStore.isAuthenticated()) {
@@ -15,38 +22,76 @@ export default defineNuxtRouteMiddleware((to) => {
 		"/mot-de-passe-oublie",
 		"/reset-password",
 		"/unauthorized",
+        "/actualites",
+        "/annonces",
+        "/support/ticket",
+        "/concours"
 	];
-	if (publicRoutes.includes(to.path)) {
+	if (publicRoutes.includes(to.path) || to.path.startsWith("/actualites/") || to.path.startsWith("/annonces/")) {
 		return;
 	}
 
 	const userData = JSON.parse(localStorage.getItem("user") || "{}");
 	const userRoles = userData?.roles || [];
 
+	// Routes réservées strictement à certains rôles, même pour les comptes
+	// ayant par ailleurs un accès total ("*"), comme l'admin.
+	const strictRoleOnlyRoutes = {
+		"/enseignant/syllabuses": ["enseignant"],
+	};
+	const strictPrefix = Object.keys(strictRoleOnlyRoutes).find((prefix) =>
+		to.path.startsWith(prefix)
+	);
+	if (strictPrefix) {
+		const allowedRoles = strictRoleOnlyRoutes[strictPrefix];
+		const isAllowed = userRoles.some((role) => allowedRoles.includes(role.slug));
+		if (!isAllowed) {
+			const { $toastr } = useNuxtApp();
+			$toastr.error(
+				`Accès refusé car vous n'avez pas la permission d'accéder à cette page!`,
+			);
+			return navigateTo("/emploi-du-temps");
+		}
+		return;
+	}
+
 	// Liste des rôles autorisés à voir la page d'accueil (/)
 	const rolesWithHomeAccess = [
 		"responsable-du-site",
 		"admin",
 		"directeur-general-adjoint",
-		"directeur-general"
+		"directeur-general",
+		"informaticien",
+		"secretaires",
+		"surveillant",
+		"charge-de-la-clientele",
+		"responsable-marketing",
+		"collaborateur-commercial",
+		"stagiaire",
+		"logiticien-academique",
+		'directeur-academique'
 	];
-
-	// Vérifier si l'utilisateur a un rôle avec accès total
-	const hasFullAccess = userRoles.some((role) =>
-		rolesWithHomeAccess.includes(role.slug)
-	);
 
 	// REDIRECTION SPÉCIALE POUR LA PAGE D'ACCUEIL (/)
 	if (to.path === "/") {
-		// Si l'utilisateur n'a pas accès total, rediriger vers sa page par défaut
-		if (!hasFullAccess) {
-			// Redirection par défaut pour tous les utilisateurs sans accès total
+		const hasHomeAccess = userRoles.some((role) =>
+			rolesWithHomeAccess.includes(role.slug)
+		);
+		// Si l'utilisateur n'a pas accès à l'accueil, rediriger vers sa page par défaut
+		if (!hasHomeAccess) {
 			return navigateTo("/emploi-du-temps");
 		}
-		
-		// Si l'utilisateur a accès total, on le laisse voir /
+
+		// Sinon on le laisse voir /
 		return;
 	}
+
+	// Accès total réel : uniquement les rôles ayant la permission "*"
+	// (ne pas confondre avec rolesWithHomeAccess, qui ne concerne que la page d'accueil)
+	const hasFullAccess = userRoles.some((role) => {
+		const permissions = rolePermissions[role.slug];
+		return permissions && permissions.includes("*");
+	});
 
 	if (hasFullAccess) {
 		return; // Accès autorisé à tout
@@ -72,11 +117,16 @@ export default defineNuxtRouteMiddleware((to) => {
 
 	if (!hasAccess) {
 		const { $toastr } = useNuxtApp();
+		// Éviter la boucle infinie si on est déjà sur la page par défaut
+		if (to.path === "/emploi-du-temps") {
+			return;
+		}
+
 		$toastr.error(
 			`Accès refusé car vous n'avez pas la permission d'accéder à cette page!`,
 		);
 
-		// Rediriger vers la page par défaut pour tous les utilisateurs
+		// Rediriger vers la page par défaut
 		return navigateTo("/emploi-du-temps");
 	}
 });

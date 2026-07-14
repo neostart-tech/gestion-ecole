@@ -72,24 +72,26 @@
         </client-only>
 
         <!-- Ajouter -->
-        <button
-          @click="openAddModal"
-          class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        >
-          <svg
-            class="w-5 h-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
+        <Can action="create-semestre">
+          <button
+            @click="openAddModal"
+            class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
           >
-            <path
-              d="M12 5v14M5 12h14"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-          </svg>
-          Ajouter
-        </button>
+            <svg
+              class="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+            >
+              <path
+                d="M12 5v14M5 12h14"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            Ajouter
+          </button>
+        </Can>
       </div>
     </div>
 
@@ -137,31 +139,35 @@
               </button>
 
               <!-- Edit -->
-              <button
-                @click="openEditModal(value)"
-                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
-              >
-                <svg
-                  class="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
+              <Can action="update-semestre">
+                <button
+                  @click="openEditModal(value)"
+                  class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
                 >
-                  <path
-                    d="M4 20h4l10-10-4-4L4 16v4z"
-                    stroke-width="2"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </button>
+                  <svg
+                    class="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      d="M4 20h4l10-10-4-4L4 16v4z"
+                      stroke-width="2"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
+              </Can>
 
               <!-- Delete -->
-              <button
-                @click="deleteItem(value)"
-                class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
-              >
-              <ButtonDelete/>
-              </button>
+              <Can action="delete-semestre">
+                <button
+                  @click="deleteItem(value)"
+                  class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
+                >
+                <ButtonDelete/>
+                </button>
+              </Can>
             </div>
           </template>
         </Vue3Datatable>
@@ -354,26 +360,28 @@
                     >
                       Fermer
                     </button>
-                    <button
-                      type="button"
-                      @click="editEvent"
-                      class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2"
-                    >
-                      <svg
-                        class="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                    <Can action="update-semestre">
+                      <button
+                        type="button"
+                        @click="editEvent"
+                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2"
                       >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                        />
-                      </svg>
-                      Modifier
-                    </button>
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          />
+                        </svg>
+                        Modifier
+                      </button>
+                    </Can>
                   </div>
                 </div>
               </DialogPanel>
@@ -450,9 +458,14 @@
 
                 <button
                   type="submit"
-                  class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+                  :disabled="isSaving"
+                  class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  Enregistrer
+                  <svg v-if="isSaving" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {{ isSaving ? 'Enregistrement...' : 'Enregistrer' }}
                 </button>
               </div>
             </form>
@@ -488,6 +501,7 @@ const periodeStore = usePeriodeStore();
 
 const searchQuery = ref("");
 const loading = ref(true);
+const isSaving = ref(false);
 const showModal = ref(false);
 const modalTitle = ref("");
 const itemsPerPage = ref(5);
@@ -540,7 +554,7 @@ const closeDetailModal = () => {
 };
 
 const openAddModal = () => {
-  modalTitle.value = "Créer une matiere";
+  modalTitle.value = "Créer un semestre";
   form.value = {
     nom: "",
     debut: "",
@@ -551,7 +565,7 @@ const openAddModal = () => {
 };
 
 const openEditModal = (f) => {
-  modalTitle.value = "Modifier la matière";
+  modalTitle.value = "Modifier le semestre";
 
   form.value = {
     id: f.id,
@@ -569,6 +583,7 @@ const openEditModal = (f) => {
 const closeModal = () => (showModal.value = false);
 
 const savePeriode = async () => {
+  isSaving.value = true;
   try {
     form.value.id
       ? await periodeStore.updatePeriode(form.value.slug, form.value)
@@ -579,7 +594,9 @@ const savePeriode = async () => {
     closeModal();
   } catch (error) {
     console.log(error);
-    $toastr.error(error.response.data.message);
+    $toastr.error(error.response?.data?.message || "Une erreur est survenue");
+  } finally {
+    isSaving.value = false;
   }
 };
 

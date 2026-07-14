@@ -391,16 +391,17 @@
         >
           <template #notation="data">
             <div class="flex items-center gap-2">
-              <InputNumber
-                v-model="data.value.notation"
-                inputId="minmax-buttons"
-                mode="decimal"
-                showButtons
-                :min="0"
-                :max="20"
-                fluid
-              />
-              <!-- <span v-if="row.note" class="text-gray-500 text-sm">/20</span> -->
+              <div class="relative flex-1">
+                <InputNumber
+                  v-model="data.value.note"
+                  inputId="minmax-buttons"
+                  mode="decimal"
+                  showButtons
+                  :min="0"
+                  :max="20"
+                  fluid
+                />
+              </div>
             </div>
           </template>
           <!-- Actions -->
@@ -915,8 +916,8 @@ const ficheDeNoteStore = useFicheDeNoteStore();
 
 // Données de l'évaluation (première note pour les détails)
 const evaluationDetails = computed(() => {
-  if (notes.value.length > 0) {
-    return notes.value[0].raw;
+  if (notes.value.length > 0 && notes.value[0].evaluation) {
+    return notes.value[0].evaluation;
   }
   return null;
 });
@@ -952,13 +953,21 @@ const visibleColumns = computed(() => columns.value.filter((c) => c.visible));
 
 // Traiter les données des notes à partir du store ficheDeNote
 const notes = computed(() => {
-  return ficheDeNoteStore.fiches.map((note) => ({
-    ...note,
-    note: note.notation || "",
-    noteError: "",
-    nom_complet: `${note.etudiant?.prenom} ${note.etudiant?.nom}`,
-    raw: note,
-  }));
+  return ficheDeNoteStore.fiches.map((note) => {
+    const isManual = (note.notation !== null && note.notation !== undefined && note.notation !== "");
+    const hasOnline = (note.online_score !== null && note.online_score !== undefined);
+    
+    let displayNote = isManual ? note.notation : (hasOnline ? note.online_score : "");
+
+    return {
+      ...note,
+      note: displayNote,
+      is_prefilled: !isManual && hasOnline,
+      noteError: "",
+      nom_complet: `${note.etudiant?.prenom} ${note.etudiant?.nom}`,
+      raw: note,
+    };
+  });
 });
 
 // Rows filtrées
@@ -1205,31 +1214,36 @@ const updateNote = async () => {
   if (!validateNewNote()) return;
 
   updatingNote.value = true;
+  console.log("Tentative de mise à jour de la note:", {
+    evaluation: evaluation_slug.value,
+    noteId: selectedNote.value?.id,
+    value: newNoteValue.value
+  });
+
   try {
-    await ficheDeNoteStore.saveNote({
+    const res = await ficheDeNoteStore.saveNote(evaluation_slug.value, {
       id: selectedNote.value.id,
       note: parseFloat(newNoteValue.value),
       commentaire: newNoteComment.value,
     });
 
-    // Mettre à jour la note dans le tableau
-    const noteIndex = notes.value.findIndex(
-      (n) => n.id === selectedNote.value.id,
-    );
-    if (noteIndex !== -1) {
-      const val = parseFloat(newNoteValue.value);
-      notes.value[noteIndex].tempNote = newNoteValue.value;
-      notes.value[noteIndex].notation = val;
-      notes.value[noteIndex].note = val;
-      if (!notes.value[noteIndex].raw) notes.value[noteIndex].raw = {};
-      notes.value[noteIndex].raw.notation = { note: val, commentaire: newNoteComment.value };
+    // Mettre à jour la source de vérité dans le store
+    if (res && res.note) {
+      const storeIndex = ficheDeNoteStore.fiches.findIndex(f => f.id === selectedNote.value.id);
+      if (storeIndex !== -1) {
+        ficheDeNoteStore.fiches[storeIndex] = {
+           ...ficheDeNoteStore.fiches[storeIndex],
+           ...res.note
+        };
+      }
     }
 
     $toastr.success("Note mise à jour avec succès");
     closeEditModal();
   } catch (error) {
     console.error("Erreur mise à jour note:", error);
-    $toastr.error("Erreur lors de la mise à jour de la note");
+    const msg = error.response?.data?.message || "Erreur lors de la mise à jour de la note";
+    $toastr.error(msg);
   } finally {
     updatingNote.value = false;
   }

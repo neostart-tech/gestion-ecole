@@ -1,18 +1,25 @@
 <template>
   <div class="tinymce-editor">
     <Editor
+      :key="isDark ? 'dark' : 'light'"
+      :api-key="TINYMCE_API_KEY"
       v-model="content"
       :init="initOptions"
       :disabled="disabled"
-      @input="$emit('update:modelValue', $event)"
       @onInit="handleInit"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import Editor from '@tinymce/tinymce-vue'
+import { useThemeStore } from '~~/stores/theme'
+
+const themeStore = useThemeStore()
+// TinyMCE ne peut pas changer de skin à chaud : le composant est remonté
+// (via :key ci-dessus) à chaque bascule clair/sombre pour ré-appliquer le bon skin.
+const isDark = computed(() => themeStore.shouldBeDark())
 
 const props = defineProps({
   modelValue: {
@@ -34,13 +41,17 @@ const emit = defineEmits(['update:modelValue'])
 const content = ref(props.modelValue)
 
 // Votre clé API TinyMCE
-const TINYMCE_API_KEY = 'ktf8z0z55enm2wd9xyeoo6qzzoy7w9b629e51wii9y8lw4dx'
+const TINYMCE_API_KEY = '2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl'
 
 watch(() => props.modelValue, (newValue) => {
   content.value = newValue
 })
 
-const initOptions = ref({
+watch(content, (newValue) => {
+  emit('update:modelValue', newValue)
+})
+
+const initOptions = computed(() => ({
   apiKey: TINYMCE_API_KEY,
   height: 300,
   menubar: true,
@@ -55,29 +66,30 @@ const initOptions = ref({
     'bullist numlist outdent indent | link image | ' +
     'removeformat | emoticons | help',
   content_style: `
-    body { 
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
-      font-size: 14px; 
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
       line-height: 1.6;
-      color: #374151;
+      color: ${isDark.value ? '#e5e7eb' : '#374151'};
+      background-color: ${isDark.value ? '#1f2937' : '#ffffff'};
     }
     p { margin: 0 0 1rem 0; }
-    h1, h2, h3, h4, h5, h6 { 
+    h1, h2, h3, h4, h5, h6 {
       font-weight: 600;
       margin: 1.5rem 0 0.75rem 0;
     }
     ul, ol { padding-left: 1.5rem; }
-    blockquote { 
+    blockquote {
       border-left: 4px solid rgb(var(--color-primary-300));
       padding-left: 1rem;
       font-style: italic;
-      color: #6b7280;
+      color: ${isDark.value ? '#9ca3af' : '#6b7280'};
     }
   `,
   language: 'fr_FR',
   branding: false,
-  skin: 'oxide',
-  content_css: 'default',
+  skin: isDark.value ? 'oxide-dark' : 'oxide',
+  content_css: isDark.value ? 'dark' : 'default',
   placeholder: props.placeholder,
   // Configuration pour l'upload d'images
   images_upload_handler: async (blobInfo, progress) => {
@@ -119,7 +131,7 @@ const initOptions = ref({
     '#8b5cf6', 'Violet',
     'rgb(var(--color-primary-500))', 'Primaire'
   ]
-})
+}))
 
 const handleInit = (editor) => {
   console.log('TinyMCE initialisé avec succès')
@@ -143,8 +155,17 @@ onMounted(() => {
 
 :deep(.tox-tinymce) {
   border-radius: 0.5rem;
-  border-color: #d1d5db !important;
   transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Le skin `oxide-dark` (chargé dynamiquement, voir initOptions) re-thème déjà
+   toute la barre d'outils/menus en sombre — on ne force les couleurs claires
+   ci-dessous que hors mode sombre, pour ne pas entrer en conflit avec lui. */
+:global(html:not(.dark)) :deep(.tox-tinymce) {
+  border-color: #d1d5db !important;
+}
+:global(.dark) :deep(.tox-tinymce) {
+  border-color: #4b5563 !important;
 }
 
 :deep(.tox-tinymce:focus-within) {
@@ -152,7 +173,7 @@ onMounted(() => {
   box-shadow: 0 0 0 3px rgba(var(--color-primary-500), 0.1);
 }
 
-:deep(.tox-toolbar__primary) {
+:global(html:not(.dark)) :deep(.tox-toolbar__primary) {
   background: #f9fafb !important;
   border-bottom: 1px solid #e5e7eb !important;
 }
@@ -162,7 +183,7 @@ onMounted(() => {
   transition: background-color 0.2s ease-in-out !important;
 }
 
-:deep(.tox-tbtn:hover) {
+:global(html:not(.dark)) :deep(.tox-tbtn:hover) {
   background-color: #e5e7eb !important;
 }
 

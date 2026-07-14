@@ -136,8 +136,49 @@
           :per-page="itemsPerPage"
           skin="bh-table-striped bh-table-hover"
         >
+          <template #nom_complet="{ value }">
+            <div class="flex items-center gap-2">
+              <span class="font-medium text-gray-900 dark:text-white">
+                {{ value.nom_complet }}
+              </span>
+              <span
+                v-if="value.is_delegue"
+                class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"
+              >
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                DÉLÉGUÉ
+              </span>
+            </div>
+          </template>
+
           <template #action="{ value }">
-            <div class="flex justify-center gap-3">
+            <div class="flex justify-center gap-2">
+              <!-- Nommer Délégué -->
+              <button
+                @click="handleToggleDelegue(value)"
+                class="p-2 rounded-lg transition-all duration-200"
+                :class="value.is_delegue 
+                  ? 'text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/30' 
+                  : 'text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20'"
+                :title="value.is_delegue ? 'Retirer le statut de délégué' : 'Nommer délégué'"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                  />
+                </svg>
+              </button>
+
               <button
                 @click="openDetailModal(value)"
                 class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
@@ -927,6 +968,7 @@ const filteredRows = computed(() => {
     nationalite: e.nationalite || "--",
     annee_admission: e.annee_admission || "--",
     date_naissance: e.date_naissance,
+    is_delegue: e.roles?.some(r => r.slug === 'delegue') || e.is_delegue || false,
     // pour la modale détail
     raw: e,
   }));
@@ -1162,14 +1204,44 @@ const deleteEtudiant = async (item) => {
 
   if (res.isConfirmed) {
     try {
-      // Ici, vous intégrerez la logique de suppression
+      // Logic for deletion (placeholder for now as in original)
       // await groupeStore.deleteEtudiant(item.id);
       $toastr.success("Étudiant supprimé avec succès");
-      // Recharger la liste
       await groupeStore.fetchGroupEtudiants(group_id.value);
     } catch (error) {
       console.error("Erreur lors de la suppression:", error);
       $toastr.error(error.response?.data?.message || "Une erreur est survenue");
+    }
+  }
+};
+
+// Logique pour nommer/retirer un délégué
+const handleToggleDelegue = async (item) => {
+  const isCurrentlyDelegue = item.is_delegue;
+  
+  const res = await $swal.fire({
+    title: `${isCurrentlyDelegue ? 'Retirer' : 'Nommer'} délégué ?`,
+    text: `Voulez-vous ${isCurrentlyDelegue ? 'retirer le statut de délégué à' : 'nommer'} ${item.nom_complet} ?`,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Confirmer",
+    cancelButtonText: "Annuler",
+    confirmButtonColor: isCurrentlyDelegue ? "#d33" : "#4f46e5",
+  });
+
+  if (res.isConfirmed) {
+    try {
+      await groupeStore.assignDelegue({
+        etudiant_id: item.id,
+        group_id: group_id.value,
+        is_delegue: !isCurrentlyDelegue
+      });
+      
+      $toastr.success(`Opération réussie pour ${item.nom_complet}`);
+      await groupeStore.fetchGroupEtudiants(group_id.value);
+    } catch (error) {
+      console.error("Erreur lors de l'assignation du délégué:", error);
+      $toastr.error(error.response?.data?.message || "Une erreur est survenue lors de l'assignation");
     }
   }
 };

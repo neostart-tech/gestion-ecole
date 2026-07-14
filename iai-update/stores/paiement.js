@@ -49,11 +49,25 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
     elementsAPayer: (state) => {
       if (!state.infosEtudiant) return [];
       
+      let elements = [];
       if (state.infosEtudiant.type === 'negocie') {
-        return state.infosEtudiant.echeances || [];
+        elements = [...(state.infosEtudiant.echeances || [])];
       } else {
-        return state.infosEtudiant.tranches || [];
+        elements = [...(state.infosEtudiant.tranches || [])];
       }
+
+      // Ajouter le frais d'inscription s'il existe et n'est pas payé
+      if (state.infosEtudiant.frais_inscription && state.infosEtudiant.frais_inscription.reste > 0) {
+        // On le met au début avec un type spécial
+        const insc = {
+           ...state.infosEtudiant.frais_inscription,
+           payable_type: 'frais_inscription',
+           is_inscription: true
+        };
+        elements.unshift(insc);
+      }
+
+      return elements;
     },
 
     // Calculer le total payé
@@ -80,35 +94,32 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
     nombreElements: (state) => {
       if (!state.infosEtudiant) return 0;
       
+      let count = 0;
       if (state.infosEtudiant.type === 'negocie') {
-        return state.infosEtudiant.echeances?.length || 0;
+        count = state.infosEtudiant.echeances?.length || 0;
       } else {
-        return state.infosEtudiant.tranches?.length || 0;
+        count = state.infosEtudiant.tranches?.length || 0;
       }
+
+      if (state.infosEtudiant.frais_inscription) count++;
+      return count;
     },
 
     // Prochaine échéance/tranche à payer
-    prochainElement: (state) => {
-      if (!state.infosEtudiant) return null;
-      
-      const elements = state.infosEtudiant.type === 'negocie' 
-        ? state.infosEtudiant.echeances 
-        : state.infosEtudiant.tranches;
-      
+    prochainElement(state) {
+      const elements = this.elementsAPayer;
       if (!elements || elements.length === 0) return null;
       
       // Filtrer ceux qui ne sont pas complètement payés
-      const nonPayes = elements.filter(e => {
-        if (state.infosEtudiant.type === 'negocie') {
-          return e.statut !== 'paye';
-        } else {
-          return e.reste > 0;
-        }
-      });
+      const nonPayes = elements.filter(e => (e.reste || e.reste_a_payer) > 0);
       
+      // Si on a un frais d'inscription non payé, c'est la priorité absolue
+      const insc = nonPayes.find(e => e.is_inscription);
+      if (insc) return insc;
+
       // Trier par date limite
       return nonPayes.sort((a, b) => 
-        new Date(a.date_limite) - new Date(b.date_limite)
+        new Date(a.date_limite || '9999-12-31') - new Date(b.date_limite || '9999-12-31')
       )[0] || null;
     },
 
@@ -156,19 +167,13 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
      * Obtenir les informations de paiement d'un étudiant
      * CORRIGÉ pour gérer les erreurs sans bloquer
      */
-    async getInfosEtudiant(etudiantId) {
-      if (!etudiantId) {
-        throw new Error("ID étudiant requis");
-      }
-
+    async getInfosEtudiant(etudiantId = null) {
       this.isLoading = true;
       this.error = null;
       
       try {
-        const response = await axios.get(
-          `/paiements/infos/${etudiantId}`,
-          this.authHeaders
-        );
+        const url = etudiantId ? `/paiements/infos/${etudiantId}` : `/paiements/infos`;
+        const response = await axios.get(url, this.authHeaders);
         
         if (response.data.success) {
           this.infosEtudiant = response.data.data;
@@ -205,19 +210,13 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
      * Obtenir le récapitulatif des paiements
      * CORRIGÉ pour gérer les erreurs
      */
-    async getRecap(etudiantId) {
-      if (!etudiantId) {
-        throw new Error("ID étudiant requis");
-      }
-
+    async getRecap(etudiantId = null) {
       this.isLoading = true;
       this.error = null;
       
       try {
-        const response = await axios.get(
-          `/paiements/recap/${etudiantId}`,
-          this.authHeaders
-        );
+        const url = etudiantId ? `/paiements/recap/${etudiantId}` : `/paiements/recap`;
+        const response = await axios.get(url, this.authHeaders);
         
         if (response.data.success) {
           this.recap = response.data.data;
@@ -249,19 +248,13 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
     /**
      * Obtenir l'historique des paiements d'un étudiant
      */
-    async getHistorique(etudiantId) {
-      if (!etudiantId) {
-        throw new Error("ID étudiant requis");
-      }
-
+    async getHistorique(etudiantId = null) {
       this.isLoading = true;
       this.error = null;
       
       try {
-        const response = await axios.get(
-          `/paiements/historique/${etudiantId}`,
-          this.authHeaders
-        );
+        const url = etudiantId ? `/paiements/historique/${etudiantId}` : `/paiements/historique`;
+        const response = await axios.get(url, this.authHeaders);
         
         if (response.data.success) {
           this.historiquePaiements = response.data.data || [];
@@ -297,30 +290,60 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
      * Effectuer un paiement
      */
     async effectuerPaiement(paiementData) {
-      // Validation minimale
-      if (!paiementData.etudiant_id) {
-        throw new Error("ID étudiant requis");
-      }
-      if (!paiementData.montant || paiementData.montant <= 0) {
-        throw new Error("Montant invalide");
-      }
-      if (!paiementData.mode_paiement) {
-        throw new Error("Mode de paiement requis");
-      }
+      if (!paiementData.etudiant_id) throw new Error("ID étudiant requis");
+      if (!paiementData.montant || paiementData.montant <= 0) throw new Error("Montant invalide");
 
       this.isLoading = true;
       this.error = null;
       
       try {
+        const hasFile = paiementData.justificatif instanceof File || paiementData.justificatif instanceof Blob;
+        let payload;
+        let config = { ...this.authHeaders };
+
+        if (hasFile) {
+          payload = new FormData();
+          payload.append('etudiant_id', paiementData.etudiant_id);
+          payload.append('montant', paiementData.montant);
+          payload.append('mode_paiement', paiementData.mode_paiement);
+          payload.append('nature_paiement', paiementData.nature_paiement || 'scolarite');
+          payload.append('frais_retrait_mm', paiementData.frais_retrait || paiementData.frais_retrait_mm || 0);
+          
+          if (paiementData.reference) payload.append('reference', paiementData.reference);
+          if (paiementData.commentaire) payload.append('commentaire', paiementData.commentaire);
+          if (paiementData.payable_id) {
+            payload.append('payable_id', paiementData.payable_id);
+            const type = paiementData.payable_type || (this.infosEtudiant?.type === 'negocie' ? 'echeance' : 'tranche');
+            payload.append('payable_type', type);
+          }
+          
+          payload.append('justificatif', paiementData.justificatif);
+          
+          // Supprimer le Content-Type par défaut pour laisser le navigateur mettre le bon avec le boundary
+          delete config.headers['Content-Type'];
+        } else {
+          payload = {
+            etudiant_id: paiementData.etudiant_id,
+            montant: paiementData.montant,
+            mode_paiement: paiementData.mode_paiement,
+            nature_paiement: paiementData.nature_paiement || 'scolarite',
+            frais_retrait_mm: paiementData.frais_retrait || paiementData.frais_retrait_mm || 0,
+            reference: paiementData.reference || null,
+            commentaire: paiementData.commentaire || null,
+            payable_id: paiementData.payable_id || null,
+            payable_type: paiementData.payable_type || (paiementData.payable_id ? (this.infosEtudiant?.type === 'negocie' ? 'echeance' : 'tranche') : null)
+          };
+        }
+
         const response = await axios.post(
-          `/paiements`,
-          paiementData,
-          this.authHeaders
+          `/paiements/store`,
+          payload,
+          config
         );
         
         if (response.data.success) {
           // Rafraîchir toutes les données après le paiement
-          await Promise.allSettled([ // Utiliser allSettled pour ne pas bloquer si une requête échoue
+          await Promise.allSettled([ 
             this.getInfosEtudiant(paiementData.etudiant_id),
             this.getHistorique(paiementData.etudiant_id),
             this.getRecap(paiementData.etudiant_id)
@@ -331,6 +354,86 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
       } catch (error) {
         this.error = error.response?.data?.message || error.message || "Erreur lors du paiement";
         console.error("Erreur effectuerPaiement:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    /**
+     * Initier un paiement via SEMOA (USSD/Direct Pay)
+     */
+    async initierPaiementSemoa(paiementData) {
+      this.isLoading = true;
+      this.error = null;
+      try {
+        const response = await axios.post(
+          '/semoa/initiate',
+          paiementData,
+          this.authHeaders
+        );
+        return response.data;
+      } catch (error) {
+        this.error = error.response?.data?.message || "Erreur SEMOA";
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    /**
+     * Modifier un paiement existant
+     */
+    async modifierPaiement(paiementId, paiementData) {
+      if (!paiementId) throw new Error("ID paiement requis");
+      
+      this.isLoading = true;
+      this.error = null;
+      
+      try {
+        const hasFile = paiementData.justificatif instanceof File || paiementData.justificatif instanceof Blob;
+        let payload;
+        let config = { ...this.authHeaders };
+
+        if (hasFile) {
+          payload = new FormData();
+          if (paiementData.montant) payload.append('montant', paiementData.montant);
+          if (paiementData.mode_paiement) payload.append('mode_paiement', paiementData.mode_paiement);
+          if (paiementData.reference) payload.append('reference', paiementData.reference);
+          if (paiementData.commentaire) payload.append('commentaire', paiementData.commentaire);
+          if (paiementData.frais_retrait_mm !== undefined) payload.append('frais_retrait_mm', paiementData.frais_retrait_mm);
+          payload.append('justificatif', paiementData.justificatif);
+          
+          delete config.headers['Content-Type'];
+        } else {
+          payload = {
+            montant: paiementData.montant,
+            mode_paiement: paiementData.mode_paiement,
+            reference: paiementData.reference,
+            commentaire: paiementData.commentaire,
+            frais_retrait_mm: paiementData.frais_retrait_mm
+          };
+        }
+
+        const response = await axios.post(
+          `/paiements/${paiementId}/update`,
+          payload,
+          config
+        );
+        
+        if (response.data.success) {
+          // Rafraîchir les données de l'étudiant
+          const etudiantId = response.data.paiement.etudiant_id;
+          await Promise.allSettled([
+            this.getInfosEtudiant(etudiantId),
+            this.getHistorique(etudiantId),
+            this.getRecap(etudiantId)
+          ]);
+        }
+        
+        return response.data;
+      } catch (error) {
+        this.error = error.response?.data?.message || error.message || "Erreur lors de la modification";
         throw error;
       } finally {
         this.isLoading = false;

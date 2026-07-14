@@ -1,10 +1,10 @@
 <template>
   <div
-    class="h-screen w-screen bg-gradient-to-br from-[#dbeff7] to-white overflow-hidden"
+    class="h-screen w-screen bg-gradient-to-br from-[#dbeff7] to-white dark:from-gray-900 dark:to-gray-900 overflow-hidden transition-colors"
   >
     <!-- Main Container -->
     <div class="h-full w-full flex">
-      <div class="w-full h-full bg-white flex flex-col">
+      <div class="w-full h-full bg-white dark:bg-gray-900 flex flex-col">
         <div class="grid grid-cols-1 lg:grid-cols-2 h-full">
           <!-- Left Side - Reset Password Form -->
           <div
@@ -27,11 +27,11 @@
                 <!-- Welcome Section -->
                 <div class="space-y-2">
                   <h1
-                    class="text-2xl md:text-3xl lg:text-4xl font-bold text-[#202a51]"
+                    class="text-2xl md:text-3xl lg:text-4xl font-bold text-[#202a51] dark:text-white"
                   >
                     Réinitialiser le mot de passe
                   </h1>
-                  <p class="text-gray-600 text-sm md:text-base">
+                  <p class="text-gray-600 dark:text-gray-400 text-sm md:text-base">
                     Saisissez votre nouveau mot de passe.
                   </p>
                 </div>
@@ -40,7 +40,7 @@
                 <form @submit.prevent="submitReset" class="space-y-6">
                   <!-- Password -->
                   <div class="space-y-2">
-                    <label class="block text-[#202a51] font-semibold text-sm">
+                    <label class="block text-[#202a51] dark:text-gray-200 font-semibold text-sm">
                       Nouveau mot de passe
                     </label>
                     <input
@@ -48,13 +48,13 @@
                       v-model="password"
                       required
                       placeholder="Nouveau mot de passe"
-                      class="w-full pl-4 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#00b3d4] focus:border-transparent bg-white hover:bg-gray-50 transition-all duration-200"
+                      class="w-full pl-4 pr-4 py-3.5 border border-gray-300 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-[#00b3d4] focus:border-transparent bg-white dark:bg-gray-800 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200"
                     />
                   </div>
 
                   <!-- Confirm Password -->
                   <div class="space-y-2">
-                    <label class="block text-[#202a51] font-semibold text-sm">
+                    <label class="block text-[#202a51] dark:text-gray-200 font-semibold text-sm">
                       Confirmer le mot de passe
                     </label>
                     <input
@@ -62,7 +62,7 @@
                       v-model="passwordConfirm"
                       required
                       placeholder="Confirmer le mot de passe"
-                      class="w-full pl-4 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#00b3d4] focus:border-transparent bg-white hover:bg-gray-50 transition-all duration-200"
+                      class="w-full pl-4 pr-4 py-3.5 border border-gray-300 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-[#00b3d4] focus:border-transparent bg-white dark:bg-gray-800 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200"
                     />
                   </div>
 
@@ -105,7 +105,7 @@
                   <!-- Success Message -->
                   <div
                     v-if="linkSent"
-                    class="p-4 bg-green-50 border border-green-200 rounded-lg"
+                    class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg"
                   >
                     <div class="flex">
                       <div class="flex-shrink-0">
@@ -122,7 +122,7 @@
                         </svg>
                       </div>
                       <div class="ml-3">
-                        <p class="text-sm text-green-700">
+                        <p class="text-sm text-green-700 dark:text-green-400">
                           Mot de passe réinitialisé avec succès !
                         </p>
                       </div>
@@ -134,7 +134,7 @@
                 <div class="text-center mt-6">
                   <NuxtLink
                     to="/login"
-                    class="text-sm text-[#00b3d4] hover:text-[#202a51] hover:underline transition-all duration-200 font-medium inline-flex items-center"
+                    class="text-sm text-[#00b3d4] hover:text-[#202a51] dark:hover:text-white hover:underline transition-all duration-200 font-medium inline-flex items-center"
                   >
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />

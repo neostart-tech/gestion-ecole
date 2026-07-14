@@ -152,24 +152,26 @@
           </button> -->
 
           <!-- Bouton ajouter -->
-          <NuxtLink
-            to="/personnel/ajouter"
-            class="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-          >
-            <svg
-              class="w-5 h-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
+          <Can action="create-user">
+            <NuxtLink
+              to="/personnel/ajouter"
+              class="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
             >
-              <path
-                d="M12 5v14M5 12h14"
-                stroke-width="2"
-                stroke-linecap="round"
-              />
-            </svg>
-            Ajouter
-          </NuxtLink>
+              <svg
+                class="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  d="M12 5v14M5 12h14"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+              Ajouter
+            </NuxtLink>
+          </Can>
         </div>
       </div>
     </div>
@@ -218,34 +220,58 @@
                   />
                 </svg>
               </button>
-
-              <NuxtLink
-                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
-                :to="`/personnel/${data.value.slug}/modifier-un-utilisateur`"
-                title="Modifier"
-              >
-                <svg
-                  class="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
+              <!-- <Can :action="['view-cours']">
+                <NuxtLink
+                  :to="`/personnel/${data.value.slug}/emploi-du-temps`"
+                  class="p-2 rounded-lg text-purple-600 hover:bg-purple-100 dark:text-purple-400 dark:hover:bg-purple-900/30 transition-colors duration-200"
+                  title="Voir dans le calendrier"
                 >
-                  <path
-                    d="M4 20h4l10-10-4-4L4 16v4z"
-                    stroke-width="2"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </NuxtLink>
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.8"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                </NuxtLink>
+              </Can> -->
 
-              <!-- Delete -->
-              <button
-                class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
-                @click="confirmDelete(data.value)"
-                title="Supprimer"
-              >
-                <ButtonDelete />
-              </button>
+              <Can action="update-user">
+                <NuxtLink
+                  class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
+                  :to="`/personnel/${data.value.slug}/modifier-un-utilisateur`"
+                  title="Modifier"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      d="M4 20h4l10-10-4-4L4 16v4z"
+                      stroke-width="2"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </NuxtLink>
+              </Can>
+              <Can action="delete-user">
+                <!-- Delete -->
+                <button
+                  class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
+                  @click="confirmDelete(data.value)"
+                  title="Supprimer"
+                >
+                  <ButtonDelete />
+                </button>
+              </Can>
             </div>
           </template>
         </Vue3Datatable>
@@ -1270,7 +1296,7 @@ const processExport = async () => {
 // Fonctions de gestion des utilisateurs (existantes)
 const openEditModal = (user) => {
   editForm.value = {
-    id: user.id,
+    slug: user.slug,
     nom: user.nom,
     prenom: user.prenom,
     email: user.email,
@@ -1332,7 +1358,7 @@ const confirmDelete = async (user) => {
 
 const submitUpdate = async () => {
   try {
-    await userStore.updateUser(editForm.value.id, editForm.value);
+    await userStore.updateUser(editForm.value.slug, editForm.value);
 
     // Fermer la modale et rafraîchir
     showEditModal.value = false;

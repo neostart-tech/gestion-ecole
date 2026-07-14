@@ -72,24 +72,51 @@
         </client-only>
 
         <!-- Ajouter -->
-        <button
-          @click="openAddModal"
-          class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        >
-          <svg
-            class="w-5 h-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
+        <Can action="create-filiere">
+          <button
+            @click="openAddModal"
+            :disabled="filiereStore.isLoading"
+            class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-indigo-400"
           >
-            <path
-              d="M12 5v14M5 12h14"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-          </svg>
-          Ajouter
-        </button>
+            <svg
+              v-if="filiereStore.isLoading"
+              class="w-5 h-5 animate-spin"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              ></path>
+            </svg>
+
+            <svg
+              v-else
+              class="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+            >
+              <path
+                d="M12 5v14M5 12h14"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+
+            {{ filiereStore.isLoading ? "Enregistrement..." : "Ajouter" }}
+          </button>
+        </Can>
       </div>
     </div>
 
@@ -112,32 +139,58 @@
           <template #action="{ value }">
             <div class="flex justify-center gap-3">
               <!-- Edit -->
-              <button
-                @click="openEditModal(value)"
-                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
-              >
-                <svg
-                  class="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M4 20h4l10-10-4-4L4 16v4z"
-                    stroke-width="2"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </button>
+              <Can action="update-filiere">
+                <div class="flex items-center gap-2">
+                  <NuxtLink
+                    :to="`/filieres/${value.slug}/programme`"
+                    title="Programme académique"
+                    class="p-2 rounded-lg text-indigo-600 hover:bg-indigo-100 dark:hover:bg-indigo-900/30"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                      />
+                    </svg>
+                  </NuxtLink>
+
+                  <button
+                    @click="openEditModal(value)"
+                    class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                    >
+                      <path
+                        d="M4 20h4l10-10-4-4L4 16v4z"
+                        stroke-width="2"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </Can>
 
               <!-- Delete -->
-              <button
-                @click="deleteItem(value)"
-                title="supprimer"
-                class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
-              >
-               <ButtonDelete/>
-              </button>
+              <Can action="delete-filiere">
+                <button
+                  @click="deleteItem(value)"
+                  title="supprimer"
+                  class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
+                >
+                  <ButtonDelete />
+                </button>
+              </Can>
             </div>
           </template>
         </Vue3Datatable>
@@ -192,7 +245,8 @@
 
                 <button
                   type="submit"
-                  class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+                  :disabled="filiereStore.isLoading"
+                  class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-indigo-400 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   Enregistrer
                 </button>
@@ -218,9 +272,11 @@ import {
 import Breadcrumb from "~/components/Breadcrumb.vue";
 import { useFiliereStore } from "../../../stores/filiere";
 import ButtonDelete from "~/components/ui/buttonDelete.vue";
+import { useAccess } from "~/composables/useAccess";
 
 const { $toastr, $swal } = useNuxtApp();
 const filiereStore = useFiliereStore();
+const { can } = useAccess();
 
 const searchQuery = ref("");
 const loading = ref(true);
@@ -235,13 +291,20 @@ const form = ref({
   description: "",
 });
 
-const columns = ref([
-  { field: "nom", title: "Nom", visible: true },
-  { field: "code", title: "Code", visible: false },
-  { field: "inscrits", title: "Inscrits", visible: true },
-  { field: "description", title: "Description", visible: false },
-  { field: "action", title: "Actions", visible: true },
-]);
+const columns = computed(() => {
+  const cols = [
+    { field: "nom", title: "Nom", visible: true },
+    { field: "code", title: "Code", visible: false },
+    { field: "inscrits", title: "Inscrits", visible: true },
+    { field: "description", title: "Description", visible: false },
+  ];
+
+  if (can("update-filiere") || can("delete-filiere")) {
+    cols.push({ field: "action", title: "Actions", visible: true });
+  }
+
+  return cols;
+});
 
 const visibleColumns = computed(() => columns.value.filter((c) => c.visible));
 
@@ -298,8 +361,6 @@ const deleteItem = async (filiere) => {
     $toastr.success("Filiere supprimée avec succes");
   }
 };
-
-
 
 onMounted(async () => {
   await filiereStore.fetchFilieres();

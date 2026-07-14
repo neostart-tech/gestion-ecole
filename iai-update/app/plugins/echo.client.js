@@ -1,6 +1,7 @@
 // plugins/echo.client.ts
 import { defineNuxtPlugin } from '#app'
 import config from '~~/config'
+import axios from 'axios'
 
 
 export default defineNuxtPlugin((nuxtApp) => {
@@ -36,7 +37,7 @@ export default defineNuxtPlugin((nuxtApp) => {
           wsHost: reverbConfig.host,
           wsPort: reverbConfig.port,
           wssPort: reverbConfig.port,
-          forceTLS: false,
+          forceTLS: reverbConfig.scheme === 'https',
           enabledTransports: ['ws', 'wss'],
           authEndpoint: `${apiUrl}/broadcasting/auth`,
           auth: {
@@ -47,8 +48,17 @@ export default defineNuxtPlugin((nuxtApp) => {
           },
         })
 
+        // Synchroniser le Socket ID avec Axios pour éviter les doublons (toOthers)
+        echo.connector.pusher.connection.bind('connected', () => {
+          const socketId = echo.socketId();
+          if (socketId) {
+            axios.defaults.headers.common['X-Socket-ID'] = socketId;
+          }
+        });
+
         nuxtApp.provide('echo', echo)
         window.echo = echo
+        window.Echo = echo
       })
     })
   }

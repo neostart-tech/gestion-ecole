@@ -4,7 +4,7 @@
   >
   
     <!-- En-tête -->
-    <div class="max-w-7xl mx-auto mb-6 sm:mb-8">
+    <div class="mb-6 sm:mb-8">
       
       <div
         class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-200 dark:border-gray-700"
@@ -84,7 +84,7 @@
     </div>
 
     <!-- Carte principale -->
-    <div class="max-w-4xl mx-auto">
+    <div>
       <!-- Prévisualisation PDF (cachée) -->
     <div id="emploi-du-temps-pdf" v-if="pdfData">
       <EmploiDuTempsPDF
@@ -93,6 +93,7 @@
         :date-debut="pdfData.dateDebut"
         :date-fin="pdfData.dateFin"
         :type-export="pdfData.typeExport"
+        :holidays="calendarStore.holidays"
       />
     </div>
       <div
@@ -948,8 +949,9 @@ watch(
   },
 );
 
-onMounted(() => {
+onMounted(async () => {
   chargerGroupes();
+  await calendarStore.loadHolidays();
 });
 </script>
 

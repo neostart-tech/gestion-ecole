@@ -71,6 +71,26 @@
           </VDropdown>
         </client-only>
 
+        <!-- Dupliquer -->
+        <button
+          @click="openDuplicateModal"
+          class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+        >
+          <svg
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+          >
+            <path
+              d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+          Dupliquer l'année
+        </button>
+
         <!-- Ajouter -->
         <button
           @click="openAddModal"
@@ -617,6 +637,81 @@
       </Dialog>
     </TransitionRoot>
 
+    <!-- Modale de duplication -->
+    <TransitionRoot appear :show="showDuplicateModal" as="template">
+      <Dialog as="div" class="relative z-50" @close="closeDuplicateModal">
+        <div class="fixed inset-0 bg-black/60" />
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+          <DialogPanel class="w-full max-w-md rounded-xl bg-white dark:bg-gray-800 p-6 shadow-2xl">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="p-3 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl">
+                <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+              </div>
+              <DialogTitle class="text-xl font-bold text-gray-900 dark:text-white">
+                Dupliquer l'année
+              </DialogTitle>
+            </div>
+
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+              Cette action copiera tous les tarifs et les tranches de l'année source vers l'année cible.
+            </p>
+
+            <div class="space-y-5">
+              <FloatLabel variant="on">
+                <Dropdown
+                  v-model="duplicateForm.source_year_id"
+                  :options="anneeOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  filter
+                  class="w-full"
+                />
+                <label>Année source (Référence)</label>
+              </FloatLabel>
+
+              <div class="flex justify-center py-2">
+                <svg class="w-6 h-6 text-gray-300 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              </div>
+
+              <FloatLabel variant="on">
+                <Dropdown
+                  v-model="duplicateForm.target_year_id"
+                  :options="anneeOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  filter
+                  class="w-full"
+                />
+                <label>Année cible (Nouvelle année)</label>
+              </FloatLabel>
+
+              <div class="flex justify-end gap-3 mt-8">
+                <button
+                  type="button"
+                  @click="closeDuplicateModal"
+                  class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors border border-gray-200 dark:border-gray-700"
+                >
+                  Annuler
+                </button>
+                <button
+                  @click="handleDuplicate"
+                  :disabled="loadingDuplicate"
+                  class="px-6 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-md transition-all flex items-center gap-2"
+                >
+                  <span v-if="loadingDuplicate" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  Lancer la duplication
+                </button>
+              </div>
+            </div>
+          </DialogPanel>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+
     <!-- Modale d'ajout/édition -->
     <TransitionRoot appear :show="showModal" as="template">
       <Dialog as="div" class="relative z-50" @close="closeModal">
@@ -624,103 +719,239 @@
 
         <div class="fixed inset-0 flex items-center justify-center p-4">
           <DialogPanel
-            class="w-full max-w-md rounded-xl bg-white dark:bg-gray-800 p-5"
+            class="w-full max-w-2xl rounded-2xl bg-white dark:bg-gray-800 p-8 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
           >
             <DialogTitle
-              class="text-lg font-semibold mb-4 text-gray-900 dark:text-white"
+              class="text-xl font-bold mb-6 text-gray-900 dark:text-white flex-shrink-0"
             >
               {{ modalTitle }}
             </DialogTitle>
 
-            <form @submit.prevent="saveFrais" class="space-y-4">
-              <FloatLabel variant="on">
-                <Dropdown
-                  v-model="form.niveau_id"
-                  :options="niveauOptions"
-                  optionLabel="label"
-                  optionValue="value"
-                  filter
-                  showClear
-                  placeholder=""
-                  class="w-full"
-                />
-                <label for="nom">Sélectionner le niveau</label>
-              </FloatLabel>
+            <div class="overflow-y-auto pr-2 custom-scrollbar">
 
-              <FloatLabel variant="on">
-                <Dropdown
-                  v-model="form.filiere_id"
-                  :options="filiereOptions"
-                  optionLabel="label"
-                  optionValue="value"
-                  filter
-                  showClear
-                  placeholder=""
-                  class="w-full"
-                />
+            <form @submit.prevent="saveFrais" class="space-y-6">
+              <!-- Grid pour les informations principales -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Niveau -->
+                <div class="space-y-1.5">
+                  <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 ml-1">
+                    <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Niveau scolaire
+                  </label>
+                  <Dropdown
+                    v-model="form.niveau_id"
+                    :options="niveauOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    filter
+                    placeholder="Choisir le niveau"
+                    class="w-full shadow-sm border-gray-200 dark:border-gray-700 dark:bg-gray-900 rounded-lg h-10 flex items-center px-2"
+                  />
+                </div>
 
-                <label for="nom">Sélectionner la filiere</label>
-              </FloatLabel>
+                <!-- Filière -->
+                <div class="space-y-1.5">
+                  <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 ml-1">
+                    <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    Filière
+                  </label>
+                  <Dropdown
+                    v-model="form.filiere_id"
+                    :options="filiereOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    filter
+                    showClear
+                    placeholder="Toutes les filières"
+                    class="w-full shadow-sm border-gray-200 dark:border-gray-700 dark:bg-gray-900 rounded-lg h-10 flex items-center px-2"
+                  />
+                </div>
 
-              <FloatLabel variant="on">
-                <Dropdown
-                  v-model="form.genre"
-                  :options="genreOptions"
-                  optionLabel="label"
-                  optionValue="value"
-                  filter
-                  showClear
-                  placeholder=""
-                  class="w-full"
-                />
+                <!-- Genre -->
+                <div class="space-y-1.5">
+                  <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 ml-1">
+                    <svg class="w-4 h-4 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    Genre (Optionnel)
+                  </label>
+                  <Dropdown
+                    v-model="form.genre"
+                    :options="genreOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    showClear
+                    placeholder="Tous les genres"
+                    class="w-full shadow-sm border-gray-200 dark:border-gray-700 dark:bg-gray-900 rounded-lg h-10 flex items-center px-2"
+                  />
+                </div>
 
-                <label for="nom">Sélectionner le genre(optionnel)</label>
-              </FloatLabel>
+                <!-- Mode de formation -->
+                <div class="space-y-1.5">
+                  <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 ml-1">
+                    <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    Mode de formation
+                  </label>
+                  <Dropdown
+                    v-model="form.mode_formation"
+                    :options="modeFormationOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Tous les modes"
+                    class="w-full shadow-sm border-gray-200 dark:border-gray-700 dark:bg-gray-900 rounded-lg h-10 flex items-center px-2"
+                  />
+                </div>
 
-              <FloatLabel variant="on">
-                <InputNumber
-                  v-model="form.montant"
-                  inputId="integeronly"
-                  fluid
-                />
-                <label for="on_label">Montant</label>
-              </FloatLabel>
+                <!-- Montant -->
+                <div class="space-y-1.5">
+                  <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 ml-1">
+                    <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Montant total (FCFA)
+                  </label>
+                  <InputNumber
+                    v-model="form.montant"
+                    inputId="integeronly"
+                    fluid
+                    placeholder="Ex: 900000"
+                    class="w-full shadow-sm border-gray-200 dark:border-gray-700 dark:bg-gray-900 rounded-lg"
+                  />
+                </div>
+              </div>
 
-              <FloatLabel variant="on">
+              <!-- Description -->
+              <div class="space-y-1.5">
+                <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 ml-1">
+                  <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+                  </svg>
+                  Description / Note
+                </label>
                 <Textarea
-                  id="on_label"
                   v-model="form.description"
-                  rows="5"
-                  cols="30"
-                  class="w-full"
+                  rows="2"
+                  class="w-full shadow-sm border-gray-200 dark:border-gray-700 dark:bg-gray-900 rounded-lg p-3 text-sm"
                   style="resize: none"
+                  placeholder="Informations complémentaires..."
                 />
-                <label for="on_label">Description</label>
-              </FloatLabel>
+              </div>
 
-              <!-- Filières -->
+              <!-- Carte Automatisation -->
+              <div class="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/40 dark:to-blue-950/40 p-5 rounded-2xl border-2 border-indigo-100/50 dark:border-indigo-800/30 relative overflow-hidden group">
+                <!-- Déco background -->
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-200/20 dark:bg-indigo-700/10 rounded-full blur-2xl group-hover:bg-indigo-300/30 transition-all duration-700"></div>
+                
+                <div class="relative z-10">
+                  <div class="flex items-center gap-3 mb-4">
+                    <div class="p-2 bg-indigo-600 rounded-lg shadow-lg shadow-indigo-200 dark:shadow-none">
+                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-bold text-indigo-900 dark:text-indigo-100">Plan de paiement automatique</h4>
+                      <p class="text-[10px] text-indigo-600/70 dark:text-indigo-400">Générer les tranches en un clin d'œil</p>
+                    </div>
+                  </div>
 
-              <div class="flex justify-end gap-3">
+                  <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider ml-1">
+                      Type de répartition
+                    </label>
+                    <Dropdown
+                      v-model="form.frequence"
+                      :options="frequenceOptions"
+                      optionLabel="label"
+                      optionValue="value"
+                      showClear
+                      placeholder="Choisir une fréquence pour générer"
+                      class="w-full shadow-sm border-indigo-200 dark:border-indigo-800 dark:bg-gray-900 rounded-xl h-11 flex items-center px-2"
+                    />
+                  </div>
+                  
+                  <!-- Preview ou Tranches Existantes -->
+                  <div v-if="previewTranches.length > 0 || (form.id && form.existingTranches.length > 0 && !form.frequence)" 
+                       class="mt-4 space-y-2 border-t border-indigo-200/50 dark:border-indigo-800/30 pt-4">
+                    
+                    <div class="flex items-center justify-between mb-2">
+                       <p class="text-[10px] font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-widest">
+                         {{ form.frequence ? 'Nouvel aperçu (Sera régénéré)' : 'Tranches actuellement définies' }}
+                       </p>
+                       <span v-if="!form.frequence && form.id" class="text-[9px] bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-bold">Actuel</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                       <!-- Cas Simulation -->
+                       <template v-if="form.frequence">
+                         <div v-for="(tranche, index) in previewTranches" :key="'preview-'+index" 
+                              class="flex items-center justify-between p-2 bg-white/60 dark:bg-gray-900/40 rounded-lg border border-indigo-100 dark:border-indigo-800/50 shadow-sm border-l-4 border-l-amber-400">
+                           <div class="flex flex-col">
+                             <span class="text-[9px] font-bold text-indigo-500 uppercase">{{ tranche.libelle }}</span>
+                             <span class="text-[11px] font-semibold text-gray-700 dark:text-gray-300">{{ tranche.date }}</span>
+                           </div>
+                           <div class="text-right">
+                             <span class="text-xs font-bold text-indigo-700 dark:text-indigo-200">{{ tranche.montant }} FCFA</span>
+                           </div>
+                         </div>
+                       </template>
+
+                       <!-- Cas Existantes -->
+                       <template v-else>
+                         <div v-for="(tranche, index) in form.existingTranches" :key="'existing-'+tranche.id" 
+                              class="flex items-center justify-between p-2 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-lg border border-emerald-100 dark:border-emerald-800/50 shadow-sm border-l-4 border-l-emerald-400">
+                           <div class="flex flex-col">
+                             <span class="text-[9px] font-bold text-emerald-600 uppercase">{{ tranche.libelle }}</span>
+                             <span class="text-[11px] font-semibold text-gray-700 dark:text-gray-300">
+                               {{ new Date(tranche.date_limite).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) }}
+                             </span>
+                           </div>
+                           <div class="text-right">
+                             <span class="text-xs font-bold text-emerald-700 dark:text-emerald-200">{{ Number(tranche.montant).toLocaleString() }} FCFA</span>
+                           </div>
+                         </div>
+                       </template>
+                    </div>
+                  </div>
+
+                  <div class="mt-3 flex items-start gap-2 px-1">
+                    <svg class="w-3.5 h-3.5 text-indigo-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="text-[10px] text-indigo-600/80 dark:text-indigo-400 leading-relaxed italic">
+                      Les montants et dates seront calculés automatiquement à partir du début de l'année scolaire active.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex justify-end gap-3 pt-4">
                 <button
                   type="button"
                   @click="closeModal"
-                  class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  class="px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm"
                 >
                   Annuler
                 </button>
 
                 <button
                   type="submit"
-                  class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+                  :disabled="fraisScolariteStore.isLoading"
+                  class="px-8 py-2.5 rounded-xl bg-indigo-600 text-white font-bold shadow-lg shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 hover:-translate-y-0.5 active:translate-y-0 transition-all text-sm flex items-center gap-2"
                 >
-                  {{
-                    fraisScolariteStore.isLoading
-                      ? "Enrégistrement..."
-                      : "Enregistrer"
-                  }}
+                  <span v-if="fraisScolariteStore.isLoading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  {{ form.id ? 'Mettre à jour' : 'Enregistrer les frais' }}
                 </button>
               </div>
             </form>
+            </div>
           </DialogPanel>
         </div>
       </Dialog>
@@ -761,6 +992,9 @@ const itemsPerPage = ref(5);
 const showDetailModal = ref(false);
 const selectedEvent = ref(null);
 
+const showDuplicateModal = ref(false);
+const loadingDuplicate = ref(false);
+
 const form = ref({
   id: null,
   filiere_id: null,
@@ -768,11 +1002,20 @@ const form = ref({
   montant: null,
   description: null,
   genre: null,
+  mode_formation: 'Tous',
+  frequence: 'bimestriel',
+  existingTranches: [],
+});
+
+const duplicateForm = ref({
+  source_year_id: null,
+  target_year_id: null,
 });
 
 const columns = ref([
   { field: "annee", title: "Année scolaire ", visible: true },
   { field: "genre", title: "Genre", visible: false },
+  { field: "mode_formation", title: "Mode", visible: true },
   { field: "niveau", title: "Niveau", visible: true },
   { field: "filiere", title: "Filiere ", visible: true },
   { field: "montant", title: "Montant ", visible: true },
@@ -787,12 +1030,15 @@ const rows = computed(() =>
     id: f.id,
     annee: f.annee_scolaire.nom || "--",
     genre: f.genre ?? "",
+    mode_formation: f.mode_formation ?? "Tous",
     niveau: f.niveau.libelle,
     niveau_id: f.niveau.id,
     filiere: f?.filiere?.code || "--",
     filiere_id: f?.filiere?.id,
     montant: f.montant || "--",
     description: f.description || "--",
+    frequence: f.frequence,
+    tranches: f.tranches || [],
   })),
 );
 
@@ -815,6 +1061,8 @@ const openAddModal = () => {
     montant: null,
     description: null,
     genre: null,
+    mode_formation: 'Tous',
+    frequence: 'bimestriel',
   };
   showModal.value = true;
 };
@@ -828,9 +1076,55 @@ const openEditModal = (f) => {
     montant: f.montant,
     description: f.description,
     genre: f.genre,
+    mode_formation: f.mode_formation,
+    frequence: f.frequence,
+    existingTranches: f.tranches?.data || f.tranches || [],
   };
 
   showModal.value = true;
+};
+
+const openDuplicateModal = () => {
+  showDuplicateModal.value = true;
+};
+
+const closeDuplicateModal = () => {
+  showDuplicateModal.value = false;
+  duplicateForm.value = { source_year_id: null, target_year_id: null };
+};
+
+const handleDuplicate = async () => {
+  if (!duplicateForm.value.source_year_id || !duplicateForm.value.target_year_id) {
+    $toastr.error("Veuillez choisir les deux années");
+    return;
+  }
+
+  if (duplicateForm.value.source_year_id === duplicateForm.value.target_year_id) {
+    $toastr.error("L'année source et cible doivent être différentes");
+    return;
+  }
+
+  loadingDuplicate.value = true;
+  try {
+    const res = await $swal.fire({
+      title: "Confirmer la duplication ?",
+      text: "Tous les tarifs de l'année cible seront complétés par ceux de l'année source.",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Oui, dupliquer",
+      cancelButtonText: "Annuler",
+    });
+
+    if (res.isConfirmed) {
+      await fraisScolariteStore.duplicateAnnee(duplicateForm.value);
+      $toastr.success("Duplication terminée avec succès");
+      closeDuplicateModal();
+    }
+  } catch (error) {
+    $toastr.error(error.response?.data?.message || "Erreur lors de la duplication");
+  } finally {
+    loadingDuplicate.value = false;
+  }
 };
 
 const closeModal = () => (showModal.value = false);
@@ -910,12 +1204,62 @@ const genreOptions = computed(() => {
   ];
 });
 
+const modeFormationOptions = computed(() => {
+  return [
+    { label: "Tous", value: "Tous" },
+    { label: "Présentiel", value: "Présentiel" },
+    { label: "En ligne", value: "En ligne" },
+  ];
+});
+
 const niveauOptions = computed(() =>
   (niveauStore.niveaux || []).map((n) => ({
     label: n.libelle,
     value: n.id,
   })),
 );
+
+const frequenceOptions = ref([
+  { label: "Annuel (1 tranche)", value: "annuel" },
+  { label: "Trimestriel (3 tranches)", value: "trimestriel" },
+  { label: "Bimestriel (4 tranches)", value: "bimestriel" },
+]);
+
+const anneeOptions = computed(() =>
+  (anneescolaireStore.annneescolaires || []).map((a) => ({
+    label: a.nom,
+    value: a.id,
+  })),
+);
+
+const previewTranches = computed(() => {
+  if (!form.value.frequence || !form.value.montant) return [];
+
+  const activeAnnee = anneescolaireStore.activeAnnee;
+  const dateStr = activeAnnee?.date_debut || new Date().toISOString().split('T')[0];
+  let currentDate = new Date(dateStr);
+
+  const configs = {
+    annuel: { count: 1, interval: 12 },
+    trimestriel: { count: 3, interval: 3 },
+    bimestriel: { count: 4, interval: 2 }
+  };
+
+  const config = configs[form.value.frequence];
+  const montantBase = Math.floor(form.value.montant / config.count);
+  const reliquat = form.value.montant % config.count;
+
+  return Array.from({ length: config.count }, (_, i) => {
+    const d = new Date(currentDate);
+    d.setMonth(d.getMonth() + (i * config.interval));
+    
+    return {
+      libelle: `Tranche ${i + 1}`,
+      date: d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
+      montant: (i === 0 ? montantBase + reliquat : montantBase).toLocaleString()
+    };
+  });
+});
 
 onMounted(async () => {
   try {
@@ -979,5 +1323,19 @@ onMounted(async () => {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #334155;
 }
 </style>

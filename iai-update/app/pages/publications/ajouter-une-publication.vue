@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-4 md:p-6">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-6">
     <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
+    <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-2">
       <NuxtLink
         to="/publications/liste"
         class="cursor-pointer hover:text-indigo-600 transition-colors"
@@ -16,31 +16,31 @@
         Liste des publications
       </NuxtLink>
       <span>/</span>
-      <span class="text-gray-900 font-medium cursor-default"
+      <span class="text-gray-900 dark:text-white font-medium cursor-default"
         >Ajouter une publication</span
       >
     </div>
 
     <!-- Titre -->
-    <h1 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">
+    <h1 class="text-2xl md:text-3xl font-semibold text-gray-900 dark:text-white mb-6">
       Ajouter une publication
     </h1>
 
     <!-- Formulaire -->
-    <div class="bg-white rounded-xl shadow-sm p-6">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
       <form @submit.prevent="savePublication" class="space-y-6">
         <!-- Ligne 1: Titre -->
         <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
           <!-- Titre -->
           <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Titre de la publication <span class="text-rose-500">*</span>
             </label>
             <input
               v-model="form.title"
               type="text"
               required
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
               placeholder="Titre de votre publication"
             />
           </div>
@@ -49,13 +49,13 @@
         <!-- Ligne 2: Statut -->
         <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
           <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Statut <span class="text-rose-500">*</span>
             </label>
             <select
               v-model="form.status"
               required
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all bg-white"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all bg-white dark:bg-gray-700 dark:text-white"
             >
               <option value="draft">Brouillon</option>
               <option value="published">Publié</option>
@@ -65,7 +65,7 @@
 
         <!-- Image du blog -->
         <div class="space-y-2">
-          <label class="block text-sm font-medium text-gray-700">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Image du blog
           </label>
 
@@ -78,17 +78,16 @@
             :class="[
               'border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all',
               dragover
-                ? 'border-indigo-500 bg-indigo-50'
+                ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
                 : form.imageFile || form.imagePreview
-                  ? 'border-green-500 bg-green-50'
-                  : 'border-gray-300 hover:border-gray-400',
+                  ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                  : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500',
             ]"
           >
-            <!-- Image prévisualisée -->
-            <div v-if="imagePreview" class="mb-4">
+            <div v-if="imagePreview" class="mb-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2">
               <img
                 :src="imagePreview"
-                class="max-h-48 mx-auto rounded-lg object-cover"
+                class="max-h-64 mx-auto rounded-lg object-contain shadow-sm"
                 alt="Image prévisualisée"
               />
             </div>
@@ -98,7 +97,7 @@
               <svg
                 :class="[
                   'w-12 h-12 mx-auto mb-4',
-                  dragover ? 'text-indigo-500' : 'text-gray-400',
+                  dragover ? 'text-indigo-500' : 'text-gray-400 dark:text-gray-500',
                 ]"
                 fill="none"
                 stroke="currentColor"
@@ -111,13 +110,13 @@
                   d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                 />
               </svg>
-              <p class="text-gray-600 mb-2">
+              <p class="text-gray-600 dark:text-gray-400 mb-2">
                 <span class="font-medium text-indigo-600"
                   >Cliquez pour télécharger</span
                 >
                 ou glissez-déposez
               </p>
-              <p class="text-sm text-gray-500">PNG, JPG, GIF jusqu'à 10MB</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">PNG, JPG, GIF jusqu'à 10MB</p>
             </div>
 
             <!-- Bouton changer -->
@@ -125,7 +124,7 @@
               <button
                 type="button"
                 @click.stop="triggerFileInput"
-                class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                class="px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
               >
                 Changer l'image
               </button>
@@ -149,7 +148,7 @@
           />
 
           <!-- Aide -->
-          <p class="text-xs text-gray-500">
+          <p class="text-xs text-gray-500 dark:text-gray-400">
             L'image sera utilisée comme couverture de la publication. Format
             recommandé : 1200×630px
           </p>
@@ -158,19 +157,20 @@
         <!-- Contenu -->
         <div class="space-y-2">
           <div class="flex items-center justify-between">
-            <label class="block text-sm font-medium text-gray-700">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Contenu de la publication <span class="text-rose-500">*</span>
             </label>
-            <div class="text-sm text-gray-500">
+            <div class="text-sm text-gray-500 dark:text-gray-400">
               {{ contentLength }}/{{ contentLimit }} caractères
             </div>
           </div>
 
           <!-- Éditeur TinyMCE -->
-          <div class="border border-gray-300 rounded-lg overflow-hidden">
+          <div class="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
             <ClientOnly>
               <Editor
-                api-key="ktf8z0z55enm2wd9xyeoo6qzzoy7w9b629e51wii9y8lw4dx"
+                :key="isDarkEditor ? 'dark' : 'light'"
+                api-key="2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl"
                 v-model="form.content"
                 :init="{
                   height: 250,
@@ -178,8 +178,10 @@
                   plugins: 'lists link table wordcount',
                   toolbar:
                     'undo redo | bold italic underline | bullist numlist | removeformat',
+                  skin: isDarkEditor ? 'oxide-dark' : 'oxide',
+                  content_css: isDarkEditor ? 'dark' : 'default',
                   content_style:
-                    'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+                    `body { font-family:Helvetica,Arial,sans-serif; font-size:14px; color:${isDarkEditor ? '#e5e7eb' : '#1f2937'}; background-color:${isDarkEditor ? '#1f2937' : '#ffffff'}; }`,
                 }"
               />
             </ClientOnly>
@@ -188,11 +190,11 @@
 
         <!-- Boutons d'action -->
         <div
-          class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200"
+          class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700"
         >
           <NuxtLink
             to="/publications/liste"
-            class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+            class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
           >
             Annuler
           </NuxtLink>
@@ -229,6 +231,12 @@
 import { ref, computed } from "vue";
 import Editor from "@tinymce/tinymce-vue";
 import { useBlogStore } from "~~/stores/blog";
+import { useThemeStore } from "~~/stores/theme";
+
+const themeStore = useThemeStore();
+// TinyMCE ne peut pas changer de skin à chaud : l'éditeur est remonté
+// (via :key sur <Editor>) à chaque bascule clair/sombre.
+const isDarkEditor = computed(() => themeStore.shouldBeDark());
 
 // Données du formulaire
 const form = ref({

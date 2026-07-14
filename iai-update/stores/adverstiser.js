@@ -28,7 +28,8 @@ export const useAdvertiserStore = defineStore("advertiser", {
           "/partenaires/liste",
           this.authHeaders(),
         );
-        this.advertisers = response.data.data;
+                this.advertisers = response.data.data || response.data;
+
         this.message = null;
       } catch (error) {
         console.error("Erreur chargement des annonceurs:", error);

@@ -105,7 +105,10 @@ export const useUrgentInfoStore = defineStore("urgent info", {
           throw new Error("Les données doivent être au format FormData");
         }
 
-        formData.append("_method", "PUT");
+        // _method=PUT should already be in formData from the caller
+        if (!formData.has("_method")) {
+          formData.append("_method", "PUT");
+        }
 
         const response = await axios.post(
           `/informations-urgentes/${id}/modifier`,

@@ -21,15 +21,16 @@ export const useFiliereStore = defineStore("filiere", {
         },
       };
     },
-    async fetchFilieres() {
+    async fetchFilieres(niveauId = null) {
       this.isLoading = true;
       try {
+        const url = niveauId ? `/filieres/liste?niveau_id=${niveauId}` : "/filieres/liste";
         const response = await axios.get(
-          "/filieres/liste",
+          url,
           this.authHeaders()
         );
 
-        this.filieres = response.data.data;
+        this.filieres = response.data.data || response.data;
       } catch (error) {
         console.error("Erreur chargement filières:", error);
         throw error;

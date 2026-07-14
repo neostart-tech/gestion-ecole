@@ -89,6 +89,22 @@ export const useMessageStore = defineStore("message", {
       this.isLoading = false;
     },
 
+    async replyToMessage(contact, message) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          `/messages/${contact}/repondre`,
+          { message },
+          this.authHeaders(),
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
     async getCountUnreadMessage() {
       this.isLoading = true;
       try {

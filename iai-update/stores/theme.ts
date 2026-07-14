@@ -14,7 +14,10 @@ export const useThemeStore = defineStore("theme", {
 		isSidebarOpen: true,
 		isMobileSidebarOpen: false,
 		themeSettings: {
-			mode: "light",
+			// "auto" par défaut : tant que l'utilisateur n'a pas choisi explicitement
+			// un mode dans l'application, celle-ci doit suivre la préférence de son
+			// système d'exploitation (clair/sombre), partout et pas seulement sur le topbar.
+			mode: "auto",
 			contrast: "default",
 			primaryColor: "#3b82f6",
 			sidebarCaption: true,
@@ -39,10 +42,11 @@ export const useThemeStore = defineStore("theme", {
 					if (parsed.isSidebarOpen !== undefined) {
 						this.isSidebarOpen = parsed.isSidebarOpen;
 					}
-
-					// Appliquer immédiatement
-					this.applyTheme();
 				}
+
+				// Toujours appliquer, même sans préférence sauvegardée, pour que le
+				// mode "auto" par défaut soit effectif dès le premier chargement.
+				this.applyTheme();
 			} catch (error) {
 				console.warn("Failed to load theme state:", error);
 			}
@@ -80,7 +84,7 @@ export const useThemeStore = defineStore("theme", {
 
 		resetLayout() {
 			this.themeSettings = {
-				mode: "light",
+				mode: "auto",
 				contrast: "default",
 				primaryColor: "#3b82f6",
 				sidebarCaption: true,

@@ -180,6 +180,25 @@
             desc: '↓',
           }"
         >
+          <!-- Image de l'événement -->
+          <template #image_url="data">
+            <div class="flex items-center justify-center">
+            
+              <img
+                v-if="data.value.image_url"
+                :src="data.value.image_url"
+                class="w-12 h-12 rounded-xl object-cover border border-gray-100 shadow-sm"
+                alt="Event"
+              />
+              <div
+                v-else
+                class="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-black text-xs"
+              >
+                {{ getInitials(data.value.nom) }}
+                
+              </div>
+            </div>
+          </template>
           <!-- Image avec tooltip -->
 
           <!-- Titre avec design amélioré -->
@@ -374,7 +393,7 @@ const itemsPerPage = ref(10);
 
 // Colonnes de la table
 const columns = ref([
-  // { field: "image", title: "Image", sortable: false, visible: true },
+  { field: "image_url", title: "Aperçu", sortable: false, visible: true },
   { field: "nom", title: "Nom", sortable: true, visible: true },
   {
     field: "date_debut_detail",
@@ -399,7 +418,8 @@ const filteredRows = computed(() => {
   let rows = evenementStore.evenements.map((event) => ({
     ...event,
     nom: event.nom || "--",
-    details: event.details || "Admin",
+    details: event.details || "",
+    image_url: event.image_url,
     date_debut_detail: event.date_debut_detail,
     date_fin_detail: event.date_fin_detail,
   }));

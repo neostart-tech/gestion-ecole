@@ -1,4 +1,6 @@
 <script setup>
+import { getApiBaseUrl } from '~/utils/storageUrl'
+
 const route = useRoute();
 const conversationId = route.params.id;
 
@@ -9,7 +11,7 @@ const { $echo } = useNuxtApp();
 
 const fetchMessages = async () => {
   const { data } = await useFetch(
-    `http://localhost:8000/api/conversations/${conversationId}/messages`,
+    `${getApiBaseUrl()}/conversations/${conversationId}/messages`,
     { credentials: "include" }
   );
 

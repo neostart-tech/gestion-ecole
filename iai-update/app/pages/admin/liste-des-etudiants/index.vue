@@ -13,14 +13,15 @@
       spacing="mb-4"
     />
 
-    <!-- Toolbar avec filtres améliorés -->
+    <!-- Toolbar modifié -->
     <div class="flex flex-col gap-4 mb-5">
       <!-- Première ligne : recherche et actions -->
       <div
         class="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between"
       >
         <!-- Recherche -->
-        <div class="relative w-full lg:w-80">
+        <!-- Recherche masquée (déplacée en bas) -->
+        <div class="hidden relative w-full lg:w-80">
           <input
             v-model="searchQuery"
             type="search"
@@ -148,13 +149,63 @@
               Exporter
             </button>
 
-            <!-- Import -->
+            <!-- Format Requis -->
             <button
-              @click="openImportModal"
-              class="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              title="Importer des étudiants"
+              @click="showFormatRequisModal = true"
+              class="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium transition-colors whitespace-nowrap"
+              title="Voir le format Excel requis"
             >
               <svg
+                class="w-5 h-5 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Format Requis
+            </button>
+            
+            <!--
+            <Can action="create-etudiant">
+              <button
+                @click="openImportModal"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium transition-colors"
+                title="Importer des étudiants"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              <svg
+                v-else
                 class="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
@@ -164,17 +215,101 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
-              Importer
+              Exporter
             </button>
+
+            Format Requis
+            <button
+              @click="showFormatRequisModal = true"
+              class="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium transition-colors whitespace-nowrap"
+              title="Voir le format Excel requis"
+            >
+              <svg
+                class="w-5 h-5 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Format Requis
+            </button>
+            
+            -->
+            <!-- Import -->
+            <Can action="create-etudiant">
+              <button
+                @click="openImportModal"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium transition-colors"
+                title="Importer des étudiants"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                Importer
+              </button>
+            </Can>
+
+            <!-- Nouveau -->
+            <Can action="create-etudiant">
+              <NuxtLink
+                to="/admin/liste-des-etudiants/ajouter"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium transition-colors whitespace-nowrap"
+                title="Inscrire un étudiant"
+              >
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Nouveau
+              </NuxtLink>
+            </Can>
           </div>
         </div>
       </div>
 
-      <!-- Deuxième ligne : filtres avancés avec PrimeVue -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <!-- Zone de Recherche et Filtres -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-5 mb-2 mt-4">
+        <div class="flex flex-col xl:flex-row gap-4 xl:items-end">
+          
+          <!-- Nouvelle Recherche -->
+          <div class="w-full xl:w-1/3">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Recherche
+            </label>
+            <div class="relative">
+              <input
+                v-model="searchQuery"
+                type="search"
+                placeholder="Rechercher par nom, prénom ou matricule..."
+                class="w-full px-4 py-2 pl-10 rounded-lg border bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              <svg
+                class="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Filtres avancés avec PrimeVue -->
+          <div class="w-full xl:w-2/3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+
         <!-- Filtre par Niveau -->
         <div class="relative">
           <label
@@ -216,11 +351,7 @@
 
         <!-- Filtre par Groupe -->
         <div class="relative">
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            Groupe
-          </label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Groupe</label>
           <Dropdown
             v-model="filters.groupe"
             :options="groupeOptions"
@@ -241,235 +372,186 @@
             class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <div class="flex items-center justify-center gap-2">
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
               Réinitialiser
             </div>
           </button>
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Résumé des filtres actifs -->
-      <div v-if="hasActiveFilters" class="flex items-center gap-2 text-sm">
-        <span class="text-gray-500 dark:text-gray-400">Filtres actifs:</span>
-        <span
-          v-if="filters.niveau"
-          class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded-full text-xs"
-        >
-          Niveau: {{ getNiveauLabel(filters.niveau) }}
-          <button
-            @click="filters.niveau = null"
-            class="ml-1 hover:text-blue-900"
-          >
-            ×
-          </button>
-        </span>
-        <span
-          v-if="filters.filiere"
-          class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 rounded-full text-xs"
-        >
-          Filière: {{ getFiliereLabel(filters.filiere) }}
-          <button
-            @click="filters.filiere = null"
-            class="ml-1 hover:text-green-900"
-          >
-            ×
-          </button>
-        </span>
-        <span
-          v-if="filters.groupe"
-          class="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 rounded-full text-xs"
-        >
-          Groupe: {{ getGroupeLabel(filters.groupe) }}
-          <button
-            @click="filters.groupe = null"
-            class="ml-1 hover:text-purple-900"
-          >
-            ×
-          </button>
-        </span>
-      </div>
+    <!-- Résumé des filtres actifs -->
+    <div v-if="hasActiveFilters" class="flex items-center flex-wrap gap-2 text-sm mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+      <span class="text-gray-500 dark:text-gray-400 font-medium">Filtres actifs:</span>
+      <span v-if="filters.niveau" class="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-full border border-blue-200 dark:border-blue-800">
+        Niveau: {{ getNiveauLabel(filters.niveau) }}
+        <button @click="filters.niveau = null" class="ml-1 hover:text-blue-900 dark:hover:text-blue-100">×</button>
+      </span>
+      <span v-if="filters.filiere" class="inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded-full border border-green-200 dark:border-green-800">
+        Filière: {{ getFiliereLabel(filters.filiere) }}
+        <button @click="filters.filiere = null" class="ml-1 hover:text-green-900 dark:hover:text-green-100">×</button>
+      </span>
+      <span v-if="filters.groupe" class="inline-flex items-center gap-1 px-3 py-1 bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 rounded-full border border-purple-200 dark:border-purple-800">
+        Groupe: {{ getGroupeLabel(filters.groupe) }}
+        <button @click="filters.groupe = null" class="ml-1 hover:text-purple-900 dark:hover:text-purple-100">×</button>
+      </span>
     </div>
 
     <!-- Résumé des effectifs -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-      <div
-        class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700"
-      >
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-              Total étudiants
-            </p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white">
-              {{ totalEtudiants }}
-            </p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Total étudiants</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ totalEtudiants }}</p>
           </div>
           <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-            <svg
-              class="w-6 h-6 text-blue-600 dark:text-blue-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-              />
+            <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           </div>
         </div>
       </div>
 
-      <div
-        class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700"
-      >
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm text-gray-500 dark:text-gray-400">Hommes</p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white">
-              {{ stats.hommes }}
-            </p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.hommes }}</p>
           </div>
           <div class="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
-            <svg
-              class="w-6 h-6 text-indigo-600 dark:text-indigo-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
+            <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
         </div>
       </div>
 
-      <div
-        class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700"
-      >
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm text-gray-500 dark:text-gray-400">Femmes</p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white">
-              {{ stats.femmes }}
-            </p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.femmes }}</p>
           </div>
           <div class="p-3 bg-pink-100 dark:bg-pink-900/30 rounded-lg">
-            <svg
-              class="w-6 h-6 text-pink-600 dark:text-pink-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
+            <svg class="w-6 h-6 text-pink-600 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
         </div>
       </div>
 
-      <div
-        class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700"
-      >
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm text-gray-500 dark:text-gray-400">Groupes</p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white">
-              {{ stats.totalGroupes }}
-            </p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.totalGroupes }}</p>
           </div>
           <div class="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-            <svg
-              class="w-6 h-6 text-purple-600 dark:text-purple-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-              />
+            <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Table avec Vue3Datatable (design inchangé) -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-3 sm:p-4">
-      <div v-if="etdudiantStore.isLoading" class="flex justify-center py-10">
-        <div
-          class="h-10 w-10 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent"
-        ></div>
-      </div>
+  <!-- Table avec Vue3Datatable -->
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-3 sm:p-4">
+    <div v-if="etdudiantStore.isLoading" class="flex justify-center py-10">
+      <div class="h-10 w-10 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent"></div>
+    </div>
 
-      <div v-else class="overflow-x-auto">
-        <Vue3Datatable
-          :columns="visibleColumns"
-          :rows="filteredRows"
-          :search="searchQuery"
-          :per-page="itemsPerPage"
-          skin="bh-table-striped bh-table-hover"
-        >
-          <template #action="data">
-            <div class="flex justify-center gap-3">
+    <div v-else class="overflow-x-auto">
+      <Vue3Datatable
+        :columns="visibleColumns"
+        :rows="filteredRows"
+        :search="searchQuery"
+        :per-page="itemsPerPage"
+        skin="bh-table-striped bh-table-hover"
+      >
+        <template #action="data">
+          <div class="flex justify-center gap-3">
+            <NuxtLink
+              :to="`/admin/liste-des-etudiants/${data.value.raw.slug}/detail`"
+              class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
+              title="Voir les détails"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </NuxtLink>
+
+            <Can action="update-etudiant">
               <NuxtLink
-                :to="`/admin/liste-des-etudiants/${data.value.raw.slug}/detail`"
-                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
-                title="Voir les détails"
+                :to="`/admin/liste-des-etudiants/${data.value.raw.slug}/modifier`"
+                class="p-2 rounded-lg text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors duration-200"
+                title="Modifier les informations"
               >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1.5"
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                  <circle
-                    cx="18"
-                    cy="6"
-                    r="1.5"
-                    stroke-width="1"
-                    class="opacity-70"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1"
-                    d="M18 4v4M16 6h4"
-                    class="opacity-70"
-                  />
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
               </NuxtLink>
+            </Can>
+
+            <Can action="delete-etudiant">
+              <button
+                @click="toggleEtudiantStatus(data.value)"
+                class="p-2 rounded-lg transition-colors duration-200"
+                :class="data.value.statut === 'actif' ? 'text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30' : 'text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30'"
+                :title="data.value.statut === 'actif' ? 'Désactiver l\'étudiant' : 'Réactiver l\'étudiant'"
+              >
+                <svg v-if="data.value.statut === 'actif'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+                <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+            </Can>
+          </div>
+        </template>
+
+          <!--
+
+                  :class="data.value.statut === 'actif' ? 'text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30' : 'text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30'"
+                  :title="data.value.statut === 'actif' ? 'Désactiver l\'étudiant' : 'Réactiver l\'étudiant'"
+                >
+                  <svg
+                    v-if="data.value.statut === 'actif'"
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                    />
+                  </svg>
+                  <svg
+                    v-else
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </button>
+              </Can>
             </div>
           </template>
 
@@ -497,6 +579,21 @@
               {{ data.value.groupe }}
             </span>
             <span v-else class="text-gray-400">-</span>
+          </template>
+
+          <!-- Template pour le statut -->
+          <template #statut="data">
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+              :class="{
+                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300':
+                  data.value.statut === 'actif',
+                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300':
+                  data.value.statut === 'inactif',
+              }"
+            >
+              {{ data.value.statut === 'actif' ? 'Actif' : 'Inactif' }}
+            </span>
           </template>
         </Vue3Datatable>
       </div>
@@ -896,40 +993,10 @@
 
                 <!-- Contenu de la modale -->
                 <div class="space-y-4">
-                  <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-                    <div class="flex items-center gap-3">
-                      <div
-                        class="p-2 bg-blue-100 dark:bg-blue-800/30 rounded-lg"
-                      >
-                        <svg
-                          class="w-5 h-5 text-blue-600 dark:text-blue-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                          />
-                        </svg>
-                      </div>
-                      <div>
-                        <p class="font-medium text-gray-900 dark:text-white">
-                          Format requis
-                        </p>
-                        <p
-                          class="text-sm text-gray-600 dark:text-gray-400 mt-1"
-                        >
-                          Le fichier doit être au format Excel (.xlsx) avec les
-                          colonnes : Matricule, Nom, Prénom, Email, Genre,
-                          Téléphone, Date de naissance, Nationalité
-                        </p>
-                      </div>
-                    </div>
+                  <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-xl p-4 flex items-center justify-between border border-indigo-100 dark:border-indigo-800/30">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Besoin d'aide sur le format ?</p>
+                    <button @click="showFormatRequisModal = true" class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">Format requis</button>
                   </div>
-
                   <!-- Zone de dépôt de fichier -->
                   <div
                     @dragover.prevent="dragOver = true"
@@ -1121,6 +1188,170 @@
         </div>
       </Dialog>
     </TransitionRoot>
+
+    <!-- Modal Format Requis -->
+    <TransitionRoot appear :show="showFormatRequisModal" as="template">
+      <Dialog as="div" @close="showFormatRequisModal = false" class="relative z-50">
+        <TransitionChild
+          as="template"
+          enter="duration-300 ease-out"
+          enter-from="opacity-0"
+          enter-to="opacity-100"
+          leave="duration-200 ease-in"
+          leave-from="opacity-100"
+          leave-to="opacity-0"
+        >
+          <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+        </TransitionChild>
+
+        <div class="fixed inset-0 overflow-y-auto">
+          <div class="flex min-h-full items-center justify-center p-4 text-center">
+            <TransitionChild
+              as="template"
+              enter="duration-300 ease-out"
+              enter-from="opacity-0 scale-95"
+              enter-to="opacity-100 scale-100"
+              leave="duration-200 ease-in"
+              leave-from="opacity-100 scale-100"
+              leave-to="opacity-0 scale-95"
+            >
+              <DialogPanel class="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 sm:p-8 text-left align-middle shadow-2xl transition-all">
+                <div class="flex justify-between items-center mb-6">
+                  <DialogTitle as="h3" class="text-xl font-bold leading-6 text-gray-900 dark:text-white flex items-center gap-3">
+                    <div class="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg">
+                      <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    Format Requis pour l'Importation
+                  </DialogTitle>
+                  <button @click="showFormatRequisModal = false" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
+                </div>
+
+                <div class="space-y-6">
+                  <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Votre fichier Excel <span class="font-semibold text-gray-800 dark:text-gray-200">(.xlsx)</span> doit impérativement contenir une première ligne d'en-tête. Les colonnes obligatoires sont marquées d'un label <span class="px-2 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-[10px] font-bold uppercase tracking-wide">Requis</span>. L'ordre des colonnes n'a pas d'importance.
+                  </p>
+                  
+                  <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <table class="min-w-full text-left text-sm whitespace-nowrap">
+                      <thead class="bg-gray-50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-300 font-semibold border-b border-gray-200 dark:border-gray-700">
+                        <tr>
+                          <th class="px-4 py-3.5 border-r border-gray-200 dark:border-gray-700 w-1/4">En-tête (Nom exact)</th>
+                          <th class="px-4 py-3.5 border-r border-gray-200 dark:border-gray-700 w-24 text-center">Statut</th>
+                          <th class="px-4 py-3.5 border-r border-gray-200 dark:border-gray-700">Description</th>
+                          <th class="px-4 py-3.5 w-1/4">Exemple</th>
+                        </tr>
+                      </thead>
+                      <tbody class="text-gray-600 dark:text-gray-400 divide-y divide-gray-200 dark:border-gray-700">
+                        <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors">
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 font-mono text-indigo-600 dark:text-indigo-400 font-medium">nom</td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-center"><span class="px-2 py-1 rounded bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-[10px] font-bold uppercase tracking-wide">Requis</span></td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-xs">Nom de famille de l'étudiant</td>
+                          <td class="px-4 py-3 text-xs italic">Dupont</td>
+                        </tr>
+                        <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors">
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 font-mono text-indigo-600 dark:text-indigo-400 font-medium">prenoms</td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-center"><span class="px-2 py-1 rounded bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-[10px] font-bold uppercase tracking-wide">Requis</span></td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-xs">Prénom(s) de l'étudiant</td>
+                          <td class="px-4 py-3 text-xs italic">Jean Marc</td>
+                        </tr>
+                        <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors bg-gray-50/50 dark:bg-gray-800/30">
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 font-mono text-indigo-600 dark:text-indigo-400 font-medium flex flex-col gap-1">numero_matricule <span class="text-[10px] text-gray-400">ou "numero matricule"</span></td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-center"><span class="px-2 py-1 rounded bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-[10px] font-bold uppercase tracking-wide">Requis</span></td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-xs">Identifiant unique de l'étudiant</td>
+                          <td class="px-4 py-3 text-xs italic">2024001</td>
+                        </tr>
+                        <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors">
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 font-mono text-indigo-600 dark:text-indigo-400 font-medium flex flex-col gap-1">nom_de_la_filiere <span class="text-[10px] text-gray-400">ou "nom de la filiere"</span></td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-center"><span class="px-2 py-1 rounded bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-[10px] font-bold uppercase tracking-wide">Requis</span></td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-xs">Nom exact de la filière (Créée si inexistante)</td>
+                          <td class="px-4 py-3 text-xs italic">Informatique</td>
+                        </tr>
+                        <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors bg-gray-50/50 dark:bg-gray-800/30">
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 font-mono text-indigo-600 dark:text-indigo-400 font-medium">niveau</td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-center"><span class="px-2 py-1 rounded bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-[10px] font-bold uppercase tracking-wide">Requis</span></td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-xs">Niveau exact (Créé si inexistant)</td>
+                          <td class="px-4 py-3 text-xs italic">Licence 1</td>
+                        </tr>
+                        <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors">
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 font-mono text-gray-700 dark:text-gray-300 font-medium">sexe</td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-center"><span class="px-2 py-1 rounded bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 text-[10px] font-bold uppercase tracking-wide">Optionnel</span></td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-xs">"Masculin" (M/Homme) ou "Féminin" (F/Femme)</td>
+                          <td class="px-4 py-3 text-xs italic">Masculin</td>
+                        </tr>
+                        <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors bg-gray-50/50 dark:bg-gray-800/30">
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 font-mono text-gray-700 dark:text-gray-300 font-medium flex flex-col gap-1">mode_formation <span class="text-[10px] text-gray-400">ou "mode de formation"</span></td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-center"><span class="px-2 py-1 rounded bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 text-[10px] font-bold uppercase tracking-wide">Optionnel</span></td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-xs">"Présentiel" (par défaut) ou "En ligne"</td>
+                          <td class="px-4 py-3 text-xs italic">Présentiel</td>
+                        </tr>
+                        <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors">
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 font-mono text-gray-700 dark:text-gray-300 font-medium flex flex-col gap-1">date_de_naissance <span class="text-[10px] text-gray-400">ou "date de naissance"</span></td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-center"><span class="px-2 py-1 rounded bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 text-[10px] font-bold uppercase tracking-wide">Optionnel</span></td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-xs">Format date standard Excel ou AAAA-MM-JJ</td>
+                          <td class="px-4 py-3 text-xs italic">2001-05-15</td>
+                        </tr>
+                        <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors bg-gray-50/50 dark:bg-gray-800/30">
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 font-mono text-gray-700 dark:text-gray-300 font-medium">contact</td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-center"><span class="px-2 py-1 rounded bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 text-[10px] font-bold uppercase tracking-wide">Optionnel</span></td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-xs">Numéro de téléphone</td>
+                          <td class="px-4 py-3 text-xs italic">+241 01 02 03 04</td>
+                        </tr>
+                        <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors">
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 font-mono text-gray-700 dark:text-gray-300 font-medium">nationalite</td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-center"><span class="px-2 py-1 rounded bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 text-[10px] font-bold uppercase tracking-wide">Optionnel</span></td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-xs">Pays d'origine</td>
+                          <td class="px-4 py-3 text-xs italic">Gabonaise</td>
+                        </tr>
+                        <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors bg-gray-50/50 dark:bg-gray-800/30">
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 font-mono text-gray-700 dark:text-gray-300 font-medium flex flex-col gap-1">numero_de_cni <span class="text-[10px] text-gray-400">ou "numero de cni"</span></td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-center"><span class="px-2 py-1 rounded bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 text-[10px] font-bold uppercase tracking-wide">Optionnel</span></td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-xs">Numéro de pièce d'identité</td>
+                          <td class="px-4 py-3 text-xs italic">123456789</td>
+                        </tr>
+                        <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors">
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 font-mono text-gray-700 dark:text-gray-300 font-medium">email</td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-center"><span class="px-2 py-1 rounded bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 text-[10px] font-bold uppercase tracking-wide">Optionnel</span></td>
+                          <td class="px-4 py-3 border-r border-gray-200 dark:border-gray-700 text-xs">Généré automatiquement si laissé vide</td>
+                          <td class="px-4 py-3 text-xs italic">jean.dupont@email.com</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="bg-indigo-50 dark:bg-indigo-900/20 border-l-4 border-indigo-500 p-4 rounded-r-lg">
+                    <div class="flex items-start">
+                      <div class="flex-shrink-0 mt-0.5">
+                        <svg class="h-5 w-5 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        </svg>
+                      </div>
+                      <div class="ml-3">
+                        <p class="text-sm text-indigo-800 dark:text-indigo-300">
+                          <strong>Note de traitement :</strong> Lors de l'import, le système vérifie le <span class="font-bold">numéro matricule</span>. Si un matricule correspond à un étudiant existant, ses données seront <strong>mises à jour</strong>. Sinon, un <strong>nouvel étudiant sera créé</strong>. Les frais d'inscription et de scolarité associés à l'année en cours seront générés automatiquement.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <button
+                      @click="showFormatRequisModal = false"
+                      class="px-5 py-2.5 bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 rounded-lg font-medium transition-colors"
+                    >
+                      J'ai compris
+                    </button>
+                  </div>
+                </div>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
+        </div>
+      </Dialog>
+    </TransitionRoot>
   </div>
 </template>
 
@@ -1154,14 +1385,46 @@ const etdudiantStore = useEtudiantStore();
 const searchQuery = ref("");
 const showDetailModal = ref(false);
 const showImportModal = ref(false);
+const showFormatRequisModal = ref(false);
+const showAddModal = ref(false);
+const showEditModal = ref(false);
 const selectedEtudiant = ref(null);
 const selectedFile = ref(null);
 const dragOver = ref(false);
 const importLoading = ref(false);
+const addLoading = ref(false);
 const importError = ref("");
 const exportLoading = ref(false);
 const itemsPerPage = ref(10);
 const fileInput = ref(null);
+
+const editForm = ref({
+  nom: "",
+  prenom: "",
+  email: "",
+  tel: "",
+  genre: "",
+  nationalite: "",
+  date_naissance: "",
+  lieu_naissance: "",
+  group_id: null,
+});
+
+const addForm = ref({
+  nom: "",
+  prenom: "",
+  matricule: "",
+  genre: "Masculin",
+  date_naissance: "",
+  email: "",
+  tel: "",
+  nationalite: "",
+  lieu_naissance: "",
+  filiere_id: null,
+  niveau_id: null,
+  group_id: null,
+  mode_formation: "Présentiel",
+});
 
 // Filtres
 const filters = ref({
@@ -1181,7 +1444,6 @@ const niveauOptions = computed(() => {
 const filiereOptions = computed(() => {
   if (!filters.value.niveau) return [];
 
-  // Filtrer les filières qui ont des groupes dans ce niveau
   const groupesDansNiveau = groupeStore.groupes.filter(
     (g) => g.niveau.id === filters.value.niveau,
   );
@@ -1197,6 +1459,18 @@ const filiereOptions = computed(() => {
     }));
 });
 
+const addFiliereOptions = computed(() => {
+  if (!addForm.value.niveau_id) return [];
+  return filiereStore.filieres.map((f) => ({
+    label: f.nom,
+    value: f.id,
+  }));
+});
+
+const onAddNiveauChange = () => {
+  addForm.value.filiere_id = null;
+};
+
 const groupeOptions = computed(() => {
   if (!filters.value.filiere) return [];
 
@@ -1211,6 +1485,18 @@ const groupeOptions = computed(() => {
     })
     .map((g) => ({
       label: `${g.nom} (${g.niveau.libelle})`,
+      value: g.id,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+});
+
+const editGroupOptions = computed(() => {
+  if (!selectedEtudiant.value || !selectedEtudiant.value.dernier_groupe) return [];
+  const levelId = selectedEtudiant.value.dernier_groupe.niveau.id;
+  return groupeStore.groupes
+    .filter((g) => g.niveau.id === levelId)
+    .map((g) => ({
+      label: g.nom,
       value: g.id,
     }))
     .sort((a, b) => a.label.localeCompare(b.label));
@@ -1245,6 +1531,7 @@ const columns = ref([
   { field: "tel", title: "Téléphone", visible: true },
   { field: "nationalite", title: "Nationalité", visible: false },
   { field: "groupe", title: "Groupe", visible: false },
+  { field: "statut", title: "Statut", visible: true },
   { field: "action", title: "Actions", visible: true },
 ]);
 
@@ -1253,7 +1540,6 @@ const visibleColumns = computed(() => columns.value.filter((c) => c.visible));
 // Rows filtrées
 const filteredRows = computed(() => {
   let filtered = etdudiantStore.etudiants.map((e) => {
-    // Trouver le groupe de l'étudiant
     const groupe = groupeStore.groupes.find(
       (g) => g.inscrits > 0 && e.groupe_id === g.id,
     );
@@ -1271,11 +1557,11 @@ const filteredRows = computed(() => {
       groupe:  `${e?.dernier_groupe?.niveau?.nom} ${e?.dernier_groupe?.group?.nom}` || null,
       groupe_id: e?.dernier_groupe?.group?.id || null,
       filiere_nom: e?.dernier_groupe?.filiere?.nom || null,
+      statut: e.statut || "actif",
       raw: e,
     };
   });
 
-  // Appliquer les filtres
   if (filters.value.niveau) {
     filtered = filtered.filter((e) => {
       const groupe = groupeStore.groupes.find((g) => g.id === e.groupe_id);
@@ -1294,7 +1580,6 @@ const filteredRows = computed(() => {
     filtered = filtered.filter((e) => e.groupe_id === filters.value.groupe);
   }
 
-  // Recherche globale
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
     filtered = filtered.filter(
@@ -1330,7 +1615,6 @@ const getGroupeLabel = (id) => {
   return groupe ? `${groupe.nom} (${groupe.niveau.libelle})` : "Groupe inconnu";
 };
 
-// Gestionnaires d'événements pour les filtres
 const onNiveauChange = () => {
   filters.value.filiere = null;
   filters.value.groupe = null;
@@ -1340,7 +1624,6 @@ const onFiliereChange = () => {
   filters.value.groupe = null;
 };
 
-// Réinitialiser les filtres
 const resetFilters = () => {
   filters.value = {
     niveau: null,
@@ -1351,7 +1634,6 @@ const resetFilters = () => {
   $toastr.info("Filtres réinitialisés");
 };
 
-// Fonctions pour les modales
 const openDetailModal = (item) => {
   selectedEtudiant.value = item.raw;
   showDetailModal.value = true;
@@ -1375,7 +1657,39 @@ const closeImportModal = () => {
   }
 };
 
-// Gestion des fichiers
+const openEditModal = (item) => {
+  selectedEtudiant.value = item.raw;
+  editForm.value = {
+    nom: item.raw.nom,
+    prenom: item.raw.prenom,
+    email: item.raw.email === "--" ? "" : item.raw.email,
+    tel: item.raw.tel === "--" ? "" : item.raw.tel,
+    genre: item.raw.genre,
+    nationalite: item.raw.nationalite === "--" ? "" : item.raw.nationalite,
+    date_naissance: item.raw.date_naissance ? item.raw.date_naissance.split("T")[0] : "",
+    lieu_naissance: item.raw.lieu_naissance || "",
+    group_id: item.raw.dernier_groupe?.group?.id,
+  };
+  showEditModal.value = true;
+};
+
+const closeEditModal = () => {
+  showEditModal.value = false;
+  selectedEtudiant.value = null;
+};
+
+const handleUpdateEtudiant = async () => {
+  try {
+    await etdudiantStore.updateEtudiant(selectedEtudiant.value.slug, editForm.value);
+    $toastr.success("Informations mises à jour avec succès");
+    await etdudiantStore.fetchEtudiants();
+    closeEditModal();
+  } catch (error) {
+    console.error("Erreur mise à jour:", error);
+    $toastr.error(error.response?.data?.message || "Erreur lors de la mise à jour");
+  }
+};
+
 const handleFileDrop = (event) => {
   dragOver.value = false;
   const file = event.dataTransfer.files[0];
@@ -1411,7 +1725,6 @@ const removeFile = () => {
   }
 };
 
-// Processus d'importation
 const processImport = async () => {
   if (!selectedFile.value) {
     $toastr.error("Veuillez sélectionner un fichier.");
@@ -1450,7 +1763,6 @@ const processImport = async () => {
   }
 };
 
-// Exportation
 const processExport = async () => {
   exportLoading.value = true;
 
@@ -1489,65 +1801,86 @@ const processExport = async () => {
 
       $toastr.success("Exportation terminée !");
     } else {
-      console.error("La réponse n'est pas un fichier blob:", response);
       $toastr.error("Format de réponse invalide pour l'exportation");
     }
   } catch (error) {
     console.error("Erreur lors de l'exportation:", error);
-
-    let errorMessage = "Erreur lors de l'exportation.";
-
-    if (error.response) {
-      const { data, status } = error.response;
-
-      if (status === 404) {
-        errorMessage = "Aucun étudiant à exporter.";
-      } else if (data && data.message) {
-        errorMessage = data.message;
-      } else if (status === 500) {
-        errorMessage = "Erreur serveur lors de l'exportation.";
-      }
-    } else if (error.request) {
-      errorMessage = "Impossible de contacter le serveur.";
-    }
-
-    $toastr.error(errorMessage);
+    $toastr.error("Erreur lors de l'exportation.");
   } finally {
     exportLoading.value = false;
   }
 };
 
-// Suppression d'un étudiant
-const deleteEtudiant = async (item) => {
-  const res = await $swal.fire({
-    title: "Supprimer cet étudiant ?",
-    text: "Cette action est irréversible",
+const toggleEtudiantStatus = async (item) => {
+  const isActif = item.statut === "actif";
+  const action = isActif ? "désactiver" : "réactiver";
+
+  const result = await $swal.fire({
+    title: "Êtes-vous sûr ?",
+    text: `Voulez-vous vraiment ${action} cet étudiant ?`,
     icon: "warning",
     showCancelButton: true,
-    confirmButtonText: "Supprimer",
+    confirmButtonColor: isActif ? "#d33" : "#10b981",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: `Oui, ${action} !`,
     cancelButtonText: "Annuler",
-    confirmButtonColor: "#dc2626",
   });
 
-  if (res.isConfirmed) {
+  if (result.isConfirmed) {
     try {
-      await etdudiantStore.deleteEtudiant(item.id);
-      $toastr.success("Étudiant supprimé avec succès");
+      await etdudiantStore.deleteEtudiant(item.raw.slug);
+      $toastr.success(`Étudiant ${isActif ? "désactivé" : "réactivé"} avec succès`);
       await etdudiantStore.fetchEtudiants();
     } catch (error) {
-      console.error("Erreur lors de la suppression:", error);
-      $toastr.error(error.response?.data?.message || "Une erreur est survenue");
+      console.error(`Erreur lors du changement de statut:`, error);
+      $toastr.error("Une erreur est survenue");
     }
   }
 };
 
-// Chargement initial
-onMounted(async () => {
+const submitAddForm = async () => {
+  try {
+    addLoading.value = true;
+    const { $api } = useNuxtApp();
+    const response = await $api.post('/admin/etudiants/store', addForm.value);
+    $toastr.success(response.message || "Étudiant enregistré avec succès.");
+    addForm.value = {
+      nom: "",
+      prenom: "",
+      matricule: "",
+      genre: "Masculin",
+      date_naissance: "",
+      email: "",
+      tel: "",
+      nationalite: "",
+      filiere_id: null,
+      niveau_id: null,
+      mode_formation: "Présentiel",
+    };
+    showAddModal.value = false;
+    await etdudiantStore.fetchEtudiants();
+  } catch (error) {
+    console.error("Erreur lors de l'ajout:", error);
+    if (error.response?.data?.message) {
+      $toastr.error(error.response.data.message);
+    } else {
+      $toastr.error("Erreur lors de l'enregistrement.");
+    }
+  } finally {
+    addLoading.value = false;
+  }
+};
+
+const loadData = async () => {
   await Promise.all([
     etdudiantStore.fetchEtudiants(),
-    filiereStore.fetchFilieres(),
     niveauStore.fetchNiveaux(),
+    filiereStore.fetchFilieres(),
     groupeStore.fetchGroupes(),
   ]);
+};
+
+onMounted(async () => {
+  await loadData();
 });
 </script>

@@ -2,25 +2,103 @@
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800 p-3 sm:p-4 md:p-6 lg:p-8 transition-colors">
     
     <!-- ========== LOADING ========== -->
-    <div v-if="isPageLoading" class="fixed inset-0 bg-white dark:bg-gray-900 bg-opacity-90 dark:bg-opacity-90 z-50 flex items-center justify-center">
-      <div class="text-center">
-        <div class="w-20 h-20 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p class="text-gray-600 dark:text-gray-400">Chargement des corrections...</p>
+    <!-- ========== LOADING SKELETON ========== -->
+    <div v-if="isPageLoading" class="animate-pulse space-y-8">
+      <!-- Breadcrumb Skeleton -->
+      <div class="h-10 w-64 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+
+      <!-- Stats Skeleton -->
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <div v-for="i in 4" :key="i" class="h-32 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700"></div>
       </div>
+
+      <!-- Filter Bar Skeleton -->
+      <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <div class="h-12 w-96 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+        <div class="flex gap-2">
+          <div class="h-12 w-48 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+          <div class="h-12 w-48 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+        </div>
+      </div>
+
+      <!-- Table Skeleton -->
+      <div class="h-[500px] bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700"></div>
     </div>
 
     <template v-else>
       <!-- ========== BREADCRUMB ========== -->
-      <Breadcrumb
-        :items="[
-          { label: 'Examens', to: '/examens' },
-          { label: 'Correction', to: '/examens/correction' },
-          { label: examStore.examTitle, to: null }
-        ]"
-        :title="examStore.examTitle"
-        title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
-        spacing="mb-4 sm:mb-6"
-      />
+      <div class="flex flex-col gap-4 mb-6 w-full overflow-hidden">
+        <Breadcrumb
+          :items="[
+            { label: 'Examens', to: '/examens' },
+            { label: 'Correction', to: '/examens/correction' },
+            { label: examStore.examTitle, to: null }
+          ]"
+          :title="examStore.examTitle"
+          title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
+          spacing="mb-0"
+        />
+        <div class="flex flex-wrap items-center gap-3 w-full">
+          <!-- Déverrouiller (Admin) -->
+          <button
+            v-if="examStore.currentEvaluation?.correction_submission_date && !isTeacher"
+            @click="confirmUnlockCorrections"
+            class="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all font-semibold text-sm shadow-sm flex items-center gap-2 whitespace-nowrap"
+            :disabled="isValidating"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+            </svg>
+            Invalider / Déverrouiller
+          </button>
+
+          <!-- Valider (Admin uniquement) -->
+          <button
+            v-if="!examStore.currentEvaluation?.correction_submission_date && !isTeacher"
+            @click="confirmValidateCorrections"
+            class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-semibold text-sm shadow-sm flex items-center gap-2 whitespace-nowrap"
+            :disabled="isValidating"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {{ isValidating ? 'Validation...' : 'Valider les notes' }}
+          </button>
+
+          <button
+            v-if="examStore.currentEvaluation && examStore.currentEvaluation.published !== 1"
+            @click="confirmPublish"
+            class="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all font-semibold text-sm shadow-sm flex items-center gap-2"
+            :disabled="isPublishing"
+          >
+            <svg v-if="!isPublishing" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <svg v-else class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ isPublishing ? 'Publication...' : 'Publier les résultats' }}
+          </button>
+          
+          <div v-else-if="examStore.currentEvaluation?.published === 1" class="px-4 py-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-xl border border-emerald-200 dark:border-emerald-800 flex items-center gap-2 text-sm font-semibold">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Résultats publiés
+          </div>
+
+          <button
+            @click="handleRefreshData"
+            class="p-2.5 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm"
+            title="Rafraîchir"
+          >
+            <svg class="w-5 h-5" :class="{ 'animate-spin': isPageLoading }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+        </div>
+      </div>
 
       <!-- ========== FILTRES ET STATISTIQUES ========== -->
       <div class="mb-6 grid grid-cols-1 lg:grid-cols-4 gap-4">
@@ -28,7 +106,7 @@
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-gray-700">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Étudiants</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ examStore.currentEvaluation?.has_anonymat ? 'Candidats' : 'Étudiants' }}</p>
               <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ totalEtudiants }}</p>
             </div>
             <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
@@ -94,7 +172,7 @@
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Rechercher un étudiant..."
+            :placeholder="examStore.currentEvaluation?.has_anonymat ? 'Rechercher par anonymat...' : 'Rechercher un étudiant...'"
             class="w-full pl-10 pr-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
           />
         </div>
@@ -119,6 +197,15 @@
             <option value="non_corrige">Non corrigé</option>
             <option value="partiel">Partiellement corrigé</option>
           </select>
+
+          <select
+            v-model="filterSubmissionType"
+            @change="handleRefreshData"
+            class="px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm font-medium"
+          >
+            <option value="all">Tous les inscrits</option>
+            <option value="submitted">Soumissions reçues</option>
+          </select>
         </div>
       </div>
 
@@ -128,7 +215,9 @@
           <table class="w-full">
             <thead class="bg-gray-50 dark:bg-gray-700/50">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Étudiant</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  {{ examStore.currentEvaluation?.has_anonymat ? 'Anonymat' : 'Étudiant' }}
+                </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Progression</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Note</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Statut</th>
@@ -136,40 +225,54 @@
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody v-if="filteredEtudiants.length > 0" class="divide-y divide-gray-200 dark:divide-gray-700">
               <tr v-for="etudiant in filteredEtudiants" :key="etudiant.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3">
                     <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                      {{ getInitials(etudiant.nom, etudiant.prenom) }}
+                      <template v-if="examStore.currentEvaluation?.has_anonymat">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                      </template>
+                      <template v-else>
+                        {{ getInitials(etudiant.nom, etudiant.prenom) }}
+                      </template>
                     </div>
                     <div>
-                      <p class="text-sm font-medium text-gray-900 dark:text-white">{{ etudiant.nom }} {{ etudiant.prenom }}</p>
-                      <p class="text-xs text-gray-500 dark:text-gray-400">{{ etudiant.email }}</p>
+                      <p class="text-sm font-medium text-gray-900 dark:text-white">
+                        {{ examStore.currentEvaluation?.has_anonymat ? (etudiant.anonymat || 'N/A') : (etudiant.nom + ' ' + etudiant.prenom) }}
+                      </p>
+                      <p v-if="!examStore.currentEvaluation?.has_anonymat" class="text-xs text-gray-500 dark:text-gray-400">
+                        {{ etudiant.email }}
+                      </p>
+                      <p v-else class="text-xs text-gray-500 dark:text-gray-400">
+                        Candidat anonyme
+                      </p>
                     </div>
                   </div>
                 </td>
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-2">
-                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ getStudentProgression(etudiant.id).repondues }}/{{ getStudentProgression(etudiant.id).total }}</span>
-                    <div class="w-20 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                      <div class="h-full bg-indigo-600 rounded-full" :style="{ width: getStudentProgression(etudiant.id).pourcentage + '%' }"></div>
-                    </div>
+                  <span class="text-sm text-gray-700 dark:text-gray-300">{{ getStudentProgression(etudiant).repondues }}/{{ getStudentProgression(etudiant).total }}</span>
+                  <div class="w-20 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div class="h-full bg-indigo-600 rounded-full" :style="{ width: getStudentProgression(etudiant).pourcentage + '%' }"></div>
                   </div>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="text-sm font-medium" :class="getNoteColor(getStudentNote(etudiant.id), examStore.totalPoints)">
-                    {{ getStudentNote(etudiant.id) }}/{{ examStore.totalPoints }}
-                  </span>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="px-2 py-1 text-xs rounded-full" :class="getStatutClass(getStudentStatut(etudiant.id))">
-                    {{ getStudentStatut(etudiant.id) }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                  {{ formatDate(getStudentLastActivity(etudiant.id)) }}
-                </td>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <span class="text-sm font-medium" :class="getNoteColor(getStudentNote(etudiant), examStore.totalPoints)">
+                  {{ getStudentNote(etudiant) }}/{{ examStore.totalPoints }}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="px-2 py-1 text-xs rounded-full" :class="getStatutClass(getStudentStatut(etudiant))">
+                  {{ getStudentStatut(etudiant) }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                {{ formatDate(getStudentLastActivity(etudiant)) }}
+              </td>
                 <td class="px-6 py-4">
                   <button
                     @click="openCorrectionModal(etudiant)"
@@ -184,6 +287,28 @@
               </tr>
             </tbody>
           </table>
+
+          <!-- Empty State -->
+          <div v-if="filteredEtudiants.length === 0" class="flex flex-col items-center justify-center py-16 px-4">
+            <div class="bg-gray-100 dark:bg-gray-700/50 p-6 rounded-full mb-4">
+              <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Aucun étudiant trouvé</h3>
+            <p class="text-gray-500 dark:text-gray-400 text-center max-w-xs">
+              {{ filterSubmissionType === 'submitted' 
+                  ? "Aucun étudiant n'a encore envoyé sa soumission pour cet examen." 
+                  : "Aucun étudiant ne correspond à vos critères de recherche." }}
+            </p>
+            <button 
+              v-if="filterSubmissionType === 'submitted'"
+              @click="filterSubmissionType = 'all'; handleRefreshData()"
+              class="mt-6 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors text-sm font-medium"
+            >
+              Voir tous les inscrits
+            </button>
+          </div>
         </div>
       </div>
 
@@ -214,6 +339,7 @@
                 leave-to="opacity-0 scale-95"
               >
                 <DialogPanel class="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-xl transition-all">
+                  <div v-if="selectedEtudiant">
                   <!-- En-tête -->
                   <div class="flex items-start justify-between mb-6">
                     <div class="flex items-center gap-3">
@@ -224,10 +350,10 @@
                       </div>
                       <div>
                         <DialogTitle class="text-xl font-semibold text-gray-900 dark:text-white">
-                          Correction - {{ selectedEtudiant?.nom }} {{ selectedEtudiant?.prenom }}
+                          Correction - {{ examStore.currentEvaluation?.has_anonymat ? (selectedEtudiant?.anonymat || 'Candidat Anonyme') : (selectedEtudiant?.nom + ' ' + selectedEtudiant?.prenom) }}
                         </DialogTitle>
                         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                          Note actuelle: {{ getStudentNote(selectedEtudiant?.id) }}/{{ examStore.totalPoints }}
+                          Note actuelle: {{ getStudentNote(selectedEtudiant) }}/{{ examStore.totalPoints }}
                         </p>
                       </div>
                     </div>
@@ -299,49 +425,78 @@
                                 </span>
                               </div>
                             </template>
-                            <div v-else class="text-sm text-gray-700 dark:text-gray-300">
-                              {{ getStudentResponse(selectedEtudiant?.id, question.id) }}
+                            <div v-else class="text-sm text-gray-700 dark:text-gray-300 prose prose-sm dark:prose-invert max-w-none" v-html="getStudentResponse(selectedEtudiant?.id, question.id)">
                             </div>
                           </div>
                         </div>
 
+                        <!-- Justification de l'étudiant -->
+                        <div v-if="getStudentJustification(selectedEtudiant?.id, question.id)">
+                          <p class="text-xs font-medium text-amber-600 mb-1 flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Justification fournie :
+                          </p>
+                          <div class="p-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-lg text-sm italic text-gray-700 dark:text-gray-300">
+                            "{{ getStudentJustification(selectedEtudiant?.id, question.id) }}"
+                          </div>
+                        </div>
+
                         <!-- Zone de correction -->
-                        <div class="flex items-end gap-4">
-                          <div class="flex-1">
+                        <div class="flex items-start gap-4">
+                          <!-- Points -->
+                          <div class="w-32">
                             <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                              Points attribués (max {{ question.points }})
+                              Points (max {{ (parseFloat(question.points) + parseFloat(question.config?.justificationPoints || 0)).toFixed(1) }})
                             </label>
                             <input
                               v-model.number="correctionForm[question.id].points"
                               type="number"
-                              :max="question.points"
+                              :max="(parseFloat(question.points) + parseFloat(question.config?.justificationPoints || 0))"
                               min="0"
                               step="0.5"
-                              class="w-32 px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                              class="w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                               @input="validatePoints(question)"
+                              :disabled="isCorrectionsLocked"
                             />
                           </div>
+                          
+                          <!-- Commentaire -->
                           <div class="flex-1">
                             <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
                               Commentaire
                             </label>
-                            <input
-                              v-model="correctionForm[question.id].commentaire"
-                              type="text"
-                              placeholder="Optionnel"
-                              class="w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
-                            />
+                            <div class="flex gap-2">
+                              <textarea
+                                v-model="correctionForm[question.id].commentaire"
+                                placeholder="Écrire un commentaire..."
+                                rows="2"
+                                class="flex-1 px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 disabled:bg-gray-100 dark:disabled:bg-gray-800/50 resize-y min-h-[42px]"
+                                :readonly="isCorrectionsLocked"
+                              ></textarea>
+                              <!-- Bouton Suggestion IA -->
+                              <button
+                                v-if="!isCorrectionsLocked"
+                                @click="getAISuggestion(question)"
+                                class="px-3 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors flex items-center gap-1 shrink-0"
+                                :disabled="isAnalysingIA[question.id]"
+                                title="Suggérer une note via Gemini IA"
+                              >
+                                <svg v-if="isAnalysingIA[question.id]" class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                <span class="hidden sm:inline text-xs font-semibold">IA</span>
+                              </button>
+                            </div>
                           </div>
-                          <button
-                            @click="saveQuestionCorrection(question)"
-                            class="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                            :disabled="correctionForm[question.id]?.points > question.points"
-                          >
-                            Enregistrer
-                          </button>
                         </div>
-                        <p v-if="correctionForm[question.id]?.points > question.points" class="text-xs text-red-600 mt-1">
-                          Les points ne peuvent pas dépasser {{ question.points }}
+                        <p v-if="correctionForm[question.id]?.points > (parseFloat(question.points) + parseFloat(question.config?.justificationPoints || 0))" class="text-xs text-red-600 mt-1">
+                          Les points ne peuvent pas dépasser {{ (parseFloat(question.points) + parseFloat(question.config?.justificationPoints || 0)).toFixed(1) }}
                         </p>
                       </div>
                     </div>
@@ -355,17 +510,18 @@
                     <div class="flex gap-3">
                       <button
                         @click="closeCorrectionModal"
-                        class="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        class="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium"
                       >
                         Fermer
                       </button>
                       <button
                         @click="saveAllCorrections"
-                        class="px-4 py-2 text-sm bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-lg hover:from-emerald-700 hover:to-emerald-800"
-                        :disabled="isSavingAll"
+                        class="px-6 py-2 text-sm bg-violet-600 text-white rounded-lg hover:bg-violet-700 shadow-sm transition-all font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        :disabled="isSavingAll || isCorrectionsLocked"
                       >
                         {{ isSavingAll ? 'Enregistrement...' : 'Enregistrer tout' }}
                       </button>
+                    </div>
                     </div>
                   </div>
                 </DialogPanel>
@@ -401,6 +557,8 @@ import { Dialog, DialogPanel, DialogTitle, TransitionRoot, TransitionChild } fro
 import Breadcrumb from '~/components/Breadcrumb.vue'
 import { useExamStore } from '~~/stores/exam'
 import { useEtudiantStore } from '~~/stores/etudiant'
+import { useState } from '#app'
+import Swal from 'sweetalert2'
 
 const route = useRoute()
 const examStore = useExamStore()
@@ -413,13 +571,186 @@ const isPageLoading = ref(true)
 const searchQuery = ref('')
 const filterPartie = ref('')
 const filterStatut = ref('')
+const filterSubmissionType = ref('submitted') // 'all' or 'submitted'
 const showCorrectionModal = ref(false)
 const selectedEtudiant = ref(null)
 const selectedPartCorrection = ref(null)
 const isSavingAll = ref(false)
+const isPublishing = ref(false)
+const isValidating = ref(false)
 const showToast = ref(false)
 const toastMessage = ref('')
 const correctionForm = ref({})
+const isAnalysingIA = ref({})
+
+const currentUser = computed(() => {
+  const userState = useState('user')
+  if (userState.value) return userState.value
+  if (process.client) {
+    const userStr = localStorage.getItem('user')
+    if (userStr) return JSON.parse(userStr)
+  }
+  return null
+})
+
+const isTeacher = computed(() => {
+  const user = currentUser.value
+  if (!user || !user.roles) return true;
+  const roles = user.roles.map(r => r.nom ? r.nom.toLowerCase() : '');
+  const hasTeacherRole = roles.some(r => ['enseignant', 'professeur'].includes(r));
+  const hasAdminRole = roles.some(r => ['admin', 'directeur général', 'directeur académique', 'informaticien', 'super admin', 'super-admin', 'super administrateur', 'administrateur'].includes(r));
+  return hasTeacherRole && !hasAdminRole;
+})
+
+const isCorrectionsLocked = computed(() => {
+  return isTeacher.value && examStore.currentEvaluation?.correction_submission_date !== null
+})
+
+const confirmValidateCorrections = () => {
+  Swal.fire({
+    title: 'Valider les notes ?',
+    text: "Une fois validées, vous ne pourrez plus modifier les notes sans contacter l'administration.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#2563eb',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Oui, valider',
+    cancelButtonText: 'Annuler',
+    reverseButtons: true
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      isValidating.value = true
+      try {
+        await examStore.validateCorrections(evaluationId)
+        examStore.currentEvaluation.correction_submission_date = new Date().toISOString()
+        showToastMessage('Notes validées avec succès')
+      } catch (error) {
+        showToastMessage("Erreur lors de la validation", "error")
+      } finally {
+        isValidating.value = false
+      }
+    }
+  })
+}
+
+const confirmUnlockCorrections = () => {
+  Swal.fire({
+    title: 'Déverrouiller les notes ?',
+    text: "Le professeur pourra à nouveau modifier les notes.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#f97316',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Oui, déverrouiller',
+    cancelButtonText: 'Annuler',
+    reverseButtons: true
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      isValidating.value = true
+      try {
+        await examStore.unlockCorrections(evaluationId)
+        examStore.currentEvaluation.correction_submission_date = null
+        showToastMessage('Évaluation déverrouillée avec succès')
+      } catch (error) {
+        showToastMessage("Erreur lors du déverrouillage", "error")
+      } finally {
+        isValidating.value = false
+      }
+    }
+  })
+}
+
+const confirmPublish = () => {
+  if (questionsNonCorrigees.value > 0) {
+    Swal.fire({
+      title: 'Attention',
+      text: `Il reste encore ${questionsNonCorrigees.value} questions à corriger. Voulez-vous vraiment publier les résultats maintenant ?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Oui, publier',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        publishResults()
+      }
+    })
+  } else {
+    Swal.fire({
+      title: 'Publier les résultats ?',
+      text: "Les étudiants pourront consulter leurs notes et la correction dès la publication.",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Oui, publier',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        publishResults()
+      }
+    })
+  }
+}
+
+const publishResults = async () => {
+  if (isPublishing.value) return
+  
+  isPublishing.value = true
+  try {
+    await examStore.publishEvaluation(evaluationId)
+    showToastMessage('Résultats publiés avec succès')
+    
+    // Alerte de succès
+    Swal.fire({
+      title: 'Félicitations !',
+      text: 'Les résultats ont été publiés. Les étudiants peuvent désormais les consulter.',
+      icon: 'success',
+      confirmButtonColor: '#10b981'
+    })
+  } catch (error) {
+    console.error('Erreur publication:', error)
+    Swal.fire('Erreur', 'Une erreur est survenue lors de la publication.', 'error')
+  } finally {
+    isPublishing.value = false
+  }
+}
+
+const getAISuggestion = async (question) => {
+  if (!selectedEtudiant.value || !question) return
+  
+  // Trouver la soumission
+  const submissions = Array.isArray(examStore.submissions) ? examStore.submissions : []
+  const submission = submissions.find(
+    s => s && s.etudiant_id === selectedEtudiant.value.id && s.question_id === question.id
+  )
+  
+  if (!submission || !submission.id) {
+    showToastMessage('Soumission introuvable', 'error')
+    return
+  }
+
+  isAnalysingIA.value[question.id] = true
+  
+  try {
+    const response = await examStore.suggestGrade(submission.id)
+    if (response && response.success) {
+      correctionForm.value[question.id].points = response.points
+      correctionForm.value[question.id].commentaire = response.justification
+      showToastMessage('Suggestion IA reçue')
+    } else {
+      showToastMessage(response?.message || 'L\'IA n\'a pas pu générer de suggestion', 'error')
+    }
+  } catch (error) {
+    console.error('Erreur suggestion IA:', error)
+    showToastMessage('Erreur lors de l\'analyse IA', 'error')
+  } finally {
+    isAnalysingIA.value[question.id] = false
+  }
+}
 
 // Liste des étudiants du groupe
 const etudiants = ref([])
@@ -430,12 +761,9 @@ const totalEtudiants = computed(() => etudiants.value.length)
 const participationRate = computed(() => {
   if (etudiants.value.length === 0) return 0
   
-  // Vérifier que submissions est un tableau
-  const submissions = Array.isArray(examStore.submissions) ? examStore.submissions : []
-  
   const participe = etudiants.value.filter(e => {
-    const etudiantSubmissions = submissions.filter(s => s?.etudiant_id === e.id)
-    return etudiantSubmissions.length > 0
+    const prog = getStudentProgression(e)
+    return prog.repondues > 0
   }).length
   
   return Math.round((participe / etudiants.value.length) * 100)
@@ -446,21 +774,14 @@ const moyenneGenerale = computed(() => {
   
   let total = 0
   etudiants.value.forEach(e => {
-    total += getStudentNote(e.id)
+    total += getStudentNote(e)
   })
   
   return (total / etudiants.value.length).toFixed(1)
 })
 
 const questionsNonCorrigees = computed(() => {
-  // Vérifier que submissions est un tableau
-  const submissions = Array.isArray(examStore.submissions) ? examStore.submissions : []
-  
-  let count = 0
-  submissions.forEach(sub => {
-    if (sub && sub.points_obtenus === null) count++
-  })
-  return count
+  return examStore.examStats.a_corriger || 0
 })
 
 const filteredEtudiants = computed(() => {
@@ -469,7 +790,7 @@ const filteredEtudiants = computed(() => {
       `${e?.nom || ''} ${e?.prenom || ''}`.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       e?.email?.toLowerCase().includes(searchQuery.value.toLowerCase())
     
-    const statut = getStudentStatut(e?.id)
+    const statut = getStudentStatut(e)
     const matchesStatut = filterStatut.value === '' || 
       (filterStatut.value === 'corrige' && statut === 'Corrigé') ||
       (filterStatut.value === 'non_corrige' && statut === 'Non corrigé') ||
@@ -480,10 +801,16 @@ const filteredEtudiants = computed(() => {
 })
 
 // ========== MÉTHODES POUR LES ÉTUDIANTS ==========
-const getStudentProgression = (etudiantId) => {
-  if (!etudiantId) return { total: 0, repondues: 0, pourcentage: 0 }
+const getStudentProgression = (etudiant) => {
+  if (!etudiant) return { total: 0, repondues: 0, pourcentage: 0 }
   
-  // Vérifier que submissions est un tableau
+  // Utiliser les données pré-calculées par l'API si disponibles
+  if (etudiant.progression) {
+    return etudiant.progression
+  }
+  
+  const etudiantId = etudiant.id
+  // Fallback sur le store (utile lors d'une mise à jour en temps réel dans la modale)
   const submissions = Array.isArray(examStore.submissions) 
     ? examStore.submissions.filter(s => s && s.etudiant_id === etudiantId)
     : []
@@ -498,9 +825,15 @@ const getStudentProgression = (etudiantId) => {
   }
 }
 
-const getStudentNote = (etudiantId) => {
-  if (!etudiantId) return 0
+const getStudentNote = (etudiant) => {
+  if (!etudiant) return 0
   
+  // Utiliser la note pré-calculée par l'API
+  if (etudiant.note !== undefined && etudiant.note !== null) {
+    return etudiant.note
+  }
+
+  const etudiantId = etudiant.id
   const submissions = Array.isArray(examStore.submissions)
     ? examStore.submissions.filter(s => s && s.etudiant_id === etudiantId)
     : []
@@ -508,9 +841,15 @@ const getStudentNote = (etudiantId) => {
   return submissions.reduce((sum, s) => sum + (s?.points_obtenus || 0), 0)
 }
 
-const getStudentStatut = (etudiantId) => {
-  if (!etudiantId) return 'Non corrigé'
+const getStudentStatut = (etudiant) => {
+  if (!etudiant) return 'Non corrigé'
   
+  // Utiliser le statut pré-calculé par l'API
+  if (etudiant.statutCorrection) {
+    return etudiant.statutCorrection
+  }
+
+  const etudiantId = etudiant.id
   const submissions = Array.isArray(examStore.submissions)
     ? examStore.submissions.filter(s => s && s.etudiant_id === etudiantId)
     : []
@@ -525,9 +864,14 @@ const getStudentStatut = (etudiantId) => {
   return 'Non corrigé'
 }
 
-const getStudentLastActivity = (etudiantId) => {
-  if (!etudiantId) return null
+const getStudentLastActivity = (etudiant) => {
+  if (!etudiant) return null
   
+  if (etudiant.derniereActivite) {
+    return etudiant.derniereActivite
+  }
+
+  const etudiantId = etudiant.id
   const submissions = Array.isArray(examStore.submissions)
     ? examStore.submissions.filter(s => s && s.etudiant_id === etudiantId)
     : []
@@ -600,6 +944,24 @@ const isOptionSelected = (etudiantId, questionId, optionId) => {
   return false
 }
 
+const getStudentJustification = (etudiantId, questionId) => {
+  if (!etudiantId || !questionId) return null
+  
+  const submission = Array.isArray(examStore.submissions)
+    ? examStore.submissions.find(s => s && s.etudiant_id === etudiantId && s.question_id === questionId)
+    : null
+    
+  if (!submission || !submission.reponse) return null
+  
+  return submission.reponse.justification || null
+}
+
+const isAllGraded = (etudiantId) => {
+  if (!etudiantId) return true
+  const studentQuestions = examStore.questions || []
+  return studentQuestions.every(q => isQuestionCorrigee(etudiantId, q.id))
+}
+
 const isQuestionCorrigee = (etudiantId, questionId) => {
   if (!etudiantId || !questionId) return false
   
@@ -664,25 +1026,31 @@ const getQuestionsForPart = (partId) => {
 const validatePoints = (question) => {
   if (!question || !question.id) return
   
-  if (correctionForm.value[question.id]?.points > question.points) {
-    correctionForm.value[question.id].points = question.points
+  const maxPoints = parseFloat(question.points) + parseFloat(question.config?.justificationPoints || 0)
+  
+  if (correctionForm.value[question.id]?.points > maxPoints) {
+    correctionForm.value[question.id].points = maxPoints
   }
 }
 
-const calculateTotalPoints = () => {
+const calculateTotalPoints = (etudiantId) => {
   let total = 0
   Object.values(correctionForm.value).forEach(item => {
-    if (item && item.points) total += item.points
+    if (item && item.points) {
+      const p = parseFloat(item.points)
+      if (!isNaN(p)) total += p
+    }
   })
-  return total
+  return total.toFixed(1)
 }
 
-const showToastMessage = (message) => {
-  toastMessage.value = message
-  showToast.value = true
-  setTimeout(() => {
-    showToast.value = false
-  }, 3000)
+const showToastMessage = (message, type = 'success') => {
+  const { $toastr } = useNuxtApp()
+  if (type === 'error') {
+    $toastr.error(message)
+  } else {
+    $toastr.success(message)
+  }
 }
 
 // ========== MÉTHODES DE CORRECTION ==========
@@ -692,8 +1060,15 @@ const openCorrectionModal = async (etudiant) => {
   selectedEtudiant.value = etudiant
   selectedPartCorrection.value = examStore.parts?.[0] || null
   
-  // Initialiser le formulaire de correction avec les valeurs existantes
-  correctionForm.value = {}
+  // Initialiser le formulaire de correction pour TOUTES les questions par défaut
+  examStore.questions.forEach(q => {
+    if (q && q.id) {
+      correctionForm.value[q.id] = {
+        points: 0,
+        commentaire: ''
+      }
+    }
+  })
   
   try {
     // Charger les soumissions spécifiques de l'étudiant
@@ -705,10 +1080,10 @@ const openCorrectionModal = async (etudiant) => {
     submissions
       .filter(s => s && s.etudiant_id === etudiant.id)
       .forEach(sub => {
-        if (sub && sub.question_id) {
+        if (sub && sub.question_id && correctionForm.value[sub.question_id]) {
           correctionForm.value[sub.question_id] = {
-            points: sub.points_obtenus,
-            commentaire: sub.metadata?.commentaire_correction || ''
+            points: parseFloat(sub.points_obtenus || 0),
+            commentaire: sub.reponse?.commentaire_correction || ''
           }
         }
       })
@@ -746,6 +1121,8 @@ const saveQuestionCorrection = async (question) => {
         formData.points || 0,
         formData.commentaire || ''
       )
+      // await examStore.finalizeGrade(evaluationId, selectedEtudiant.value.id)
+      await handleRefreshData()
       showToastMessage('Correction enregistrée')
     } else {
       showToastMessage('Soumission non trouvée')
@@ -779,6 +1156,10 @@ const saveAllCorrections = async () => {
     
     if (promises.length > 0) {
       await Promise.all(promises)
+      // Finaliser la note globale de l'étudiant
+      // await examStore.finalizeGrade(evaluationId, selectedEtudiant.value.id)
+      
+      await handleRefreshData()
       showToastMessage('Toutes les corrections ont été enregistrées')
       closeCorrectionModal()
     } else {
@@ -793,29 +1174,43 @@ const saveAllCorrections = async () => {
   }
 }
 
+const handleRefreshData = async () => {
+  isPageLoading.value = true
+  try {
+    if (filterSubmissionType.value === 'submitted') {
+      const resp = await examStore.fetchSubmittedSubmissions(evaluationId)
+      if (resp && resp.data && resp.data.etudiants) {
+        etudiants.value = resp.data.etudiants
+      }
+    } else {
+      const resp = await examStore.fetchAllSubmissions(evaluationId)
+      if (resp && resp.data && resp.data.etudiants) {
+        etudiants.value = resp.data.etudiants
+      }
+    }
+  } catch (error) {
+    console.error('Erreur rafraîchissement:', error)
+  } finally {
+    isPageLoading.value = false
+  }
+}
+
 // ========== CHARGEMENT INITIAL ==========
 onMounted(async () => {
   try {
     // Charger l'examen avec ses parties et questions
     await examStore.loadExam(evaluationId)
     
-    // Récupérer toutes les soumissions pour correction si la méthode existe
-    if (typeof examStore.fetchAllSubmissions === 'function') {
-      const submissionsData = await examStore.fetchAllSubmissions(evaluationId)
-      
-      if (submissionsData && submissionsData.etudiants) {
-        etudiants.value = submissionsData.etudiants
-      }
-    }
+    // Charger selon le filtre par défaut (Soumissions reçues)
+    await handleRefreshData()
     
-    // Alternative si fetchAllSubmissions n'existe pas ou n'a pas retourné d'étudiants
-    if (etudiants.value.length === 0 && typeof examStore.fetchAllSessions === 'function') {
-      const sessionsResponse = await examStore.fetchAllSessions(evaluationId)
-      
-      if (sessionsResponse && sessionsResponse.length > 0) {
-        etudiants.value = sessionsResponse
-          .map(s => s?.etudiant)
-          .filter(Boolean)
+    // Alternative si toujours pas d'étudiants
+    if (etudiants.value.length === 0 && filterSubmissionType.value === 'all') {
+      if (typeof examStore.fetchAllSessions === 'function') {
+        const sessionsResponse = await examStore.fetchAllSessions(evaluationId)
+        if (sessionsResponse && sessionsResponse.length > 0) {
+          etudiants.value = sessionsResponse.map(s => s?.etudiant).filter(Boolean)
+        }
       }
     }
     

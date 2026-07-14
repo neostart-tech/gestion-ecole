@@ -72,24 +72,71 @@
         </client-only>
 
         <!-- Ajouter -->
-        <button
-          @click="openAddModal"
-          class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        >
-          <svg
-            class="w-5 h-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
+        <Can action="create-uv">
+          <button
+            @click="openAddModal"
+            class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
           >
-            <path
-              d="M12 5v14M5 12h14"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-          </svg>
-          Ajouter
-        </button>
+            <svg
+              class="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+            >
+              <path
+                d="M12 5v14M5 12h14"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            Ajouter
+          </button>
+        </Can>
+      </div>
+    </div>
+
+    <!-- Filters Row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5 p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold text-gray-500 uppercase">Filtrer par Filière</label>
+        <Dropdown
+          v-model="filterFiliere"
+          :options="FilieresOptions"
+          optionLabel="label"
+          optionValue="value"
+          filter
+          showClear
+          placeholder="Toutes les filières"
+          class="w-full"
+        />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold text-gray-500 uppercase">Filtrer par Niveau</label>
+        <Dropdown
+          v-model="filterNiveau"
+          :options="NiveauxOptions"
+          optionLabel="label"
+          optionValue="value"
+          filter
+          showClear
+          placeholder="Tous les niveaux"
+          class="w-full"
+          @change="onFilterNiveauChange"
+        />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold text-gray-500 uppercase">Filtrer par Semestre</label>
+        <Dropdown
+          v-model="filterSemestre"
+          :options="GlobalSemestreOptions"
+          optionLabel="label"
+          optionValue="value"
+          filter
+          showClear
+          :disabled="filterNiveau && GlobalSemestreOptions.length === 0"
+          :placeholder="filterNiveau && GlobalSemestreOptions.length === 0 ? 'Aucun semestre' : 'Tous les semestres'"
+          class="w-full"
+        />
       </div>
     </div>
 
@@ -104,7 +151,7 @@
       <div v-else class="overflow-x-auto">
         <Vue3Datatable
           :columns="visibleColumns"
-          :rows="rows"
+          :rows="filteredRows"
           :search="searchQuery"
           :per-page="itemsPerPage"
           skin="bh-table-striped bh-table-hover"
@@ -137,31 +184,35 @@
               </button>
 
               <!-- Edit -->
-              <button
-                @click="openEditModal(value)"
-                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
-              >
-                <svg
-                  class="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
+              <Can action="update-uv">
+                <button
+                  @click="openEditModal(value)"
+                  class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
                 >
-                  <path
-                    d="M4 20h4l10-10-4-4L4 16v4z"
-                    stroke-width="2"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </button>
+                  <svg
+                    class="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      d="M4 20h4l10-10-4-4L4 16v4z"
+                      stroke-width="2"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
+              </Can>
 
               <!-- Delete -->
-              <button
-                @click="deleteItem(value)"
-                class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
-              >
-                <ButtonDelete />
-              </button>
+              <Can action="delete-uv">
+                <button
+                  @click="deleteItem(value)"
+                  class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
+                >
+                  <ButtonDelete />
+                </button>
+              </Can>
             </div>
           </template>
         </Vue3Datatable>
@@ -285,17 +336,17 @@
                         <p
                           class="text-xs text-gray-500 dark:text-gray-400 mb-1"
                         >
-                          Période
+                        Semestre
                         </p>
                         <p class="font-medium text-gray-900 dark:text-white">
-                          {{ selectedEvent?.periode }}
+                          {{ selectedEvent?.semestre }}
                         </p>
                       </div>
                       <div>
                         <p
                           class="text-xs text-gray-500 dark:text-gray-400 mb-1"
                         >
-                          Date de la période
+                          Date du semestre
                         </p>
                         <p class="font-medium text-gray-900 dark:text-white">
                           {{ selectedEvent?.debut }}
@@ -500,21 +551,99 @@
                 <label for="on_label">Code</label>
               </FloatLabel>
 
-              <!-- <input
-                v-model="form.code"
-                placeholder="Code"
-                required
-                class="w-full px-4 py-2 rounded-lg border uppercase bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
-              /> -->
+              <FloatLabel variant="on">
+                <InputNumber
+                  v-model="form.volume_horaire"
+                  inputId="integeronly"
+                  fluid
+                />
+                <label for="on_label">Volume Horaire</label>
+              </FloatLabel>
+              <FloatLabel variant="on">
+                <InputNumber
+                  v-model="form.coefficient"
+                  inputId="integeronly"
+                  fluid
+                />
+                <label for="on_label">Coefficient</label>
+              </FloatLabel>
 
+              <!-- NIVEAU -->
+              <MultiSelect
+                v-if="!form.id"
+                v-model="form.niveau_ids"
+                display="chip"
+                :options="NiveauxOptions"
+                optionLabel="label"
+                optionValue="value"
+                multiple
+                filter
+                placeholder="Sélectionner des niveaux"
+                class="w-full"
+                @change="onNiveauChangeMulti"
+              />
               <Dropdown
-                v-model="form.periode_id"
-                :options="PeriodesOptions"
+                v-else
+                v-model="form.niveau_id"
+                :options="NiveauxOptions"
                 optionLabel="label"
                 optionValue="value"
                 filter
                 showClear
-                placeholder="Sélectionner une période"
+                placeholder="Sélectionner un niveau"
+                class="w-full"
+                @change="onNiveauChange"
+              />
+
+              <!-- FILIERE -->
+              <MultiSelect
+                v-if="!form.id"
+                v-model="form.filiere_ids"
+                display="chip"
+                :options="FilieresOptions"
+                optionLabel="label"
+                optionValue="value"
+                multiple
+                filter
+                placeholder="Sélectionner des filières"
+                class="w-full"
+              />
+               <Dropdown
+                v-else
+                v-model="form.filiere_id"
+                :options="FilieresOptions"
+                optionLabel="label"
+                optionValue="value"
+                filter
+                showClear
+                placeholder="Sélectionner une filiere"
+                class="w-full"
+              />
+
+              <!-- PERIODE -->
+              <MultiSelect
+                v-if="!form.id"
+                v-model="form.periode_ids"
+                display="chip"
+                :options="SemestreOptions"
+                optionLabel="label"
+                optionValue="value"
+                multiple
+                filter
+                :disabled="!form.niveau_ids || form.niveau_ids.length === 0"
+                :placeholder="form.niveau_ids?.length > 0 ? 'Sélectionner des semestres' : 'Sélectionnez d\'abord un niveau'"
+                class="w-full"
+              />
+              <Dropdown
+                v-else
+                v-model="form.periode_id"
+                :options="SemestreOptions"
+                optionLabel="label"
+                optionValue="value"
+                filter
+                showClear
+                :disabled="!form.niveau_id"
+                :placeholder="form.niveau_id ? 'Sélectionner un semestre' : 'Sélectionnez d\'abord un niveau'"
                 class="w-full"
               />
 
@@ -525,15 +654,6 @@
                 class="w-full px-4 py-2 rounded-lg border uppercase bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
               /> -->
 
-              <FloatLabel variant="on">
-                <InputNumber
-                  v-model="form.volume_horaire"
-                  inputId="integeronly"
-                  fluid
-                />
-                <label for="on_label">Volume Horaire</label>
-              </FloatLabel>
-
               <!-- <input
                 v-model="form.coefficient"
                 placeholder="Coefficient"
@@ -541,25 +661,7 @@
                 class="w-full px-4 py-2 rounded-lg border uppercase bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
               /> -->
 
-              <FloatLabel variant="on">
-                <InputNumber
-                  v-model="form.coefficient"
-                  inputId="integeronly"
-                  fluid
-                />
-                <label for="on_label">Coefficient</label>
-              </FloatLabel>
-
-              <Dropdown
-                v-model="form.filiere_id"
-                :options="FilieresOptions"
-                optionLabel="label"
-                optionValue="value"
-                filter
-                showClear
-                placeholder="Sélectionner une filiere"
-                class="w-full"
-              />
+             
 
               <MultiSelect
                 v-model="form.enseignant_id"
@@ -582,13 +684,18 @@
                   Annuler
                 </button>
 
-                <button
-                  type="submit"
-                  class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
-                >
-                  Enregistrer
-                </button>
-              </div>
+                  <button
+                    type="submit"
+                    :disabled="isSaving"
+                    class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    <svg v-if="isSaving" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    {{ isSaving ? 'Enregistrement...' : 'Enregistrer' }}
+                  </button>
+                </div>
             </form>
           </DialogPanel>
         </div>
@@ -598,7 +705,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
 import {
@@ -612,6 +719,7 @@ import { useFiliereStore } from "../../../stores/filiere";
 import { useUvStore } from "~~/stores/unite-valeur";
 import { useUserStore } from "~~/stores/user";
 import { usePeriodeStore } from "~~/stores/periode";
+import { useNiveauStore } from "~~/stores/niveau";
 import ButtonDelete from "~/components/ui/buttonDelete.vue";
 
 const { $toastr, $swal } = useNuxtApp();
@@ -619,9 +727,15 @@ const filiereStore = useFiliereStore();
 const uvStore = useUvStore();
 const userStore = useUserStore();
 const periodeStore = usePeriodeStore();
+const niveauStore = useNiveauStore();
 
 const searchQuery = ref("");
+const filterFiliere = ref(null);
+const filterNiveau = ref(null);
+const filterSemestre = ref(null);
+const filteredGlobalPeriodes = ref([]);
 const loading = ref(true);
+const isSaving = ref(false);
 const showModal = ref(false);
 const modalTitle = ref("");
 const itemsPerPage = ref(5);
@@ -637,6 +751,30 @@ const form = ref({
   enseignant_id: [],
   filiere_id: "",
   periode_id: "",
+  niveau_id: "",
+  filiere_ids: [],
+  periode_ids: [],
+  niveau_ids: [],
+});
+
+const generateCodeFromName = (name) => {
+  if (!name) return "";
+  const words = name.trim().split(/\s+/);
+  let acronym = "";
+  if (words.length === 1) {
+    acronym = words[0].substring(0, 3).toUpperCase();
+  } else {
+    acronym = words.map(w => w[0]).join('').toUpperCase();
+  }
+  const randomNum = Math.floor(100 + Math.random() * 900);
+  return `${acronym}-${randomNum}`;
+};
+
+watch(() => form.value.nom, (newNom) => {
+  if (!form.value.id && newNom) {
+    // Generate only if code is empty or looks like an auto-generated code
+    form.value.code = generateCodeFromName(newNom);
+  }
 });
 
 const columns = ref([
@@ -647,9 +785,10 @@ const columns = ref([
   // { field: "tp", title: "Traveaux pratiques", visible: true },
   // { field: "ec", title: "Elements constitutifs", visible: true },
   { field: "coefficient", title: "Coefficient", visible: true },
+  { field: "niveau_label", title: "Niveau", visible: true },
   { field: "filiere", title: "Filiere", visible: false },
   { field: "volume_horaire", title: "Volume Horaire", visible: false },
-  { field: "periode", title: "Période", visible: false },
+  { field: "semestre", title: "Semestre", visible: false },
   { field: "action", title: "Actions", visible: true },
 ]);
 
@@ -666,16 +805,34 @@ const rows = computed(() =>
     tp: f.tp ?? 0,
     ec: f.ec ?? 0,
     coefficient: f.coefficient ?? 0,
-    debut: f.periode.debut + "-" + f.periode.fin ?? "--",
-    filiere: f.filiere.nom ?? 0,
+    debut: f.periode ? (f.periode.debut + "-" + f.periode.fin) : "--",
+    filiere: f.filiere?.nom ?? "--",
     volume_horaire: f.volume_horaire ?? "--",
     user: f.user ?? null,
-    periode: f.periode.nom ?? null,
+    semestre: f.periode?.nom ?? null,
     filiere_id: f.filiere?.id ?? null,
     periode_id: f.periode?.id ?? null,
+    niveau_id: f.niveau?.id ?? null,
+    niveau_label: f.niveau?.libelle ?? "--",
     enseignant_ids: f.user?.map((u) => u.id) ?? [],
   })),
 );
+
+const filteredRows = computed(() => {
+  let result = rows.value;
+
+  if (filterFiliere.value) {
+    result = result.filter((r) => r.filiere_id === filterFiliere.value);
+  }
+  if (filterNiveau.value) {
+    result = result.filter((r) => r.niveau_id === filterNiveau.value);
+  }
+  if (filterSemestre.value) {
+    result = result.filter((r) => r.periode_id === filterSemestre.value);
+  }
+
+  return result;
+});
 
 const enseignantsOptions = computed(() => {
   return userStore.enseignants.map((e) => ({
@@ -704,8 +861,79 @@ const openAddModal = () => {
     enseignant_id: [],
     filiere_id: "",
     periode_id: "",
+    niveau_id: "",
+    filiere_ids: [],
+    periode_ids: [],
+    niveau_ids: [],
   };
+  filteredPeriodes.value = [];
   showModal.value = true;
+};
+
+const filteredPeriodes = ref([]);
+
+const onNiveauChange = async () => {
+  if (form.value.niveau_id) {
+    try {
+      const periodes = await niveauStore.fetchNiveauPeriodes(form.value.niveau_id);
+      filteredPeriodes.value = periodes;
+      // Optionnel : réinitialiser le semestre si l'actuel n'est pas dans la liste
+      if (form.value.periode_id && !periodes.find(p => p.id === form.value.periode_id)) {
+        form.value.periode_id = "";
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  } else {
+    filteredPeriodes.value = [];
+    form.value.periode_id = "";
+  }
+};
+
+const onNiveauChangeMulti = async () => {
+  if (form.value.niveau_ids && form.value.niveau_ids.length > 0) {
+    try {
+      let allPeriodes = [];
+      for (const nid of form.value.niveau_ids) {
+          const p = await niveauStore.fetchNiveauPeriodes(nid);
+          allPeriodes = [...allPeriodes, ...p];
+      }
+      // Deduplicate by ID
+      const uniqueIds = new Set();
+      filteredPeriodes.value = allPeriodes.filter(p => {
+          if (!uniqueIds.has(p.id)) {
+              uniqueIds.add(p.id);
+              return true;
+          }
+          return false;
+      });
+      // Optionally reset periode_ids if old selections are not valid anymore
+      if (form.value.periode_ids && form.value.periode_ids.length > 0) {
+          form.value.periode_ids = form.value.periode_ids.filter(id => 
+              filteredPeriodes.value.find(p => p.id === id)
+          );
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  } else {
+    filteredPeriodes.value = [];
+    form.value.periode_ids = [];
+  }
+};
+
+const onFilterNiveauChange = async () => {
+  filterSemestre.value = null; // Reset selection
+  if (filterNiveau.value) {
+    try {
+      const periodes = await niveauStore.fetchNiveauPeriodes(filterNiveau.value);
+      filteredGlobalPeriodes.value = periodes;
+    } catch (error) {
+      console.error(error);
+    }
+  } else {
+    filteredGlobalPeriodes.value = [];
+  }
 };
 
 const openEditModal = (f) => {
@@ -721,8 +949,16 @@ const openEditModal = (f) => {
 
     filiere_id: f.filiere_id,
     periode_id: f.periode_id,
+    niveau_id: f.niveau_id,
     enseignant_id: [...f.enseignant_ids],
+    filiere_ids: [],
+    periode_ids: [],
+    niveau_ids: [],
   };
+
+  if (f.niveau_id) {
+    onNiveauChange();
+  }
 
   showModal.value = true;
 };
@@ -730,6 +966,7 @@ const openEditModal = (f) => {
 const closeModal = () => (showModal.value = false);
 
 const saveMatiere = async () => {
+  isSaving.value = true;
   try {
     form.value.id
       ? await uvStore.updateUv(form.value.slug, form.value)
@@ -740,7 +977,9 @@ const saveMatiere = async () => {
     closeModal();
   } catch (error) {
     console.log(error);
-    $toastr.error(error.response.data.message);
+    $toastr.error(error.response?.data?.message || "Une erreur est survenue");
+  } finally {
+    isSaving.value = false;
   }
 };
 
@@ -759,10 +998,26 @@ const deleteItem = async (uv) => {
   }
 };
 
-const PeriodesOptions = computed(() =>
-  periodeStore.periode.map((p) => ({
+const SemestreOptions = computed(() => {
+  const source = filteredPeriodes.value.length > 0 ? filteredPeriodes.value : periodeStore.periode;
+  return source.map((p) => ({
     label: p.nom,
     value: p.id,
+  }));
+});
+
+const GlobalSemestreOptions = computed(() => {
+  const source = filterNiveau.value ? filteredGlobalPeriodes.value : periodeStore.periode;
+  return source.map((p) => ({
+    label: p.nom,
+    value: p.id,
+  }));
+});
+
+const NiveauxOptions = computed(() =>
+  niveauStore.niveaux.map((n) => ({
+    label: n.libelle,
+    value: n.id,
   })),
 );
 
@@ -777,6 +1032,7 @@ onMounted(async () => {
   await filiereStore.fetchFilieres();
   await uvStore.fetchUv();
   await userStore.fetchUsersEnseignant();
+  await niveauStore.fetchNiveaux();
   await periodeStore.fetchPeriodeByYear();
   loading.value = false;
 });

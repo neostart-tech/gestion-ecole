@@ -1,18 +1,25 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 lg:p-8 transition-colors">
+  <div class="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-slate-200 dark:from-slate-900 dark:via-gray-900 dark:to-slate-800 p-4 md:p-8 transition-all duration-500 font-sans relative overflow-hidden">
+    
+    <!-- Décorations d'arrière-plan -->
+    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/0 blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-gradient-to-tl from-emerald-500/10 to-teal-500/0 blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10">
     <!-- En-tête avec Breadcrumb et bouton -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-      <!-- Breadcrumb -->
-      <Breadcrumb
-        :items="[
-          { label: 'Tableau de bord', to: '/admin/dashboard' },
-          { label: 'Negociation des paiements', to: '/admin/negociations' },
-          { label: 'Gestion des negociations', to: null }
-        ]"
-        title="Gestion des négociations de paiement"
-        title-class="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
-        spacing="mb-0"
-      />
+      <div class="space-y-1">
+        <h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-slate-500 dark:from-white dark:to-slate-400 tracking-tighter uppercase drop-shadow-sm">
+          Négociations
+        </h1>
+        <p class="text-slate-500 dark:text-gray-400 font-semibold text-sm flex items-center gap-2">
+          <span class="w-2.5 h-2.5 bg-gradient-to-tr from-indigo-600 to-purple-500 rounded-full shadow-[0_0_10px_rgba(79,70,229,0.5)] animate-pulse"></span>
+          Suivi des échéanciers et arrangements de paiement
+          <span v-if="!isPageLoading" class="ml-2 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] rounded border border-slate-200 dark:border-slate-700">
+            {{ negociationStore.negociations?.length || 0 }} dossiers
+          </span>
+        </p>
+      </div>
 
       <!-- Bouton pour créer un échéancier -->
       <NuxtLink
@@ -30,7 +37,7 @@
     <!-- Cartes de statistiques -->
     <div v-if="!isPageLoading" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
       <!-- Total Étudiants -->
-      <div class="group bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-4 sm:p-5 border border-gray-100 dark:border-gray-700">
+      <div class="group bg-white dark:bg-gray-800 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-300 p-5 border border-slate-100 dark:border-gray-700">
         <div class="flex items-center justify-between">
           <div>
             <span class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Total étudiants</span>
@@ -43,8 +50,9 @@
           </div>
         </div>
         <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-          <span class="text-green-600 dark:text-green-400">{{ stats?.en_cours || 0 }}</span> en cours,
-          <span class="text-red-600 dark:text-red-400">{{ stats?.en_retard || 0 }}</span> en retard
+          <span class="text-green-600 dark:text-green-400 font-bold">{{ stats?.soldes || 0 }}</span> soldés,
+          <span class="text-amber-600 dark:text-amber-400 font-bold">{{ stats?.en_cours || 0 }}</span> à jour,
+          <span class="text-red-600 dark:text-red-400 font-bold">{{ stats?.en_retard || 0 }}</span> en retard
         </div>
       </div>
 
@@ -52,7 +60,7 @@
       <div class="group bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-4 sm:p-5 border border-gray-100 dark:border-gray-700">
         <div class="flex items-center justify-between">
           <div>
-            <span class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">En cours</span>
+            <span class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">À jour</span>
             <p class="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">{{ stats?.en_cours || 0 }}</p>
           </div>
           <div class="p-2 sm:p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl group-hover:scale-110 transition-transform">
@@ -152,7 +160,7 @@
     </div>
 
     <!-- Carte principale avec onglets -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+    <div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden border border-white/50 dark:border-gray-700">
       <!-- En-tête avec onglets -->
       <div class="border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50">
         <div class="px-4 sm:px-6">
@@ -211,7 +219,7 @@
               class="px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 w-full sm:w-36"
             >
               <option value="">Tous statuts</option>
-              <option value="en_cours">En cours</option>
+              <option value="en_cours">À jour</option>
               <option value="solde">Soldé</option>
               <option value="en_retard">En retard</option>
             </select>
@@ -306,7 +314,6 @@
             v-else
             :columns="visibleColumns"
             :rows="filteredData"
-            :search="searchQuery"
             :per-page="itemsPerPage"
             :page="currentPage"
             @update:page="currentPage = $event"
@@ -358,6 +365,17 @@
               </div>
             </template>
 
+            <template #frequence="data">
+              <div class="flex flex-col">
+                <span class="text-xs font-medium text-gray-900 dark:text-white capitalize">
+                  {{ data.value.type_paiement === 'negociation' ? 'Négociation' : (data.value.frequence_paiement || 'Annuel') }}
+                </span>
+                <span class="text-[10px] text-gray-500 dark:text-gray-400">
+                  {{ getNbEcheancesLabel(data.value) }}
+                </span>
+              </div>
+            </template>
+
             <template #montants="data">
               <div class="text-right space-y-0.5">
                 <p class="text-sm font-semibold text-green-600 dark:text-green-400">
@@ -383,18 +401,36 @@
             <!-- Template statut corrigé -->
             <template #statut="data">
               <span class="inline-flex items-center gap-1.5">
-                <span class="w-1.5 h-1.5 rounded-full" :class="{
-                  'bg-green-500': getStatutActuel(data.value) === 'solde',
-                  'bg-yellow-500': getStatutActuel(data.value) === 'en_cours',
-                  'bg-red-500': getStatutActuel(data.value) === 'en_retard'
-                }"></span>
-                <span class="text-xs font-medium" :class="{
-                  'text-green-700 dark:text-green-300': getStatutActuel(data.value) === 'solde',
-                  'text-yellow-700 dark:text-yellow-300': getStatutActuel(data.value) === 'en_cours',
-                  'text-red-700 dark:text-red-300': getStatutActuel(data.value) === 'en_retard'
-                }">
-                  {{ getStatutActuelLabel(data.value) }}
-                </span>
+                <template v-if="data.value.frais_etudiant">
+                  <!-- Cas d'une échéance -->
+                  <span class="w-1.5 h-1.5 rounded-full" :class="{
+                    'bg-green-500': (Number(data.value.montant) - Number(data.value.montant_paye || 0)) <= 0,
+                    'bg-yellow-500': (Number(data.value.montant) - Number(data.value.montant_paye || 0)) > 0 && new Date(data.value.date_limite) >= new Date(),
+                    'bg-red-500': (Number(data.value.montant) - Number(data.value.montant_paye || 0)) > 0 && new Date(data.value.date_limite) < new Date()
+                  }"></span>
+                  <span class="text-xs font-medium" :class="{
+                    'text-green-700 dark:text-green-300': (Number(data.value.montant) - Number(data.value.montant_paye || 0)) <= 0,
+                    'text-amber-700 dark:text-amber-300': (Number(data.value.montant) - Number(data.value.montant_paye || 0)) > 0 && new Date(data.value.date_limite) >= new Date(),
+                    'text-red-700 dark:text-red-300': (Number(data.value.montant) - Number(data.value.montant_paye || 0)) > 0 && new Date(data.value.date_limite) < new Date()
+                  }">
+                    {{ (Number(data.value.montant) - Number(data.value.montant_paye || 0)) <= 0 ? 'Soldé' : (new Date(data.value.date_limite) < new Date() ? 'En retard' : 'À jour') }}
+                  </span>
+                </template>
+                <template v-else>
+                  <!-- Cas d'une négociation globale -->
+                  <span class="w-1.5 h-1.5 rounded-full" :class="{
+                    'bg-green-500': getStatutActuel(data.value) === 'solde',
+                    'bg-yellow-500': getStatutActuel(data.value) === 'en_cours',
+                    'bg-red-500': getStatutActuel(data.value) === 'en_retard'
+                  }"></span>
+                  <span class="text-xs font-medium" :class="{
+                    'text-green-700 dark:text-green-300': getStatutActuel(data.value) === 'solde',
+                    'text-yellow-700 dark:text-yellow-300': getStatutActuel(data.value) === 'en_cours',
+                    'text-red-700 dark:text-red-300': getStatutActuel(data.value) === 'en_retard'
+                  }">
+                    {{ getStatutActuelLabel(data.value) }}
+                  </span>
+                </template>
               </span>
             </template>
 
@@ -641,6 +677,7 @@
         </div>
       </Dialog>
     </TransitionRoot>
+    </div>
   </div>
 </template>
 
@@ -696,6 +733,7 @@ const stats = computed(() => {
   let totalEtudiants = new Set()
   let enCours = 0
   let enRetard = 0
+  let soldes = 0 // Nouveau
   let montantTotal = 0
   let montantPayeTotal = 0
   let montantEnRetard = 0
@@ -751,6 +789,8 @@ const stats = computed(() => {
       enRetard++
     } else if (statutActuel === 'en_cours') {
       enCours++
+    } else if (statutActuel === 'solde') {
+      soldes++
     }
   })
   
@@ -775,6 +815,7 @@ const stats = computed(() => {
     total_etudiants: totalEtudiants.size,
     en_cours: enCours,
     en_retard: enRetard,
+    soldes: soldes,
     montant_total: montantTotal,
     montant_paye: montantPayeTotal,
     montant_en_retard: montantEnRetard,
@@ -816,11 +857,11 @@ const appName = computed(() => parametreStore.getAppName)
 
 const getStatutActuelLabel = (negociation) => {
   const labels = {
-    en_cours: 'En cours',
+    en_cours: 'À jour',
     solde: 'Soldé',
     en_retard: 'En retard'
   }
-  return labels[getStatutActuel(negociation)] || 'En cours'
+  return labels[getStatutActuel(negociation)] || 'À jour'
 }
 
 // Configuration des tabs
@@ -837,14 +878,16 @@ const tabs = [
     label: 'Échéances à venir',
     icon: '<svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>',
     badge: computed(() => {
-      const maintenant = new Date()
+      const aujourdHui = new Date()
+      aujourdHui.setHours(0, 0, 0, 0)
       let count = 0
       negociationStore.negociations?.forEach(neg => {
         if (neg.echeances) {
           neg.echeances.forEach(e => {
             const dateLimite = new Date(e.date_limite)
+            dateLimite.setHours(0, 0, 0, 0)
             const resteAPayer = (Number(e.montant) || 0) - (Number(e.montant_paye) || 0)
-            if (dateLimite >= maintenant && resteAPayer > 0) {
+            if (dateLimite >= aujourdHui && resteAPayer > 0) {
               count++
             }
           })
@@ -859,14 +902,16 @@ const tabs = [
     label: 'En retard',
     icon: '<svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>',
     badge: computed(() => {
-      const maintenant = new Date()
+      const aujourdHui = new Date()
+      aujourdHui.setHours(0, 0, 0, 0)
       let count = 0
       negociationStore.negociations?.forEach(neg => {
         if (neg.echeances) {
           neg.echeances.forEach(e => {
             const dateLimite = new Date(e.date_limite)
+            dateLimite.setHours(0, 0, 0, 0)
             const resteAPayer = (Number(e.montant) || 0) - (Number(e.montant_paye) || 0)
-            if (dateLimite < maintenant && resteAPayer > 0) {
+            if (dateLimite < aujourdHui && resteAPayer > 0) {
               count++
             }
           })
@@ -881,6 +926,7 @@ const tabs = [
 // Colonnes pour les frais
 const fraisColumns = ref([
   { field: "etudiant", title: "Étudiant", visible: true },
+  { field: "frequence", title: "Fréquence", visible: true },
   { field: "niveau", title: "Niveau/Filière", visible: false },
   { field: "type_paiement", title: "Type", visible: false },
   { field: "montants", title: "Montant", visible: true },
@@ -911,57 +957,67 @@ const visibleColumns = computed(() => {
 
 // Données filtrées
 const filteredData = computed(() => {
+  let liste = negociationStore.negociations || []
+  
+  // Appliquer les filtres de base sur les négociations d'abord
+  if (filtreAnnee.value) {
+    liste = liste.filter(f => f.annee_scolaire_id == filtreAnnee.value)
+  }
+
+  // Si recherche manuelle
+  if (searchQuery.value) {
+    const search = searchQuery.value.toLowerCase().trim()
+    liste = liste.filter(f => {
+      const nom = (f.etudiant?.nom?.toLowerCase() || '')
+      const prenom = (f.etudiant?.prenom?.toLowerCase() || '')
+      const matricule = (f.etudiant?.matricule?.toLowerCase() || '')
+      const filiere = (f.frais_scolarite?.filiere?.nom?.toLowerCase() || '')
+      const niveau = (f.frais_scolarite?.niveau?.libelle?.toLowerCase() || '')
+      
+      return nom.includes(search) || 
+             prenom.includes(search) || 
+             matricule.includes(search) ||
+             filiere.includes(search) ||
+             niveau.includes(search)
+    })
+  }
+
   if (activeTab.value === 'frais') {
-    let liste = negociationStore.negociations || []
-    
-    if (filtreAnnee.value) {
-      liste = liste.filter(f => f.annee_scolaire_id == filtreAnnee.value)
-    }
-    
     if (filtreStatut.value) {
       liste = liste.filter(f => getStatutActuel(f) === filtreStatut.value)
     }
-    
     return liste
-  } else if (activeTab.value === 'echeances') {
-    // Échéances à venir
-    const maintenant = new Date()
-    const echeances = []
-    negociationStore.negociations?.forEach(neg => {
-      if (neg.echeances) {
-        neg.echeances.forEach(e => {
-          const dateLimite = new Date(e.date_limite)
-          const resteAPayer = (Number(e.montant) || 0) - (Number(e.montant_paye) || 0)
-          if (dateLimite >= maintenant && resteAPayer > 0) {
-            echeances.push({
-              ...e,
-              frais_etudiant: neg
-            })
+  } 
+  
+  const aujourdHui = new Date()
+  aujourdHui.setHours(0, 0, 0, 0)
+  
+  const echeances = []
+  
+  liste.forEach(neg => {
+    if (neg.echeances) {
+      neg.echeances.forEach(e => {
+        const dateLimite = new Date(e.date_limite)
+        dateLimite.setHours(0, 0, 0, 0)
+        
+        const resteAPayer = (Number(e.montant) || 0) - (Number(e.montant_paye) || 0)
+        
+        if (activeTab.value === 'echeances') {
+          // Échéances dont la date limite n'est pas encore passée
+          if (dateLimite >= aujourdHui && resteAPayer > 0) {
+            echeances.push({ ...e, frais_etudiant: neg })
           }
-        })
-      }
-    })
-    return echeances
-  } else {
-    // Échéances en retard
-    const maintenant = new Date()
-    const echeancesEnRetard = []
-    negociationStore.negociations?.forEach(neg => {
-      if (neg.echeances) {
-        neg.echeances.forEach(e => {
-          const dateLimite = new Date(e.date_limite)
-          const resteAPayer = (Number(e.montant) || 0) - (Number(e.montant_paye) || 0)
-          if (dateLimite < maintenant && resteAPayer > 0) {
-            echeancesEnRetard.push({
-              ...e,
-              frais_etudiant: neg
-            })
+        } else if (activeTab.value === 'retard') {
+          // Échéances dont la date limite est strictement passée
+          if (dateLimite < aujourdHui && resteAPayer > 0) {
+            echeances.push({ ...e, frais_etudiant: neg })
           }
-        })
-      }
-    })
-    return echeancesEnRetard
-  }
+        }
+      })
+    }
+  })
+  
+  return echeances
 })
 
 // Filtres actifs
@@ -989,6 +1045,7 @@ onMounted(async () => {
   try {
     await Promise.all([
       negociationStore.fetchNegociations(),
+      negociationStore.fetchDashboard(),
       anneeStore.fetchAnneeScolaire(),
       parametreStore.fetchParametres()
     ])
@@ -1038,13 +1095,19 @@ const getInitials = (etudiant) => {
 
 const getStatutLabel = (statut) => {
   const labels = {
-    en_cours: 'En cours',
+    en_cours: 'À jour',
     solde: 'Soldé',
     en_retard: 'En retard',
-    en_attente: 'En attente',
+    en_attente: 'À jour',
     paye: 'Payé'
   }
   return labels[statut] || statut
+}
+
+const getNbEcheancesLabel = (neg) => {
+  if (!neg || !neg.echeances) return '0 échéance'
+  const count = neg.echeances.length
+  return `${count} échéance${count > 1 ? 's' : ''}`
 }
 
 const formatMontant = (montant) => {
@@ -1119,7 +1182,7 @@ const getModePaiementLabel = (mode) => {
     especes: 'Espèces',
     banque: 'Banque',
     semoa: 'SEMOA',
-    caisse: 'Caisse',
+    caisse: 'Espèces',
     carte: 'Carte',
     virement: 'Virement',
     cheque: 'Chèque'

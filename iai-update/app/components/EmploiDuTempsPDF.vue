@@ -41,36 +41,43 @@
           <th class="col-horaire">Horaire</th>
           <th v-for="jour in joursUniques" :key="jour.jour_fr" class="col-jour">
             <div class="jour-th-nom">{{ jour.jour_fr }}</div>
-            <div class="jour-th-date">{{ jour.date_formatted }}</div>
           </th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(slot, si) in creneaux" :key="si">
           <td class="td-horaire">{{ slot }}</td>
-          <td v-for="(jour, ji) in joursUniques" :key="ji" class="td-cours">
-            <div
-              v-for="(cours, ci) in getCoursSlot(jour, slot)"
-              :key="ci"
-              class="cours-cell"
-            >
-              <div class="cours-matiere">{{ cours.matiere }}</div>
-              <div class="cours-prof">
-                {{ cours.professeur || "À définir" }}
+          <td v-for="(jour, ji) in joursUniques" :key="ji" class="td-cours" :class="{ 'td-holiday': !!getHoliday(jour) }">
+            <template v-if="getHoliday(jour)">
+              <div v-if="si === 0" class="holiday-indicator">
+                <div class="holiday-title">JOUR FÉRIÉ</div>
+                <div class="holiday-desc">{{ getHoliday(jour).titre }}</div>
               </div>
-              <div class="cours-salle">
-                <template v-if="cours.est_virtuelle">
-                  <a
-                    :href="cours.lien_salle"
-                    target="_blank"
-                    class="cours-lien"
-                  >
-                    {{ cours.plateforme || "Visio" }} → rejoindre
-                  </a>
-                </template>
-                <span v-else>{{ cours.salle_affichage }}</span>
+            </template>
+            <template v-else>
+              <div
+                v-for="(cours, ci) in getCoursSlot(jour, slot)"
+                :key="ci"
+                class="cours-cell"
+              >
+                <div class="cours-matiere">{{ cours.matiere }}</div>
+                <div class="cours-prof">
+                  {{ cours.professeur || "À définir" }}
+                </div>
+                <div class="cours-salle">
+                  <template v-if="cours.est_virtuelle">
+                    <a
+                      :href="cours.lien_salle"
+                      target="_blank"
+                      class="cours-lien"
+                    >
+                      {{ cours.plateforme || "Visio" }} → rejoindre
+                    </a>
+                  </template>
+                  <span v-else>{{ cours.salle_affichage }}</span>
+                </div>
               </div>
-            </div>
+            </template>
           </td>
         </tr>
       </tbody>
@@ -101,6 +108,7 @@ const props = defineProps({
   dateDebut: { type: [Date, String], required: true },
   dateFin: { type: [Date, String], default: null },
   typeExport: { type: String, default: "tous" },
+  holidays: { type: Array, default: () => [] },
 });
 
 // États réactifs pour le logo
@@ -124,16 +132,20 @@ const ordreJours = {
 const joursUniques = computed(() => {
   const map = new Map();
 
+  // Grouper par nom du jour (pour avoir un emploi du temps générique)
   coursOrganisesTries.value.forEach((jour) => {
-    if (!map.has(jour.jour_fr)) {
-      map.set(jour.jour_fr, {
+    const key = jour.jour_fr.toUpperCase();
+    if (!map.has(key)) {
+      map.set(key, {
         jour_fr: jour.jour_fr,
-        date_formatted: jour.date_formatted,
       });
     }
   });
 
-  return Array.from(map.values());
+  // Trier par ordre des jours de la semaine
+  return Array.from(map.values()).sort((a, b) => {
+    return (ordreJours[a.jour_fr.toUpperCase()] || 99) - (ordreJours[b.jour_fr.toUpperCase()] || 99);
+  });
 });
 
 // Trier les cours par ordre chronologique
@@ -272,16 +284,49 @@ const convertirHeureEnMinutes = (heure) => {
   return 0;
 };
 
-// Récupérer les cours pour un créneau
+// Récupérer les cours pour un créneau (Mode Emploi du Temps Générique)
 const getCoursSlot = (jour, slot) => {
-  const data = coursOrganisesTries.value.find(j => j.jour_fr === jour.jour_fr)
-  if (!data) return []
+  if (!jour || !jour.jour_fr) return [];
+  
+  const matchingDays = coursOrganisesTries.value.filter(
+    (j) => j.jour_fr?.toUpperCase() === jour.jour_fr?.toUpperCase()
+  );
+  
+  if (matchingDays.length === 0) return [];
 
-  return data.cours.filter(cours => {
-    const h = cours.horaire ?? `${cours.heure_debut} - ${cours.heure_fin}`
-    return h === slot
-  })
+  const allCours = [];
+  matchingDays.forEach((data) => {
+    const coursForSlot = data.cours.filter((cours) => {
+      const h = cours.horaire ?? `${cours.heure_debut} - ${cours.heure_fin}`;
+      return h === slot;
+    });
+    
+    // Ajouter les cours en évitant les doublons stricts (même matière, prof et salle)
+    coursForSlot.forEach(c => {
+      const exists = allCours.find(
+        ac => ac.matiere === c.matiere && 
+              ac.professeur === c.professeur && 
+              ac.salle_affichage === c.salle_affichage
+      );
+      if (!exists) {
+        allCours.push(c);
+      }
+    });
+  });
+
+  return allCours;
 }
+
+// Vérifier si un jour est férié
+const getHoliday = (jour) => {
+  if (!jour || !jour.date_formatted || !props.holidays) return null;
+  const parts = jour.date_formatted.split('/');
+  if (parts.length === 3) {
+    const dStr = `${parts[2]}-${parts[1]}-${parts[0]}`;
+    return props.holidays.find((h) => h.date && h.date.startsWith(dStr));
+  }
+  return null;
+};
 
 // Charger les paramètres au montage
 onMounted(async () => {
@@ -503,6 +548,37 @@ watch(
   height: auto;
   min-height: 80px;
   background-color: #ffffff;
+}
+
+.td-holiday {
+  background-color: #fee2e2 !important;
+  background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(220, 38, 38, 0.05) 10px, rgba(220, 38, 38, 0.05) 20px) !important;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.holiday-indicator {
+  padding: 10px 5px;
+  color: #dc2626;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.holiday-title {
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.holiday-desc {
+  font-size: 11px;
+  font-weight: 600;
+  color: #b91c1c;
 }
 
 .cours-cell {

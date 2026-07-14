@@ -7,6 +7,10 @@ export const useAnneScolaireStore = defineStore("annee-scolaire", {
     isLoading: false,
   }),
 
+  getters: {
+    activeAnnee: (state) => state.annneescolaires.find((a) => a.active === true || a.active === 1),
+  },
+
   actions: {
     authHeaders() {
       const token = localStorage.getItem("gest-ecole-token");

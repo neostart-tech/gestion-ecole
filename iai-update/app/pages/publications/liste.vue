@@ -362,14 +362,14 @@
                 v-if="data.value.status === 'published'"
                 class="flex items-center gap-2"
               >
-                <div class="relative">
+                <button
+                  @click="publishBlogs(data.value)"
+                  class="relative w-14 h-7 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center px-1 cursor-pointer transition-all duration-200 group"
+                  :title="'Cliquer pour dépublier ' + data.value.title"
+                >
                   <div
-                    class="w-14 h-7 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center px-1"
-                  >
-                    <div
-                      class="w-5 h-5 bg-green-500 dark:bg-green-600 rounded-full shadow-md transform translate-x-7 transition-all duration-200"
-                    ></div>
-                  </div>
+                    class="w-5 h-5 bg-green-500 dark:bg-green-600 rounded-full shadow-md transform translate-x-7 transition-all duration-200 group-hover:scale-110"
+                  ></div>
                   <span class="absolute -top-1 -right-1 flex h-3 w-3">
                     <span
                       class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"
@@ -378,11 +378,7 @@
                       class="relative inline-flex rounded-full h-3 w-3 bg-green-500"
                     ></span>
                   </span>
-                </div>
-                <span
-                  class="text-xs font-medium text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded-full"
-                >
-                </span>
+                </button>
               </div>
 
               <!-- Si non publié -->
@@ -396,10 +392,6 @@
                     class="w-5 h-5 bg-white dark:bg-gray-400 rounded-full shadow-md transform transition-all duration-200 group-hover:scale-110"
                   ></div>
                 </button>
-                <span
-                  class="text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded-full"
-                >
-                </span>
               </div>
             </div>
           </template>
@@ -599,15 +591,18 @@ const clearSearch = () => {
 
 const publishBlogs = async (blog) => {
   const { $swal } = useNuxtApp();
+  const isPublished = blog.status === "published";
 
   const result = await $swal.fire({
-    title: "Publier la publication ?",
-    text: `Voulez-vous publier "${blog.title}" ? Cette action est irréversible.`,
+    title: isPublished ? "Dépublier l'article ?" : "Publier l'article ?",
+    text: isPublished
+      ? `Voulez-vous dépublier "${blog.title}" ? Il ne sera plus visible sur le site.`
+      : `Voulez-vous publier "${blog.title}" ? Tous les utilisateurs recevront une notification.`,
     icon: "question",
     showCancelButton: true,
-    confirmButtonColor: "#10b981",
+    confirmButtonColor: isPublished ? "#dc2626" : "#10b981",
     cancelButtonColor: "#6b7280",
-    confirmButtonText: "Oui, publier",
+    confirmButtonText: isPublished ? "Oui, dépublier" : "Oui, publier",
     cancelButtonText: "Annuler",
     background: document.documentElement.classList.contains("dark")
       ? "#1f2937"
@@ -621,10 +616,12 @@ const publishBlogs = async (blog) => {
     try {
       await blogStore.publishBlog(blog.slug);
       await blogStore.fetchBlogs();
-      $toastr.success("Publication publiée avec succès");
+      $toastr.success(
+        `Article ${isPublished ? "dépublié" : "publié"} avec succès`
+      );
     } catch (error) {
       console.error("Erreur publication:", error);
-      $toastr.error(error.response.data.message);
+      $toastr.error(error.response?.data?.message || "Une erreur est survenue");
     }
   }
 };

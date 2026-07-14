@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "../../../app";
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
@@ -97,3 +98,126 @@ body {
 	height: 100%;
 	transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+/*
+ * @bhplugin/vue3-datatable (Vue3Datatable) ne fournit aucun style pour le
+ * mode sombre : son CSS impose des couleurs claires fixes (fond blanc,
+ * texte noir) qui restent inchangées quel que soit le thème. Comme ce
+ * composant est utilisé sur une cinquantaine de pages (listes admin), le
+ * tableau devient un îlot clair illisible/dénaturé une fois le mode sombre
+ * activé. On surcharge ici son CSS pour la classe .dark plutôt que de
+ * patcher chaque page individuellement.
+ */
+.dark .bh-table-responsive table thead tr,
+.dark .bh-table-responsive table tfoot tr {
+	background-color: #1f2937; /* gray-800 */
+}
+
+.dark .bh-table-responsive table tbody tr td,
+.dark .bh-table-responsive table tfoot tr th,
+.dark .bh-table-responsive table thead tr th {
+	color: #e5e7eb; /* gray-200 */
+}
+
+.dark .bh-table-responsive table tbody tr {
+	border-color: #374151; /* gray-700 */
+}
+
+.dark .bh-table-responsive table.bh-table-striped tbody tr:nth-child(odd) {
+	background-color: rgba(255, 255, 255, 0.04);
+}
+
+.dark .bh-table-responsive table.bh-table-hover tbody tr:hover {
+	background-color: rgba(255, 255, 255, 0.06);
+}
+
+.dark .bh-table-responsive table.bh-table-bordered tbody tr td,
+.dark .bh-table-responsive table.bh-table-bordered thead tr th {
+	border-color: #374151;
+}
+
+.dark .bh-pagination .bh-page-item {
+	background-color: #1f2937;
+	border-color: #4b5563; /* gray-600 */
+	color: #e5e7eb;
+}
+
+.dark .bh-pagination-info .bh-pagesize,
+.dark .bh-table-responsive table th .bh-filter > .bh-form-control {
+	background-color: #1f2937;
+	border-color: #4b5563;
+	color: #e5e7eb;
+}
+
+.dark .bh-table-responsive table th .bh-filter > button {
+	background-color: #374151;
+	border-color: #4b5563;
+	color: #d1d5db; /* gray-300 */
+}
+
+.dark .bh-filter-menu button {
+	background-color: #1f2937;
+	color: #e5e7eb;
+}
+
+.dark .bh-filter-menu button:hover,
+.dark .bh-filter-menu button.active {
+	background-color: #374151;
+}
+
+.dark .bh-table-responsive input[type="checkbox"] + div {
+	background-color: #1f2937;
+	border-color: #4b5563;
+}
+
+.dark .bh-skeleton-box {
+	background-color: #374151;
+}
+
+.dark .\!bh-bg-white,
+.dark .bh-bg-white {
+	background-color: #1f2937 !important;
+}
+
+.dark .bh-text-black {
+	color: #e5e7eb;
+}
+
+.dark .bh-text-black\/20 {
+	color: rgba(229, 231, 235, 0.2);
+}
+
+/* Popup pays de intl-tel-input : le plugin fixe un fond blanc en dur via
+   des variables CSS, ce qui laisse un rectangle blanc au-dessus des pages
+   sombres si on ne les redéfinit pas. */
+.dark .iti {
+	--iti-country-selector-bg: #1a1a2a;
+	--iti-border-color: #374151;
+	--iti-hover-color: rgba(255, 255, 255, 0.08);
+	--iti-icon-color: #9ca3af;
+}
+
+.dark .iti__search-input {
+	background-color: transparent;
+	color: #e5e7eb;
+}
+
+.dark .iti__search-input::placeholder {
+	color: #6b7280;
+}
+
+.dark .iti__country-name,
+.dark .iti__dial-code {
+	color: #e5e7eb;
+}
+
+.dark .iti__dial-code {
+	color: #9ca3af;
+}
+
+.dark .iti__no-results {
+	color: #9ca3af;
+}
+
+
+

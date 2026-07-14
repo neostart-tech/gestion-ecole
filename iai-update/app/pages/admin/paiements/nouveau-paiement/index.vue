@@ -137,8 +137,22 @@
           </template>
           <template #content>
             <div class="p-6 pt-0">
-              <form @submit.prevent="handlePaiement" class="space-y-4">
+              <form @submit.prevent="handlePaiement" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <!-- Nature de paiement -->
+                  <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Nature du paiement <span class="text-red-500">*</span>
+                    </label>
+                    <SelectButton
+                      v-model="paiementForm.nature_paiement"
+                      :options="naturesPaiement"
+                      optionLabel="label"
+                      optionValue="value"
+                      class="w-full"
+                    />
+                  </div>
+
                   <!-- Montant -->
                   <div class="flex flex-col gap-1">
                     <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -150,10 +164,7 @@
                         :min="1"
                         :max="paiementStore.infosEtudiant.reste_a_payer_total"
                         placeholder="Saisir le montant"
-                        class="w-full"
-                        :useGrouping="true"
-                        :minFractionDigits="0"
-                        :maxFractionDigits="0"
+                        class="w-full font-bold"
                         mode="currency"
                         currency="XOF"
                         locale="fr-FR"
@@ -162,9 +173,6 @@
                         FCFA
                       </span>
                     </div>
-                    <small class="text-gray-500">
-                      Reste total: {{ formatMontant(paiementStore.infosEtudiant.reste_a_payer_total) }}
-                    </small>
                   </div>
 
                   <!-- Mode de paiement -->
@@ -172,7 +180,7 @@
                     <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Mode de paiement <span class="text-red-500">*</span>
                     </label>
-                    <SelectButton
+                    <Dropdown
                       v-model="paiementForm.mode_paiement"
                       :options="modesPaiement"
                       optionLabel="label"
@@ -185,19 +193,46 @@
                           <span>{{ slotProps.option.label }}</span>
                         </div>
                       </template>
-                    </SelectButton>
+                    </Dropdown>
+                  </div>
+
+                  <!-- Frais retrait MM (Visible si Mobile Money) -->
+                  <div v-if="['mobile_money', 'semoa'].includes(paiementForm.mode_paiement)" class="flex flex-col gap-1">
+                    <label class="text-sm font-medium text-amber-600">
+                      Frais de retrait Mobile Money
+                    </label>
+                    <InputNumber
+                      v-model="paiementForm.frais_retrait_mm"
+                      placeholder="0 FCFA"
+                      class="w-full"
+                      mode="currency"
+                      currency="XOF"
+                      locale="fr-FR"
+                    />
                   </div>
 
                   <!-- Référence -->
-                  <div class="flex flex-col gap-1 md:col-span-2">
+                  <div class="flex flex-col gap-1">
                     <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Référence
-                      <span class="text-xs text-gray-400 ml-1">(optionnel)</span>
+                      Référence / N° de transaction
                     </label>
                     <InputText
                       v-model="paiementForm.reference"
-                      placeholder="N° de reçu, transaction..."
+                      placeholder="N° de reçu, ID transaction..."
                       class="w-full"
+                    />
+                  </div>
+
+                  <!-- Commentaire -->
+                  <div class="flex flex-col gap-1 md:col-span-2">
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Commentaire / Note interne
+                    </label>
+                    <Textarea
+                      v-model="paiementForm.commentaire"
+                      placeholder="Précisions sur le paiement..."
+                      class="w-full bg-slate-50 dark:bg-gray-700 border-none rounded-xl"
+                      rows="2"
                     />
                   </div>
                 </div>
@@ -414,6 +449,8 @@ import Avatar from "primevue/avatar";
 import Card from "primevue/card";
 import InputNumber from "primevue/inputnumber";
 import InputText from "primevue/inputtext";
+import Textarea from "primevue/textarea";
+import Dropdown from "primevue/dropdown";
 import SelectButton from "primevue/selectbutton";
 import Button from "primevue/button";
 import DataTable from "primevue/datatable";
@@ -444,18 +481,26 @@ const paiementForm = ref({
   etudiant_id: null,
   montant: null,
   mode_paiement: "especes",
+  nature_paiement: "scolarite",
+  frais_retrait_mm: 0,
   reference: "",
+  commentaire: ""
 });
+
+// Natures de paiement
+const naturesPaiement = ref([
+  { value: "scolarite", label: "Scolarité", icon: "pi pi-book" },
+  { value: "inscription", label: "Inscription", icon: "pi pi-id-card" },
+]);
 
 // Modes de paiement
 const modesPaiement = ref([
   { value: "especes", label: "Espèces", icon: "pi pi-money-bill" },
   { value: "banque", label: "Banque", icon: "pi pi-building" },
-  { value: "semoa", label: "SEMOA", icon: "pi pi-mobile" },
-  { value: "caisse", label: "Caisse", icon: "pi pi-wallet" },
-  { value: "carte", label: "Carte", icon: "pi pi-credit-card" },
+  { value: "mobile_money", label: "Mobile Money", icon: "pi pi-mobile" },
   { value: "virement", label: "Virement", icon: "pi pi-send" },
   { value: "cheque", label: "Chèque", icon: "pi pi-file" },
+  { value: "autre", label: "Autre", icon: "pi pi-ellipsis-h" },
 ]);
 
 // Recherche d'étudiants
@@ -535,7 +580,10 @@ const handlePaiement = async () => {
       etudiant_id: paiementForm.value.etudiant_id,
       montant: paiementForm.value.montant,
       mode_paiement: paiementForm.value.mode_paiement,
+      nature_paiement: paiementForm.value.nature_paiement,
+      frais_retrait_mm: paiementForm.value.frais_retrait_mm,
       reference: paiementForm.value.reference || null,
+      commentaire: paiementForm.value.commentaire || null,
     });
 
     toast.add({

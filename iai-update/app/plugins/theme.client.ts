@@ -4,16 +4,17 @@ export default defineNuxtPlugin(() => {
 
 	// Fonction pour appliquer le thème
 	const applyTheme = () => {
-		// Vérifier le localStorage
-		const savedSettings = localStorage.getItem("theme-settings");
-		let mode = "light";
+		// Vérifier le localStorage (même clé/format que stores/theme.ts,
+		// qui est la source de vérité une fois l'app montée)
+		const savedSettings = localStorage.getItem("theme-state");
+		let mode = "auto";
 
 		if (savedSettings) {
 			try {
 				const parsed = JSON.parse(savedSettings);
-				mode = parsed.mode || "light";
+				mode = parsed.themeSettings?.mode || "auto";
 			} catch {
-				mode = "light";
+				mode = "auto";
 			}
 		}
 
@@ -48,7 +49,7 @@ export default defineNuxtPlugin(() => {
 
 	// Observer les changements de localStorage (pour les autres onglets)
 	window.addEventListener("storage", (event) => {
-		if (event.key === "theme-settings") {
+		if (event.key === "theme-state") {
 			applyTheme();
 		}
 	});

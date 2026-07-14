@@ -372,6 +372,29 @@ export const usePresenceStore = defineStore("presence", {
       }
     },
 
+    async uploadJustificatif(formData) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          "/presence/upload-justificatif",
+          formData,
+          {
+            ...this.authHeaders(),
+            headers: {
+              ...this.authHeaders().headers,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Erreur upload justificatif:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
     async fetchPresencesByCours(coursId) {
       this.isLoading = true;
       try {

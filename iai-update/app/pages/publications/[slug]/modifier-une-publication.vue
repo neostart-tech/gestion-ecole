@@ -98,10 +98,10 @@
             ]"
           >
             <!-- Image prévisualisée -->
-            <div v-if="imagePreview" class="mb-4">
+            <div v-if="imagePreview" class="mb-4 bg-gray-100 rounded-lg p-2">
               <img
                 :src="imagePreview"
-                class="max-h-48 mx-auto rounded-lg object-cover"
+                class="max-h-64 mx-auto rounded-lg object-contain shadow-sm"
                 alt="Image prévisualisée"
               />
             </div>
@@ -183,7 +183,7 @@
           <div class="border border-gray-300 rounded-lg overflow-hidden">
             <ClientOnly>
               <Editor
-                api-key="ktf8z0z55enm2wd9xyeoo6qzzoy7w9b629e51wii9y8lw4dx"
+                api-key="2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl"
                 v-model="form.content"
                 :init="{
                   height: 250,

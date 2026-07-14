@@ -30,16 +30,27 @@ export const useParametreStore = defineStore("parametre", {
 			const logoName = state.parametres.find(
 				(p) => p.key === "logo_etablissement",
 			)?.value;
+
 			if (!logoName) {
 				return null;
 			}
-			// Détermine l'URL de stockage appropriée
+
+			// Si c'est déjà une URL complète, on la retourne
+			if (logoName.startsWith("http")) {
+				return logoName;
+			}
+
+			// Détermine l'URL de base selon l'environnement
 			const storageUrl =
-				process.env.NODE_ENV === "development"
+				config.app_local === true
 					? config.app_dev_storage_url
 					: config.app_prod_storage_url;
-			// Construit l'URL complète
-			return `${storageUrl}/storage/${logoName}`;
+
+			// Nettoyage des slashes pour éviter les doubles slashes //
+			const baseUrl = storageUrl.replace(/\/$/, "");
+			const filePath = logoName.replace(/^\//, "");
+
+			return `${baseUrl}/storage/${filePath}`;
 		},
 
 		getAppName: (state) => {
@@ -48,6 +59,30 @@ export const useParametreStore = defineStore("parametre", {
 			);
 
 			return param ? param.value : null;
+		},
+
+		getSystemePedagogique: (state) => {
+			const param = state.parametres.find(
+				(p) => p.key === "systeme_pedagogique_de_etablissement",
+			);
+
+			return param ? param.value : null;
+		},
+
+		getModeSelectionCandidats: (state) => {
+			const param = state.parametres.find(
+				(p) => p.key === "mode_selection_candidats",
+			);
+
+			return param ? param.value : "dossier";
+		},
+
+		isConcoursMode: (state) => {
+			const param = state.parametres.find(
+				(p) => p.key === "mode_selection_candidats",
+			);
+
+			return (param ? param.value : "dossier") === "concours";
 		},
 
 		getSelectOptions: (state) => (key) => {

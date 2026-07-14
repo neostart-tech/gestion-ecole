@@ -7,14 +7,14 @@
       </NuxtLink>
       <span>/</span>
       <NuxtLink to="/periodes/liste" class="cursor-pointer hover:text-indigo-600 transition-colors">
-        Périodes
+        Semestres
       </NuxtLink>
       <span>/</span>
-      <span class="text-gray-900 font-medium cursor-default">Ajouter une période</span>
+      <span class="text-gray-900 font-medium cursor-default">Ajouter un semestre</span>
     </div>
 
     <!-- Titre -->
-    <h1 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">Ajouter une période</h1>
+    <h1 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">Ajouter un semestre</h1>
 
     <!-- Formulaire simplifié -->
     <div class="bg-white rounded-xl shadow-sm p-6">
@@ -22,27 +22,27 @@
         <!-- Nom de la période -->
         <div class="space-y-2">
           <label class="block text-sm font-medium text-gray-700">
-            Nom de la période <span class="text-rose-500">*</span>
+            Nom du semestre <span class="text-rose-500">*</span>
           </label>
           <input
             v-model="form.nom"
             type="text"
             required
             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-            placeholder="Nom de la période"
+            placeholder="Nom du semestre"
           />
         </div>
 
         <!-- Description -->
         <div class="space-y-2">
           <label class="block text-sm font-medium text-gray-700">
-            Description de la période
+            Description du semestre
           </label>
           <textarea
             v-model="form.description"
             rows="4"
             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-            placeholder="Description de la période..."
+            placeholder="Description du semestre..."
           ></textarea>
         </div>
 
@@ -85,7 +85,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
             <div>
-              <p class="text-sm font-medium text-blue-800">Durée de la période</p>
+              <p class="text-sm font-medium text-blue-800">Durée du semestre</p>
               <p class="text-sm text-blue-700">{{ calculateDuration() }}</p>
             </div>
           </div>
@@ -119,7 +119,7 @@
         <div class="modal-content">
           <div class="modal-header border-b border-gray-200 p-6">
             <h5 class="modal-title text-lg font-semibold text-gray-900">
-              Période ajoutée
+              Semestre ajouté
             </h5>
             <button type="button" @click="closeSuccessModal" class="btn-close text-gray-400 hover:text-gray-600">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,7 +138,7 @@
                 Succès !
               </h3>
               <p class="text-gray-600 mb-6">
-                La période a été ajoutée avec succès.
+                Le semestre a été ajouté avec succès.
               </p>
             </div>
           </div>

@@ -51,7 +51,36 @@ export const useDashboardPaiementStore = defineStore("dashboardPaiement", {
       return state.statistiques?.resume?.taux_collecte || 0;
     },
 
-    // Montant total à payer formaté
+    // ================= SCOLARITE =================
+    scolariteAPayer: (state) => {
+      return state.statistiques?.resume?.scolarite_a_payer || 0;
+    },
+    scolariteCollecte: (state) => {
+      return state.statistiques?.resume?.scolarite_collecte || 0;
+    },
+    scolariteRestant: (state) => {
+      return state.statistiques?.resume?.scolarite_restant || 0;
+    },
+    scolariteTaux: (state) => {
+      return state.statistiques?.resume?.scolarite_taux || 0;
+    },
+
+    // ================= INSCRIPTION =================
+    inscriptionAPayer: (state) => {
+      return state.statistiques?.resume?.inscription_a_payer || 0;
+    },
+    inscriptionCollecte: (state) => {
+      return state.statistiques?.resume?.inscription_collecte || 0;
+    },
+    inscriptionRestant: (state) => {
+      return state.statistiques?.resume?.inscription_restant || 0;
+    },
+    inscriptionTaux: (state) => {
+      return state.statistiques?.resume?.inscription_taux || 0;
+    },
+
+    // ================= GLOBAUX =================
+    // Montant total à payer formaté (Anciennement)
     montantTotalAPayer: (state) => {
       return state.statistiques?.resume?.montant_total_a_payer || 0;
     },
@@ -69,6 +98,11 @@ export const useDashboardPaiementStore = defineStore("dashboardPaiement", {
     // Nombre total d'étudiants
     totalEtudiants: (state) => {
       return state.statistiques?.resume?.total_etudiants || 0;
+    },
+
+    // Frais de retrait Mobile Money
+    fraisRetraitMM: (state) => {
+      return state.statistiques?.resume?.frais_retrait_mm || 0;
     },
 
     // Étudiants avec frais
@@ -102,12 +136,17 @@ export const useDashboardPaiementStore = defineStore("dashboardPaiement", {
     graphiqueStatuts: (state) => {
       const statuts = state.repartitionStatuts;
       return [
-        { label: 'Soldé', value: statuts.solde || 0, color: '#10b981' },
-        { label: 'En cours', value: statuts.en_cours || 0, color: '#f59e0b' },
-        { label: 'En retard', value: statuts.en_retard || 0, color: '#ef4444' },
-        { label: 'Aucun frais', value: statuts.aucun_frais || 0, color: '#6b7280' }
+        { key: 'solde', label: 'Soldé', value: statuts.solde || 0, color: '#10b981' },
+        { key: 'a_jour', label: 'À jour', value: statuts.a_jour || 0, color: '#3b82f6' },
+        { key: 'retard', label: 'En retard', value: statuts.retard || 0, color: '#ef4444' },
+        { key: 'abandon', label: 'Abandons', value: statuts.abandon || 0, color: '#64748b' }
       ];
     },
+
+    // ================= ABANDONS =================
+    caActive: (state) => state.statistiques?.resume?.ca_active || { inscription: 0, scolarite: 0, total: 0 },
+    caAbandons: (state) => state.statistiques?.resume?.ca_abandons || { inscription: 0, scolarite: 0, total: 0 },
+    grandTotalCollecte: (state) => state.statistiques?.resume?.grand_total_collecte || 0,
 
     // Top performers formaté
     topPerformersFormatted: (state) => {
@@ -133,7 +172,7 @@ export const useDashboardPaiementStore = defineStore("dashboardPaiement", {
         jours_retard_text: e.jours_retard > 0 ? `${e.jours_retard} jours` : 'Aujourd\'hui'
       }));
     },
-
+    
     // Paiements récents formatés
     paiementsRecentsFormatted: (state) => {
       return state.paiementsRecents.map(p => ({
@@ -251,7 +290,7 @@ export const useDashboardPaiementStore = defineStore("dashboardPaiement", {
           params.date_fin = this.dateFin;
         }
 
-        const response = await axios.get('/dashboard/paiements/statistiques', {
+        const response = await axios.get('/finance/dashboard', {
           ...this.authHeaders,
           params
         });

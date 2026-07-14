@@ -4,6 +4,7 @@ export const rolePermissions = {
   admin: ["*"], // Accès à tout
   "directeur-general-adjoint": ["*"], // Accès à tout
   "directeur-general": ["*"], // Accès à tout
+  informaticien: ["*"],
 
   // Rôles académiques
   "directeur-academique": [
@@ -20,15 +21,21 @@ export const rolePermissions = {
     "/salles/*",
     "/groupes/*",
     "/admin/liste-des-etudiants",
+    "/admin/jours-feries",
+    "/admin/releves-globaux/*",
+    "/admin/liste-des-releves/*",
+    "/admin/etudiants/cartes",
     "/annee-scolaire/*",
     "/notifications/*",
-    "admin/*",
-    "année-scolaire/*",
-    "periodes/*",
-    "parcours/*",
-    "statistiques/*",
+    "/candidatures/etude-dossier",
+    "/candidatures/*",
+    "/periodes/*",
+    "/parcours/*",
+    "/statistiques/*",
     "/chat/*",
     "/evaluations/professeur/mes-examens",
+    "/personnel/*",
+    "/parametre/*",
   ],
 
   "logiticien-academique": [
@@ -40,6 +47,15 @@ export const rolePermissions = {
     "/salles/*",
     "/groupes/*",
     "/admin/liste-des-etudiants",
+    "/admin/jours-feries",
+    "/admin/releves-globaux/*",
+    "/admin/liste-des-releves/*",
+    "/admin/etudiants/cartes",
+    "/candidatures/etude-dossier",
+    "/candidatures/*",
+    "/personnel/*",
+    "/parametre/*",
+    "/periodes/*",
     "/evenements/*",
     "/notifications/*",
     "/chat/*",
@@ -66,13 +82,16 @@ export const rolePermissions = {
     "/notifications/*",
     "/statistiques/*",
     "/chat/*",
-    "/evaluations/professeur/mes-examens",
+    "/evaluations/professeur/mes-programmations",
+    "/evaluations/professeur/detail-examen/*",
+    "/enseignant/syllabuses/*",
     "/evaluations/examen-en-ligne/*",
   ],
 
   // Rôles financiers
   "responsable-administratif-et-financier": [
     "/",
+    "/emploi-du-temps/*",
     "/profile/*",
     "/messages/*",
     "/finance/*",
@@ -81,6 +100,7 @@ export const rolePermissions = {
     "/personnel/*",
     "/notifications/*",
     "/chat/*",
+    "/admin/*",
   ],
 
   "directeur-des-affaires-financieres": [
@@ -89,10 +109,12 @@ export const rolePermissions = {
     "/messages/*",
     "/finance/*",
     "/frais-de-scolarite/*",
+    "/emploi-du-temps/*",
     "/bourses/*",
     "/personnel/*",
     "/notifications/*",
     "/chat/*",
+    "/admin/*",
   ],
 
   // Rôles logistiques
@@ -113,10 +135,25 @@ export const rolePermissions = {
     "/messages/*",
     "/reclamations/*",
     "/presences/*",
-    "/publications/*",
     "/emploi-du-temps/*",
     "/notifications/*",
     "/chat/*",
+    "/finance/*",
+    "/frais-de-scolarite/*",
+    "/bourses/*",
+    "/annonces",
+    "/admin/liste-des-etudiants",
+    "/frais-inscription/*",
+    "/admin/negociations/*",
+    "/admin/paiements/*",
+    "/admin/etudiants/situation",
+    "/admin/prospects",
+    "/admin/candidatures/inscription",
+    "/candidatures/*",
+    "/candidatures/admis",
+    "/admin/etudiants/reinscription",
+    "/annee-scolaire/*",
+    "/parametre/*",
   ],
 
   "responsable-marketing": [
@@ -129,18 +166,8 @@ export const rolePermissions = {
     "/notifications/*",
     "/info-urgente/*",
     "/chat/*",
-  ],
-
-  // Rôles techniques
-  informaticien: [
-    "/",
-    "/profile/*",
-    "/reclamations/*",
-    "/presences/*",
-    "/personnel/*",
-    "/logs",
-    "/notifications/*",
-    "/chat/*",
+    "/annonces",
+    "/admin/communications/*",
   ],
 
   // Rôles administratifs/support
@@ -217,9 +244,26 @@ export const rolePermissions = {
     "/messages/*",
     "/notifications/*",
     "/chat/*",
-    "/presences/*",
-    "/evaluations/etudiant/mes-examens",
+    "/evaluations/etudiant/*",
     "/evaluations/examen-en-ligne/*",
+    '/actualites/*',
+    "/annonces",
+    "/etudiant/syllabuses/*",
+  ],
+
+  delegue: [
+    "/profile/*",
+    "/etudiant/*",
+    "/emploi-du-temps/*",
+    "/messages/*",
+    "/notifications/*",
+    "/chat/*",
+    "/presences/*",
+    "/evaluations/etudiant/*",
+    "/evaluations/examen-en-ligne/*",
+    '/actualites/*',
+    "/annonces",
+    "/etudiant/syllabuses/*",
   ],
 
   // Utilisateur simple
@@ -247,7 +291,8 @@ export const publicRoutes = [
   "/register",
   "/mot-de-passe-oublie",
   "/reset-password",
-  "/notifications/*",
+  "/actualites",
+  "/concours"
 ];
 
 // Routes interdites pour les utilisateurs connectés (comme login)
