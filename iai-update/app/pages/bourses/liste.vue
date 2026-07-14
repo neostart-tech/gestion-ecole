@@ -101,7 +101,7 @@
         ></div>
       </div>
 
-      <div v-else class="overflow-x-auto">
+      <div v-else class="overflow-x-auto text-gray-900 dark:text-gray-100">
         <Vue3Datatable
           :columns="visibleColumns"
           :rows="rows"
@@ -576,4 +576,17 @@ onMounted(async () => {
   }
 });
 </script>
+
+<style scoped>
+/* La librairie Vue3Datatable fixe elle-même une couleur de texte
+   quasi-noire (.bh-text-black) sur la racine du tableau, qui prime
+   sur toute couleur héritée d'un parent : on la surcharge ici pour
+   le mode sombre. */
+:deep(.bh-text-black) {
+  color: #111827;
+}
+:global(.dark) :deep(.bh-text-black) {
+  color: #f3f4f6 !important;
+}
+</style>
 

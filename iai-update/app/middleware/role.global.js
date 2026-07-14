@@ -4,6 +4,13 @@ import { rolePermissions } from "~~/configuration/permissions";
 export default defineNuxtRouteMiddleware((to) => {
 	if (process.server) return;
 
+	// L'espace candidat a son propre système d'authentification, indépendant
+	// des permissions du staff/étudiant gérées ici. Attention : "/candidat" est
+	// un préfixe de "/candidatures" (pages staff de gestion des candidatures) —
+	// il faut exiger un "/" après pour ne pas les exclure par erreur des
+	// vérifications de permission ci-dessous.
+	if (to.path === '/candidat' || to.path.startsWith('/candidat/')) return;
+
 	const authStore = useLoginStore();
 
 	if (!authStore.isAuthenticated()) {

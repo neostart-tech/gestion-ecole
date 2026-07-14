@@ -833,6 +833,23 @@ const generateCards = async () => {
   padding: 20px 22px 48px;
 }
 
+/* ── VARIANTE SOMBRE ──
+   Le chrome de page (topbar, filtres, tableau…) suit ces variables ; seule la
+   carte imprimable elle-même (aperçu recto/verso, zone de rendu PDF) reste
+   volontairement fixe sur fond blanc, car c'est le rendu réel de l'impression. */
+.dark .carte-page {
+  --ink:   #f3f4f6;
+  --ink-2: #d1d5db;
+  --ink-3: #9ca3af;
+  --ink-4: #6b7280;
+  --surface:   #1f2937;
+  --surface-2: #111827;
+  --surface-3: rgba(255,255,255,.04);
+  --border:   rgba(255,255,255,.08);
+  --border-2: rgba(255,255,255,.14);
+  --rose-l: rgba(225,29,72,.14);
+}
+
 /* ── TOPBAR ── */
 .topbar {
   display: flex; align-items: center; justify-content: space-between;

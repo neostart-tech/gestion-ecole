@@ -730,7 +730,7 @@
         ></div>
 
         <div
-          class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50"
+          class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 flex items-center justify-between gap-4"
         >
           <h3
             class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2"
@@ -750,6 +750,13 @@
             </svg>
             Top payeurs
           </h3>
+          <!-- Pas de classement dédié : on renvoie vers la liste globale des paiements -->
+          <NuxtLink
+            to="/finance/paiements"
+            class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline whitespace-nowrap flex-shrink-0"
+          >
+            Voir tous les paiements →
+          </NuxtLink>
         </div>
 
         <div class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -784,6 +791,18 @@
 
           <!-- Données réelles -->
           <template v-else>
+            <div
+              v-if="dashboardStore.topPerformersFormatted.length === 0"
+              class="flex flex-col items-center justify-center py-10 opacity-60"
+            >
+              <div class="w-12 h-12 bg-slate-50 dark:bg-gray-700/50 rounded-full flex items-center justify-center mb-3">
+                <svg class="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              </div>
+              <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Aucun paiement sur la période</p>
+              <p class="text-[10px] text-slate-300 mt-1 text-center italic">Aucun étudiant n'a encore payé pour cette période.</p>
+            </div>
             <div
               v-for="(performer, index) in dashboardStore.topPerformersFormatted"
               :key="index"
@@ -824,7 +843,7 @@
         ></div>
 
         <div
-          class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50"
+          class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 flex items-center justify-between gap-4"
         >
           <h3
             class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2"
@@ -844,6 +863,12 @@
             </svg>
             Étudiants en retard
           </h3>
+          <NuxtLink
+            to="/finance/recouvrement?tab=students&statut=retard"
+            class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline whitespace-nowrap flex-shrink-0"
+          >
+            Voir tout →
+          </NuxtLink>
         </div>
 
         <div class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -878,6 +903,18 @@
 
           <!-- Données réelles -->
           <template v-else>
+            <div
+              v-if="dashboardStore.etudiantsEnRetardFormatted.length === 0"
+              class="flex flex-col items-center justify-center py-10 opacity-60"
+            >
+              <div class="w-12 h-12 bg-slate-50 dark:bg-gray-700/50 rounded-full flex items-center justify-center mb-3">
+                <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Aucun étudiant en retard</p>
+              <p class="text-[10px] text-slate-300 mt-1 text-center italic">Tous les paiements sont à jour pour cette période.</p>
+            </div>
             <div
               v-for="(etudiant, index) in dashboardStore.etudiantsEnRetardFormatted"
               :key="index"
@@ -1182,7 +1219,7 @@
           class="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/20 dark:via-white/5 to-transparent"
         ></div>
 
-        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between gap-4">
           <h3
             class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2"
           >
@@ -1201,6 +1238,12 @@
             </svg>
             Paiements récents
           </h3>
+          <NuxtLink
+            to="/finance/paiements"
+            class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline whitespace-nowrap flex-shrink-0"
+          >
+            Voir tout →
+          </NuxtLink>
         </div>
 
         <div class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -1235,6 +1278,18 @@
 
           <!-- Données réelles -->
           <template v-else>
+            <div
+              v-if="dashboardStore.paiementsRecentsFormatted.length === 0"
+              class="flex flex-col items-center justify-center py-10 opacity-60"
+            >
+              <div class="w-12 h-12 bg-slate-50 dark:bg-gray-700/50 rounded-full flex items-center justify-center mb-3">
+                <svg class="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Aucun paiement récent</p>
+              <p class="text-[10px] text-slate-300 mt-1 text-center italic">Aucun paiement n'a été enregistré sur cette période.</p>
+            </div>
             <div
               v-for="(paiement, index) in dashboardStore.paiementsRecentsFormatted"
               :key="paiement.id"
@@ -1484,6 +1539,16 @@ onMounted(async () => {
   await chargerDonnees();
 });
 
+// Reconstruit les graphiques quand l'utilisateur bascule clair/sombre en direct
+// (Chart.js ne relit pas ses couleurs tout seul après coup)
+let themeObserver = null;
+onMounted(() => {
+  themeObserver = new MutationObserver(() => {
+    if (chartsInitialized.value) updateCharts();
+  });
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+});
+
 // Observer les changements des données et initialiser les graphiques
 watch(
   [areChartDataReady, areNewChartsDataReady, chartsInitialized],
@@ -1570,9 +1635,19 @@ const destroyCharts = () => {
   if (effectifsChartInstance) { effectifsChartInstance.destroy(); effectifsChartInstance = null; }
 };
 
+// Chart.js ne connaît pas le mode sombre de l'app : sans ça, les libellés
+// d'axes/légendes et les grilles gardent leur couleur par défaut (pensée
+// pour un fond clair), quasi illisible sur fond sombre.
+const applyChartTheme = () => {
+  const dark = document.documentElement.classList.contains('dark');
+  Chart.defaults.color = dark ? '#9ca3af' : '#6b7280';
+  Chart.defaults.borderColor = dark ? 'rgba(255,255,255,0.08)' : '#e5e7eb';
+};
+
 const initializeCharts = () => {
   console.log("Initialisation des graphiques...");
-  
+  applyChartTheme();
+
   // Initialiser le graphique d'évolution
   if (evolutionChart.value && evolutionChartData.value) {
     console.log("Initialisation graphique évolution", evolutionChartData.value);
@@ -1918,6 +1993,7 @@ const getNiveauColor = (idx) => {
 // Nettoyage à la destruction du composant
 onUnmounted(() => {
   destroyCharts();
+  themeObserver?.disconnect();
 });
 </script>
 <style scoped>

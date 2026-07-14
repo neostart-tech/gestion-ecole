@@ -583,7 +583,7 @@
                   'admin',
                   'directeur-general-adjoint',
                   'directeur-general',
-                  'directeur-academiqiue',
+                  'directeur-academique',
                   'logiticien-academique',
                   'informaticien',
                 ])
@@ -1420,6 +1420,7 @@
               v-if="
                 hasAnyRole([
                   'directeur-academique',
+                  'logiticien-academique',
                   'admin',
                   'informaticien',
                 ])
@@ -2008,6 +2009,7 @@
                   'directeur-general',
                   'directeur-des-affaires-financieres',
                   'admin',
+                  'charge-de-la-clientele',
                 ])
               "
             >
@@ -2361,7 +2363,11 @@
 
               <vue-collapsible :isOpen="activeDropdown === 'candidatures'">
                 <ul class="pl-11 space-y-1 mt-1">
-                  <li>
+                  <li
+                    v-if="
+                      !hasAnyRole(['directeur-academique', 'logiticien-academique'])
+                    "
+                  >
                     <NuxtLink
                       to="/admin/candidatures/inscription"
                       class="block px-3 py-2 text-sm rounded-lg transition-colors"
@@ -2378,7 +2384,7 @@
                   <li>
                     <NuxtLink
                       to="/candidatures/etude-dossier"
-                      class="block px-3 py-2 text-sm rounded-lg transition-colors"
+                      class="flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors"
                       :class="[
                         $route.path === '/candidatures/etude-dossier'
                           ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 font-medium'
@@ -2387,6 +2393,12 @@
                       @click="toggleMobileMenu"
                     >
                       Étude de dossier
+                      <span
+                        v-if="candidatureStore.totalATraiter > 0"
+                        class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full animate-pulse"
+                      >
+                        {{ candidatureStore.totalATraiter }}
+                      </span>
                     </NuxtLink>
                   </li>
                   <li
@@ -2412,7 +2424,12 @@
                       Paiement Concours/Dossier
                     </NuxtLink>
                   </li>
-                  <li v-if="parametreStore.isConcoursMode">
+                  <li
+                    v-if="
+                      parametreStore.isConcoursMode &&
+                      !hasAnyRole(['directeur-academique', 'logiticien-academique'])
+                    "
+                  >
                     <NuxtLink
                       to="/candidatures/controle-presence"
                       class="block px-3 py-2 text-sm rounded-lg transition-colors"
@@ -2426,7 +2443,12 @@
                       Contrôle de présence
                     </NuxtLink>
                   </li>
-                  <li v-if="parametreStore.isConcoursMode">
+                  <li
+                    v-if="
+                      parametreStore.isConcoursMode &&
+                      !hasAnyRole(['directeur-academique', 'logiticien-academique'])
+                    "
+                  >
                     <NuxtLink
                       to="/candidatures/notes-concours"
                       class="block px-3 py-2 text-sm rounded-lg transition-colors"
@@ -2440,7 +2462,12 @@
                       Notes du concours
                     </NuxtLink>
                   </li>
-                  <li v-if="parametreStore.isConcoursMode">
+                  <li
+                    v-if="
+                      parametreStore.isConcoursMode &&
+                      !hasAnyRole(['directeur-academique', 'logiticien-academique'])
+                    "
+                  >
                     <NuxtLink
                       to="/candidatures/declaration-admission"
                       class="block px-3 py-2 text-sm rounded-lg transition-colors"
@@ -2454,7 +2481,12 @@
                       Admission
                     </NuxtLink>
                   </li>
-                  <li v-if="parametreStore.isConcoursMode">
+                  <li
+                    v-if="
+                      parametreStore.isConcoursMode &&
+                      !hasAnyRole(['directeur-academique', 'logiticien-academique'])
+                    "
+                  >
                     <NuxtLink
                       to="/candidatures/attribution-groupe"
                       class="block px-3 py-2 text-sm rounded-lg transition-colors"
@@ -2468,7 +2500,11 @@
                       Attribution de groupe
                     </NuxtLink>
                   </li>
-                  <li>
+                  <li
+                    v-if="
+                      !hasAnyRole(['directeur-academique', 'logiticien-academique'])
+                    "
+                  >
                     <NuxtLink
                       to="/candidatures/admis"
                       class="block px-3 py-2 text-sm rounded-lg transition-colors"
@@ -2482,7 +2518,11 @@
                       Inscription Finale
                     </NuxtLink>
                   </li>
-                  <li>
+                  <li
+                    v-if="
+                      !hasAnyRole(['directeur-academique', 'logiticien-academique'])
+                    "
+                  >
                     <NuxtLink
                       to="/admin/etudiants/reinscription"
                       class="block px-3 py-2 text-sm rounded-lg transition-colors"
@@ -2827,7 +2867,7 @@
 
           <ul class="space-y-1">
             <!-- Tableau de bord -->
-            <li v-if="hasAnyRole(['responsable-marketing', 'admin', 'directeur-general', 'directeur-general-adjoint', 'superadmin', 'charge-de-la-clientele'])">
+            <li v-if="hasAnyRole(['responsable-marketing', 'admin', 'directeur-general', 'directeur-general-adjoint', 'superadmin'])">
               <NuxtLink
                 to="/admin/communications/dashboard"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
@@ -2860,7 +2900,7 @@
             </li>
 
             <!-- Gérer les annonces -->
-            <li v-if="hasAnyRole(['responsable-marketing', 'admin', 'informaticien', 'directeur-general', 'directeur-general-adjoint', 'superadmin', 'charge-de-la-communication', 'charge-de-communication', 'responsable-de-la-communication', 'responsable-communication', 'charge-de-la-clientele'])">
+            <li v-if="hasAnyRole(['responsable-marketing', 'admin', 'informaticien', 'directeur-general', 'directeur-general-adjoint', 'superadmin', 'charge-de-la-communication', 'charge-de-communication', 'responsable-de-la-communication', 'responsable-communication'])">
               <NuxtLink
                 to="/admin/communications"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
@@ -3002,7 +3042,6 @@
                   'directeur-general-adjoint',
                   'directeur-academique',
                   'responsable-marketing',
-                  'charge-de-la-clientele',
                   'directeur-general',
                   'admin',
                   'collaborateur-commercial',
@@ -3350,7 +3389,7 @@
             
 
             <!-- Galerie -->
-            <li v-if="showCommunicationSection">
+            <li v-if="showCommunicationSection && !hasAnyRole(['charge-de-la-clientele'])">
               <NuxtLink
                 to="/admin/communications"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
@@ -3378,7 +3417,7 @@
                 >
               </NuxtLink>
             </li>
-            <li v-if="showCommunicationSection">
+            <li v-if="showCommunicationSection && !hasAnyRole(['charge-de-la-clientele'])">
               <NuxtLink
                 to="/communications/newsletter"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
@@ -3407,7 +3446,7 @@
                 >
               </NuxtLink>
             </li>
-            <li v-if="showCommunicationSection">
+            <li v-if="showCommunicationSection && !hasAnyRole(['charge-de-la-clientele'])">
               <NuxtLink
                 to="/galerie"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
@@ -3572,7 +3611,7 @@
                   'directeur-general',
                   'directeur-general-adjoint',
                   'directeur-general',
-                  'logiticien-académique',
+                  'logiticien-academique',
                   'admin',
                   'directeur-academique',
                   'informaticien',
@@ -4010,6 +4049,7 @@ import VueCollapsible from "vue-height-collapsible/vue3";
 import { useMessageStore } from "~~/stores/message";
 import { useReclamationStore } from "~~/stores/reclamation";
 import { useParametreStore } from "~~/stores/parametre";
+import { useCandidatureStore } from "~~/stores/candidature";
 import config from "~~/config";
 
 import Swal from "sweetalert2";
@@ -4039,6 +4079,7 @@ const handleMouseLeave = () => {
 const parametreStore = useParametreStore();
 const messageStore = useMessageStore();
 const reclamationStore = useReclamationStore();
+const candidatureStore = useCandidatureStore();
 const route = useRoute();
 
 // État des dropdowns
@@ -4376,6 +4417,7 @@ const toggleMobileMenu = () => {
 onMounted(() => {
   fetchRoles();
   fetchCount();
+  candidatureStore.fetchCountATraiter();
 
   messageCount.value = messageStore.totalUnread.count;
   reclamationStore.fetchReclamations();

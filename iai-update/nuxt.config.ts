@@ -23,6 +23,7 @@ export default defineNuxtConfig({
 	pinia: {
 		storesDirs: ["stores/**"],
 	},
+
 	primevue: {
 		options: {
 			ripple: true,
@@ -31,7 +32,12 @@ export default defineNuxtConfig({
 				preset: Aura,
 				options: {
 					prefix: "p",
-					darkModeSelector: "system",
+					// Aligné sur la classe que stores/theme.ts bascule déjà sur <html> :
+					// avant, `false` désactivait purement et simplement les variables CSS
+					// de mode sombre pour tous les composants PrimeVue (Dropdown,
+					// MultiSelect, InputText, ...), qui restaient donc toujours clairs
+					// même quand le reste de l'application passait en sombre.
+					darkModeSelector: ".dark",
 					cssLayer: false,
 				},
 			},

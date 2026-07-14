@@ -206,9 +206,9 @@
 
           <!-- Lien de réunion -->
           <template #lien_url="data">
-            <div v-if="(data.lien_url || data.value?.lien_url || (typeof data.value === 'string' && data.value && data.value !== '—'))" class="flex items-center">
+            <div v-if="getLienUrl(data)" class="flex items-center">
               <a
-                :href="data.lien_url || data.value?.lien_url || data.value"
+                :href="getLienUrl(data)"
                 target="_blank"
                 class="group inline-flex items-center gap-2 px-3 py-1.5 rounded-[5px] text-[11px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-600 dark:hover:text-white border border-blue-100 dark:border-blue-800 hover:border-blue-600 transition-all duration-300"
                 @click.stop
@@ -793,6 +793,14 @@ const columns = ref([
 
 // Colonnes visibles
 const visibleColumns = computed(() => columns.value.filter((c) => c.visible));
+
+// Retourne le vrai lien de réunion, ou null si absent (salle physique) — le tiret
+// placeholder "—" est une chaîne non vide donc "vraie" en JS, il faut l'exclure
+// explicitement pour ne pas afficher un bouton "Rejoindre" pointant vers "—".
+const getLienUrl = (data) => {
+  const value = data.lien_url || data.value?.lien_url || data.value;
+  return value && value !== '—' ? value : null;
+};
 
 // Statistiques
 const stats = computed(() => {

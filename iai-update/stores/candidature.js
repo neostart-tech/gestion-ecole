@@ -13,6 +13,7 @@ export const useCandidatureStore = defineStore("candidature", {
     isLoading: false,
     error: null,
     exportEnCours: false,
+    totalATraiter: 0,
   }),
 
   actions: {
@@ -23,6 +24,19 @@ export const useCandidatureStore = defineStore("candidature", {
           Authorization: token ? `Bearer ${token}` : "",
         },
       };
+    },
+
+    // GET  api/candidature/count-a-traiter
+    async fetchCountATraiter() {
+      try {
+        const response = await axios.get(
+          "/candidature/count-a-traiter",
+          this.authHeaders(),
+        );
+        this.totalATraiter = response.data.count || 0;
+      } catch (error) {
+        console.error("Erreur chargement du nombre de candidatures à traiter:", error);
+      }
     },
 
     // Headers pour l'upload de fichiers
@@ -91,7 +105,7 @@ export const useCandidatureStore = defineStore("candidature", {
           formData,
           this.multipartHeaders(),
         );
-        await this.fetchCandidatures();
+        await Promise.all([this.fetchCandidatures(), this.fetchCountATraiter()]);
         return response.data;
       } catch (error) {
         console.error("Erreur création candidature:", error);
@@ -415,6 +429,29 @@ export const useCandidatureStore = defineStore("candidature", {
 
     // ============ ROUTES D'ACTIONS SUR UNE CANDIDATURE ============
 
+    // PUT  api/candidature/{candidature}/transmettre-academie
+    async transmettreAcademie(candidature, data = {}) {
+      this.isLoading = true;
+      this.error = null;
+      try {
+        const response = await axios.put(
+          `/candidature/${candidature}/transmettre-academie`,
+          data,
+          this.authHeaders(),
+        );
+        await Promise.all([this.fetchCandidatures(), this.fetchCountATraiter()]);
+        return response.data;
+      } catch (error) {
+        console.error("Erreur transmission académie:", error);
+        this.error =
+          error.response?.data?.message ||
+          "Erreur lors de la transmission à l'académie";
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
     // PUT  api/candidature/{candidature}/valider
     async validerDossier(candidature, data = {}) {
       this.isLoading = true;
@@ -425,7 +462,7 @@ export const useCandidatureStore = defineStore("candidature", {
           data,
           this.authHeaders(),
         );
-        await this.fetchCandidatures();
+        await Promise.all([this.fetchCandidatures(), this.fetchCountATraiter()]);
         return response.data;
       } catch (error) {
         console.error("Erreur validation dossier:", error);
@@ -447,7 +484,7 @@ export const useCandidatureStore = defineStore("candidature", {
           { motif },
           this.authHeaders(),
         );
-        await this.fetchCandidatures();
+        await Promise.all([this.fetchCandidatures(), this.fetchCountATraiter()]);
         return response.data;
       } catch (error) {
         console.error("Erreur rejet dossier:", error);
@@ -468,7 +505,7 @@ export const useCandidatureStore = defineStore("candidature", {
           data,
           this.authHeaders(),
         );
-        await this.fetchCandidatures();
+        await Promise.all([this.fetchCandidatures(), this.fetchCountATraiter()]);
         return response.data;
       } catch (error) {
         console.error("Erreur demande rectification:", error);

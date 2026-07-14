@@ -2,7 +2,7 @@
   <div
     class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-6 px-4 sm:px-6 lg:px-8"
   >
-    <div class="max-w-7xl mx-auto">
+    <div>
       <!-- En-tête du profil - Plus coloré -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
@@ -237,9 +237,9 @@
               </div>
               <div class="p-6 space-y-4">
                 <div
-                  class="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-100 rounded-lg"
+                  class="flex items-center justify-between p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 rounded-lg"
                 >
-                  <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">
+                  <p class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
                     Matricule
                   </p>
                   <p
@@ -249,9 +249,9 @@
                   </p>
                 </div>
                 <div
-                  class="flex items-center justify-between p-3 bg-teal-50 border border-teal-100 rounded-lg"
+                  class="flex items-center justify-between p-3 bg-teal-50 dark:bg-teal-900/20 border border-teal-100 dark:border-teal-900/30 rounded-lg"
                 >
-                  <p class="text-xs font-bold uppercase tracking-wider text-teal-700">
+                  <p class="text-xs font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400">
                     Année d'admission
                   </p>
                   <p class="text-sm font-medium text-gray-900 dark:text-white">
@@ -259,9 +259,9 @@
                   </p>
                 </div>
                 <div
-                  class="flex items-center justify-between p-3 bg-cyan-50 border border-cyan-100 rounded-lg"
+                  class="flex items-center justify-between p-3 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-100 dark:border-cyan-900/30 rounded-lg"
                 >
-                  <p class="text-xs font-bold uppercase tracking-wider text-cyan-700">
+                  <p class="text-xs font-bold uppercase tracking-wider text-cyan-700 dark:text-cyan-400">
                     Superviseur
                   </p>
                   <p class="text-sm font-medium text-gray-900 dark:text-white">
@@ -299,7 +299,7 @@
               </div>
               <div class="p-6 space-y-4">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold uppercase tracking-wider text-orange-700"
+                  <span class="text-xs font-bold uppercase tracking-wider text-orange-700 dark:text-orange-400"
                     >Statut</span
                   >
                   <span
@@ -312,9 +312,9 @@
                   </span>
                 </div>
                 <div
-                  class="relative p-4 bg-orange-50 border border-orange-100 rounded-xl"
+                  class="relative p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-900/30 rounded-xl"
                 >
-                  <p class="text-xs font-bold uppercase tracking-wider text-orange-700 mb-1">
+                  <p class="text-xs font-bold uppercase tracking-wider text-orange-700 dark:text-orange-400 mb-1">
                     Membre depuis
                   </p>
                   <p class="text-lg font-medium text-gray-900 dark:text-white">
@@ -322,9 +322,9 @@
                   </p>
                 </div>
                 <div
-                  class="relative p-4 bg-amber-50 border border-amber-100 rounded-xl"
+                  class="relative p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 rounded-xl"
                 >
-                  <p class="text-xs font-bold uppercase tracking-wider text-amber-700 mb-1">
+                  <p class="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 mb-1">
                     Dernière modification
                   </p>
                   <p class="text-lg font-medium text-gray-900 dark:text-white">
@@ -1266,7 +1266,7 @@ const InfoItem = defineComponent({
         "div",
         {
           class:
-            "space-y-1 p-3 rounded-xl bg-gray-50 border border-gray-100 hover:shadow-md transition-all",
+            "space-y-1 p-3 rounded-xl bg-gray-50 dark:bg-gray-900/40 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all",
         },
         [
           h(

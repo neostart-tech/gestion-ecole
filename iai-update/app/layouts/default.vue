@@ -94,7 +94,7 @@
 <script setup lang="ts">
 	import { useThemeStore } from "../../stores/theme";
 	import { useLoginStore } from "../../stores/login";
-	import { computed, onMounted, onUnmounted, watch } from "vue";
+	import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 
 	const themeStore = useThemeStore();
 	const loginStore = useLoginStore();
@@ -142,8 +142,21 @@
 		return missingDocs || missingNifDoc;
 	});
 
-	// Computed pour détecter le mode sombre
-	const isDarkMode = computed(() => themeStore.themeSettings.mode === "dark");
+	// Préférence système suivie séparément (réactive), car window.matchMedia(...).matches
+	// n'est pas un état réactif Vue : sans ça, le fond décoratif ne réagirait pas si
+	// l'OS change de thème pendant que l'onglet reste ouvert en mode "auto".
+	const systemPrefersDark = ref(false);
+
+	// Computed pour détecter le mode sombre. Ne pas comparer directement à "dark" :
+	// en mode "auto", il faut résoudre la préférence système, sinon ce fond décoratif
+	// reste toujours clair en mode auto même quand l'OS est en sombre, alors que le
+	// reste de l'appli (classe .dark sur <html>) suit correctement la préférence système.
+	const isDarkMode = computed(() => {
+		const { mode } = themeStore.themeSettings;
+		if (mode === "dark") return true;
+		if (mode === "light") return false;
+		return systemPrefersDark.value;
+	});
 
 	// Charger et appliquer le thème au chargement
 	onMounted(() => {
@@ -152,8 +165,10 @@
 		// Observer les changements de thème système (mode auto)
 		if (typeof window !== "undefined") {
 			const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+			systemPrefersDark.value = mediaQuery.matches;
 
-			const handleSystemThemeChange = () => {
+			const handleSystemThemeChange = (event: MediaQueryListEvent) => {
+				systemPrefersDark.value = event.matches;
 				if (themeStore.themeSettings.mode === "auto") {
 					console.log("Thème système changé, mise à jour...");
 					themeStore.applyTheme();

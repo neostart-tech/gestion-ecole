@@ -1,3 +1,5 @@
+<!-- pages/candidatures/modifier-[slug].vue -->
+
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 lg:p-8 transition-colors">
     <!-- En-tête avec Breadcrumb -->
@@ -27,15 +29,15 @@
     </div>
 
     <!-- Formulaire -->
-    <form v-else @submit.prevent="handleUpdate" enctype="multipart/form-data">
+    <form v-else @submit.prevent="soumettreFormulaire" enctype="multipart/form-data">
       <!-- Progress Bar -->
       <div class="mb-8">
         <div class="flex items-center justify-between mb-2">
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Progression de la mise à jour</span>
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Progression</span>
           <span class="text-sm font-medium text-indigo-600 dark:text-indigo-400">{{ progression }}%</span>
         </div>
         <div class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-          <div 
+          <div
             class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300"
             :style="{ width: progression + '%' }"
           ></div>
@@ -43,26 +45,26 @@
       </div>
 
       <!-- Stepper -->
-      <div class="flex items-center justify-between mb-8 overflow-x-auto pb-2 no-scrollbar">
-        <div 
-          v-for="(etape, index) in etapes" 
+      <div class="flex items-center justify-between mb-8 overflow-x-auto pb-2">
+        <div
+          v-for="(etape, index) in etapes"
           :key="index"
           @click="etapeActive = index"
-          class="flex items-center cursor-pointer group min-w-[150px] shrink-0"
+          class="flex items-center cursor-pointer group min-w-[120px]"
           :class="{ 'opacity-50': index > etapeActive }"
         >
-          <div 
+          <div
             class="w-8 h-8 rounded-full flex items-center justify-center font-medium transition-all"
             :class="{
-              'bg-indigo-600 text-white shadow-lg shadow-indigo-200': index <= etapeActive,
+              'bg-indigo-600 text-white': index <= etapeActive,
               'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400': index > etapeActive
             }"
           >
             {{ index + 1 }}
           </div>
           <div class="ml-3">
-            <p class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight">{{ etape.titre }}</p>
-            <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-black">{{ etape.sousTitre }}</p>
+            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ etape.titre }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{ etape.sousTitre }}</p>
           </div>
           <svg v-if="index < etapes.length - 1" class="w-5 h-5 mx-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -70,129 +72,192 @@
         </div>
       </div>
 
-      <!-- Étape 1: Informations personnelles -->
-      <div v-if="etapeActive === 0" class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <!-- Étape 1: Identité -->
+      <div v-if="etapeActive === 0" class="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2 uppercase tracking-tight">
-            <UserIcon class="w-5 h-5 text-indigo-600" />
-            1. Informations personnelles
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Identité
           </h2>
         </div>
 
         <div class="p-6 space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Nom -->
             <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Nom</label>
-              <input v-model="formData.nom" type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nom <span class="text-red-500">*</span></label>
+              <input v-model="formData.nom" type="text" required class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="Entrez le nom" />
             </div>
 
-            <!-- Prénom -->
             <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Prénom</label>
-              <input v-model="formData.prenom" type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Prénom <span class="text-red-500">*</span></label>
+              <input v-model="formData.prenom" type="text" required class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="Entrez le prénom" />
             </div>
 
-            <!-- Genre -->
             <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Genre</label>
-              <select v-model="formData.genre" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nom de jeune fille <span class="text-gray-400 text-xs">(optionnel)</span></label>
+              <input v-model="formData.nom_jeune_fille" type="text" class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="Nom de jeune fille (si applicable)" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Genre <span class="text-red-500">*</span></label>
+              <select v-model="formData.genre" required class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500">
+                <option value="">Sélectionnez</option>
                 <option value="Masculin">Masculin</option>
                 <option value="Féminin">Féminin</option>
               </select>
             </div>
 
-            <!-- Date de naissance -->
             <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Date de naissance</label>
-              <input v-model="formData.date_naissance" type="date" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date de naissance <span class="text-red-500">*</span></label>
+              <input v-model="formData.date_naissance" type="date" required :max="maxDateNaissance" class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" />
             </div>
 
-            <!-- Lieu de naissance -->
             <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Lieu de naissance</label>
-              <input v-model="formData.lieu_naissance" type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Lieu de naissance <span class="text-red-500">*</span></label>
+              <input v-model="formData.lieu_naissance" type="text" required class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="Lieu de naissance" />
             </div>
 
-            <!-- Nationalité -->
-            <div>
-              <NationaliteSelector v-model="formData.nationalite" label="Nationalité" />
-            </div>
-
-            <!-- Email -->
-            <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Email</label>
-              <input v-model="formData.email" type="email" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
-            </div>
-
-            <!-- Téléphone -->
-            <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Téléphone</label>
-              <input v-model="formData.tel" type="tel" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+            <div class="md:col-span-2">
+              <NationaliteSelector
+                v-model="formData.nationalite"
+                label="Nationalité"
+                :required="true"
+                help-text="Sélectionnez la nationalité du candidat"
+              />
             </div>
           </div>
         </div>
 
         <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end">
-          <button
-            @click="etapeActive = 1"
-            type="button"
-            class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg hover:shadow-indigo-200 transition-all"
-          >
+          <button @click="etapeActive = 1" type="button" class="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all">
             Suivant
           </button>
         </div>
       </div>
 
-      <!-- Étape 2: Informations académiques -->
-      <div v-if="etapeActive === 1" class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <!-- Étape 2: Contact -->
+      <div v-if="etapeActive === 1" class="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2 uppercase tracking-tight">
-            <AcademicCapIcon class="w-5 h-5 text-indigo-600" />
-            2. Informations académiques
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+            Contact
           </h2>
         </div>
 
         <div class="p-6 space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Niveau -->
             <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Niveau</label>
-              <select v-model="formData.niveau_id" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Téléphone 1 <span class="text-red-500">*</span></label>
+              <input v-model="formData.tel" type="tel" required :ref="el => initPhoneWidget(el, 'tel', v => formData.tel = v)" class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="Numéro togolais ou étranger" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Téléphone 2 <span class="text-gray-400 text-xs">(optionnel)</span></label>
+              <input v-model="formData.tel2" type="tel" :ref="el => initPhoneWidget(el, 'tel2', v => formData.tel2 = v)" class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="Téléphone secondaire" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Téléphone 3 <span class="text-gray-400 text-xs">(optionnel)</span></label>
+              <input v-model="formData.tel3" type="tel" :ref="el => initPhoneWidget(el, 'tel3', v => formData.tel3 = v)" class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="Téléphone supplémentaire" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email <span class="text-red-500">*</span></label>
+              <input v-model="formData.email" type="email" required class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="email@exemple.com" />
+            </div>
+          </div>
+        </div>
+
+        <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-between">
+          <button @click="etapeActive = 0" type="button" class="px-6 py-2.5 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium rounded-xl transition-all">Précédent</button>
+          <button @click="etapeActive = 2" type="button" class="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all">Suivant</button>
+        </div>
+      </div>
+
+      <!-- Étape 3: Parcours & Niveau -->
+      <div v-if="etapeActive === 2" class="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            Parcours académique & Niveau
+          </h2>
+        </div>
+
+        <div class="p-6 space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Niveau : choix libre par l'admin -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Niveau visé <span class="text-red-500">*</span></label>
+              <select v-model="formData.niveau_id" required class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500">
+                <option value="">Sélectionnez</option>
                 <option v-for="niveau in niveaux" :key="niveau.id" :value="niveau.id">{{ niveau.libelle }}</option>
               </select>
             </div>
 
-            <!-- Filière -->
+            <!-- Filière : déduite automatiquement du niveau choisi, pas de sélection manuelle -->
             <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Filière</label>
-              <select v-model="formData.filiere_id" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
-                <option v-for="filiere in filieres" :key="filiere.id" :value="filiere.id">{{ filiere.nom }}</option>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Filière</label>
+              <div class="w-full px-4 py-2.5 rounded-xl border bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300">
+                <span v-if="loadingFilieres">Recherche de la filière...</span>
+                <span v-else-if="!formData.niveau_id" class="text-gray-400">Choisissez d'abord un niveau</span>
+                <span v-else-if="filiereDetectee">{{ filiereDetectee.nom }}</span>
+                <span v-else class="text-amber-600">Aucune filière configurée pour ce niveau</span>
+              </div>
+              <p class="text-[11px] text-gray-500 mt-1">Déduite automatiquement du niveau choisi.</p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Numéro de table <span class="text-red-500">*</span></label>
+              <input
+                v-model="formData.numero_table"
+                @input="formData.numero_table = formData.numero_table.replace(/[^0-9]/g, '').slice(0, 7)"
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="7"
+                required
+                class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
+                placeholder="Numéro de table (7 chiffres max)"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Année du BAC <span class="text-red-500">*</span></label>
+              <input v-model="formData.annee_bac" type="number" min="1990" :max="anneeCourante" required class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="Année" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Série du BAC <span class="text-red-500">*</span></label>
+              <select v-model="formData.serie" required class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500">
+                <option value="">Sélectionnez</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+                <option value="E">E</option>
+                <option value="F2">F2</option>
               </select>
             </div>
 
-            <!-- Numéro de table -->
             <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Numéro de table</label>
-              <input v-model="formData.numero_table" type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mention au BAC <span class="text-red-500">*</span></label>
+              <select v-model="formData.mention_bac" required class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500">
+                <option value="">Sélectionnez</option>
+                <option value="Passable">Passable</option>
+                <option value="Assez Bien">Assez Bien</option>
+                <option value="Bien">Bien</option>
+                <option value="Très Bien">Très Bien</option>
+              </select>
             </div>
 
-            <!-- Année du bac -->
             <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Année du bac</label>
-              <input v-model="formData.annee_bac" type="number" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
-            </div>
-
-            <!-- Série -->
-            <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Série</label>
-              <input v-model="formData.serie" type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
-            </div>
-
-            <!-- Type de diplôme -->
-            <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Dernier Diplôme obtenu</label>
-              <select v-model="formData.type_diplome" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type du dernier diplôme <span class="text-red-500">*</span></label>
+              <select v-model="formData.type_diplome" required class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500">
+                <option value="">Sélectionnez</option>
                 <option value="Bac 2">Bac 2</option>
                 <option value="BTS">BTS</option>
                 <option value="Licence">Licence</option>
@@ -200,476 +265,547 @@
               </select>
             </div>
 
-            <!-- Etablissement -->
             <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Établissement</label>
-              <input v-model="formData.etablissement_diplome" type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Établissement</label>
+              <input v-model="formData.etablissement_diplome" type="text" class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="Établissement" />
             </div>
           </div>
         </div>
 
         <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-between">
-          <button
-            @click="etapeActive = 0"
-            type="button"
-            class="px-8 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-black text-xs uppercase tracking-widest rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
-          >
-            Précédent
-          </button>
-          <button
-            @click="etapeActive = 2"
-            type="button"
-            class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg hover:shadow-indigo-200 transition-all"
-          >
-            Suivant
-          </button>
+          <button @click="etapeActive = 1" type="button" class="px-6 py-2.5 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium rounded-xl transition-all">Précédent</button>
+          <button @click="etapeActive = 3" type="button" class="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all">Suivant</button>
         </div>
       </div>
 
-      <!-- Étape 3: Responsable -->
-      <div v-if="etapeActive === 2" class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <!-- Étape 4: Documents (dynamiques, configurés dans Paramètre > Niveaux) -->
+      <div v-if="etapeActive === 3" class="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2 uppercase tracking-tight">
-            <CreditCardIcon class="w-5 h-5 text-indigo-600" />
-            3. Informations du responsable
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Documents
           </h2>
         </div>
 
         <div class="p-6 space-y-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Nom du responsable</label>
-              <input v-model="formData.nom_resp" type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+          <div v-if="!formData.niveau_id" class="p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+            <p class="text-sm text-amber-700 dark:text-amber-400 font-medium">⚠️ Veuillez d'abord sélectionner un niveau (Étape 3) pour afficher les documents requis.</p>
+          </div>
+          <div v-else-if="loadingDocuments" class="p-4 text-sm text-gray-500">Chargement des pièces à fournir...</div>
+          <div v-else-if="applicableDocs.length === 0" class="p-4 rounded-xl bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-700">
+            <p class="text-sm text-gray-500">Aucun document n'est configuré pour ce niveau/filière.</p>
+          </div>
+          <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div v-for="doc in applicableDocs" :key="doc.document_key" class="space-y-2">
+              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                {{ doc.nom_affichage }}
+                <span v-if="doc.is_obligatoire" class="text-red-500">*</span>
+                <span v-else class="text-gray-400 text-xs">(optionnel)</span>
+              </label>
+              <p v-if="doc.description" class="text-xs text-gray-500">{{ doc.description }}</p>
+              <MultipleFileUpload
+                v-if="doc.is_multiple"
+                v-model="documentFiles[doc.document_key]"
+                :existingFiles="existingDocValue(doc)"
+                :accept="acceptFor(doc.accepted_formats)"
+              />
+              <FileUpload
+                v-else
+                :id="doc.document_key"
+                v-model="documentFiles[doc.document_key]"
+                :existingUrl="existingDocValue(doc)"
+                :accept="acceptFor(doc.accepted_formats)"
+              />
             </div>
-            <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Prénom du responsable</label>
-              <input v-model="formData.prenom_resp" type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
-            </div>
-            <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Profession</label>
-              <input v-model="formData.profession_resp" type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
-            </div>
-            <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Téléphone responsable</label>
-              <input v-model="formData.tel_resp" type="tel" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
-            </div>
+          </div>
+          <div class="p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/50 rounded-xl">
+            <p class="text-xs text-amber-700 dark:text-amber-400 font-medium italic">Note : les fichiers déjà enregistrés ne seront remplacés que si vous en sélectionnez de nouveaux.</p>
           </div>
         </div>
 
         <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-between">
-          <button
-            @click="etapeActive = 1"
-            type="button"
-            class="px-8 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-black text-xs uppercase tracking-widest rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
-          >
-            Précédent
-          </button>
-          <button
-            @click="etapeActive = 3"
-            type="button"
-            class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg hover:shadow-indigo-200 transition-all"
-          >
-            Suivant
-          </button>
+          <button @click="etapeActive = 2" type="button" class="px-6 py-2.5 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium rounded-xl transition-all">Précédent</button>
+          <button @click="etapeActive = 4" type="button" class="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all">Suivant</button>
         </div>
       </div>
 
-      <!-- Étape 4: Tuteur -->
-      <div v-if="etapeActive === 3" class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <!-- Étape 5: Tuteur(s) répétables -->
+      <div v-if="etapeActive === 4" class="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2 uppercase tracking-tight">
-            <UsersIcon class="w-5 h-5 text-indigo-600" />
-            4. Informations du tuteur
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            Parent(s) ou tuteur(s)
           </h2>
         </div>
 
         <div class="p-6 space-y-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Nom du tuteur</label>
-              <input v-model="formData.nom_tuteur" type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+          <div v-for="(tuteur, index) in tuteurs" :key="tuteur._uid" class="p-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ index === 0 ? 'Tuteur / Parent 1' : `Tuteur / Parent ${index + 1}` }}</h3>
+              <button v-if="tuteurs.length > 1" @click="retirerTuteur(index)" type="button" class="text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-1 rounded-full transition-colors">Retirer</button>
             </div>
-            <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Prénom du tuteur</label>
-              <input v-model="formData.prenom_tuteur" type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
-            </div>
-            <div>
-              <label class="block text-[11px] font-black text-gray-400 uppercase mb-1.5 tracking-wider">Téléphone tuteur</label>
-              <input v-model="formData.tel_tuteur" type="tel" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Nom <span class="text-red-500">*</span></label>
+                <input v-model="tuteur.nom" type="text" required class="w-full px-3 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" placeholder="Nom" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Prénom <span class="text-red-500">*</span></label>
+                <input v-model="tuteur.prenom" type="text" required class="w-full px-3 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" placeholder="Prénom" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Profession <span class="text-red-500">*</span></label>
+                <input v-model="tuteur.profession" type="text" required class="w-full px-3 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" placeholder="Profession" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Employeur <span class="text-gray-400">(optionnel)</span></label>
+                <input v-model="tuteur.employeur" type="text" class="w-full px-3 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" placeholder="Nom de l'employeur" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Email <span class="text-gray-400">(optionnel)</span></label>
+                <input v-model="tuteur.email" type="email" class="w-full px-3 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" placeholder="Email" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Téléphone <span class="text-red-500">*</span></label>
+                <input v-model="tuteur.tel" type="tel" required :ref="el => initPhoneWidget(el, `tuteur-${tuteur._uid}`, v => tuteur.tel = v)" class="w-full px-3 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" placeholder="Téléphone" />
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Adresse / Quartier <span class="text-red-500">*</span></label>
+                <input v-model="tuteur.adresse" type="text" required class="w-full px-3 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50" placeholder="Adresse / Quartier" />
+              </div>
+              <div class="md:col-span-2">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input v-model="tuteur.responsable_des_frais" type="checkbox" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-600" />
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Responsable des frais de scolarité</span>
+                </label>
+              </div>
             </div>
           </div>
+
+          <button @click="ajouterTuteur" type="button" class="px-4 py-2 text-sm font-semibold text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl border border-indigo-200 dark:border-indigo-800 transition-colors">
+            + Ajouter un autre tuteur/parent
+          </button>
         </div>
 
         <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-between">
-          <button
-            @click="etapeActive = 2"
-            type="button"
-            class="px-8 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-black text-xs uppercase tracking-widest rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
-          >
-            Précédent
-          </button>
-          <button
-            @click="etapeActive = 4"
-            type="button"
-            class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg hover:shadow-indigo-200 transition-all"
-          >
-            Suivant
-          </button>
-        </div>
-      </div>
-
-      <!-- Étape 5: Documents -->
-      <div v-if="etapeActive === 4" class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <div class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2 uppercase tracking-tight">
-            <DocumentIcon class="w-5 h-5 text-indigo-600" />
-            5. Documents du dossier
-          </h2>
-        </div>
-
-        <div class="p-6 space-y-8">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="space-y-2">
-              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-tight">Photo d'identité</label>
-              <FileUpload id="photo_identite_file" v-model="files.photo_identite_file" :existingUrl="existingFiles.photo" accept=".jpg,.jpeg,.png" />
-            </div>
-            <div class="space-y-2">
-              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-tight">Acte de naissance</label>
-              <FileUpload id="naissance_file" v-model="files.naissance_file" :existingUrl="getFullUrl(existingFiles.naissance)" accept=".pdf,.jpg,.jpeg,.png" />
-            </div>
-            <div class="space-y-2">
-              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-tight">Pièce d'identité / Passeport</label>
-              <FileUpload id="nationalite_file" v-model="files.nationalite_file" :existingUrl="getFullUrl(existingFiles.nationalite)" accept=".pdf,.jpg,.jpeg,.png" />
-            </div>
-            <div class="space-y-2">
-              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-tight">Attestation du Diplôme</label>
-              <FileUpload id="diplome_file" v-model="files.diplome_file" :existingUrl="getFullUrl(existingFiles.diplome)" accept=".pdf,.jpg,.jpeg,.png" />
-            </div>
-            <div class="space-y-2">
-              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-tight">Lettre de motivation</label>
-              <FileUpload id="lettre_file" v-model="files.lettre_file" :existingUrl="getFullUrl(existingFiles.lettre)" accept=".pdf,.doc,.docx" />
-            </div>
-          </div>
-
-          <!-- Bulletins et Relevés -->
-          <div class="pt-8 border-t border-gray-100 dark:border-gray-700 space-y-6">
-            <h3 class="text-md font-bold text-gray-900 dark:text-white flex items-center gap-2 uppercase tracking-tight">
-              <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
-              Bulletins & Relevés de notes
-            </h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div class="space-y-2">
-                <label class="block text-xs font-bold text-gray-500 uppercase">Bulletins Seconde</label>
-                <MultipleFileUpload v-model="files.bulletins_seconde" :existingFiles="existingFiles.bulletins_seconde" />
-              </div>
-              <div class="space-y-2">
-                <label class="block text-xs font-bold text-gray-500 uppercase">Bulletins Première</label>
-                <MultipleFileUpload v-model="files.bulletins_premiere" :existingFiles="existingFiles.bulletins_premiere" />
-              </div>
-              <div class="space-y-2">
-                <label class="block text-xs font-bold text-gray-500 uppercase">Bulletins Terminale</label>
-                <MultipleFileUpload v-model="files.bulletins_terminale" :existingFiles="existingFiles.bulletins_terminale" />
-              </div>
-              <div class="space-y-2">
-                <label class="block text-xs font-bold text-gray-500 uppercase">Relevés BAC 1</label>
-                <MultipleFileUpload v-model="files.releve_bac1" :existingFiles="existingFiles.releve_bac1" />
-              </div>
-              <div class="space-y-2">
-                <label class="block text-xs font-bold text-gray-500 uppercase">Relevés BAC 2</label>
-                <MultipleFileUpload v-model="files.releve_bac2" :existingFiles="existingFiles.releve_bac2" />
-              </div>
-            </div>
-          </div>
-
-          <div class="p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/50 rounded-2xl">
-            <div class="flex items-start gap-3">
-               <div class="mt-0.5"><svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg></div>
-               <p class="text-xs text-amber-700 dark:text-amber-400 font-medium italic">Note: Les fichiers existants ne seront pas modifiés si vous n'en sélectionnez pas de nouveaux.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-between">
-          <button
-            @click="etapeActive = 3"
-            type="button"
-            class="px-8 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-black text-xs uppercase tracking-widest rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
-          >
-            Précédent
-          </button>
+          <button @click="etapeActive = 3" type="button" class="px-6 py-2.5 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium rounded-xl transition-all">Précédent</button>
           <button
             type="submit"
-            :disabled="submitting"
-            class="px-10 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg hover:shadow-green-200 transition-all flex items-center gap-2"
+            :disabled="isSubmitting"
+            class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 disabled:opacity-60"
           >
-            <span v-if="submitting" class="animate-spin h-4 w-4 border-b-2 border-white rounded-full"></span>
-            {{ submitting ? 'Enregistrement...' : 'Enregistrer les modifications' }}
+            <svg v-if="isSubmitting" class="w-5 h-5 animate-spin" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+            </svg>
+            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            {{ isSubmitting ? 'Enregistrement...' : 'Enregistrer les modifications' }}
           </button>
         </div>
       </div>
     </form>
+
+    <!-- Toast pour les notifications -->
+    <Toast />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, reactive, computed, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useCandidatureStore } from '~~/stores/candidature';
-import { useFiliereStore } from '~~/stores/filiere';
-import { useNiveauStore } from '~~/stores/niveau';
-import { getStorageBaseUrl } from '~/utils/storageUrl';
-import Swal from 'sweetalert2';
+import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useToast } from 'primevue/usetoast'
 import Breadcrumb from "~/components/Breadcrumb.vue"
+import Toast from 'primevue/toast'
 import NationaliteSelector from "~/components/NationaliteSelector.vue"
 import FileUpload from "~/components/FileUpload.vue"
 import MultipleFileUpload from "~/components/MultipleFileUpload.vue"
-import {
-  ArrowLeftIcon,
-  UserIcon,
-  AcademicCapIcon,
-  CreditCardIcon,
-  UsersIcon,
-  DocumentIcon,
-  PhotoIcon,
-  DocumentTextIcon,
-  PlusIcon
-} from '@heroicons/vue/24/outline';
+import { useFiliereStore } from '~~/stores/filiere'
+import { useNiveauStore } from '~~/stores/niveau'
+import { useCandidatureStore } from '~~/stores/candidature'
+import { useNuxtApp } from '#app'
+import { getStorageBaseUrl } from '~/utils/storageUrl'
+import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
 
-const route = useRoute();
-const router = useRouter();
-const candidatureStore = useCandidatureStore();
-const filiereStore = useFiliereStore();
-const niveauStore = useNiveauStore();
+const route = useRoute()
+const router = useRouter()
+const slug = route.params.slug
+const toast = useToast()
+const filiereStore = useFiliereStore()
+const candidatureStore = useCandidatureStore()
+const niveauStore = useNiveauStore()
+const { $intlTelInput } = useNuxtApp()
 
-const slug = route.params.slug;
-const loading = ref(true);
-const submitting = ref(false);
-const etapeActive = ref(0);
-const maxStepReached = ref(0);
-const filieres = ref([]);
-const niveaux = ref([]);
+// États
+const loading = ref(true)
+const etapeActive = ref(0)
+const isSubmitting = ref(false)
+const niveaux = ref([])
+const loadingFilieres = ref(false)
+const filiereDetectee = ref(null)
+const loadingDocuments = ref(false)
+const documentRequirements = ref([])
+const existingAlbum = ref({})
 
-const etapes = [
-  { titre: 'Informations personnelles', sousTitre: 'Identité et coordonnées' },
-  { titre: 'Informations académiques', sousTitre: 'Parcours scolaire' },
-  { titre: 'Responsable', sousTitre: 'Informations du responsable' },
-  { titre: 'Tuteur', sousTitre: 'Informations du tuteur' },
-  { titre: 'Documents', sousTitre: 'Pièces jointes' },
-];
+const getFullUrl = (path) => {
+  if (!path) return ''
+  if (path.startsWith('http')) return path
+  return `${getStorageBaseUrl()}/storage/${path}`
+}
 
-const progression = computed(() => Math.round(((etapeActive.value + 1) / etapes.length) * 100));
+// Widgets d'indicatif téléphonique — même logique que admin/candidatures/inscription.vue.
+const phoneWidgets = {}
 
+const initPhoneWidget = (el, key, onNumberChange) => {
+  if (!el) {
+    if (phoneWidgets[key]) {
+      try { phoneWidgets[key].destroy() } catch (e) { /* déjà détruit */ }
+      delete phoneWidgets[key]
+    }
+    return
+  }
+  if (phoneWidgets[key] || !$intlTelInput) return
+
+  const iti = $intlTelInput(el, {
+    initialCountry: 'tg',
+    separateDialCode: true,
+    useFullscreenPopup: false,
+    utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input/dist/js/utils.js',
+  })
+  phoneWidgets[key] = iti
+
+  const sync = () => onNumberChange(iti.getNumber() || el.value)
+  el.addEventListener('blur', sync)
+  el.addEventListener('countrychange', sync)
+}
+
+// Reflète le mapping $mapKeyForUpload de CandidatureController::updateOrCreateAlbum.
+const docKeyFieldOverrides = {
+  lettre: 'lettre_file',
+  naissance: 'naissance_file',
+  diplome: 'diplome_file',
+  nationalite: 'nationalite_file',
+  photo: 'photo_identite_file',
+  certificat_medical: 'certificat_medical_file',
+  cv: 'cv_file',
+  coupon: 'coupon_file',
+  releve_bac1_path: 'releve_bac1',
+  releve_bac2_path: 'releve_bac2',
+}
+
+const acceptFor = (format) => {
+  if (format === 'image') return '.jpg,.jpeg,.png'
+  if (format === 'pdf') return '.pdf'
+  return '.pdf,.jpg,.jpeg,.png'
+}
+
+// Valeur déjà enregistrée pour un document donné (URL complète ou tableau d'URLs).
+const existingDocValue = (doc) => {
+  const raw = existingAlbum.value?.[doc.document_key]
+  if (!raw) return doc.is_multiple ? [] : ''
+
+  if (doc.is_multiple) {
+    let paths = raw
+    if (typeof raw === 'string') {
+      try { paths = JSON.parse(raw) } catch (e) { paths = [raw] }
+    }
+    return (Array.isArray(paths) ? paths : [paths]).filter(Boolean).map(getFullUrl)
+  }
+
+  return getFullUrl(raw)
+}
+
+// Données du formulaire — mêmes champs que le formulaire d'ajout.
 const formData = reactive({
   nom: '',
   prenom: '',
   nom_jeune_fille: '',
-  genre: 'Masculin',
+  genre: '',
   date_naissance: '',
   lieu_naissance: '',
-  email: '',
   nationalite: '',
+  email: '',
   tel: '',
   tel2: '',
   tel3: '',
-  bp: '',
-  fax: '',
-  hobbit: '',
-  niveau_id: null,
-  filiere_id: null,
-  serie: '',
+  niveau_id: '',
+  filiere_id: '',
+  numero_table: '',
   annee_bac: '',
-  lettre_motivation: '',
-  type_diplome: 'Bac',
+  serie: '',
+  mention_bac: '',
+  type_diplome: '',
   etablissement_diplome: '',
-  nom_resp: '',
-  prenom_resp: '',
-  profession_resp: '',
-  employeur_resp: '',
-  email_resp: '',
-  tel_resp: '',
-  adresse_resp: '',
-  fax_resp: '',
-  bp_resp: '',
-  nom_tuteur: '',
-  prenom_tuteur: '',
-  profession_tuteur: '',
-  employeur_tuteur: '',
-  email_tuteur: '',
-  tel_tuteur: '',
-  adresse_tuteur: '',
-  fax_tuteur: '',
-  bp_tuteur: '',
-});
+})
 
-const files = reactive({
-  photo_identite_file: null,
-  naissance_file: null,
-  diplome_file: null,
-  nationalite_file: null,
-  lettre_file: null,
-  bulletins_seconde: [],
-  bulletins_premiere: [],
-  bulletins_terminale: [],
-  releve_bac1: [],
-  releve_bac2: [],
-});
+// Documents dynamiques : { [document_key]: File | File[] }
+const documentFiles = reactive({})
 
-const existingFiles = reactive({
-  photo: null,
-  diplome: null,
-  lettre: null,
-  naissance: null,
-  nationalite: null,
-  bulletins_seconde: [],
-  bulletins_premiere: [],
-  bulletins_terminale: [],
-  releve_bac1: [],
-  releve_bac2: [],
-});
+// Tuteurs répétables (chargés depuis la candidature, ou un tuteur vide par défaut).
+let prochainTuteurUid = 1
+const creerTuteurVide = () => ({
+  _uid: prochainTuteurUid++,
+  nom: '', prenom: '', profession: '', employeur: '', email: '', tel: '', adresse: '', responsable_des_frais: false
+})
 
+const tuteurs = ref([creerTuteurVide()])
 
-const getFullUrl = (path) => {
-    if (!path) return null
-    if (path.startsWith('http')) return path
-    return `${getStorageBaseUrl()}/storage/${path}`
-};
+const ajouterTuteur = () => {
+  tuteurs.value.push(creerTuteurVide())
+}
+const retirerTuteur = (index) => {
+  tuteurs.value.splice(index, 1)
+}
 
-const loadData = async () => {
+// Étapes
+const etapes = [
+  { titre: 'Identité', sousTitre: 'Informations personnelles' },
+  { titre: 'Contact', sousTitre: 'Téléphones et email' },
+  { titre: 'Parcours', sousTitre: 'Niveau et académique' },
+  { titre: 'Documents', sousTitre: 'Pièces jointes' },
+  { titre: 'Tuteur(s)', sousTitre: 'Parents ou tuteurs' },
+]
+
+const progression = computed(() => ((etapeActive.value + 1) / etapes.length) * 100)
+
+const anneeCourante = computed(() => new Date().getFullYear())
+
+const maxDateNaissance = computed(() => {
+  const d = new Date()
+  d.setFullYear(d.getFullYear() - 10)
+  return d.toISOString().split('T')[0]
+})
+
+// Documents applicables au niveau/filière actuellement sélectionnés.
+const applicableDocs = computed(() => {
+  if (!formData.niveau_id) return []
+  return documentRequirements.value.filter(req =>
+    String(req.niveau_id) === String(formData.niveau_id) &&
+    (req.filiere_id === null || String(req.filiere_id) === String(formData.filiere_id))
+  )
+})
+
+// Quand le niveau change : on déduit la filière automatiquement et on recharge les
+// documents requis pour ce niveau (même principe que la page d'ajout).
+watch(() => formData.niveau_id, async (newNiveauId) => {
+  filiereDetectee.value = null
+
+  if (!newNiveauId) {
+    documentRequirements.value = []
+    return
+  }
+
+  loadingFilieres.value = true
+  loadingDocuments.value = true
+
   try {
-    loading.value = true;
-    await Promise.all([
-      filiereStore.fetchFilieres(),
-      niveauStore.fetchNiveaux()
-    ]);
-    filieres.value = filiereStore.filieres;
-    niveaux.value = niveauStore.niveaux;
+    await filiereStore.fetchFilieres(newNiveauId)
+    const filieresDuNiveau = filiereStore.filieres || []
+    if (filieresDuNiveau.length > 0) {
+      filiereDetectee.value = filieresDuNiveau[0]
+      formData.filiere_id = filieresDuNiveau[0].id
+    }
+  } catch (error) {
+    console.error('Erreur récupération filière:', error)
+  } finally {
+    loadingFilieres.value = false
+  }
 
-    const data = await candidatureStore.fetchCandidatureDetail(slug);
-    
-    // Mapper les données
+  try {
+    documentRequirements.value = await niveauStore.fetchDocumentRequirements(newNiveauId)
+  } catch (error) {
+    console.error('Erreur récupération documents requis:', error)
+    documentRequirements.value = []
+  } finally {
+    loadingDocuments.value = false
+  }
+})
+
+// Initialise documentFiles à chaque changement de la liste de documents applicables.
+watch(applicableDocs, (docs) => {
+  const clesActuelles = docs.map(d => d.document_key)
+  Object.keys(documentFiles).forEach(key => {
+    if (!clesActuelles.includes(key)) delete documentFiles[key]
+  })
+  docs.forEach(doc => {
+    if (!(doc.document_key in documentFiles)) {
+      documentFiles[doc.document_key] = doc.is_multiple ? [] : null
+    }
+  })
+})
+
+// Charge la candidature existante et pré-remplit le formulaire.
+const chargerCandidature = async () => {
+  loading.value = true
+  try {
+    await niveauStore.fetchNiveaux()
+    niveaux.value = niveauStore.niveaux || []
+
+    const data = await candidatureStore.fetchCandidatureDetail(slug)
+
     Object.keys(formData).forEach(key => {
-       if (data[key] !== undefined) {
-         if (key === 'date_naissance' && data[key]) {
-            // S'assurer que le format est YYYY-MM-DD pour l'input date
-            formData[key] = data[key].split('T')[0].split(' ')[0];
-         } else {
-            formData[key] = data[key];
-         }
-       }
-    });
-
-    if (data.responsable) {
-       Object.keys(data.responsable).forEach(k => {
-          if (formData[`${k}_resp`] !== undefined) formData[`${k}_resp`] = data.responsable[k];
-          else if (k === 'tel') formData.tel_resp = data.responsable.tel;
-          else if (k === 'adresse') formData.adresse_resp = data.responsable.adresse;
-          else if (k === 'fax') formData.fax_resp = data.responsable.fax;
-          else if (k === 'bp') formData.bp_resp = data.responsable.bp;
-       });
-    }
-
-    if (data.tuteur) {
-       formData.nom_tuteur = data.tuteur.nom;
-       formData.prenom_tuteur = data.tuteur.prenom;
-       formData.profession_tuteur = data.tuteur.profession;
-       formData.employeur_tuteur = data.tuteur.employeur;
-       formData.email_tuteur = data.tuteur.email;
-       formData.tel_tuteur = data.tuteur.tel;
-       formData.adresse_tuteur = data.tuteur.adresse;
-       formData.fax_tuteur = data.tuteur.fax;
-       formData.bp_tuteur = data.tuteur.bp;
-    }
+      if (data[key] === undefined || data[key] === null) return
+      if (key === 'date_naissance') {
+        formData[key] = String(data[key]).split('T')[0].split(' ')[0]
+      } else {
+        formData[key] = data[key]
+      }
+    })
 
     if (data.album) {
-      formData.type_diplome = data.album.type_diplome;
-      existingFiles.photo = getFullUrl(data.album.photo);
-      existingFiles.diplome = data.album.diplome;
-      existingFiles.lettre = data.album.lettre;
-      existingFiles.naissance = data.album.naissance;
-      existingFiles.nationalite = data.album.nationalite;
-      
-      if (data.album.bulletins_lycee_paths) {
-        try {
-          const bulletins = JSON.parse(data.album.bulletins_lycee_paths);
-          existingFiles.bulletins_seconde = bulletins.seconde || [];
-          existingFiles.bulletins_premiere = bulletins.premiere || [];
-          existingFiles.bulletins_terminale = bulletins.terminale || [];
-        } catch (e) {
-          console.error("Erreur parsing bulletins:", e);
-        }
+      existingAlbum.value = data.album
+      if (!formData.type_diplome && data.album.type_diplome) {
+        formData.type_diplome = data.album.type_diplome
       }
-      if (data.album.releve_bac1_path) existingFiles.releve_bac1 = [data.album.releve_bac1_path];
-      if (data.album.releve_bac2_path) existingFiles.releve_bac2 = [data.album.releve_bac2_path];
     }
-    maxStepReached.value = 4;
 
+    // Tuteurs : `tuteurs` (MorphMany) et `tuteur` (MorphOne) pointent vers la même table,
+    // donc `tuteurs` contient toujours l'historique complet, quel que soit le formulaire
+    // qui a créé la candidature à l'origine.
+    const tuteursExistants = data.tuteurs && data.tuteurs.length > 0
+      ? data.tuteurs
+      : (data.tuteur ? [data.tuteur] : [])
+
+    if (tuteursExistants.length > 0) {
+      tuteurs.value = tuteursExistants.map(t => ({
+        _uid: prochainTuteurUid++,
+        nom: t.nom || '',
+        prenom: t.prenom || '',
+        profession: t.profession || '',
+        employeur: t.employeur || '',
+        email: t.email || '',
+        tel: t.tel || '',
+        adresse: t.adresse || '',
+        responsable_des_frais: Boolean(t.responsable_des_frais),
+      }))
+    }
   } catch (error) {
-    console.error("Erreur chargement:", error);
-    Swal.fire('Erreur', 'Impossible de charger les données', 'error');
+    console.error('Erreur chargement candidature:', error)
+    toast.add({ severity: 'error', summary: 'Erreur', detail: 'Impossible de charger le dossier', life: 5000 })
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
-const handleUpdate = async () => {
-  submitting.value = true;
+onMounted(chargerCandidature)
+
+// Vérifie que tous les champs obligatoires sont bien remplis avant l'envoi.
+const validerAvantEnvoi = () => {
+  const manquants = []
+
+  if (!formData.nom) manquants.push('Nom')
+  if (!formData.prenom) manquants.push('Prénom')
+  if (!formData.genre) manquants.push('Genre')
+  if (!formData.date_naissance) manquants.push('Date de naissance')
+  if (!formData.lieu_naissance) manquants.push('Lieu de naissance')
+  if (!formData.nationalite) manquants.push('Nationalité')
+  if (!formData.tel) manquants.push('Téléphone 1')
+  if (!formData.email) manquants.push('Email')
+  if (!formData.niveau_id) manquants.push('Niveau')
+  if (!formData.numero_table || formData.numero_table.length > 7) manquants.push('Numéro de table (1 à 7 chiffres)')
+  if (!formData.annee_bac) manquants.push('Année du BAC')
+  if (!formData.serie) manquants.push('Série du BAC')
+  if (!formData.mention_bac) manquants.push('Mention au BAC')
+  if (!formData.type_diplome) manquants.push('Type du dernier diplôme')
+
+  tuteurs.value.forEach((t, i) => {
+    if (!t.nom || !t.prenom || !t.profession || !t.tel || !t.adresse) {
+      manquants.push(`Tuteur ${i + 1} : champs obligatoires incomplets`)
+    }
+  })
+
+  applicableDocs.value.forEach(doc => {
+    if (!doc.is_obligatoire) return
+    const hasNewFile = doc.is_multiple
+      ? (documentFiles[doc.document_key] || []).length > 0
+      : Boolean(documentFiles[doc.document_key])
+    const hasExistingFile = doc.is_multiple
+      ? existingDocValue(doc).length > 0
+      : Boolean(existingDocValue(doc))
+    if (!hasNewFile && !hasExistingFile) manquants.push(doc.nom_affichage)
+  })
+
+  if (manquants.length > 0) {
+    toast.add({
+      severity: 'error',
+      summary: 'Champs manquants',
+      detail: `Veuillez compléter : ${manquants.join(', ')}`,
+      life: 7000
+    })
+    return false
+  }
+
+  return true
+}
+
+// Soumettre le formulaire
+const soumettreFormulaire = async () => {
+  if (!validerAvantEnvoi()) return
+
+  isSubmitting.value = true
+
   try {
-    const data = new FormData();
+    const formDataToSend = new FormData()
+
     Object.keys(formData).forEach(key => {
-      if (formData[key] !== null && formData[key] !== undefined) data.append(key, formData[key]);
-    });
-    
-    // Fichiers uniques
-    Object.keys(files).forEach(key => {
-      if (files[key] && !Array.isArray(files[key])) {
-        data.append(key, files[key]);
+      if (formData[key] !== '' && formData[key] !== null && formData[key] !== undefined) {
+        formDataToSend.append(key, formData[key])
       }
-    });
+    })
 
-    // Fichiers multiples (bulletins)
-    ['seconde', 'premiere', 'terminale'].forEach(n => {
-      const field = `bulletins_${n}`;
-      if (files[field] && files[field].length > 0) {
-        files[field].forEach((f, i) => data.append(`${field}[${i}]`, f));
+    tuteurs.value.forEach((tuteur, index) => {
+      Object.keys(tuteur).forEach(key => {
+        if (key === '_uid') return
+        const value = tuteur[key]
+        if (key === 'responsable_des_frais') {
+          formDataToSend.append(`tuteurs[${index}][${key}]`, value ? '1' : '0')
+        } else if (value) {
+          formDataToSend.append(`tuteurs[${index}][${key}]`, value)
+        }
+      })
+    })
+
+    applicableDocs.value.forEach(doc => {
+      const fieldName = docKeyFieldOverrides[doc.document_key] || doc.document_key
+      const value = documentFiles[doc.document_key]
+      if (!value) return
+
+      if (doc.is_multiple) {
+        (value || []).forEach((file, index) => {
+          formDataToSend.append(`${fieldName}[${index}]`, file)
+        })
+      } else {
+        formDataToSend.append(fieldName, value)
       }
-    });
+    })
 
-    // Relevés
-    if (files.releve_bac1 && files.releve_bac1.length > 0) {
-      files.releve_bac1.forEach((f, i) => data.append(`releve_bac1[${i}]`, f));
+    const response = await candidatureStore.updateByAdmin(slug, formDataToSend)
+
+    if (response.success) {
+      toast.add({ severity: 'success', summary: 'Succès', detail: 'Candidature mise à jour avec succès', life: 5000 })
+      setTimeout(() => {
+        navigateTo('/candidatures/etude-dossier')
+      }, 1500)
     }
-    if (files.releve_bac2 && files.releve_bac2.length > 0) {
-      files.releve_bac2.forEach((f, i) => data.append(`releve_bac2[${i}]`, f));
-    }
-
-    await candidatureStore.updateByAdmin(slug, data);
-
-    Swal.fire({
-      title: 'Succès !',
-      text: 'La candidature a été mise à jour avec succès.',
-      icon: 'success',
-      confirmButtonColor: '#4F46E5'
-    }).then(() => {
-      navigateTo('/candidatures/etude-dossier');
-    });
-
   } catch (error) {
-    console.error("Erreur mise à jour:", error);
-    Swal.fire('Erreur', error.response?.data?.message || 'Une erreur est survenue', 'error');
+    console.error('Erreur mise à jour:', error)
+
+    if (error.response?.data?.errors) {
+      const errors = error.response.data.errors
+      Object.keys(errors).forEach(key => {
+        toast.add({ severity: 'error', summary: 'Erreur de validation', detail: errors[key][0], life: 5000 })
+      })
+    } else {
+      toast.add({ severity: 'error', summary: 'Erreur', detail: error.response?.data?.message || 'Erreur lors de la mise à jour', life: 5000 })
+    }
   } finally {
-    submitting.value = false;
+    isSubmitting.value = false
   }
-};
-
-onMounted(loadData);
-
-watch(() => etapeActive.value, (val) => {
-   if (val > maxStepReached.value) maxStepReached.value = val;
-});
+}
 </script>
-
-<style scoped>
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-</style>

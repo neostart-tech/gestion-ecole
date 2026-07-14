@@ -99,15 +99,33 @@
             <!-- Action Panel - Bottom Bar -->
             <div class="mt-8 lg:mt-10 pt-6 lg:pt-8 border-t border-[#e8e8f0] dark:border-[#1a1a2a]">
               
-              <div v-if="!candidat.dossier_valide && !candidat.motif && !candidat.rectification_expected" class="flex flex-wrap items-center gap-3">
-                <button @click="handleAction('valider')" :disabled="isSubmitting" class="px-8 py-3.5 bg-[#7F45FD] hover:bg-[#6a35e8] text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_25px_rgba(127,69,253,0.3)] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
-                  <span v-if="isSubmitting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                  Valider le dossier
-                </button>
-                <button @click="handleAction('rectifier')" :disabled="isSubmitting" class="px-6 py-3.5 bg-[#F59E0B] hover:bg-[#D97706] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(245,158,11,0.3)] disabled:opacity-60 disabled:cursor-not-allowed">Corriger</button>
-                <button @click="handleAction('reorienter')" :disabled="isSubmitting" class="px-6 py-3.5 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(59,130,246,0.3)] disabled:opacity-60 disabled:cursor-not-allowed">Réorienter</button>
-                <button @click="handleAction('rejeter')" :disabled="isSubmitting" class="px-6 py-3.5 bg-[#ff4757] hover:bg-[#e84118] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(255,71,87,0.3)] disabled:opacity-60 disabled:cursor-not-allowed">Rejeter</button>
+              <div v-if="!candidat.dossier_valide && !candidat.motif && !candidat.rectification_expected && !candidat.transmis_academie">
+                <div v-if="peutAgirCommeChargeClientele" class="flex flex-wrap items-center gap-3">
+                  <button @click="handleAction('transmettre')" :disabled="isSubmitting" class="px-8 py-3.5 bg-[#7F45FD] hover:bg-[#6a35e8] text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_25px_rgba(127,69,253,0.3)] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                    <span v-if="isSubmitting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                    Passer à l'académie
+                  </button>
+                  <button @click="handleAction('rectifier')" :disabled="isSubmitting" class="px-6 py-3.5 bg-[#F59E0B] hover:bg-[#D97706] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(245,158,11,0.3)] disabled:opacity-60 disabled:cursor-not-allowed">Demander une rectification</button>
+                </div>
+                <p v-else class="text-[11px] text-[#8a8a9a] font-medium">Ce dossier est encore en cours d'étude par le service clientèle.</p>
+              </div>
+
+              <div v-else-if="!candidat.dossier_valide && !candidat.motif && !candidat.rectification_expected && candidat.transmis_academie" class="space-y-4">
+                <div class="flex items-center gap-2 py-2 px-4 bg-blue-500/10 border border-blue-500/20 rounded-xl w-fit">
+                  <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                  <p class="text-blue-500 text-[10px] font-bold uppercase tracking-[0.15em]">Transmis à l'académie — décision finale en attente</p>
+                </div>
+                <div v-if="peutAgirCommeAcademie" class="flex flex-wrap items-center gap-3">
+                  <button @click="handleAction('valider')" :disabled="isSubmitting" class="px-8 py-3.5 bg-[#7F45FD] hover:bg-[#6a35e8] text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_25px_rgba(127,69,253,0.3)] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                    <span v-if="isSubmitting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                    Valider le dossier
+                  </button>
+                  <button @click="handleAction('reorienter')" :disabled="isSubmitting" class="px-6 py-3.5 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(59,130,246,0.3)] disabled:opacity-60 disabled:cursor-not-allowed">Réorienter</button>
+                  <button @click="handleAction('rejeter')" :disabled="isSubmitting" class="px-6 py-3.5 bg-[#ff4757] hover:bg-[#e84118] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(255,71,87,0.3)] disabled:opacity-60 disabled:cursor-not-allowed">Rejeter</button>
+                </div>
+                <p v-else class="text-[11px] text-[#8a8a9a] font-medium">La décision finale (validation, rejet, réorientation) revient maintenant à l'académie.</p>
               </div>
 
               <div v-else-if="candidat.dossier_valide && nextStep" :class="[
@@ -391,6 +409,24 @@ const filiereStore = useFiliereStore()
 const niveauStore = useNiveauStore()
 const { $toastr, $swal } = useNuxtApp()
 
+// Une fois le dossier transmis à l'académie, Valider/Réorienter/Rejeter
+// deviennent l'apanage de l'académie (ou des comptes à accès total) : le chargé
+// de la clientèle qui a transmis le dossier ne doit plus voir ces actions.
+// Symétriquement, transmettre à l'académie et demander une rectification restent
+// l'apanage exclusif du chargé de la clientèle — chacun reste dans son rôle.
+const rolesAcademie = ['directeur-academique', 'logiticien-academique', 'admin', 'directeur-general', 'directeur-general-adjoint', 'informaticien']
+const rolesChargeClientele = ['charge-de-la-clientele', 'admin', 'directeur-general', 'directeur-general-adjoint', 'informaticien']
+
+const userRoleSlugs = computed(() => {
+  if (!process.client) return []
+  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const roles = user?.roles || []
+  return roles.map((role) => role.slug)
+})
+
+const peutAgirCommeAcademie = computed(() => userRoleSlugs.value.some((slug) => rolesAcademie.includes(slug)))
+const peutAgirCommeChargeClientele = computed(() => userRoleSlugs.value.some((slug) => rolesChargeClientele.includes(slug)))
+
 // États
 const isPageLoading = ref(true)
 const candidat = ref(null)
@@ -503,6 +539,7 @@ const getStatutLabel = (c) => {
   if (c.dossier_valide) return 'Validé'
   if (c.rectification_expected) return 'En Correction'
   if (c.motif) return 'Refusé'
+  if (c.transmis_academie) return "À l'Académie"
   return 'En Étude'
 }
 
@@ -510,6 +547,7 @@ const getStatutStyle = (c) => {
   if (c.dossier_valide) return 'border-emerald-600/30 text-emerald-600 bg-emerald-600/5'
   if (c.rectification_expected) return 'border-amber-600/30 text-amber-600 bg-amber-600/5'
   if (c.motif) return 'border-rose-600/30 text-rose-600 bg-rose-600/5'
+  if (c.transmis_academie) return 'border-blue-600/30 text-blue-600 bg-blue-600/5'
   return 'border-[#7F45FD]/30 text-[#7F45FD] bg-[#7F45FD]/10'
 }
 
@@ -555,7 +593,26 @@ const parsedBulletins = computed(() => {
 })
 
 const handleAction = async (action) => {
-  if (action === 'valider') {
+  if (action === 'transmettre') {
+    const result = await $swal.fire({
+      title: "Transmission à l'académie",
+      text: 'Le dossier a été vérifié et est prêt à être transmis à l\'académie pour la décision finale ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: "Oui, transmettre",
+      confirmButtonColor: '#7c3aed',
+      customClass: { popup: 'rounded-3xl' }
+    })
+    if (result.isConfirmed) {
+      isSubmitting.value = true
+      try {
+        await candidatureStore.transmettreAcademie(candidat.value.slug)
+        $toastr.success("Dossier transmis à l'académie.")
+        fetchCandidat()
+      } catch (e) { $toastr.error(e.response?.data?.message || 'Erreur.') }
+      finally { isSubmitting.value = false }
+    }
+  } else if (action === 'valider') {
     const result = await $swal.fire({
       title: 'Certification',
       text: `Valider définitivement ce dossier ?`,
@@ -571,7 +628,7 @@ const handleAction = async (action) => {
         await candidatureStore.validerDossier(candidat.value.slug)
         $toastr.success('Dossier certifié.')
         fetchCandidat()
-      } catch (e) { $toastr.error('Erreur.') }
+      } catch (e) { $toastr.error(e.response?.data?.message || 'Erreur.') }
       finally { isSubmitting.value = false }
     }
   } else {

@@ -93,12 +93,6 @@
             </div>
           </template>
 
-          <template #slug="data">
-            <span class="text-[10px] font-mono bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-gray-600 dark:text-gray-300">
-              {{ data.value.slug || 'N/A' }}
-            </span>
-          </template>
-
           <!-- Fichiers -->
           <template #attachments="data">
             <div class="flex items-center gap-1">
@@ -140,12 +134,12 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
               </a>
-               <NuxtLink :to="`/info-urgente/${data.value.id}/detail`" class="p-1.5 rounded-lg text-gray-400 hover:text-green-600 hover:bg-green-50 transition-colors">
+               <NuxtLink :to="`/info-urgente/${data.value.slug || data.value.id}/detail`" class="p-1.5 rounded-lg text-gray-400 hover:text-green-600 hover:bg-green-50 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
               </NuxtLink>
-              <NuxtLink :to="`/info-urgente/${data.value.id}/modifier-une-information-urgente`" class="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+              <NuxtLink :to="`/info-urgente/${data.value.slug || data.value.id}/modifier-une-information-urgente`" class="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
@@ -182,7 +176,6 @@ const isLoading = computed(() => urgentinfoStore.isLoading);
 const columns = [
   { field: "image", title: "Image", sortable: false, width: "70px" },
   { field: "title", title: "Actualité", sortable: true },
-  { field: "slug", title: "Slug (URL)", sortable: true, width: "150px" },
   { field: "target_audience", title: "Cible", sortable: true },
   { field: "attachments", title: "Fichiers", sortable: false, width: "80px" },
   { field: "status", title: "Statut", sortable: true, width: "80px" },

@@ -43,7 +43,7 @@
           class="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all duration-300 transform active:scale-95"
         >
           <span class="w-2.5 h-2.5 rounded-full bg-[#3B82F6] shrink-0"></span>
-          <span>Total ({{ candidatureStore.candidatures.length }})</span>
+          <span>Total ({{ candidaturesVisibles.length }})</span>
         </button>
 
         <button 
@@ -56,23 +56,38 @@
           class="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all duration-300 transform active:scale-95"
         >
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
-          <span>Validés ({{ candidatureStore.candidatures.filter(c => c.dossier_valide).length }})</span>
+          <span>Validés ({{ candidaturesVisibles.filter(c => c.dossier_valide).length }})</span>
         </button>
 
-        <button 
+        <button
+          v-if="afficherOngletEnEtude"
           @click="filterStatut = 'en_attente'"
           :class="[
-            filterStatut === 'en_attente' 
-              ? 'bg-white dark:bg-[#202035] text-[#7F45FD] dark:text-[#a882ff] shadow-md border-transparent scale-[1.02]' 
+            filterStatut === 'en_attente'
+              ? 'bg-white dark:bg-[#202035] text-[#7F45FD] dark:text-[#a882ff] shadow-md border-transparent scale-[1.02]'
               : 'text-[#8a8a9a] dark:text-[#888] hover:text-[#1a1a2a] dark:hover:text-[#fafafe] border-transparent'
           ]"
           class="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all duration-300 transform active:scale-95"
         >
           <span class="w-2.5 h-2.5 rounded-full bg-[#7F45FD] shrink-0"></span>
-          <span>En étude ({{ candidatureStore.candidatures.filter(c => !c.dossier_valide && !c.motif && !c.rectification_expected).length }})</span>
+          <span>En étude ({{ candidaturesVisibles.filter(c => !c.dossier_valide && !c.motif && !c.rectification_expected && !c.transmis_academie).length }})</span>
         </button>
 
-        <button 
+        <button
+          v-if="afficherOngletAcademie"
+          @click="filterStatut = 'academie'"
+          :class="[
+            filterStatut === 'academie'
+              ? 'bg-white dark:bg-[#202035] text-[#7F45FD] dark:text-[#a882ff] shadow-md border-transparent scale-[1.02]'
+              : 'text-[#8a8a9a] dark:text-[#888] hover:text-[#1a1a2a] dark:hover:text-[#fafafe] border-transparent'
+          ]"
+          class="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all duration-300 transform active:scale-95"
+        >
+          <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0"></span>
+          <span>À l'académie ({{ candidaturesVisibles.filter(c => !c.dossier_valide && !c.motif && !c.rectification_expected && c.transmis_academie).length }})</span>
+        </button>
+
+        <button
           @click="filterStatut = 'rectification'"
           :class="[
             filterStatut === 'rectification' 
@@ -82,7 +97,7 @@
           class="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all duration-300 transform active:scale-95"
         >
           <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
-          <span>A corriger ({{ candidatureStore.candidatures.filter(c => c.rectification_expected).length }})</span>
+          <span>A corriger ({{ candidaturesVisibles.filter(c => c.rectification_expected).length }})</span>
         </button>
 
         <button 
@@ -95,7 +110,7 @@
           class="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all duration-300 transform active:scale-95"
         >
           <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0"></span>
-          <span>Rejetés ({{ candidatureStore.candidatures.filter(c => c.motif && !c.rectification_expected).length }})</span>
+          <span>Rejetés ({{ candidaturesVisibles.filter(c => c.motif && !c.rectification_expected).length }})</span>
         </button>
       </div>
 
@@ -273,6 +288,40 @@ const filiereStore = useFiliereStore()
 const niveauStore = useNiveauStore()
 const { $toastr } = useNuxtApp()
 
+// Chacun ne doit voir/compter que les dossiers relevant de son rôle : le chargé
+// de la clientèle ne doit plus voir les dossiers déjà transmis à l'académie (ce
+// n'est plus son ressort), et l'académie ne doit voir que les dossiers qui lui
+// ont été transmis (pas ceux encore à l'étude côté chargé de la clientèle). Les
+// comptes à accès total (admin, direction, informaticien) voient tout.
+const rolesAcademie = ['directeur-academique', 'logiticien-academique']
+const rolesChargeClientele = ['charge-de-la-clientele']
+const rolesAccesTotal = ['admin', 'directeur-general', 'directeur-general-adjoint', 'informaticien']
+
+const userRoleSlugs = computed(() => {
+  if (!process.client) return []
+  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const roles = user?.roles || []
+  return roles.map((role) => role.slug)
+})
+
+const aAccesTotal = computed(() => userRoleSlugs.value.some((slug) => rolesAccesTotal.includes(slug)))
+const estAcademie = computed(() => userRoleSlugs.value.some((slug) => rolesAcademie.includes(slug)))
+const estChargeClientele = computed(() => userRoleSlugs.value.some((slug) => rolesChargeClientele.includes(slug)))
+
+const candidaturesVisibles = computed(() => {
+  const toutes = candidatureStore.candidatures || []
+  if (aAccesTotal.value || (estAcademie.value && estChargeClientele.value)) return toutes
+  if (estAcademie.value) return toutes.filter((c) => c.transmis_academie)
+  if (estChargeClientele.value) return toutes.filter((c) => !c.transmis_academie)
+  return toutes
+})
+
+// L'onglet "En étude" (dossiers pas encore transmis) n'a de sens que pour le
+// chargé de la clientèle ; "À l'académie" n'a de sens que pour l'académie.
+// On les masque pour l'autre rôle plutôt que d'afficher un compteur à zéro.
+const afficherOngletEnEtude = computed(() => aAccesTotal.value || estChargeClientele.value || !estAcademie.value)
+const afficherOngletAcademie = computed(() => aAccesTotal.value || estAcademie.value || !estChargeClientele.value)
+
 const exportExcel = async () => {
   try {
     await candidatureStore.exportEtudeDossierExcel()
@@ -300,12 +349,13 @@ const cols = ref([
 const visibleColumns = computed(() => cols.value.filter(col => !col.hide))
 
 const filteredCandidatures = computed(() => {
-  let list = candidatureStore.candidatures || []
+  let list = candidaturesVisibles.value
   if (filterFiliere.value) list = list.filter(c => c.filiere_id == filterFiliere.value || c.filiere?.id == filterFiliere.value)
   if (filterNiveau.value) list = list.filter(c => c.niveau_id == filterNiveau.value || c.niveau?.id == filterNiveau.value)
   if (filterStatut.value) {
     switch (filterStatut.value) {
-      case 'en_attente': list = list.filter(c => !c.dossier_valide && !c.motif && !c.rectification_expected); break
+      case 'en_attente': list = list.filter(c => !c.dossier_valide && !c.motif && !c.rectification_expected && !c.transmis_academie); break
+      case 'academie': list = list.filter(c => !c.dossier_valide && !c.motif && !c.rectification_expected && c.transmis_academie); break
       case 'valide': list = list.filter(c => c.dossier_valide); break
       case 'rejete': list = list.filter(c => c.motif && !c.rectification_expected); break
       case 'rectification': list = list.filter(c => c.rectification_expected); break
@@ -322,6 +372,7 @@ const getStatutLabel = (c) => {
   if (c.dossier_valide) return 'Validé'
   if (c.rectification_expected) return 'Correction'
   if (c.motif) return 'Rejeté'
+  if (c.transmis_academie) return "À l'académie"
   return 'En étude'
 }
 
@@ -329,6 +380,7 @@ const getStatutBadgeClass = (c) => {
   if (c.dossier_valide) return 'border-emerald-600/30 text-emerald-600 bg-emerald-600/5'
   if (c.rectification_expected) return 'border-amber-600/30 text-amber-600 bg-amber-600/5'
   if (c.motif) return 'border-rose-600/30 text-rose-600 bg-rose-600/5'
+  if (c.transmis_academie) return 'border-blue-600/30 text-blue-600 bg-blue-600/5'
   return 'border-[#7F45FD]/30 text-[#7F45FD] bg-[#7F45FD]/10'
 }
 
@@ -368,10 +420,6 @@ onMounted(async () => {
    padding: 1.25rem 1.5rem;
    border-bottom: 1px solid #e8e8f0;
 }
-.dark :deep(.elite-table-v2 thead tr th) {
-   border-bottom-color: #1a1a2a;
-   color: #888;
-}
 :deep(.elite-table-v2 tbody tr) {
    border: none;
    transition: all 0.3s;
@@ -379,14 +427,30 @@ onMounted(async () => {
 :deep(.elite-table-v2 tbody tr:hover) {
    background-color: #fafafe !important;
 }
-.dark :deep(.elite-table-v2 tbody tr:hover) {
-   background-color: #0a0a12 !important;
-}
 :deep(.elite-table-v2 tbody tr td) {
    padding: 1.25rem 1.5rem;
    border-bottom: 1px solid #e8e8f0;
 }
-.dark :deep(.elite-table-v2 tbody tr td) {
+</style>
+
+<style>
+/*
+ * Ces règles ciblent .dark, qui est posé sur <html>, en dehors de l'arbre de
+ * ce composant. Un <style scoped> compile ".dark :deep(.foo)" en
+ * ".dark[data-v-xxxxx] .foo" (l'attribut de scope se colle sur .dark) — <html>
+ * n'ayant jamais cet attribut, la règle ne matchait jamais et le hover
+ * restait toujours clair, même en mode sombre. D'où ce bloc global, où .dark
+ * n'a pas besoin d'être scopé puisqu'il n'y a pas de barrière de composant à
+ * traverser ici.
+ */
+.dark .elite-table-v2 thead tr th {
+   border-bottom-color: #1a1a2a;
+   color: #888;
+}
+.dark .elite-table-v2 tbody tr:hover {
+   background-color: #0a0a12 !important;
+}
+.dark .elite-table-v2 tbody tr td {
    border-bottom-color: #1a1a2a;
 }
 </style>

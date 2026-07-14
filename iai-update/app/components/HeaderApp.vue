@@ -1116,13 +1116,6 @@ watch(
   }
 }
 
-/* Support du dark mode automatique */
-@media (prefers-color-scheme: dark) {
-  .dark\:bg-gray-800 {
-    background-color: #1f2937;
-  }
-}
-
 /* Animation d'entrée pour les dropdowns */
 .slide-enter-active,
 .slide-leave-active {

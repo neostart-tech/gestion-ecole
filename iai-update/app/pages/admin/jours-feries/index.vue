@@ -19,8 +19,8 @@
       <!-- Statistiques rapides -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
         <div class="group bg-white dark:bg-gray-800 p-6 rounded-[5px] shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all duration-300 relative overflow-hidden">
-          <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <svg class="w-12 h-12 text-indigo-600" fill="currentColor" viewBox="0 0 24 24">
+          <div class="absolute top-0 right-0 p-4 opacity-10 dark:opacity-25 group-hover:opacity-20 dark:group-hover:opacity-40 transition-opacity">
+            <svg class="w-12 h-12 text-indigo-600 dark:text-indigo-400" fill="currentColor" viewBox="0 0 24 24">
               <path d="M19 19H5V8h14v11zM16 1H8v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-3V1z" />
             </svg>
           </div>
@@ -31,8 +31,8 @@
         </div>
 
         <div class="group bg-white dark:bg-gray-800 p-6 rounded-[5px] shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all duration-300 relative overflow-hidden">
-          <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <svg class="w-12 h-12 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+          <div class="absolute top-0 right-0 p-4 opacity-10 dark:opacity-25 group-hover:opacity-20 dark:group-hover:opacity-40 transition-opacity">
+            <svg class="w-12 h-12 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z" />
             </svg>
           </div>
@@ -92,7 +92,7 @@
           <template #titre="data">
             <div class="flex flex-col">
               <span class="font-bold text-gray-900 dark:text-white">{{ data.value.titre }}</span>
-              <span v-if="data.value.description" class="text-xs text-gray-500 truncate max-w-[200px]">{{ data.value.description }}</span>
+              <span v-if="data.value.description" class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[200px]">{{ data.value.description }}</span>
             </div>
           </template>
 
@@ -139,7 +139,7 @@
             <div class="flex justify-center gap-3">
               <button
                 @click="openEditModal(data.value)"
-                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                class="p-2 rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
                 title="Modifier"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,7 +148,7 @@
               </button>
               <button
                 @click="confirmDelete(data.value)"
-                class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                class="p-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
                 title="Supprimer"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -197,7 +197,7 @@
                     </div>
                     {{ isEditing ? 'Modifier le jour férié' : 'Nouveau jour férié' }}
                   </DialogTitle>
-                  <button @click="closeModal" class="text-gray-400 hover:text-gray-500 transition-colors">
+                  <button @click="closeModal" class="text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-300 transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -463,11 +463,6 @@ const confirmDelete = (jour) => {
   border-bottom-width: 1px !important;
   border-bottom-color: rgb(243 244 246) !important;
 }
-:deep(.dark .bh-table-responsive th) {
-  background-color: rgb(31 41 55 / 0.5) !important;
-  color: rgb(156 163 175) !important;
-  border-bottom-color: rgb(55 65 81) !important;
-}
 :deep(.bh-table-responsive td) {
   padding-top: 1rem !important;
   padding-bottom: 1rem !important;
@@ -476,7 +471,21 @@ const confirmDelete = (jour) => {
   border-bottom-width: 1px !important;
   border-bottom-color: rgb(249 250 251) !important;
 }
-:deep(.dark .bh-table-responsive td) {
+</style>
+
+<!--
+  Règles de mode sombre pour le tableau tierce-partie (bh-table), dans un bloc
+  non scoped : ".dark" est posé sur <html>, un ANCÊTRE du composant, jamais un
+  descendant. Un ":deep(.dark ...)" dans <style scoped> exige un descendant et
+  ne matche donc jamais — d'où le fond d'en-tête qui restait clair en sombre.
+-->
+<style>
+.dark .bh-table-responsive th {
+  background-color: rgb(31 41 55 / 0.5) !important;
+  color: rgb(156 163 175) !important;
+  border-bottom-color: rgb(55 65 81) !important;
+}
+.dark .bh-table-responsive td {
   border-bottom-color: rgb(55 65 81 / 0.5) !important;
 }
 </style>

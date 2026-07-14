@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-950 p-4 md:p-6 transition-colors">
-    <div class="max-w-6xl mx-auto">
+    <div>
 
     <!-- En-tête -->
     <div class="flex items-start justify-between mb-5">
@@ -53,7 +53,7 @@
     </div>
 
     <!-- ─── Onglet Fil d'actualité ─── -->
-    <div v-if="activeTab === 'feed'" class="max-w-5xl space-y-3">
+    <div v-if="activeTab === 'feed'" class="space-y-3">
 
       <!-- Skeletons de chargement -->
       <template v-if="communicationStore.isLoading && communicationStore.communications.length === 0">

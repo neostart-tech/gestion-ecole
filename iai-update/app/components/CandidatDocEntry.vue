@@ -22,14 +22,14 @@
 
     <!-- Info Column -->
     <div class="flex-1 min-w-0 py-1 relative z-10">
-      <h4 
+      <h4
         class="text-[13px] font-extrabold tracking-tight leading-snug mb-2 transition-colors duration-300 break-words"
         :class="path ? 'text-[#1a1a2a] dark:text-[#fafafe] group-hover:text-[#7F45FD]' : 'text-[#8a8a9a] dark:text-[#666]'"
         :title="label"
       >
         {{ label }}
       </h4>
-      
+
       <!-- Status Badges -->
       <div class="flex items-center gap-2">
         <div v-if="path" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
@@ -44,14 +44,22 @@
           <span class="text-[9px] font-black uppercase tracking-[0.15em] text-rose-500">Manquant</span>
         </div>
       </div>
+
+      <!-- Plusieurs fichiers soumis pour ce document : un lien par fichier -->
+      <div v-if="allUrls.length > 1" class="flex flex-wrap gap-1.5 mt-2.5">
+        <a v-for="(url, idx) in allUrls" :key="idx" :href="url" target="_blank"
+           class="text-[10px] font-bold text-[#7F45FD] hover:underline px-2 py-1 bg-[#7F45FD]/10 rounded-lg transition-colors hover:bg-[#7F45FD]/20">
+          Fichier {{ idx + 1 }}
+        </a>
+      </div>
     </div>
 
-    <!-- Action Bar / Download Button -->
-    <div class="shrink-0 relative z-10">
-      <a 
-        v-if="path" 
-        :href="fullUrl" 
-        target="_blank" 
+    <!-- Action Bar / Download Button (un seul fichier) -->
+    <div v-if="allUrls.length <= 1" class="shrink-0 relative z-10">
+      <a
+        v-if="path"
+        :href="fullUrl"
+        target="_blank"
         class="group/btn w-10 h-10 rounded-xl flex items-center justify-center bg-white dark:bg-[#1a1a2a] border border-[#e8e8f0] dark:border-[#2a2a3a] text-[#8a8a9a] hover:bg-[#7F45FD] hover:border-[#7F45FD] hover:text-white hover:shadow-[0_4px_12px_rgba(127,69,253,0.3)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#7F45FD]/50"
         title="Ouvrir le document"
       >
@@ -77,23 +85,31 @@ const props = defineProps({
   path: { type: String, default: null }
 })
 
-const getCleanPath = (p) => {
-  if (!p) return ''
-  let cleanPath = p
-  if (cleanPath.startsWith('[')) {
-     try {
-         const parsed = JSON.parse(cleanPath)
-         if (Array.isArray(parsed) && parsed.length > 0) cleanPath = parsed[0]
-     } catch(e) {}
+// Un document "multiple" (bulletins, ...) stocke ses chemins sous forme de
+// tableau encodé en JSON dans le path (ex: '["documents/a.png","documents/b.png"]').
+// On le décode en une vraie liste, sinon on retombe sur une liste à un élément.
+const getAllPaths = (p) => {
+  if (!p) return []
+  if (p.startsWith('[')) {
+    try {
+      const parsed = JSON.parse(p)
+      if (Array.isArray(parsed)) return parsed.filter(Boolean)
+    } catch (e) { /* pas du JSON valide, on traite comme un chemin unique */ }
   }
-  return cleanPath
+  return [p]
 }
+
+const getCleanPath = (p) => getAllPaths(p)[0] || ''
 
 const getExtension = (p) => {
   const clean = getCleanPath(p)
   if (!clean) return ''
   return clean.split('.').pop().substring(0, 4)
 }
+
+const toUrl = (p) => (p.startsWith('http') ? p : `${getStorageBaseUrl()}/storage/${p}`)
+
+const allUrls = computed(() => getAllPaths(props.path).map(toUrl))
 
 const fullUrl = computed(() => {
   if (!props.path) return null

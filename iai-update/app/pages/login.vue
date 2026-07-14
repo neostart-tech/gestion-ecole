@@ -1,10 +1,10 @@
 <template>
   <div
-    class="h-screen w-screen bg-gradient-to-br from-[#dbeff7] to-white overflow-hidden"
+    class="h-screen w-screen bg-gradient-to-br from-[#dbeff7] to-white dark:from-gray-900 dark:to-gray-900 overflow-hidden transition-colors"
   >
     <!-- Main Container -->
     <div class="h-full w-full flex">
-      <div class="w-full h-full bg-white flex flex-col">
+      <div class="w-full h-full bg-white dark:bg-gray-900 flex flex-col">
         <div class="grid grid-cols-1 lg:grid-cols-2 h-full">
           <!-- Left Side - Login Form -->
           <div
@@ -27,11 +27,11 @@
                 <!-- Welcome Section -->
                 <div class="space-y-2">
                   <h1
-                    class="text-2xl md:text-3xl lg:text-4xl font-bold text-[#202a51]"
+                    class="text-2xl md:text-3xl lg:text-4xl font-bold text-[#202a51] dark:text-white"
                   >
                     Connectez-vous
                   </h1>
-                  <p class="text-gray-600 text-sm md:text-base">
+                  <p class="text-gray-600 dark:text-gray-400 text-sm md:text-base">
                     Accédez à votre compte et gérez vos ressources académiques
                     en toute simplicité.
                   </p>
@@ -41,7 +41,7 @@
                 <form @submit.prevent="handleLogin" class="space-y-6">
                   <!-- Email Input -->
                   <div class="space-y-2">
-                    <label class="block text-[#202a51] font-semibold text-sm">
+                    <label class="block text-[#202a51] dark:text-gray-200 font-semibold text-sm">
                       <span class="flex items-center">
                         <svg
                           class="w-4 h-4 mr-1 text-[#00b3d4]"
@@ -63,7 +63,7 @@
                         class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
                       >
                         <svg
-                          class="w-5 h-5 text-gray-400 group-focus-within:text-[#00b3d4]"
+                          class="w-5 h-5 text-gray-400 dark:text-gray-500 group-focus-within:text-[#00b3d4]"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -82,14 +82,14 @@
                         v-model="email"
                         required
                         placeholder="exemple@escen.university"
-                        class="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#00b3d4] focus:border-transparent bg-white hover:bg-gray-50 transition-all duration-200"
+                        class="w-full pl-10 pr-4 py-3.5 border border-gray-300 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-[#00b3d4] focus:border-transparent bg-white dark:bg-gray-800 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200"
                       />
                     </div>
                   </div>
 
                   <!-- Password Input -->
                   <div class="space-y-2">
-                    <label class="block text-[#202a51] font-semibold text-sm">
+                    <label class="block text-[#202a51] dark:text-gray-200 font-semibold text-sm">
                       <span class="flex items-center">
                         <svg
                           class="w-4 h-4 mr-1 text-[#00b3d4]"
@@ -111,7 +111,7 @@
                         class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
                       >
                         <svg
-                          class="w-5 h-5 text-gray-400 group-focus-within:text-[#00b3d4]"
+                          class="w-5 h-5 text-gray-400 dark:text-gray-500 group-focus-within:text-[#00b3d4]"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -130,7 +130,7 @@
                         v-model="password"
                         required
                         placeholder="••••••••"
-                        class="w-full pl-10 pr-12 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#00b3d4] focus:border-transparent bg-white hover:bg-gray-50 transition-all duration-200"
+                        class="w-full pl-10 pr-12 py-3.5 border border-gray-300 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-[#00b3d4] focus:border-transparent bg-white dark:bg-gray-800 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200"
                       />
 
                       <!-- Toggle password visibility -->
@@ -184,10 +184,10 @@
                         <input
                           type="checkbox"
                           v-model="rememberMe"
-                          class="w-5 h-5 border-2 border-gray-300 rounded-lg checked:bg-[#00b3d4] checked:border-[#00b3d4] focus:ring-2 focus:ring-[#00b3d4]/20 focus:ring-offset-0 transition-all duration-200 cursor-pointer"
+                          class="w-5 h-5 border-2 border-gray-300 dark:border-gray-600 rounded-lg checked:bg-[#00b3d4] checked:border-[#00b3d4] focus:ring-2 focus:ring-[#00b3d4]/20 focus:ring-offset-0 transition-all duration-200 cursor-pointer"
                         />
                         <span
-                          class="ml-3 text-sm text-gray-700 group-hover:text-[#202a51] transition-colors duration-200"
+                          class="ml-3 text-sm text-gray-700 dark:text-gray-300 group-hover:text-[#202a51] dark:group-hover:text-white transition-colors duration-200"
                         >
                           Me connecter en tant qu'étudiant
                         </span>
