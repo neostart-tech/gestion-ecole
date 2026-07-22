@@ -406,7 +406,7 @@
                   'directeur-academique',
                   'logiticien-academique',
                   'admin',
-                ])
+                ]) || hasAnyPermission(['update-reclamation'])
               "
             >
               <NuxtLink
@@ -1423,7 +1423,7 @@
                   'logiticien-academique',
                   'admin',
                   'informaticien',
-                ])
+                ]) || hasAnyPermission(['create-jour-ferie', 'update-jour-ferie', 'delete-jour-ferie'])
               "
             >
               <NuxtLink
@@ -2668,125 +2668,51 @@
                       Liste des enseignants
                     </NuxtLink>
                   </li>
+                  <li
+                    v-if="
+                      hasAnyRole([
+                        'directeur-general-adjoint',
+                        'responsable-administratif-et-financier',
+                        'informaticien',
+                        'directeur-general',
+                        'admin',
+                        'logiticien-academique',
+                        'directeur-academique'
+                      ])
+                    "
+                  >
+                    <NuxtLink
+                      to="/roles/liste"
+                      class="block px-3 py-2 text-sm rounded-lg transition-colors"
+                      :class="[
+                        $route.path === '/roles/liste'
+                          ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 font-medium'
+                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
+                      ]"
+                      @click="toggleMobileMenu"
+                    >
+                      Rôles &amp; permissions
+                    </NuxtLink>
+                  </li>
+                  <li v-if="can('view-logs')">
+                    <NuxtLink
+                      to="/journal-activite/liste"
+                      class="block px-3 py-2 text-sm rounded-lg transition-colors"
+                      :class="[
+                        $route.path === '/journal-activite/liste'
+                          ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 font-medium'
+                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
+                      ]"
+                      @click="toggleMobileMenu"
+                    >
+                      Journal d'activité
+                    </NuxtLink>
+                  </li>
                 </ul>
               </vue-collapsible>
             </li>
           </ul>
         </section>
-
-        <!-- SECTION RÔLES & PERMISSIONS -->
-        <!-- <section v-if="hasAnyRole(['responsable-du-site', 'informaticien'])" class="mb-6">
-					<div class="flex items-center px-2 mb-2">
-						<div class="w-1 h-5 bg-rose-500 rounded-full"></div>
-						<h2 v-if="themeStore.isSidebarOpen" class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-							Administration
-						</h2>
-					</div>
-					
-					<ul class="space-y-1">
-						<li>
-							<NuxtLink
-								to="/roles-permissions/utilisateurs"
-								class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
-								:class="[$route.path === '/roles-permissions/utilisateurs' ? 'bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 text-rose-700 dark:text-rose-400' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300']"
-								@click="toggleMobileMenu"
-							>
-								<div :class="['p-1 rounded-lg', $route.path === '/roles-permissions/utilisateurs' ? 'bg-rose-100 dark:bg-rose-900/30' : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700']">
-									<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-										<path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-									</svg>
-								</div>
-								<span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium">Utilisateurs</span>
-							</NuxtLink>
-						</li>
-						<li>
-							<NuxtLink
-								to="/roles-permissions/roles"
-								class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
-								:class="[$route.path === '/roles-permissions/roles' ? 'bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 text-rose-700 dark:text-rose-400' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300']"
-								@click="toggleMobileMenu"
-							>
-								<div :class="['p-1 rounded-lg', $route.path === '/roles-permissions/roles' ? 'bg-rose-100 dark:bg-rose-900/30' : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700']">
-									<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-										<path fill-rule="evenodd" d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 4h3a3 3 0 006 0h3a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm2.5 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm2.45 4a2.5 2.5 0 10-4.9 0h4.9zM12 9a1 1 0 100 2h3a1 1 0 100-2h-3zm-1 4a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z" clip-rule="evenodd" />
-									</svg>
-								</div>
-								<span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium">Gestion des rôles</span>
-							</NuxtLink>
-						</li>
-						<li v-if="hasRole('informaticien')">
-							<NuxtLink
-								to="/logs"
-								class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
-								:class="[$route.path === '/logs' ? 'bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 text-rose-700 dark:text-rose-400' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300']"
-								@click="toggleMobileMenu"
-							>
-								<div :class="['p-1 rounded-lg', $route.path === '/logs' ? 'bg-rose-100 dark:bg-rose-900/30' : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700']">
-									<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-										<path d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm2 0a6 6 0 1012 0 6 6 0 00-12 0zm3 0a3 3 0 116 0 3 3 0 01-6 0z" />
-									</svg>
-								</div>
-								<span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium">Logs système</span>
-							</NuxtLink>
-						</li>
-					</ul>
-				</section> -->
-        <!-- <section v-if="hasAnyRole(['responsable-du-site', 'informaticien'])" class="mb-6">
-					<div class="flex items-center px-2 mb-2">
-						<div class="w-1 h-5 bg-rose-500 rounded-full"></div>
-						<h2 v-if="themeStore.isSidebarOpen" class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-							Administration
-						</h2>
-					</div>
-					
-					<ul class="space-y-1">
-						<li>
-							<NuxtLink
-								to="/roles-permissions/utilisateurs"
-								class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
-								:class="[$route.path === '/roles-permissions/utilisateurs' ? 'bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 text-rose-700 dark:text-rose-400' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300']"
-								@click="toggleMobileMenu"
-							>
-								<div :class="['p-1 rounded-lg', $route.path === '/roles-permissions/utilisateurs' ? 'bg-rose-100 dark:bg-rose-900/30' : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700']">
-									<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-										<path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-									</svg>
-								</div>
-								<span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium">Utilisateurs</span>
-							</NuxtLink>
-						</li>
-						<li>
-							<NuxtLink
-								to="/roles-permissions/roles"
-								class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
-								:class="[$route.path === '/roles-permissions/roles' ? 'bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 text-rose-700 dark:text-rose-400' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300']"
-								@click="toggleMobileMenu"
-							>
-								<div :class="['p-1 rounded-lg', $route.path === '/roles-permissions/roles' ? 'bg-rose-100 dark:bg-rose-900/30' : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700']">
-									<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-										<path fill-rule="evenodd" d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 4h3a3 3 0 006 0h3a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm2.5 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm2.45 4a2.5 2.5 0 10-4.9 0h4.9zM12 9a1 1 0 100 2h3a1 1 0 100-2h-3zm-1 4a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z" clip-rule="evenodd" />
-									</svg>
-								</div>
-								<span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium">Gestion des rôles</span>
-							</NuxtLink>
-						</li>
-						<li v-if="hasRole('informaticien')">
-							<NuxtLink
-								to="/logs"
-								class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
-								:class="[$route.path === '/logs' ? 'bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 text-rose-700 dark:text-rose-400' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300']"
-								@click="toggleMobileMenu"
-							>
-								<div :class="['p-1 rounded-lg', $route.path === '/logs' ? 'bg-rose-100 dark:bg-rose-900/30' : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700']">
-									<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-										<path d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm2 0a6 6 0 1012 0 6 6 0 00-12 0zm3 0a3 3 0 116 0 3 3 0 01-6 0z" />
-									</svg>
-								</div>
-								<span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium">Logs système</span>
-							</NuxtLink>
-						</li>
-					</ul>
-				</section> -->
 
         <!-- SECTION ÉTUDIANTS -->
         <section v-if="hasRole('etudiant')" class="mb-6">
@@ -2867,7 +2793,7 @@
 
           <ul class="space-y-1">
             <!-- Tableau de bord -->
-            <li v-if="hasAnyRole(['responsable-marketing', 'admin', 'directeur-general', 'directeur-general-adjoint', 'superadmin'])">
+            <li v-if="hasAnyRole(['responsable-marketing', 'admin', 'directeur-general', 'directeur-general-adjoint', 'superadmin']) || hasAnyPermission(['create-communication', 'update-communication', 'delete-communication'])">
               <NuxtLink
                 to="/admin/communications/dashboard"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
@@ -2900,7 +2826,7 @@
             </li>
 
             <!-- Gérer les annonces -->
-            <li v-if="hasAnyRole(['responsable-marketing', 'admin', 'informaticien', 'directeur-general', 'directeur-general-adjoint', 'superadmin', 'charge-de-la-communication', 'charge-de-communication', 'responsable-de-la-communication', 'responsable-communication'])">
+            <li v-if="hasAnyRole(['responsable-marketing', 'admin', 'informaticien', 'directeur-general', 'directeur-general-adjoint', 'superadmin', 'charge-de-la-communication', 'charge-de-communication', 'responsable-de-la-communication', 'responsable-communication']) || hasAnyPermission(['create-communication', 'update-communication', 'delete-communication'])">
               <NuxtLink
                 to="/admin/communications"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
@@ -3001,7 +2927,7 @@
                   'admin',
                   'responsable-marketing',
                   'collaborateur-commercial',
-                ])
+                ]) || hasAnyPermission(['update-prospect', 'delete-prospect'])
               "
             >
               <NuxtLink
@@ -3045,7 +2971,7 @@
                   'directeur-general',
                   'admin',
                   'collaborateur-commercial',
-                ])
+                ]) || hasAnyPermission(['create-blog', 'update-blog', 'delete-blog', 'publish-blog'])
               "
             >
               <button
@@ -3271,7 +3197,7 @@
                   'directeur-general',
                   'collaborateur-commercial',
                   'admin',
-                ])
+                ]) || hasAnyPermission(['create-partenaire', 'update-partenaire', 'delete-partenaire'])
               "
             >
               <NuxtLink
@@ -3662,7 +3588,7 @@
                   'charge-de-la-clientele',
                   'logiticien-academique',
                   'directeur-academique',
-                ])
+                ]) || hasAnyPermission(['create-annee-scolaire', 'update-annee-scolaire'])
               "
             >
               <NuxtLink
@@ -3771,7 +3697,7 @@
                   'informaticien',
                   'charge-de-la-clientele',
                   'logiticien-academique',
-                ])
+                ]) || hasAnyPermission(['create-niveau', 'update-niveau', 'delete-niveau'])
               "
             >
               <NuxtLink
@@ -3825,7 +3751,7 @@
                   'informaticien',
                   'charge-de-la-clientele',
                   'logiticien-academique',
-                ])
+                ]) || hasAnyPermission(['update-candidature-field-config'])
               "
             >
               <NuxtLink
@@ -3879,7 +3805,7 @@
                   'informaticien',
                   'charge-de-la-clientele',
                   'logiticien-academique',
-                ])
+                ]) || hasAnyPermission(['create-type-diplome', 'update-type-diplome', 'delete-type-diplome'])
               "
             >
               <NuxtLink
@@ -3929,7 +3855,7 @@
                   'informaticien',
                   'charge-de-la-clientele',
                   'logiticien-academique',
-                ])
+                ]) || hasAnyPermission(['create-moyen-connaissance', 'update-moyen-connaissance', 'delete-moyen-connaissance'])
               "
             >
               <NuxtLink
@@ -3979,7 +3905,7 @@
                   'informaticien',
                   'charge-de-la-clientele',
                   'logiticien-academique',
-                ])
+                ]) || hasAnyPermission(['create-type-document', 'update-type-document', 'delete-type-document'])
               "
             >
               <NuxtLink
@@ -4030,7 +3956,7 @@
                   'informaticien',
                   'charge-de-la-clientele',
                   'logiticien-academique',
-                ])
+                ]) || hasAnyPermission(['create-concours-session', 'update-concours-session', 'publish-concours-session'])
               "
             >
               <NuxtLink
@@ -4081,7 +4007,7 @@
                   'informaticien',
                   'charge-de-la-clientele',
                   'logiticien-academique',
-                ])
+                ]) || hasAnyPermission(['create-concours-matiere', 'update-concours-matiere', 'delete-concours-matiere'])
               "
             >
               <NuxtLink
@@ -4208,6 +4134,9 @@ import config from "~~/config";
 
 import Swal from "sweetalert2";
 import { useRoute } from "vue-router";
+import { useAccess } from "~/composables/useAccess";
+
+const { can } = useAccess();
 
 const themeStore = useThemeStore();
 const loginStore = useLoginStore();
@@ -4450,9 +4379,15 @@ const showMonEspaceSection = computed(() => {
       "utilisateur-de-la-plateforme",
       "responsable-marketing",
       "delegue",
-    ]) || isAdmin.value
+    ]) || isAdmin.value || hasAnyPermission(['update-reclamation'])
   );
 });
+
+// Filet de sécurité dynamique : une section codée en dur pour une liste de rôles
+// ne "voit" pas les permissions accordées depuis la page Rôles. Sans ce filet,
+// accorder une permission (ex: create-etudiant) à un rôle qui n'est pas dans la
+// liste ci-dessous laisserait la section entière invisible, malgré la permission.
+const hasAnyPermission = (slugs) => slugs.some((slug) => can(slug));
 
 const showAdminAcademiqueSection = computed(() => {
   return (
@@ -4464,7 +4399,19 @@ const showAdminAcademiqueSection = computed(() => {
       "directeur-general",
       "informaticien",
       'responsable-marketing',
-    ]) || isAdmin.value
+    ]) ||
+    isAdmin.value ||
+    hasAnyPermission([
+      "view-filiere", "create-filiere", "update-filiere", "delete-filiere",
+      "view-ue", "create-ue", "update-ue", "delete-ue",
+      "view-uv", "create-uv", "update-uv", "delete-uv",
+      "view-evaluation", "create-evaluation", "update-evaluation", "delete-evaluation",
+      "view-salle", "create-salle", "update-salle", "delete-salle",
+      "view-groupe", "create-groupe", "delete-groupe",
+      "view-etudiant", "create-etudiant", "update-etudiant", "delete-etudiant",
+      "create-jour-ferie", "update-jour-ferie", "delete-jour-ferie",
+      "create-releve", "delete-releve",
+    ])
   );
 });
 
@@ -4476,7 +4423,19 @@ const showFinanceSection = computed(() => {
       "directeur-general",
       "directeur-des-affaires-financieres",
       "charge-de-la-clientele"
-    ]) || isAdmin.value
+    ]) ||
+    isAdmin.value ||
+    hasAnyPermission([
+      "create-depense", "delete-depense",
+      "create-tranche-paiement", "update-tranche-paiement", "delete-tranche-paiement",
+      "create-plan-paiement", "update-plan-paiement", "delete-plan-paiement",
+      "create-paiement", "update-paiement",
+      "create-negociation", "update-negociation", "delete-negociation",
+      "create-frais-scolarite", "update-frais-scolarite", "delete-frais-scolarite",
+      "create-frais-inscription", "update-frais-inscription", "delete-frais-inscription",
+      "create-bourse", "update-bourse", "delete-bourse", "affecter-bourse",
+      "update-situation-etudiant",
+    ])
   );
 });
 
@@ -4489,7 +4448,13 @@ const showPersonnelSection = computed(() => {
       "logiticien-academique",
       "directeur-academique",
       "admin",
-    ]) || isAdmin.value
+    ]) ||
+    isAdmin.value ||
+    hasAnyPermission([
+      "view-user", "create-user", "update-user", "delete-user",
+      "view-enseignant", "create-enseignant", "update-enseignant", "delete-enseignant",
+      "assign-role-permissions", "create-role", "update-role", "delete-role",
+    ])
   );
 });
 
@@ -4507,7 +4472,21 @@ const showCommunicationSection = computed(() => {
       "responsable-communication",
       "responsable-marketing",
       "charge-de-la-clientele",
-    ]) || isAdmin.value
+    ]) ||
+    isAdmin.value ||
+    hasAnyPermission([
+      "view-evenement", "create-evenement", "update-evenement", "delete-evenement",
+      "view-actualite", "create-actualite", "update-actualite", "delete-actualite",
+      "update-prospect", "delete-prospect",
+      "create-galerie-album", "update-galerie-album", "delete-galerie-album",
+      "create-galerie-photo", "update-galerie-photo", "delete-galerie-photo",
+      "create-blog", "update-blog", "delete-blog", "publish-blog",
+      "create-partenaire", "update-partenaire", "delete-partenaire",
+      "create-communication", "update-communication", "delete-communication",
+      "moderate-commentaire-web", "delete-abonne-newsletter",
+      "reply-message-contact", "delete-message-contact",
+      "create-opportunite", "update-opportunite", "delete-opportunite", "publish-opportunite",
+    ])
   );
 });
 
@@ -4521,7 +4500,9 @@ const showCandidaturesSection = computed(() => {
       "directeur-general",
       "directeur-academique",
       "logiticien-academique",
-    ]) || isAdmin.value
+    ]) ||
+    isAdmin.value ||
+    hasAnyPermission(["view-candidat-entrant", "create-candidat-entrant", "update-candidat-entrant"])
   );
 });
 

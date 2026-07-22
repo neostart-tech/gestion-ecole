@@ -120,18 +120,20 @@
 
           <!-- Action -->
           <div class="flex justify-center pt-4">
-            <button 
-              @click="envoyer" 
-              :disabled="files.length === 0 || loading" 
-              class="btn-primary-large"
-            >
-              <svg v-if="loading" class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/>
-                <path fill="currentColor" class="opacity-75" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
-              </svg>
-              <CloudArrowUpIcon v-else class="w-5 h-5" />
-              {{ loading ? 'Envoi en cours…' : "Lancer l'importation" }}
-            </button>
+            <Can action="create-galerie-photo">
+              <button
+                @click="envoyer"
+                :disabled="files.length === 0 || loading"
+                class="btn-primary-large"
+              >
+                <svg v-if="loading" class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/>
+                  <path fill="currentColor" class="opacity-75" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+                </svg>
+                <CloudArrowUpIcon v-else class="w-5 h-5" />
+                {{ loading ? 'Envoi en cours…' : "Lancer l'importation" }}
+              </button>
+            </Can>
           </div>
         </div>
       </div>
@@ -188,11 +190,13 @@
                   </svg>
                 </button>
 
-                <button @click="confirmDelete(photo.id)" class="w-8 h-8 rounded-[5px] bg-red-600 text-white flex items-center justify-center hover:bg-red-700 transition-colors shadow-lg" title="Supprimer">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
-                </button>
+                <Can action="delete-galerie-photo">
+                  <button @click="confirmDelete(photo.id)" class="w-8 h-8 rounded-[5px] bg-red-600 text-white flex items-center justify-center hover:bg-red-700 transition-colors shadow-lg" title="Supprimer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                  </button>
+                </Can>
               </div>
               <div v-if="!photo.is_published" class="absolute top-2 left-2 px-1.5 py-0.5 rounded-[5px] bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest shadow-sm">
                 Brouillon

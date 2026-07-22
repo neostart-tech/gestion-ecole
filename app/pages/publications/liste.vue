@@ -166,24 +166,26 @@
         </client-only>
 
         <!-- Bouton d'ajout -->
-        <NuxtLink
-          to="/publications/ajouter-une-publication"
-          class="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105"
-        >
-          <svg
-            class="w-5 h-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
+        <Can action="create-blog">
+          <NuxtLink
+            to="/publications/ajouter-une-publication"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105"
           >
-            <path
-              d="M12 5v14M5 12h14"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-          </svg>
-          Ajouter
-        </NuxtLink>
+            <svg
+              class="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+            >
+              <path
+                d="M12 5v14M5 12h14"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            Ajouter
+          </NuxtLink>
+        </Can>
       </div>
     </div>
 
@@ -362,36 +364,40 @@
                 v-if="data.value.status === 'published'"
                 class="flex items-center gap-2"
               >
-                <button
-                  @click="publishBlogs(data.value)"
-                  class="relative w-14 h-7 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center px-1 cursor-pointer transition-all duration-200 group"
-                  :title="'Cliquer pour dépublier ' + data.value.title"
-                >
-                  <div
-                    class="w-5 h-5 bg-green-500 dark:bg-green-600 rounded-full shadow-md transform translate-x-7 transition-all duration-200 group-hover:scale-110"
-                  ></div>
-                  <span class="absolute -top-1 -right-1 flex h-3 w-3">
-                    <span
-                      class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"
-                    ></span>
-                    <span
-                      class="relative inline-flex rounded-full h-3 w-3 bg-green-500"
-                    ></span>
-                  </span>
-                </button>
+                <Can action="publish-blog">
+                  <button
+                    @click="publishBlogs(data.value)"
+                    class="relative w-14 h-7 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center px-1 cursor-pointer transition-all duration-200 group"
+                    :title="'Cliquer pour dépublier ' + data.value.title"
+                  >
+                    <div
+                      class="w-5 h-5 bg-green-500 dark:bg-green-600 rounded-full shadow-md transform translate-x-7 transition-all duration-200 group-hover:scale-110"
+                    ></div>
+                    <span class="absolute -top-1 -right-1 flex h-3 w-3">
+                      <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"
+                      ></span>
+                      <span
+                        class="relative inline-flex rounded-full h-3 w-3 bg-green-500"
+                      ></span>
+                    </span>
+                  </button>
+                </Can>
               </div>
 
               <!-- Si non publié -->
               <div v-else class="flex items-center gap-2">
-                <button
-                  @click="publishBlogs(data.value)"
-                  class="relative w-14 h-7 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center px-1 cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200 group"
-                  :title="'Cliquer pour publier ' + data.value.title"
-                >
-                  <div
-                    class="w-5 h-5 bg-white dark:bg-gray-400 rounded-full shadow-md transform transition-all duration-200 group-hover:scale-110"
-                  ></div>
-                </button>
+                <Can action="publish-blog">
+                  <button
+                    @click="publishBlogs(data.value)"
+                    class="relative w-14 h-7 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center px-1 cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200 group"
+                    :title="'Cliquer pour publier ' + data.value.title"
+                  >
+                    <div
+                      class="w-5 h-5 bg-white dark:bg-gray-400 rounded-full shadow-md transform transition-all duration-200 group-hover:scale-110"
+                    ></div>
+                  </button>
+                </Can>
               </div>
             </div>
           </template>
@@ -427,34 +433,38 @@
               </NuxtLink>
 
               <!-- Edit -->
-              <NuxtLink
-                class="p-2 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 transform hover:scale-110"
-                title="Modifier"
-                :to="`/publications/${data.value.slug || data.value.id}/modifier-une-publication`"
-              >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+              <Can action="update-blog">
+                <NuxtLink
+                  class="p-2 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 transform hover:scale-110"
+                  title="Modifier"
+                  :to="`/publications/${data.value.slug || data.value.id}/modifier-une-publication`"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1.5"
-                    d="M4 20h4l10-10-4-4L4 16v4z"
-                  />
-                </svg>
-              </NuxtLink>
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M4 20h4l10-10-4-4L4 16v4z"
+                    />
+                  </svg>
+                </NuxtLink>
+              </Can>
 
               <!-- Delete -->
-              <button
-                class="p-2 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 transform hover:scale-110"
-                @click="confirmDelete(data.value)"
-                title="Supprimer"
-              >
-                <ButtonDelete />
-              </button>
+              <Can action="delete-blog">
+                <button
+                  class="p-2 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 transform hover:scale-110"
+                  @click="confirmDelete(data.value)"
+                  title="Supprimer"
+                >
+                  <ButtonDelete />
+                </button>
+              </Can>
             </div>
           </template>
         </Vue3Datatable>
@@ -486,25 +496,27 @@
           <p class="text-gray-500 dark:text-gray-400 mb-6">
             Commencez par créer votre première publication.
           </p>
-          <NuxtLink
-            to="/publications/liste"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
-          >
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <Can action="create-blog">
+            <NuxtLink
+              to="/publications/liste"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            Ajouter une publication
-          </NuxtLink>
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Ajouter une publication
+            </NuxtLink>
+          </Can>
         </div>
       </div>
     </div>

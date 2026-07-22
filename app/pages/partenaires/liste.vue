@@ -72,24 +72,26 @@
         </client-only>
 
         <!-- Ajouter -->
-        <NuxtLink
-          to="/partenaires/ajouter-un-partenaire"
-          class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        >
-          <svg
-            class="w-5 h-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
+        <Can action="create-partenaire">
+          <NuxtLink
+            to="/partenaires/ajouter-un-partenaire"
+            class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
           >
-            <path
-              d="M12 5v14M5 12h14"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-          </svg>
-          Ajouter
-        </NuxtLink>
+            <svg
+              class="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+            >
+              <path
+                d="M12 5v14M5 12h14"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            Ajouter
+          </NuxtLink>
+        </Can>
       </div>
     </div>
 
@@ -155,31 +157,35 @@
               </NuxtLink>
 
               <!-- Edit -->
-              <NuxtLink
-                :to="`/partenaires/${value.slug}/modifier-un-partenaire`"
-                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
-              >
-                <svg
-                  class="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
+              <Can action="update-partenaire">
+                <NuxtLink
+                  :to="`/partenaires/${value.slug}/modifier-un-partenaire`"
+                  class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
                 >
-                  <path
-                    d="M4 20h4l10-10-4-4L4 16v4z"
-                    stroke-width="2"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </NuxtLink>
+                  <svg
+                    class="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      d="M4 20h4l10-10-4-4L4 16v4z"
+                      stroke-width="2"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </NuxtLink>
+              </Can>
 
               <!-- Delete -->
-              <button
-                @click="deleteItem(value)"
-                class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
-              >
-                <ButtonDelete />
-              </button>
+              <Can action="delete-partenaire">
+                <button
+                  @click="deleteItem(value)"
+                  class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
+                >
+                  <ButtonDelete />
+                </button>
+              </Can>
             </div>
           </template>
         </Vue3Datatable>

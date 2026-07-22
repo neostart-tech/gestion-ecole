@@ -350,26 +350,27 @@
 <template #actions="data">
   <div v-if="activeTab === 'etudiants'">
     <!-- Bouton Affecter (pour les non-boursiers) -->
-    <button
-      v-if="!estBoursier(data.value.id)"
-      @click="affecterBourse(data.value)"
-      class="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-lg hover:from-indigo-700 hover:to-indigo-600 transition-all duration-200 shadow-sm hover:shadow text-xs sm:text-sm w-full sm:w-auto justify-center font-medium"
-    >
-      <svg
-        class="w-3 h-3 sm:w-4 sm:h-4"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
+    <Can v-if="!estBoursier(data.value.id)" action="affecter-bourse">
+      <button
+        @click="affecterBourse(data.value)"
+        class="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-lg hover:from-indigo-700 hover:to-indigo-600 transition-all duration-200 shadow-sm hover:shadow text-xs sm:text-sm w-full sm:w-auto justify-center font-medium"
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M12 4v16m8-8H4"
-        />
-      </svg>
-      <span>Affecter</span>
-    </button>
+        <svg
+          class="w-3 h-3 sm:w-4 sm:h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+        <span>Affecter</span>
+      </button>
+    </Can>
 
     <!-- Badge Déjà boursier - Nouveau design élégant -->
     <div
@@ -408,25 +409,27 @@
 
   <div v-else>
     <!-- Bouton Retirer (pour les boursiers) avec design amélioré -->
-    <button
-      @click="retirerBourse(data.value)"
-      class="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-lg hover:from-rose-700 hover:to-red-700 transition-all duration-200 shadow-sm hover:shadow text-xs sm:text-sm w-full sm:w-auto justify-center font-medium group"
-    >
-      <svg
-        class="w-3 h-3 sm:w-4 sm:h-4 transition-transform group-hover:scale-110"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
+    <Can action="affecter-bourse">
+      <button
+        @click="retirerBourse(data.value)"
+        class="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-lg hover:from-rose-700 hover:to-red-700 transition-all duration-200 shadow-sm hover:shadow text-xs sm:text-sm w-full sm:w-auto justify-center font-medium group"
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M20 12H4"
-        />
-      </svg>
-      <span>Retirer</span>
-    </button>
+        <svg
+          class="w-3 h-3 sm:w-4 sm:h-4 transition-transform group-hover:scale-110"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M20 12H4"
+          />
+        </svg>
+        <span>Retirer</span>
+      </button>
+    </Can>
   </div>
 </template>
           </Vue3Datatable>

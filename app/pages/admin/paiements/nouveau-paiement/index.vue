@@ -246,13 +246,15 @@
                     class="p-button-outlined p-button-secondary"
                     @click="resetForm"
                   />
-                  <Button
-                    type="submit"
-                    :label="isSubmitting ? 'Traitement...' : 'Effectuer le paiement'"
-                    icon="pi pi-check"
-                    :loading="isSubmitting"
-                    :disabled="isSubmitting || !paiementForm.montant || paiementForm.montant <= 0"
-                  />
+                  <Can action="create-paiement">
+                    <Button
+                      type="submit"
+                      :label="isSubmitting ? 'Traitement...' : 'Effectuer le paiement'"
+                      icon="pi pi-check"
+                      :loading="isSubmitting"
+                      :disabled="isSubmitting || !paiementForm.montant || paiementForm.montant <= 0"
+                    />
+                  </Can>
                 </div>
               </form>
             </div>

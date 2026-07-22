@@ -72,24 +72,26 @@
         </client-only>
 
         <!-- Ajouter -->
-        <NuxtLink
-          to="/evaluations/ajouter-une-evaluation"
-          class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        >
-          <svg
-            class="w-5 h-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
+        <Can action="create-evaluation">
+          <NuxtLink
+            to="/evaluations/ajouter-une-evaluation"
+            class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
           >
-            <path
-              d="M12 5v14M5 12h14"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-          </svg>
-          Ajouter
-        </NuxtLink>
+            <svg
+              class="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+            >
+              <path
+                d="M12 5v14M5 12h14"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            Ajouter
+          </NuxtLink>
+        </Can>
       </div>
     </div>
 

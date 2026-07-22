@@ -1,14 +1,14 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-4 md:p-6">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-6 transition-colors">
     <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
-      <span class="cursor-pointer hover:text-indigo-600 transition-colors">Concours</span>
+    <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-2">
+      <span class="cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Concours</span>
       <span>/</span>
-      <span class="text-gray-900 font-medium cursor-default">Contrôle de présence</span>
+      <span class="text-gray-900 dark:text-white font-medium cursor-default">Contrôle de présence</span>
     </div>
 
     <!-- Titre -->
-    <h1 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">Contrôle de présence au concours</h1>
+    <h1 class="text-2xl md:text-3xl font-semibold text-gray-900 dark:text-white mb-6">Contrôle de présence au concours</h1>
 
     <!-- Chargement des sessions -->
     <div v-if="isLoadingSessions" class="flex justify-center py-16">
@@ -16,8 +16,8 @@
     </div>
 
     <!-- Aucune session avec épreuve écrite -->
-    <div v-else-if="!sessionsAvecEpreuve.length" class="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center">
-      <p class="text-amber-800">
+    <div v-else-if="!sessionsAvecEpreuve.length" class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-6 text-center">
+      <p class="text-amber-800 dark:text-amber-300">
         Aucune session de concours avec épreuve écrite n'est configurée. Rendez-vous dans
         <NuxtLink to="/parametre/concours-sessions" class="font-semibold underline">Paramètres &gt; Sessions de concours</NuxtLink>
         pour en activer une.
@@ -27,32 +27,32 @@
     <template v-else>
       <!-- Statistiques -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-xl shadow-sm p-6">
-          <p class="text-sm text-gray-600">Total candidats</p>
-          <p class="text-2xl font-semibold text-gray-900 mt-2">{{ totalCandidates }}</p>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <p class="text-sm text-gray-600 dark:text-gray-400">Total candidats</p>
+          <p class="text-2xl font-semibold text-gray-900 dark:text-white mt-2">{{ totalCandidates }}</p>
         </div>
-        <div class="bg-white rounded-xl shadow-sm p-6">
-          <p class="text-sm text-gray-600">Restants à traiter</p>
-          <p class="text-2xl font-semibold text-indigo-600 mt-2">{{ candidates.length }}</p>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <p class="text-sm text-gray-600 dark:text-gray-400">Restants à traiter</p>
+          <p class="text-2xl font-semibold text-indigo-600 dark:text-indigo-400 mt-2">{{ candidates.length }}</p>
         </div>
-        <div class="bg-white rounded-xl shadow-sm p-6">
-          <p class="text-sm text-gray-600">Marqués absents</p>
-          <p class="text-2xl font-semibold text-rose-600 mt-2">{{ selectedAbsents.length }}</p>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <p class="text-sm text-gray-600 dark:text-gray-400">Marqués absents</p>
+          <p class="text-2xl font-semibold text-rose-600 dark:text-rose-400 mt-2">{{ selectedAbsents.length }}</p>
         </div>
-        <div class="bg-white rounded-xl shadow-sm p-6">
-          <p class="text-sm text-gray-600">Session sélectionnée</p>
-          <p class="text-sm font-semibold text-gray-900 mt-2">{{ selectedSession?.libelle || '—' }}</p>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <p class="text-sm text-gray-600 dark:text-gray-400">Session sélectionnée</p>
+          <p class="text-sm font-semibold text-gray-900 dark:text-white mt-2">{{ selectedSession?.libelle || '—' }}</p>
         </div>
       </div>
 
       <!-- Barre de contrôle -->
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div class="flex items-center gap-2">
-          <span class="text-gray-600 whitespace-nowrap">Session :</span>
+          <span class="text-gray-600 dark:text-gray-400 whitespace-nowrap">Session :</span>
           <select
             v-model.number="selectedSessionId"
             @change="loadCandidates"
-            class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+            class="border border-gray-300 dark:border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           >
             <option v-for="session in sessionsAvecEpreuve" :key="session.id" :value="session.id">{{ session.libelle }}</option>
           </select>
@@ -62,10 +62,10 @@
           <input
             v-model="searchQuery"
             type="search"
-            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+            class="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
             placeholder="Rechercher un candidat..."
           />
-          <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+          <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
@@ -74,8 +74,8 @@
       </div>
 
       <!-- Instruction -->
-      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <p class="text-sm text-blue-800">
+      <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+        <p class="text-sm text-blue-800 dark:text-blue-300">
           Cochez uniquement les candidats <strong>absents</strong> à l'épreuve. Tous les autres candidats de la liste
           seront automatiquement marqués présents à la soumission.
         </p>
@@ -87,47 +87,47 @@
       </div>
 
       <!-- Tableau des candidats -->
-      <div v-else class="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div v-else class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full">
-            <thead class="bg-gray-50">
+            <thead class="bg-gray-50 dark:bg-gray-900/50">
               <tr>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Candidat</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Matricule</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Filière</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Absent ?</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Candidat</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Identifiant</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Filière</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Absent ?</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
               <tr v-if="filteredCandidates.length === 0">
                 <td colspan="4" class="px-6 py-12 text-center">
-                  <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun candidat trouvé</h3>
-                  <p class="text-gray-500">
+                  <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Aucun candidat trouvé</h3>
+                  <p class="text-gray-500 dark:text-gray-400">
                     {{ searchQuery ? 'Aucun résultat pour votre recherche' : "Aucun candidat n'a encore payé les frais de participation pour cette session." }}
                   </p>
                 </td>
               </tr>
 
-              <tr v-for="candidate in filteredCandidates" :key="candidate.slug" class="hover:bg-gray-50 transition-colors">
+              <tr v-for="candidate in filteredCandidates" :key="candidate.slug" class="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
-                      <span class="text-indigo-600 font-semibold">{{ getInitials(candidate.nom, candidate.prenom) }}</span>
+                    <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/40 rounded-full flex items-center justify-center shrink-0">
+                      <span class="text-indigo-600 dark:text-indigo-300 font-semibold">{{ getInitials(candidate.nom, candidate.prenom) }}</span>
                     </div>
                     <div>
-                      <h4 class="text-sm font-medium text-gray-900">{{ candidate.nom }} {{ candidate.prenom }}</h4>
-                      <p class="text-xs text-gray-500">{{ candidate.email }}</p>
+                      <h4 class="text-sm font-medium text-gray-900 dark:text-white">{{ candidate.nom }} {{ candidate.prenom }}</h4>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">{{ candidate.email }}</p>
                     </div>
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
                     {{ candidate.matricule_concours || candidate.numero_dossier_affiche }}
                   </span>
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-900">{{ candidate.filiere?.nom || '—' }}</td>
+                <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">{{ candidate.filiere?.nom || '—' }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <input type="checkbox" v-model="selectedAbsents" :value="candidate.slug" class="w-5 h-5 rounded text-rose-600 focus:ring-rose-500" />
+                  <input type="checkbox" v-model="selectedAbsents" :value="candidate.slug" class="w-5 h-5 rounded border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-rose-600 focus:ring-rose-500" />
                 </td>
               </tr>
             </tbody>
@@ -137,14 +137,16 @@
 
       <!-- Soumission -->
       <div v-if="filteredCandidates.length" class="mt-6 flex justify-end">
-        <button
-          @click="submitPresence"
-          :disabled="isSubmitting"
-          class="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium disabled:opacity-50"
-        >
-          <span v-if="isSubmitting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-          Soumettre la liste de présence
-        </button>
+        <Can action="controler-presence-candidature">
+          <button
+            @click="submitPresence"
+            :disabled="isSubmitting"
+            class="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium disabled:opacity-50 shadow-sm"
+          >
+            <span v-if="isSubmitting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            Soumettre la liste de présence
+          </button>
+        </Can>
       </div>
     </template>
   </div>

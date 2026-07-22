@@ -30,15 +30,17 @@
 
       <div class="flex flex-col sm:flex-row gap-3">
         <!-- Ajouter -->
-        <button
-          @click="openAddModal"
-          class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all shadow-md hover:shadow-lg"
-        >
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M12 5v14M5 12h14" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          Ajouter un niveau
-        </button>
+        <Can action="create-niveau">
+          <button
+            @click="openAddModal"
+            class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all shadow-md hover:shadow-lg"
+          >
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M12 5v14M5 12h14" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Ajouter un niveau
+          </button>
+        </Can>
       </div>
     </div>
 
@@ -67,16 +69,18 @@
           </template>
 
           <template #active="{ value }">
-            <button
-              @click="toggleStatus(value)"
-              class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none"
-              :class="value.active ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-700'"
-            >
-              <span
-                class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform"
-                :class="value.active ? 'translate-x-6' : 'translate-x-1'"
-              />
-            </button>
+            <Can action="update-niveau">
+              <button
+                @click="toggleStatus(value)"
+                class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none"
+                :class="value.active ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-700'"
+              >
+                <span
+                  class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform"
+                  :class="value.active ? 'translate-x-6' : 'translate-x-1'"
+                />
+              </button>
+            </Can>
             <span class="ml-2 text-xs font-medium" :class="value.active ? 'text-green-600' : 'text-gray-500'">
               {{ value.active ? 'Actif' : 'Inactif' }}
             </span>
@@ -94,15 +98,17 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </button>
-              <button
-                @click="openEditModal(value)"
-                class="p-2 rounded-lg text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
-                title="Modifier"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
+              <Can action="update-niveau">
+                <button
+                  @click="openEditModal(value)"
+                  class="p-2 rounded-lg text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
+                  title="Modifier"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </Can>
               <button
                 @click="openDocumentModal(value)"
                 class="p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
@@ -431,6 +437,7 @@ import MultiSelect from "primevue/multiselect";
 import Breadcrumb from "~/components/Breadcrumb.vue";
 import { useNiveauStore } from "~~/stores/niveau";
 import { usePeriodeStore } from "~~/stores/periode";
+import { useAccess } from "~/composables/useAccess";
 
 const { $toastr, $swal, $axios } = useNuxtApp();
 const niveauStore = useNiveauStore();
@@ -448,23 +455,8 @@ const isPeriodeLoading = ref(false);
 const isPeriodeSaving = ref(false);
 const selectedPeriodes = ref([]);
 
-const isAuthorized = computed(() => {
-  if (typeof localStorage === 'undefined') return false;
-  try {
-    const userData = JSON.parse(localStorage.getItem('user') || '{}');
-    const userRoles = userData?.roles || [];
-    const allowedRoles = [
-      'directeur-general', 
-      'directeur-general-adjoint',
-      'directeur-academique', 
-      'directeur-des-etudes',
-      'informaticien'
-    ];
-    return userRoles.some(role => allowedRoles.includes(role.slug));
-  } catch {
-    return false;
-  }
-});
+const { can } = useAccess();
+const isAuthorized = computed(() => can("update-niveau"));
 
 const form = ref({
   id: null,

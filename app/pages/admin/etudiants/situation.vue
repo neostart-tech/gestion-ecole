@@ -300,21 +300,25 @@
               </div>
 
               <div class="flex items-center gap-2 w-full md:w-auto justify-center md:justify-start">
-                <button
-                  @click="bulkAction('actif')"
-                  class="flex-1 md:flex-none flex items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-2.5 rounded-2xl transition-all duration-300 text-[10px] md:text-xs font-black group bg-indigo-600 hover:bg-indigo-700 text-white shadow-md active:scale-95"
-                >
-                  <div class="w-1.5 h-1.5 md:w-2 md:h-2 flex-shrink-0 rounded-full bg-white shadow-[0_0_8px_white] animate-pulse"></div>
-                  <span class="tracking-widest">ACTIVER</span>
-                </button>
+                <Can action="update-situation-etudiant">
+                  <button
+                    @click="bulkAction('actif')"
+                    class="flex-1 md:flex-none flex items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-2.5 rounded-2xl transition-all duration-300 text-[10px] md:text-xs font-black group bg-indigo-600 hover:bg-indigo-700 text-white shadow-md active:scale-95"
+                  >
+                    <div class="w-1.5 h-1.5 md:w-2 md:h-2 flex-shrink-0 rounded-full bg-white shadow-[0_0_8px_white] animate-pulse"></div>
+                    <span class="tracking-widest">ACTIVER</span>
+                  </button>
+                </Can>
 
-                <button
-                  @click="bulkAction('bloque')"
-                  class="flex-1 md:flex-none flex items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-2.5 rounded-2xl transition-all duration-300 text-[10px] md:text-xs font-black group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-red-500 hover:text-red-600 active:scale-95 transition-all text-center"
-                >
-                  <div class="w-1.5 h-1.5 md:w-2 md:h-2 flex-shrink-0 rounded-full bg-gray-400 group-hover:bg-red-500 transition-colors"></div>
-                  <span class="tracking-widest">BLOQUER</span>
-                </button>
+                <Can action="update-situation-etudiant">
+                  <button
+                    @click="bulkAction('bloque')"
+                    class="flex-1 md:flex-none flex items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-2.5 rounded-2xl transition-all duration-300 text-[10px] md:text-xs font-black group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-red-500 hover:text-red-600 active:scale-95 transition-all text-center"
+                  >
+                    <div class="w-1.5 h-1.5 md:w-2 md:h-2 flex-shrink-0 rounded-full bg-gray-400 group-hover:bg-red-500 transition-colors"></div>
+                    <span class="tracking-widest">BLOQUER</span>
+                  </button>
+                </Can>
               </div>
               
               <div class="hidden md:flex flex-1"></div>
@@ -454,17 +458,19 @@
                   </button>
 
                   <div class="flex items-center ml-1" title="Statut d'accès (On: Actif / Off: Bloqué)">
-                    <button 
-                      @click="toggleBlocage(data.value)"
-                      class="relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
-                      :class="data.value.statut_global === 'actif' ? 'bg-indigo-600' : 'bg-gray-300 dark:bg-gray-600'"
-                    >
-                      <span 
-                        aria-hidden="true" 
-                        class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                        :class="data.value.statut_global === 'actif' ? 'translate-x-4' : 'translate-x-0'"
-                      ></span>
-                    </button>
+                    <Can action="update-situation-etudiant">
+                      <button
+                        @click="toggleBlocage(data.value)"
+                        class="relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                        :class="data.value.statut_global === 'actif' ? 'bg-indigo-600' : 'bg-gray-300 dark:bg-gray-600'"
+                      >
+                        <span
+                          aria-hidden="true"
+                          class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                          :class="data.value.statut_global === 'actif' ? 'translate-x-4' : 'translate-x-0'"
+                        ></span>
+                      </button>
+                    </Can>
                   </div>
                 </div>
               </div>

@@ -15,12 +15,14 @@
             <p class="text-sm text-gray-400 dark:text-gray-500">Gérez vos albums et partagez les moments forts</p>
           </div>
         </div>
-        <button @click="$router.push('/galerie/album/create')" class="btn-primary">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 5v14M5 12h14"/>
-          </svg>
-          Nouvel album
-        </button>
+        <Can action="create-galerie-album">
+          <button @click="$router.push('/galerie/album/create')" class="btn-primary">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 5v14M5 12h14"/>
+            </svg>
+            Nouvel album
+          </button>
+        </Can>
       </div>
 
       <!-- Toolbar -->
@@ -63,9 +65,11 @@
         </div>
         <p class="empty-title">Aucun album</p>
         <p class="empty-sub">Il n'y a aucun album pour le moment.</p>
-        <button @click="$router.push('/galerie/album/create')" class="btn-primary">
-          Créer mon premier album
-        </button>
+        <Can action="create-galerie-album">
+          <button @click="$router.push('/galerie/album/create')" class="btn-primary">
+            Créer mon premier album
+          </button>
+        </Can>
       </div>
 
       <!-- Grille albums -->
@@ -88,12 +92,16 @@
             <div class="flex items-center justify-between">
               <span class="text-[11px] text-gray-400 dark:text-gray-500">{{ formatDate(album.created_at) }}</span>
               <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button @click.stop="$router.push(`/galerie/album/${album.id}/edit`)" class="icon-btn">
-                  <PencilSquareIcon class="w-3.5 h-3.5"/>
-                </button>
-                <button @click.stop="confirmerSuppressionAlbum(album)" class="icon-btn-danger">
-                  <TrashIcon class="w-3.5 h-3.5"/>
-                </button>
+                <Can action="update-galerie-album">
+                  <button @click.stop="$router.push(`/galerie/album/${album.id}/edit`)" class="icon-btn">
+                    <PencilSquareIcon class="w-3.5 h-3.5"/>
+                  </button>
+                </Can>
+                <Can action="delete-galerie-album">
+                  <button @click.stop="confirmerSuppressionAlbum(album)" class="icon-btn-danger">
+                    <TrashIcon class="w-3.5 h-3.5"/>
+                  </button>
+                </Can>
               </div>
             </div>
           </div>
@@ -123,12 +131,16 @@
               {{ album.photos_count ?? 0 }} photos · {{ formatDate(album.created_at) }}
             </span>
             <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button @click.stop="$router.push(`/galerie/album/${album.id}/edit`)" class="icon-btn">
-                <PencilSquareIcon class="w-3.5 h-3.5"/>
-              </button>
-              <button @click.stop="confirmerSuppressionAlbum(album)" class="icon-btn-danger">
-                <TrashIcon class="w-3.5 h-3.5"/>
-              </button>
+              <Can action="update-galerie-album">
+                <button @click.stop="$router.push(`/galerie/album/${album.id}/edit`)" class="icon-btn">
+                  <PencilSquareIcon class="w-3.5 h-3.5"/>
+                </button>
+              </Can>
+              <Can action="delete-galerie-album">
+                <button @click.stop="confirmerSuppressionAlbum(album)" class="icon-btn-danger">
+                  <TrashIcon class="w-3.5 h-3.5"/>
+                </button>
+              </Can>
             </div>
           </div>
         </div>
@@ -159,18 +171,24 @@
             </div>
           </div>
           <div class="flex gap-2 flex-shrink-0">
-            <button @click="$router.push(`/galerie/album/${albumSelectionne.id}/photos/upload`)" class="btn-primary">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
-              </svg>
-              Ajouter des photos
-            </button>
-            <button @click="$router.push(`/galerie/album/${albumSelectionne.id}/edit`)" class="icon-btn">
-              <PencilSquareIcon class="w-4 h-4"/>
-            </button>
-            <button @click="confirmerSuppressionAlbum(albumSelectionne)" class="icon-btn-danger">
-              <TrashIcon class="w-4 h-4"/>
-            </button>
+            <Can action="create-galerie-photo">
+              <button @click="$router.push(`/galerie/album/${albumSelectionne.id}/photos/upload`)" class="btn-primary">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                </svg>
+                Ajouter des photos
+              </button>
+            </Can>
+            <Can action="update-galerie-album">
+              <button @click="$router.push(`/galerie/album/${albumSelectionne.id}/edit`)" class="icon-btn">
+                <PencilSquareIcon class="w-4 h-4"/>
+              </button>
+            </Can>
+            <Can action="delete-galerie-album">
+              <button @click="confirmerSuppressionAlbum(albumSelectionne)" class="icon-btn-danger">
+                <TrashIcon class="w-4 h-4"/>
+              </button>
+            </Can>
           </div>
         </div>
 
@@ -215,9 +233,11 @@
               <button @click="telechargerImage(image)" class="icon-btn">
                 <ArrowDownTrayIcon class="w-3.5 h-3.5"/>
               </button>
-              <button @click="confirmerSuppressionImage(image)" class="icon-btn-danger">
-                <TrashIcon class="w-3.5 h-3.5"/>
-              </button>
+              <Can action="delete-galerie-photo">
+                <button @click="confirmerSuppressionImage(image)" class="icon-btn-danger">
+                  <TrashIcon class="w-3.5 h-3.5"/>
+                </button>
+              </Can>
             </div>
           </div>
         </div>
@@ -242,9 +262,11 @@
         </div>
         <p class="empty-title">Aucune photo</p>
         <p class="empty-sub">Importez vos premières images dans cet album.</p>
-        <button @click="$router.push(`/galerie/album/${albumSelectionne.id}/photos/upload`)" class="btn-primary">
-          Importer des images
-        </button>
+        <Can action="create-galerie-photo">
+          <button @click="$router.push(`/galerie/album/${albumSelectionne.id}/photos/upload`)" class="btn-primary">
+            Importer des images
+          </button>
+        </Can>
       </div>
 
     </div>

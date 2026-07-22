@@ -16,7 +16,9 @@
         session comporte un examen (présence, matières, notes) ; sinon la sélection continue de se faire uniquement
         sur dossier, comme aujourd'hui.
       </p>
-      <Button @click="openAddModal" label="Nouvelle session" icon="pi pi-plus" class="whitespace-nowrap" />
+      <Can action="create-concours-session">
+        <Button @click="openAddModal" label="Nouvelle session" icon="pi pi-plus" class="whitespace-nowrap" />
+      </Can>
     </div>
 
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-3 sm:p-4">
@@ -53,39 +55,47 @@
                 </span>
               </td>
               <td class="py-3 px-3">
-                <Dropdown
-                  :modelValue="session.statut"
-                  @update:modelValue="(val) => changeStatus(session, val)"
-                  :options="statutOptions"
-                  optionLabel="label"
-                  optionValue="value"
-                  class="!text-xs w-40"
-                />
+                <Can action="update-concours-session">
+                  <Dropdown
+                    :modelValue="session.statut"
+                    @update:modelValue="(val) => changeStatus(session, val)"
+                    :options="statutOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    class="!text-xs w-40"
+                  />
+                </Can>
               </td>
               <td class="py-3 px-3">
-                <ToggleSwitch :modelValue="!!session.est_publiee" @update:modelValue="() => togglePublish(session)" />
+                <Can action="publish-concours-session">
+                  <ToggleSwitch :modelValue="!!session.est_publiee" @update:modelValue="() => togglePublish(session)" />
+                </Can>
               </td>
               <td class="py-3 px-3">
                 <div class="flex justify-center gap-2">
-                  <button
-                    v-if="session.avec_epreuve_ecrite"
-                    @click="openMatieresModal(session)"
-                    class="p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
-                    title="Gérer les matières & coefficients"
-                  >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </button>
-                  <button
-                    @click="openEditModal(session)"
-                    class="p-2 rounded-lg text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
-                    title="Modifier"
-                  >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                  </button>
+                  <Can action="update-concours-session">
+                    <button
+                      v-if="session.avec_epreuve_ecrite"
+                      @click="openMatieresModal(session)"
+                      class="p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+                      title="Gérer les matières & coefficients"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </button>
+                  </Can>
+                  <Can action="update-concours-session">
+                    <button
+                      @click="openEditModal(session)"
+                      class="p-2 rounded-lg text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
+                      title="Modifier"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </button>
+                  </Can>
                 </div>
               </td>
             </tr>

@@ -32,12 +32,14 @@
               Exporter PDF
             </template>
           </button>
-          <NuxtLink :to="`/enseignant/syllabuses/${data.uv.slug}`" class="btn-edit">
-            <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-            </svg>
-            Modifier
-          </NuxtLink>
+          <Can action="update-syllabus">
+            <NuxtLink :to="`/enseignant/syllabuses/${data.uv.slug}`" class="btn-edit">
+              <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+              Modifier
+            </NuxtLink>
+          </Can>
         </div>
       </header>
 
@@ -169,17 +171,19 @@
 
                 <!-- Teacher Actions -->
                 <div v-if="isTeacher" class="expl-actions">
-                  <button class="expl-action-btn" title="Nouveau dossier" @click="promptNewFolder">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                    </svg>
-                  </button>
-                  <label class="expl-action-btn" title="Uploader des fichiers">
-                    <input type="file" class="hidden" multiple @change="handleFileUpload" />
-                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
-                    </svg>
-                  </label>
+                  <Can action="update-syllabus">
+                    <button class="expl-action-btn" title="Nouveau dossier" @click="promptNewFolder">
+                      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                      </svg>
+                    </button>
+                    <label class="expl-action-btn" title="Uploader des fichiers">
+                      <input type="file" class="hidden" multiple @change="handleFileUpload" />
+                      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                      </svg>
+                    </label>
+                  </Can>
                 </div>
               </div>
 
@@ -203,11 +207,13 @@
                     <div class="file-meta">{{ item.type === 'folder' ? `${item.children?.length || 0} éléments` : formatSize(item.size) }}</div>
                   </div>
                   <div class="file-actions" @click.stop>
-                    <button v-if="isTeacher" class="btn-delete-file" title="Supprimer" @click="confirmDelete(index)">
-                      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                      </svg>
-                    </button>
+                    <Can v-if="isTeacher" action="update-syllabus">
+                      <button class="btn-delete-file" title="Supprimer" @click="confirmDelete(index)">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                      </button>
+                    </Can>
                     <svg class="file-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                     </svg>
@@ -228,9 +234,11 @@
           </div>
           <h3 class="empty-title">Syllabus non rédigé</h3>
           <p class="empty-sub">Vous n'avez pas encore rédigé le syllabus pour cette matière.</p>
-          <NuxtLink :to="`/enseignant/syllabuses/${data.uv.slug}`" class="btn-start">
-            Commencer la rédaction →
-          </NuxtLink>
+          <Can action="update-syllabus">
+            <NuxtLink :to="`/enseignant/syllabuses/${data.uv.slug}`" class="btn-start">
+              Commencer la rédaction →
+            </NuxtLink>
+          </Can>
         </div>
 
       </main>

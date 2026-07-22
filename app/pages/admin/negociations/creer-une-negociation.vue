@@ -604,13 +604,15 @@
                 icon="pi pi-times"
                 class="p-button-outlined"
               />
-              <Button
-                @click="submitForm"
-                :loading="isSubmitting"
-                :label="isSubmitting ? (existingNegociation ? 'Mise à jour...' : 'Création...') : (existingNegociation ? 'Mettre à jour' : 'Enregistrer')"
-                :icon="isSubmitting ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
-                class="p-button-primary"
-              />
+              <Can :action="existingNegociation ? 'update-negociation' : 'create-negociation'">
+                <Button
+                  @click="submitForm"
+                  :loading="isSubmitting"
+                  :label="isSubmitting ? (existingNegociation ? 'Mise à jour...' : 'Création...') : (existingNegociation ? 'Mettre à jour' : 'Enregistrer')"
+                  :icon="isSubmitting ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+                  class="p-button-primary"
+                />
+              </Can>
             </div>
           </div>
         </div>

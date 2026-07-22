@@ -144,9 +144,11 @@
             </div>
             <div class="flex-1"></div>
             <div class="flex items-center gap-2">
-              <button @click="bulkReject" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-medium transition-all">
-                REJETER
-              </button>
+              <Can action="rejeter-candidature">
+                <button @click="bulkReject" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-medium transition-all">
+                  REJETER
+                </button>
+              </Can>
               <button @click="selectedIds = []" class="px-4 py-2 text-gray-400 hover:text-red-500 transition-all font-medium text-xs uppercase tracking-widest">
                 Annuler
               </button>
@@ -228,9 +230,11 @@
                     <button @click="navigateToEnroll(data.value)" class="w-9 h-9 bg-violet-600 text-white rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all" title="Inscrire le candidat">
                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
                     </button>
-                    <button @click="rejectCandidate(data.value)" class="w-9 h-9 bg-rose-50 dark:bg-rose-900/30 text-rose-600 rounded-xl flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all" title="Rejeter">
-                       <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
+                    <Can action="rejeter-candidature">
+                      <button @click="rejectCandidate(data.value)" class="w-9 h-9 bg-rose-50 dark:bg-rose-900/30 text-rose-600 rounded-xl flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all" title="Rejeter">
+                         <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                      </button>
+                    </Can>
                  </div>
               </template>
            </vue3-datatable>

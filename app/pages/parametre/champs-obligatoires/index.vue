@@ -94,15 +94,17 @@
     </div>
 
     <div class="flex justify-end mt-5">
-      <button
-        type="button"
-        :disabled="store.isLoading || !isDirty"
-        @click="save"
-        class="px-6 py-2 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-md transition-all flex items-center gap-2"
-      >
-        <span v-if="store.isLoading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-        Enregistrer les modifications
-      </button>
+      <Can action="update-candidature-field-config">
+        <button
+          type="button"
+          :disabled="store.isLoading || !isDirty"
+          @click="save"
+          class="px-6 py-2 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-md transition-all flex items-center gap-2"
+        >
+          <span v-if="store.isLoading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          Enregistrer les modifications
+        </button>
+      </Can>
     </div>
   </div>
 </template>

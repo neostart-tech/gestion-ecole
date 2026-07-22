@@ -625,18 +625,20 @@
                   class="p-button-outlined p-button-secondary"
                   @click="resetForm"
                 />
-                <Button
-                  type="submit"
-                  :label="
-                    isSubmitting ? 'Traitement...' : 'Effectuer le paiement'
-                  "
-                  :loading="isSubmitting"
-                  :disabled="
-                    isSubmitting ||
-                    !paiementForm.montant ||
-                    paiementForm.montant <= 0
-                  "
-                />
+                <Can action="create-paiement">
+                  <Button
+                    type="submit"
+                    :label="
+                      isSubmitting ? 'Traitement...' : 'Effectuer le paiement'
+                    "
+                    :loading="isSubmitting"
+                    :disabled="
+                      isSubmitting ||
+                      !paiementForm.montant ||
+                      paiementForm.montant <= 0
+                    "
+                  />
+                </Can>
               </div>
             </form>
           </div>
@@ -925,15 +927,17 @@
                       
                       <!-- Actions -->
                       <div class="mt-2 flex justify-end gap-2">
-                        <button 
-                          @click="openEditModal(item)"
-                          class="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-md transition-colors"
-                          title="Modifier le paiement"
-                        >
-                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        </button>
+                        <Can action="update-paiement">
+                          <button
+                            @click="openEditModal(item)"
+                            class="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-md transition-colors"
+                            title="Modifier le paiement"
+                          >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                        </Can>
                       </div>
                     </div>
                   </div>

@@ -57,15 +57,19 @@
               <span v-else class="px-2.5 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">Rejeté</span>
             </td>
             <td class="p-4 flex gap-2">
-              <button v-if="comment.status !== 'approved'" @click="updateStatus(comment.id, 'approved')" class="text-green-600 hover:bg-green-50 p-1.5 rounded-lg" title="Approuver">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-              </button>
-              <button v-if="comment.status !== 'rejected'" @click="updateStatus(comment.id, 'rejected')" class="text-yellow-600 hover:bg-yellow-50 p-1.5 rounded-lg" title="Rejeter">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-              </button>
-              <button @click="deleteComment(comment.id)" class="text-red-600 hover:bg-red-50 p-1.5 rounded-lg" title="Supprimer">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-              </button>
+              <Can action="moderate-commentaire-web">
+                <button v-if="comment.status !== 'approved'" @click="updateStatus(comment.id, 'approved')" class="text-green-600 hover:bg-green-50 p-1.5 rounded-lg" title="Approuver">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                </button>
+                <button v-if="comment.status !== 'rejected'" @click="updateStatus(comment.id, 'rejected')" class="text-yellow-600 hover:bg-yellow-50 p-1.5 rounded-lg" title="Rejeter">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+              </Can>
+              <Can action="moderate-commentaire-web">
+                <button @click="deleteComment(comment.id)" class="text-red-600 hover:bg-red-50 p-1.5 rounded-lg" title="Supprimer">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+              </Can>
             </td>
           </tr>
         </tbody>

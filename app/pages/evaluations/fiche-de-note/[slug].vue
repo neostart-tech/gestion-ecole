@@ -194,6 +194,7 @@
             {{ savingAll ? "Sauvegarde..." : (!correctionEnable ? "Correction désactivée" : `Sauvegarder (${notesSaisies})`) }}
           </button>
 
+          <Can action="publish-note">
           <button
             @click="publishNotes"
             :disabled="!correctionEnable || publishing"
@@ -236,6 +237,7 @@
             </svg>
             {{ !correctionEnable ? "Correction désactivée" : (publishing ? "Publication..." : "Publier les notes") }}
           </button>
+          </Can>
         </div>
       </div>
     </div>

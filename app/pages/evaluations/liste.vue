@@ -129,6 +129,7 @@
 
               <!-- Si non publié -->
               <div v-else class="flex items-center">
+                <Can action="publish-evaluation">
                 <button
                   @click="
                     value.published === 1 || value.published === true
@@ -160,6 +161,7 @@
                     class="inline-block w-5 h-5 transform rounded-full shadow-sm transition-all duration-200"
                   ></span>
                 </button>
+                </Can>
                 <span
                   class="ml-3 text-sm font-medium text-red-700 dark:text-red-300"
                 >

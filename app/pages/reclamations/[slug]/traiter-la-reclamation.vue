@@ -149,26 +149,30 @@
           <!-- Actions (si réclamation en attente) -->
           <div v-if="reclamation.statut === 'en_attente'" class="flex flex-col sm:flex-row gap-3 pt-4">
             <!-- Bouton Approuver -->
-            <button
-              @click="openTraitementModal('approuvee')"
-              class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-              Approuver
-            </button>
+            <Can action="update-reclamation">
+              <button
+                @click="openTraitementModal('approuvee')"
+                class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Approuver
+              </button>
+            </Can>
 
             <!-- Bouton Rejeter -->
-            <button
-              @click="openTraitementModal('rejetee')"
-              class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              Rejeter
-            </button>
+            <Can action="update-reclamation">
+              <button
+                @click="openTraitementModal('rejetee')"
+                class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Rejeter
+              </button>
+            </Can>
           </div>
 
           <!-- Message si déjà traitée -->

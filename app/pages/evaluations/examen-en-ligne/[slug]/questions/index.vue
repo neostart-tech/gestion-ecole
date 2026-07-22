@@ -253,14 +253,15 @@
                 </div>
               </Transition>
 
-              <button
-                type="submit"
-                v-if="canEdit"
-                :disabled="examStore.isLoading"
-                class="w-full px-4 py-3 text-sm bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl hover:from-indigo-700 hover:to-indigo-800 transition-all font-medium shadow-lg shadow-indigo-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {{ examStore.isLoading ? (editingPart ? "Mise à jour..." : "Création...") : (editingPart ? "Mettre à jour la partie" : "Créer la partie") }}
-              </button>
+              <Can v-if="canEdit" :action="editingPart ? 'update-question-examen' : 'create-question-examen'">
+                <button
+                  type="submit"
+                  :disabled="examStore.isLoading"
+                  class="w-full px-4 py-3 text-sm bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl hover:from-indigo-700 hover:to-indigo-800 transition-all font-medium shadow-lg shadow-indigo-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {{ examStore.isLoading ? (editingPart ? "Mise à jour..." : "Création...") : (editingPart ? "Mettre à jour la partie" : "Créer la partie") }}
+                </button>
+              </Can>
               <div v-else class="p-3 text-center bg-gray-100 dark:bg-gray-700/50 rounded-xl text-xs text-gray-500 italic">
                 Mode lecture seule activé
               </div>
@@ -330,18 +331,19 @@
                     </div>
 
                     <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Can v-if="canEdit" action="update-question-examen">
+                        <button
+                          @click.stop="editPart(part)"
+                          class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                          title="Modifier"
+                        >
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          </svg>
+                        </button>
+                      </Can>
                       <button
-                        v-if="canEdit"
-                        @click.stop="editPart(part)"
-                        class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
-                        title="Modifier"
-                      >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                        </svg>
-                      </button>
-                      <button
-                        v-else
+                        v-if="!canEdit"
                         @click.stop="editPart(part)"
                         class="p-2 rounded-lg text-indigo-600 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors"
                         title="Voir les détails"
@@ -352,16 +354,17 @@
                         </svg>
                       </button>
 
-                      <button
-                        v-if="canEdit"
-                        @click.stop="deletePart(part.id)"
-                        class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
-                        title="Supprimer"
-                      >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
+                      <Can v-if="canEdit" action="delete-question-examen">
+                        <button
+                          @click.stop="deletePart(part.id)"
+                          class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                          title="Supprimer"
+                        >
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </Can>
                     </div>
                   </div>
 
@@ -459,16 +462,17 @@
               </div>
               {{ isExamLocked ? "Consulter" : (editingQuestion ? "Modifier" : "Ajouter") }} une question
             </h2>
-            <button
-              v-if="!editingQuestion && canEdit"
-              @click="openAIModal"
-              class="flex items-center gap-2 px-4 py-1.5 bg-white/20 hover:bg-white/30 text-white rounded-xl text-xs font-bold transition-all border border-white/30"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              Générer par IA
-            </button>
+            <Can v-if="!editingQuestion && canEdit" action="create-question-examen">
+              <button
+                @click="openAIModal"
+                class="flex items-center gap-2 px-4 py-1.5 bg-white/20 hover:bg-white/30 text-white rounded-xl text-xs font-bold transition-all border border-white/30"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Générer par IA
+              </button>
+            </Can>
           </div>
 
           <div class="p-6 space-y-6">
@@ -528,15 +532,17 @@
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Énoncé de la question <span class="text-red-500">*</span>
                 </label>
-                <button
-                  type="button"
-                  @click="openRefineModal"
-                  :disabled="!questionForm.content"
-                  class="flex items-center gap-1 px-3 py-1 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-400 rounded-lg text-[10px] font-bold hover:bg-purple-200 disabled:opacity-50 transition-colors"
-                >
-                   <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                   Aide IA
-                </button>
+                <Can action="update-question-examen">
+                  <button
+                    type="button"
+                    @click="openRefineModal"
+                    :disabled="!questionForm.content"
+                    class="flex items-center gap-1 px-3 py-1 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-400 rounded-lg text-[10px] font-bold hover:bg-purple-200 disabled:opacity-50 transition-colors"
+                  >
+                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                     Aide IA
+                  </button>
+                </Can>
               </div>
               <Editor
                 api-key="2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl"
@@ -590,17 +596,18 @@
                 <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Options de réponse
                 </label>
-                <button
-                  v-if="canEdit"
-                  type="button"
-                  @click="addOption"
-                  class="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 flex items-center gap-1 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                  </svg>
-                  Ajouter une option
-                </button>
+                <Can v-if="canEdit" action="create-question-examen">
+                  <button
+                    type="button"
+                    @click="addOption"
+                    class="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 flex items-center gap-1 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Ajouter une option
+                  </button>
+                </Can>
               </div>
 
               <div class="space-y-2">
@@ -617,35 +624,38 @@
                       :placeholder="`Option ${index + 1}`"
                       class="w-full px-4 py-2 text-sm rounded-lg border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 pr-12 disabled:opacity-75"
                     />
+                    <Can action="update-question-examen">
+                      <button
+                        type="button"
+                        @click="toggleCorrect(index)"
+                        :disabled="isExamLocked"
+                        class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full transition-all disabled:opacity-100"
+                        :class="
+                          option.isCorrect
+                            ? 'text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30'
+                            : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        "
+                      >
+                        <svg v-if="option.isCorrect" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <circle cx="12" cy="12" r="10" />
+                        </svg>
+                      </button>
+                    </Can>
+                  </div>
+                  <Can v-if="questionForm.options.length > 2 && canEdit" action="delete-question-examen">
                     <button
                       type="button"
-                      @click="toggleCorrect(index)"
-                      :disabled="isExamLocked"
-                      class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full transition-all disabled:opacity-100"
-                      :class="
-                        option.isCorrect
-                          ? 'text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30'
-                          : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600'
-                      "
+                      @click="removeOption(index)"
+                      class="p-2 text-gray-400 hover:text-red-600 transition-colors"
                     >
-                      <svg v-if="option.isCorrect" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="10" />
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
                     </button>
-                  </div>
-                  <button
-                    type="button"
-                    @click="removeOption(index)"
-                    v-if="questionForm.options.length > 2 && canEdit"
-                    class="p-2 text-gray-400 hover:text-red-600 transition-colors"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
+                  </Can>
                 </div>
               </div>
 
@@ -1589,14 +1599,16 @@
               >
                 Annuler
               </button>
-              <button
-                type="button"
-                @click="addQuestion"
-                :disabled="!canSaveQuestion || examStore.isLoading || isExamLocked"
-                class="px-8 py-3 text-sm rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-medium transition-all shadow-lg shadow-emerald-500/25 hover:from-emerald-700 hover:to-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {{ examStore.isLoading ? "Enregistrement..." : editingQuestion ? "Mettre à jour" : "Ajouter la question" }}
-              </button>
+              <Can :action="editingQuestion ? 'update-question-examen' : 'create-question-examen'">
+                <button
+                  type="button"
+                  @click="addQuestion"
+                  :disabled="!canSaveQuestion || examStore.isLoading || isExamLocked"
+                  class="px-8 py-3 text-sm rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-medium transition-all shadow-lg shadow-emerald-500/25 hover:from-emerald-700 hover:to-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {{ examStore.isLoading ? "Enregistrement..." : editingQuestion ? "Mettre à jour" : "Ajouter la question" }}
+                </button>
+              </Can>
             </div>
           </div>
         </div>
@@ -1616,16 +1628,17 @@
               </div>
               Questions ({{ getQuestionsForPart(selectedPart.id).length }})
             </h2>
-            <button
-              v-if="canEdit"
-              @click="openAIModal"
-              class="flex items-center gap-2 px-4 py-1.5 bg-white/20 hover:bg-white/30 text-white rounded-xl text-xs font-bold transition-all backdrop-blur-md border border-white/30"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              Générer par IA
-            </button>
+            <Can v-if="canEdit" action="create-question-examen">
+              <button
+                @click="openAIModal"
+                class="flex items-center gap-2 px-4 py-1.5 bg-white/20 hover:bg-white/30 text-white rounded-xl text-xs font-bold transition-all backdrop-blur-md border border-white/30"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Générer par IA
+              </button>
+            </Can>
           </div>
 
           <div class="p-6">
@@ -1659,18 +1672,19 @@
 
                 <div class="flex items-center justify-end sm:justify-start gap-1">
                   <!-- Toujours autoriser la vue de la question dans le formulaire -->
+                  <Can v-if="canEdit" action="update-question-examen">
+                    <button
+                      @click="editQuestion(question)"
+                      class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                      title="Modifier"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </button>
+                  </Can>
                   <button
-                    v-if="canEdit"
-                    @click="editQuestion(question)"
-                    class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
-                    title="Modifier"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                  </button>
-                  <button
-                    v-else
+                    v-if="!canEdit"
                     @click="editQuestion(question)"
                     class="p-2 rounded-lg text-indigo-600 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors"
                     title="Voir l'énoncé complet"
@@ -1681,16 +1695,17 @@
                     </svg>
                   </button>
 
-                  <button
-                    v-if="canEdit"
-                    @click="deleteQuestion(question.id)"
-                    class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
-                    title="Supprimer"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
+                  <Can v-if="canEdit" action="delete-question-examen">
+                    <button
+                      @click="deleteQuestion(question.id)"
+                      class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                      title="Supprimer"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </Can>
                 </div>
               </div>
             </div>
@@ -2101,17 +2116,19 @@
                         </div>
                       </div>
 
-                      <button
-                        @click="generateWithAI"
-                        :disabled="isGeneratingAI || !aiConfig.topic"
-                        class="w-full py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-lg shadow-xl shadow-purple-500/30 hover:shadow-2xl hover:scale-[1.01] transition-all disabled:opacity-50 flex items-center justify-center gap-3"
-                      >
-                        <svg v-if="isGeneratingAI" class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        {{ isGeneratingAI ? "L'IA réfléchit..." : "Générer les questions" }}
-                      </button>
+                      <Can action="create-question-examen">
+                        <button
+                          @click="generateWithAI"
+                          :disabled="isGeneratingAI || !aiConfig.topic"
+                          class="w-full py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-lg shadow-xl shadow-purple-500/30 hover:shadow-2xl hover:scale-[1.01] transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+                        >
+                          <svg v-if="isGeneratingAI" class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          {{ isGeneratingAI ? "L'IA réfléchit..." : "Générer les questions" }}
+                        </button>
+                      </Can>
                     </div>
 
                     <!-- Résultats de l'IA -->

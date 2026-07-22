@@ -510,6 +510,7 @@ import "@bhplugin/vue3-datatable/dist/style.css";
 import { Dialog, DialogPanel, DialogTitle, TransitionRoot, TransitionChild } from "@headlessui/vue";
 import config from "~~/config";
 import { useTicketStore } from "~~/stores/ticket";
+import { useAccess } from "~/composables/useAccess";
 
 const { $toastr, $swal } = useNuxtApp();
 const ticketStore = useTicketStore();
@@ -586,17 +587,8 @@ const canMessage = computed(() => {
   return false;
 });
 
-const isStaffUser = computed(() => {
-  if (!currentUser.value) return false;
-  const userRoles = currentUser.value.roles || [];
-  return userRoles.some(r => {
-    const slug = (r.slug || '').toLowerCase();
-    const nom = (r.nom || '').toLowerCase();
-    return ['informaticien', 'admin', 'directeur', 'super-administrateur'].some(key => 
-      slug.includes(key) || nom.includes(key)
-    );
-  });
-});
+const { can } = useAccess();
+const isStaffUser = computed(() => can("update-ticket-support"));
 
 onMounted(async () => {
   loading.value = true;

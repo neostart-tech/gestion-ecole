@@ -207,19 +207,23 @@
             </svg>
             Générer le reçu
           </button>
-          <button @click="envoyerRappel"
-            :disabled="!etudiant?.reste || etudiant?.statut === 'solde' || etudiant?.statut === 'abandon'"
-            class="flex items-center gap-2 bg-slate-50 hover:bg-white dark:bg-gray-700 dark:hover:bg-gray-600 border border-slate-200 dark:border-gray-600 text-slate-700 dark:text-gray-200 text-sm font-semibold px-4 py-2 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-            </svg>
-            Envoyer un rappel
-          </button>
-          <button @click="declarerAbandon"
-            :disabled="etudiant?.statut === 'solde' || etudiant?.statut === 'abandon'"
-            class="flex items-center gap-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 border border-red-100 dark:border-red-800/30 text-red-600 dark:text-red-400 text-sm font-semibold px-4 py-2 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-            Déclarer abandon
-          </button>
+          <Can action="send-rappel-recouvrement">
+            <button @click="envoyerRappel"
+              :disabled="!etudiant?.reste || etudiant?.statut === 'solde' || etudiant?.statut === 'abandon'"
+              class="flex items-center gap-2 bg-slate-50 hover:bg-white dark:bg-gray-700 dark:hover:bg-gray-600 border border-slate-200 dark:border-gray-600 text-slate-700 dark:text-gray-200 text-sm font-semibold px-4 py-2 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              Envoyer un rappel
+            </button>
+          </Can>
+          <Can action="declare-abandon-etudiant">
+            <button @click="declarerAbandon"
+              :disabled="etudiant?.statut === 'solde' || etudiant?.statut === 'abandon'"
+              class="flex items-center gap-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 border border-red-100 dark:border-red-800/30 text-red-600 dark:text-red-400 text-sm font-semibold px-4 py-2 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              Déclarer abandon
+            </button>
+          </Can>
         </div>
         <div v-if="etudiant?.statut === 'solde'" class="mx-5 mb-5 px-4 py-3 bg-slate-50 dark:bg-gray-700 rounded-xl text-sm text-slate-500 dark:text-gray-400">
           <span class="font-semibold text-slate-700 dark:text-gray-200">Note :</span>

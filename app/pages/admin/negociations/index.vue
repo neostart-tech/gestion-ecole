@@ -22,16 +22,18 @@
       </div>
 
       <!-- Bouton pour créer un échéancier -->
-      <NuxtLink
-        to="/admin/negociations/creer-une-negociation"
-        class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-        </svg>
-        <span class="hidden sm:inline">Nouveau</span>
-        <span class="sm:hidden">Nouveau</span>
-      </NuxtLink>
+      <Can action="create-negociation">
+        <NuxtLink
+          to="/admin/negociations/creer-une-negociation"
+          class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          <span class="hidden sm:inline">Nouveau</span>
+          <span class="sm:hidden">Nouveau</span>
+        </NuxtLink>
+      </Can>
     </div>
 
     <!-- Cartes de statistiques -->

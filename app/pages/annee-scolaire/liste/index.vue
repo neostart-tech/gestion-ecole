@@ -72,24 +72,26 @@
         </client-only>
 
         <!-- Ajouter -->
-        <button
-          @click="openAddModal"
-          class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        >
-          <svg
-            class="w-5 h-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
+        <Can action="create-annee-scolaire">
+          <button
+            @click="openAddModal"
+            class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
           >
-            <path
-              d="M12 5v14M5 12h14"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-          </svg>
-          Ajouter
-        </button>
+            <svg
+              class="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+            >
+              <path
+                d="M12 5v14M5 12h14"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            Ajouter
+          </button>
+        </Can>
       </div>
     </div>
 
@@ -111,15 +113,17 @@
         >
           <template #status="{ value }">
             <div v-if="value.status === true" class="flex items-center">
-              <button
-                @click="togglePublish(value)"
-                class="relative inline-flex items-center h-7 rounded-full w-14 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-green-100 dark:bg-green-900/30 focus:ring-green-300 cursor-default"
-                title="Déja publié"
-              >
-                <span
-                  class="translate-x-8 bg-green-500 dark:bg-green-600 inline-block w-5 h-5 transform rounded-full shadow-sm transition-all duration-200"
-                ></span>
-              </button>
+              <Can action="update-annee-scolaire">
+                <button
+                  @click="togglePublish(value)"
+                  class="relative inline-flex items-center h-7 rounded-full w-14 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-green-100 dark:bg-green-900/30 focus:ring-green-300 cursor-default"
+                  title="Déja publié"
+                >
+                  <span
+                    class="translate-x-8 bg-green-500 dark:bg-green-600 inline-block w-5 h-5 transform rounded-full shadow-sm transition-all duration-200"
+                  ></span>
+                </button>
+              </Can>
               <span
                 class="ml-3 text-sm font-medium text-green-700 dark:text-green-300"
               >
@@ -128,15 +132,17 @@
 
             <!-- Si non publié -->
             <div v-else class="flex items-center">
-              <button
-                @click="togglePublish(value)"
-                class="relative inline-flex items-center h-7 rounded-full w-14 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-gray-100 dark:bg-gray-800/40 focus:ring-gray-300 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
-                title="Cliquer pour publier"
-              >
-                <span
-                  class="translate-x-1 bg-gray-500 dark:bg-gray-600 inline-block w-5 h-5 transform rounded-full shadow-sm transition-all duration-200"
-                ></span>
-              </button>
+              <Can action="update-annee-scolaire">
+                <button
+                  @click="togglePublish(value)"
+                  class="relative inline-flex items-center h-7 rounded-full w-14 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-gray-100 dark:bg-gray-800/40 focus:ring-gray-300 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
+                  title="Cliquer pour publier"
+                >
+                  <span
+                    class="translate-x-1 bg-gray-500 dark:bg-gray-600 inline-block w-5 h-5 transform rounded-full shadow-sm transition-all duration-200"
+                  ></span>
+                </button>
+              </Can>
               <span
                 class="ml-3 text-sm font-medium text-red-700 dark:text-red-300"
               >
@@ -146,6 +152,7 @@
           <template #action="{ value }">
             <div class="flex justify-center gap-3">
               <!-- Edit -->
+              <Can action="update-annee-scolaire">
               <button
                 @click="openEditModal(value)"
                 class="p-2 rounded-lg text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors duration-200"
@@ -164,6 +171,7 @@
                   />
                 </svg>
               </button>
+              </Can>
             </div>
           </template>
         </Vue3Datatable>

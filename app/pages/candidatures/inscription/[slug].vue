@@ -271,13 +271,15 @@
                 </div>
 
                 <div class="mt-10">
-                  <button 
-                    @click="confirmEnrollment" 
-                    :disabled="!enrollForm.group_id || isSubmitting"
-                    class="w-full py-4 bg-white text-indigo-600 rounded-2xl font-bold uppercase text-[10px] tracking-[0.2em] shadow-lg shadow-black/10 transition-all hover:bg-gray-50 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
-                  >
-                    {{ isSubmitting ? 'Traitement...' : 'Confirmer l\'Enrôlement' }}
-                  </button>
+                  <Can action="inscrire-etudiant-candidature">
+                    <button
+                      @click="confirmEnrollment"
+                      :disabled="!enrollForm.group_id || isSubmitting"
+                      class="w-full py-4 bg-white text-indigo-600 rounded-2xl font-bold uppercase text-[10px] tracking-[0.2em] shadow-lg shadow-black/10 transition-all hover:bg-gray-50 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
+                    >
+                      {{ isSubmitting ? 'Traitement...' : 'Confirmer l\'Enrôlement' }}
+                    </button>
+                  </Can>
                   <p v-if="!enrollForm.group_id" class="text-[9px] text-center text-indigo-200 font-medium italic mt-3 animate-pulse">Sélectionnez un groupe pour activer l'enrôlement</p>
                 </div>
               </div>

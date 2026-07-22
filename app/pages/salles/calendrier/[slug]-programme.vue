@@ -75,25 +75,27 @@
 
         <!-- Boutons d'action -->
         <div class="flex items-center space-x-4 mt-4 md:mt-0">
-          <button
-            @click="() => { resetForm(); openCreateModal(); }"
-            class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-          >
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <Can action="create-cours">
+            <button
+              @click="() => { resetForm(); openCreateModal(); }"
+              class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            Nouveau cours
-          </button>
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Nouveau cours
+            </button>
+          </Can>
 
           <!-- Indicateur de chargement -->
           <div v-if="salleStore.isLoading" class="flex items-center space-x-2">
@@ -1237,6 +1239,7 @@
               <!-- Boutons d'action -->
               <div class="mt-8 flex justify-end gap-3">
                 <template v-if="selectedEvent?.extendedProps?.type !== 'Jour Férié'">
+                <Can action="update-cours">
                 <button
                   type="button"
                   @click="openEditModalFromDetail(selectedEvent)"
@@ -1257,6 +1260,8 @@
                   </svg>
                   Modifier
                 </button>
+                </Can>
+                <Can action="delete-cours">
                 <button
                   type="button"
                   @click="confirmDelete(selectedEvent)"
@@ -1277,6 +1282,7 @@
                   </svg>
                   Supprimer
                 </button>
+                </Can>
                 </template>
                 <button
                   type="button"

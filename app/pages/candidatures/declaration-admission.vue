@@ -108,17 +108,19 @@
 
     <!-- Soumission Globale -->
     <div class="fixed bottom-6 right-6 z-50">
-      <button 
-        @click="finalSubmit" 
-        :disabled="isSubmitting"
-        class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
-      >
-        <span v-if="isSubmitting" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-        <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span class="font-bold text-lg">Enregistrer les Admissions</span>
-      </button>
+      <Can action="controler-admission-candidature">
+        <button
+          @click="finalSubmit"
+          :disabled="isSubmitting"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+        >
+          <span v-if="isSubmitting" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="font-bold text-lg">Enregistrer les Admissions</span>
+        </button>
+      </Can>
     </div>
   </div>
 </template>

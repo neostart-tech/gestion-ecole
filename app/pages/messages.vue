@@ -177,12 +177,14 @@
                 </svg>
               </button>
 
-              <button
-                @click="deleteItem(value)"
-                class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
-              >
-               <ButtonDelete/>
-              </button>
+              <Can action="delete-message-contact">
+                <button
+                  @click="deleteItem(value)"
+                  class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
+                >
+                 <ButtonDelete/>
+                </button>
+              </Can>
             </div>
           </template>
         </Vue3Datatable>
@@ -505,17 +507,19 @@
                     ></textarea>
 
                     <div class="flex justify-end mt-3">
-                      <button
-                        @click="sendReply"
-                        :disabled="!replyText.trim() || isSendingReply"
-                        class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
-                      >
-                        <span
-                          v-if="isSendingReply"
-                          class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
-                        ></span>
-                        Envoyer la réponse par email
-                      </button>
+                      <Can action="reply-message-contact">
+                        <button
+                          @click="sendReply"
+                          :disabled="!replyText.trim() || isSendingReply"
+                          class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                        >
+                          <span
+                            v-if="isSendingReply"
+                            class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
+                          ></span>
+                          Envoyer la réponse par email
+                        </button>
+                      </Can>
                     </div>
                   </div>
                 </div>
@@ -528,25 +532,27 @@
 
                   <div class="flex gap-2 order-1 sm:order-2">
                     <!-- Bouton Supprimer -->
-                    <button
-                      @click="deleteItem(selectedMessage)"
-                      class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium rounded-lg transition-colors"
-                    >
-                      <svg
-                        class="w-4 h-4 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                    <Can action="delete-message-contact">
+                      <button
+                        @click="deleteItem(selectedMessage)"
+                        class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium rounded-lg transition-colors"
                       >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                      Supprimer
-                    </button>
+                        <svg
+                          class="w-4 h-4 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                        Supprimer
+                      </button>
+                    </Can>
 
                     <button
                       type="button"

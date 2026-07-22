@@ -72,44 +72,48 @@
         </client-only>
 
         <!-- Dupliquer -->
-        <button
-          @click="openDuplicateModal"
-          class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-400"
-        >
-          <svg
-            class="w-5 h-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
+        <Can action="duplicate-frais-scolarite">
+          <button
+            @click="openDuplicateModal"
+            class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-400"
           >
-            <path
-              d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-          </svg>
-          Dupliquer l'année
-        </button>
+            <svg
+              class="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+            >
+              <path
+                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            Dupliquer l'année
+          </button>
+        </Can>
 
         <!-- Ajouter -->
-        <button
-          @click="openAddModal"
-          class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        >
-          <svg
-            class="w-5 h-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
+        <Can action="create-frais-scolarite">
+          <button
+            @click="openAddModal"
+            class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
           >
-            <path
-              d="M12 5v14M5 12h14"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-          </svg>
-          Ajouter
-        </button>
+            <svg
+              class="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+            >
+              <path
+                d="M12 5v14M5 12h14"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            Ajouter
+          </button>
+        </Can>
       </div>
     </div>
 
@@ -166,24 +170,26 @@
           <template #action="{ value }">
             <div class="flex justify-center gap-3">
               <!-- Edit -->
-              <button
-                @click="openEditModal(value)"
-                class="p-2 rounded-lg text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors duration-200"
-                title="Modifier"
-              >
-                <svg
-                  class="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
+              <Can action="update-frais-scolarite">
+                <button
+                  @click="openEditModal(value)"
+                  class="p-2 rounded-lg text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors duration-200"
+                  title="Modifier"
                 >
-                  <path
-                    d="M4 20h4l10-10-4-4L4 16v4z"
-                    stroke-width="2"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </button>
+                  <svg
+                    class="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      d="M4 20h4l10-10-4-4L4 16v4z"
+                      stroke-width="2"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
+              </Can>
               <!-- <NuxtLink
                 :to="`/frais-de-scolarite/${value.id}/tranche-de-paiement`"
                 class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50 transition-colors duration-200"

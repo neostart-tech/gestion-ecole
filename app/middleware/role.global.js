@@ -1,5 +1,6 @@
 import { useLoginStore } from "~~/stores/login";
 import { rolePermissions } from "~~/configuration/permissions";
+import { routePermissionFallback } from "~~/configuration/permissionFallback";
 
 export default defineNuxtRouteMiddleware((to) => {
 	if (process.server) return;
@@ -116,6 +117,22 @@ export default defineNuxtRouteMiddleware((to) => {
 	});
 
 	if (!hasAccess) {
+		// Filet de sécurité dynamique : la liste ci-dessus (rolePermissions) est
+		// maintenue à la main et ne connaît pas les permissions accordées depuis
+		// la page "Rôles". Si le chemin correspond à un domaine de permissions
+		// dynamiques et que l'utilisateur a au moins une des permissions requises,
+		// on autorise quand même — voir configuration/permissionFallback.js.
+		const userPermissions = userData?.permissions || [];
+		const fallbackMatch = routePermissionFallback.find((entry) =>
+			to.path.startsWith(entry.prefix),
+		);
+		if (
+			fallbackMatch &&
+			fallbackMatch.anySlugOf.some((slug) => userPermissions.includes(slug))
+		) {
+			return;
+		}
+
 		const { $toastr } = useNuxtApp();
 		// Éviter la boucle infinie si on est déjà sur la page par défaut
 		if (to.path === "/emploi-du-temps") {

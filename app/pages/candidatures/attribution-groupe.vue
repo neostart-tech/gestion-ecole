@@ -39,13 +39,15 @@
           />
         </div>
 
-        <Button
-          v-if="selectedCandidates.length"
-          @click="submitAttribution"
-          :loading="isSubmitting"
-          :label="`Attribuer le groupe à ${selectedCandidates.length} candidat(s)`"
-          icon="pi pi-check"
-        />
+        <Can action="attribuer-groupe-candidature">
+          <Button
+            v-if="selectedCandidates.length"
+            @click="submitAttribution"
+            :loading="isSubmitting"
+            :label="`Attribuer le groupe à ${selectedCandidates.length} candidat(s)`"
+            icon="pi pi-check"
+          />
+        </Can>
       </div>
 
       <div v-if="isLoadingCandidates" class="flex justify-center py-16">

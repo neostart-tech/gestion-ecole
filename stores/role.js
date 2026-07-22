@@ -5,6 +5,7 @@ import axios from "axios";
 export const useRoleStore = defineStore("role", {
   state: () => ({
     roles: [],
+    availablePermissions: [],
     isLoading: false,
   }),
 
@@ -18,6 +19,7 @@ export const useRoleStore = defineStore("role", {
         },
       };
     },
+
     async fetchRoles() {
       this.isLoading = true;
       try {
@@ -35,61 +37,94 @@ export const useRoleStore = defineStore("role", {
       }
     },
 
-   
-    // async addFiliere(filiereData) {
-    //   this.isLoading = true;
-    //   try {
-    //     const response = await axios.post(
-    //       "/filieres/ajouter-une-filiere",
-    //       filiereData,
-    //       this.authHeaders()
-    //     );
+    async fetchRole(roleSlug) {
+      const response = await axios.get(
+        `/roles/${roleSlug}/a-propos`,
+        this.authHeaders()
+      );
 
-    //     this.filieres.push(response.data.data ?? response.data);
-    //     return response.data;
-    //   } finally {
-    //     this.isLoading = false;
-    //   }
-    // },
+      const role = response.data.data ?? response.data;
+      this.replaceRoleInState(roleSlug, role);
+      return role;
+    },
 
-   
-    // async deleteFiliere(filiereId) {
-    //   this.isLoading = true;
-    //   try {
-    //     await axios.delete(
-    //       `/filieres/${filiereId}/supprimer`,
-    //       this.authHeaders()
-    //     );
+    async fetchAvailablePermissions() {
+      const response = await axios.get(
+        "/roles/permissions-disponibles",
+        this.authHeaders()
+      );
 
-    //     this.filieres = this.filieres.filter(
-    //       (f) => f.id !== filiereId
-    //     );
-    //   } finally {
-    //     this.isLoading = false;
-    //   }
-    // },
+      this.availablePermissions = response.data.data;
+      return this.availablePermissions;
+    },
 
-    // async updateFiliere(filiereId, updatedData) {
-    //   this.isLoading = true;
-    //   try {
-    //     const response = await axios.put(
-    //       `/filieres/${filiereId}/modifier`,
-    //       updatedData,
-    //       this.authHeaders()
-    //     );
+    async addRole(payload) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          "/roles/ajouter-un-role",
+          payload,
+          this.authHeaders()
+        );
 
-    //     const index = this.filieres.findIndex(
-    //       (f) => f.id === filiereId
-    //     );
+        this.roles.push(response.data.data ?? response.data);
+        return response.data;
+      } finally {
+        this.isLoading = false;
+      }
+    },
 
-    //     if (index !== -1) {
-    //       this.filieres[index] = response.data.data ?? response.data;
-    //     }
+    async updateRole(roleSlug, payload) {
+      this.isLoading = true;
+      try {
+        const response = await axios.put(
+          `/roles/${roleSlug}/modifier`,
+          payload,
+          this.authHeaders()
+        );
 
-    //     return response.data;
-    //   } finally {
-    //     this.isLoading = false;
-    //   }
-    // },
+        this.replaceRoleInState(roleSlug, response.data.data ?? response.data);
+        return response.data;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async syncRolePermissions(roleSlug, permissionIds) {
+      this.isLoading = true;
+      try {
+        const response = await axios.put(
+          `/roles/${roleSlug}/permissions`,
+          { permissions: permissionIds },
+          this.authHeaders()
+        );
+
+        this.replaceRoleInState(roleSlug, response.data.data ?? response.data);
+        return response.data;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async deleteRole(roleSlug) {
+      this.isLoading = true;
+      try {
+        await axios.delete(
+          `/roles/${roleSlug}/supprimer`,
+          this.authHeaders()
+        );
+
+        this.roles = this.roles.filter((r) => r.slug !== roleSlug);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    replaceRoleInState(roleSlug, updatedRole) {
+      const index = this.roles.findIndex((r) => r.slug === roleSlug);
+      if (index !== -1) {
+        this.roles[index] = updatedRole;
+      }
+    },
   },
 });

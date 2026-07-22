@@ -40,48 +40,51 @@
         />
         <div class="flex flex-wrap items-center gap-3 w-full">
           <!-- Déverrouiller (Admin) -->
-          <button
-            v-if="examStore.currentEvaluation?.correction_submission_date && !isTeacher"
-            @click="confirmUnlockCorrections"
-            class="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all font-semibold text-sm shadow-sm flex items-center gap-2 whitespace-nowrap"
-            :disabled="isValidating"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
-            </svg>
-            Invalider / Déverrouiller
-          </button>
+          <Can v-if="examStore.currentEvaluation?.correction_submission_date && !isTeacher" action="grade-examen">
+            <button
+              @click="confirmUnlockCorrections"
+              class="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all font-semibold text-sm shadow-sm flex items-center gap-2 whitespace-nowrap"
+              :disabled="isValidating"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+              </svg>
+              Invalider / Déverrouiller
+            </button>
+          </Can>
 
           <!-- Valider (Admin uniquement) -->
-          <button
-            v-if="!examStore.currentEvaluation?.correction_submission_date && !isTeacher"
-            @click="confirmValidateCorrections"
-            class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-semibold text-sm shadow-sm flex items-center gap-2 whitespace-nowrap"
-            :disabled="isValidating"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            {{ isValidating ? 'Validation...' : 'Valider les notes' }}
-          </button>
+          <Can v-if="!examStore.currentEvaluation?.correction_submission_date && !isTeacher" action="grade-examen">
+            <button
+              @click="confirmValidateCorrections"
+              class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-semibold text-sm shadow-sm flex items-center gap-2 whitespace-nowrap"
+              :disabled="isValidating"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {{ isValidating ? 'Validation...' : 'Valider les notes' }}
+            </button>
+          </Can>
 
-          <button
-            v-if="examStore.currentEvaluation && examStore.currentEvaluation.published !== 1"
-            @click="confirmPublish"
-            class="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all font-semibold text-sm shadow-sm flex items-center gap-2"
-            :disabled="isPublishing"
-          >
-            <svg v-if="!isPublishing" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-            </svg>
-            <svg v-else class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            {{ isPublishing ? 'Publication...' : 'Publier les résultats' }}
-          </button>
-          
-          <div v-else-if="examStore.currentEvaluation?.published === 1" class="px-4 py-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-xl border border-emerald-200 dark:border-emerald-800 flex items-center gap-2 text-sm font-semibold">
+          <Can v-if="examStore.currentEvaluation && examStore.currentEvaluation.published !== 1" action="publish-evaluation">
+            <button
+              @click="confirmPublish"
+              class="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all font-semibold text-sm shadow-sm flex items-center gap-2"
+              :disabled="isPublishing"
+            >
+              <svg v-if="!isPublishing" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              <svg v-else class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ isPublishing ? 'Publication...' : 'Publier les résultats' }}
+            </button>
+          </Can>
+
+          <div v-if="examStore.currentEvaluation?.published === 1" class="px-4 py-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-xl border border-emerald-200 dark:border-emerald-800 flex items-center gap-2 text-sm font-semibold">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -476,22 +479,23 @@
                                 :readonly="isCorrectionsLocked"
                               ></textarea>
                               <!-- Bouton Suggestion IA -->
-                              <button
-                                v-if="!isCorrectionsLocked"
-                                @click="getAISuggestion(question)"
-                                class="px-3 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors flex items-center gap-1 shrink-0"
-                                :disabled="isAnalysingIA[question.id]"
-                                title="Suggérer une note via Gemini IA"
-                              >
-                                <svg v-if="isAnalysingIA[question.id]" class="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
-                                <span class="hidden sm:inline text-xs font-semibold">IA</span>
-                              </button>
+                              <Can v-if="!isCorrectionsLocked" action="grade-examen">
+                                <button
+                                  @click="getAISuggestion(question)"
+                                  class="px-3 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors flex items-center gap-1 shrink-0"
+                                  :disabled="isAnalysingIA[question.id]"
+                                  title="Suggérer une note via Gemini IA"
+                                >
+                                  <svg v-if="isAnalysingIA[question.id]" class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                  <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                  </svg>
+                                  <span class="hidden sm:inline text-xs font-semibold">IA</span>
+                                </button>
+                              </Can>
                             </div>
                           </div>
                         </div>
@@ -514,13 +518,15 @@
                       >
                         Fermer
                       </button>
-                      <button
-                        @click="saveAllCorrections"
-                        class="px-6 py-2 text-sm bg-violet-600 text-white rounded-lg hover:bg-violet-700 shadow-sm transition-all font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
-                        :disabled="isSavingAll || isCorrectionsLocked"
-                      >
-                        {{ isSavingAll ? 'Enregistrement...' : 'Enregistrer tout' }}
-                      </button>
+                      <Can action="grade-examen">
+                        <button
+                          @click="saveAllCorrections"
+                          class="px-6 py-2 text-sm bg-violet-600 text-white rounded-lg hover:bg-violet-700 shadow-sm transition-all font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
+                          :disabled="isSavingAll || isCorrectionsLocked"
+                        >
+                          {{ isSavingAll ? 'Enregistrement...' : 'Enregistrer tout' }}
+                        </button>
+                      </Can>
                     </div>
                     </div>
                   </div>

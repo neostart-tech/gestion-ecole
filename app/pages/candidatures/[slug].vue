@@ -101,12 +101,16 @@
               
               <div v-if="!candidat.dossier_valide && !candidat.motif && !candidat.rectification_expected && !candidat.transmis_academie">
                 <div v-if="peutAgirCommeChargeClientele" class="flex flex-wrap items-center gap-3">
-                  <button @click="handleAction('transmettre')" :disabled="isSubmitting" class="px-8 py-3.5 bg-[#7F45FD] hover:bg-[#6a35e8] text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_25px_rgba(127,69,253,0.3)] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
-                    <span v-if="isSubmitting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                    <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-                    Passer à l'académie
-                  </button>
-                  <button @click="handleAction('rectifier')" :disabled="isSubmitting" class="px-6 py-3.5 bg-[#F59E0B] hover:bg-[#D97706] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(245,158,11,0.3)] disabled:opacity-60 disabled:cursor-not-allowed">Demander une rectification</button>
+                  <Can action="transmettre-candidature">
+                    <button @click="handleAction('transmettre')" :disabled="isSubmitting" class="px-8 py-3.5 bg-[#7F45FD] hover:bg-[#6a35e8] text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_25px_rgba(127,69,253,0.3)] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                      <span v-if="isSubmitting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                      Passer à l'académie
+                    </button>
+                  </Can>
+                  <Can action="rectifier-candidature">
+                    <button @click="handleAction('rectifier')" :disabled="isSubmitting" class="px-6 py-3.5 bg-[#F59E0B] hover:bg-[#D97706] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(245,158,11,0.3)] disabled:opacity-60 disabled:cursor-not-allowed">Demander une rectification</button>
+                  </Can>
                 </div>
                 <p v-else class="text-[11px] text-[#8a8a9a] font-medium">Ce dossier est encore en cours d'étude par le service clientèle.</p>
               </div>
@@ -117,13 +121,19 @@
                   <p class="text-blue-500 text-[10px] font-bold uppercase tracking-[0.15em]">Transmis à l'académie — décision finale en attente</p>
                 </div>
                 <div v-if="peutAgirCommeAcademie" class="flex flex-wrap items-center gap-3">
-                  <button @click="handleAction('valider')" :disabled="isSubmitting" class="px-8 py-3.5 bg-[#7F45FD] hover:bg-[#6a35e8] text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_25px_rgba(127,69,253,0.3)] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
-                    <span v-if="isSubmitting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                    <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                    Valider le dossier
-                  </button>
-                  <button @click="handleAction('reorienter')" :disabled="isSubmitting" class="px-6 py-3.5 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(59,130,246,0.3)] disabled:opacity-60 disabled:cursor-not-allowed">Réorienter</button>
-                  <button @click="handleAction('rejeter')" :disabled="isSubmitting" class="px-6 py-3.5 bg-[#ff4757] hover:bg-[#e84118] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(255,71,87,0.3)] disabled:opacity-60 disabled:cursor-not-allowed">Rejeter</button>
+                  <Can action="valider-candidature">
+                    <button @click="handleAction('valider')" :disabled="isSubmitting" class="px-8 py-3.5 bg-[#7F45FD] hover:bg-[#6a35e8] text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_25px_rgba(127,69,253,0.3)] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                      <span v-if="isSubmitting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                      Valider le dossier
+                    </button>
+                  </Can>
+                  <Can action="reorienter-candidature">
+                    <button @click="handleAction('reorienter')" :disabled="isSubmitting" class="px-6 py-3.5 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(59,130,246,0.3)] disabled:opacity-60 disabled:cursor-not-allowed">Réorienter</button>
+                  </Can>
+                  <Can action="rejeter-candidature">
+                    <button @click="handleAction('rejeter')" :disabled="isSubmitting" class="px-6 py-3.5 bg-[#ff4757] hover:bg-[#e84118] text-white text-[9px] font-bold uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_20px_rgba(255,71,87,0.3)] disabled:opacity-60 disabled:cursor-not-allowed">Rejeter</button>
+                  </Can>
                 </div>
                 <p v-else class="text-[11px] text-[#8a8a9a] font-medium">La décision finale (validation, rejet, réorientation) revient maintenant à l'académie.</p>
               </div>

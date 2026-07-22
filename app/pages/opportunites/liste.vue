@@ -85,24 +85,26 @@
 
         <!-- Boutons d'action -->
         <div class="flex gap-2">
-          <button
-            @click="openCreateModal"
-            class="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-          >
-            <svg
-              class="w-5 h-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
+          <Can action="create-opportunite">
+            <button
+              @click="openCreateModal"
+              class="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
             >
-              <path
-                d="M12 5v14M5 12h14"
-                stroke-width="2"
-                stroke-linecap="round"
-              />
-            </svg>
-            Ajouter
-          </button>
+              <svg
+                class="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  d="M12 5v14M5 12h14"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+              Ajouter
+            </button>
+          </Can>
         </div>
       </div>
     </div>
@@ -149,15 +151,17 @@
 
               <!-- Si non publié -->
               <div v-else class="flex items-center">
-                <button
-                  @click="togglePublish(data.value)"
-                  class="relative inline-flex items-center h-7 rounded-full w-14 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-gray-100 dark:bg-gray-800/40 focus:ring-gray-300 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
-                  title="Cliquer pour publier"
-                >
-                  <span
-                    class="translate-x-1 bg-gray-500 dark:bg-gray-600 inline-block w-5 h-5 transform rounded-full shadow-sm transition-all duration-200"
-                  ></span>
-                </button>
+                <Can action="publish-opportunite">
+                  <button
+                    @click="togglePublish(data.value)"
+                    class="relative inline-flex items-center h-7 rounded-full w-14 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-gray-100 dark:bg-gray-800/40 focus:ring-gray-300 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
+                    title="Cliquer pour publier"
+                  >
+                    <span
+                      class="translate-x-1 bg-gray-500 dark:bg-gray-600 inline-block w-5 h-5 transform rounded-full shadow-sm transition-all duration-200"
+                    ></span>
+                  </button>
+                </Can>
                 <span
                   class="ml-3 text-sm font-medium text-red-700 dark:text-red-300"
                 >
@@ -195,33 +199,37 @@
               </button>
 
               <!-- Edit -->
-              <button
-                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
-                @click="openEditModal(data.value)"
-                title="Modifier"
-              >
-                <svg
-                  class="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
+              <Can action="update-opportunite">
+                <button
+                  class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
+                  @click="openEditModal(data.value)"
+                  title="Modifier"
                 >
-                  <path
-                    d="M4 20h4l10-10-4-4L4 16v4z"
-                    stroke-width="2"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </button>
+                  <svg
+                    class="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      d="M4 20h4l10-10-4-4L4 16v4z"
+                      stroke-width="2"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
+              </Can>
 
               <!-- Delete -->
-              <button
-                class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
-                @click="confirmDelete(data.value)"
-                title="Supprimer"
-              >
-                <ButtonDelete />
-              </button>
+              <Can action="delete-opportunite">
+                <button
+                  class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
+                  @click="confirmDelete(data.value)"
+                  title="Supprimer"
+                >
+                  <ButtonDelete />
+                </button>
+              </Can>
             </div>
           </template>
         </Vue3Datatable>
