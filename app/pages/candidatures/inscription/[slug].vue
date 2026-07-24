@@ -139,6 +139,45 @@
               </div>
             </div>
 
+            <!-- Section: Identifiants Académiques -->
+            <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-8 border border-gray-200 dark:border-gray-800">
+              <div class="flex items-center gap-4 mb-8">
+                <div class="w-10 h-10 rounded-2xl bg-sky-50 dark:bg-sky-900/20 flex items-center justify-center text-sky-600">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                </div>
+                <div>
+                  <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider">Identifiants Académiques</h3>
+                  <p class="text-xs text-gray-500">Configurer les accès au portail étudiant</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Email Pro -->
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Email Professionnel</label>
+                    <button @click="usePersonalEmail" type="button" class="text-[9px] font-bold text-sky-600 hover:text-sky-700 uppercase flex items-center gap-1 transition-colors">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                      Utiliser l'email personnel
+                    </button>
+                  </div>
+                  <input type="email" v-model="enrollForm.email_pro" class="w-full h-11 px-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-sm font-medium focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all outline-none" placeholder="prenom.nom@ecole.com" />
+                </div>
+                
+                <!-- Password -->
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Mot de passe</label>
+                    <button @click="generatePassword" type="button" class="text-[9px] font-bold text-indigo-600 hover:text-indigo-700 uppercase flex items-center gap-1 transition-colors">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                      Générer
+                    </button>
+                  </div>
+                  <input type="text" v-model="enrollForm.password" class="w-full h-11 px-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none font-mono" placeholder="Mot de passe provisoire" />
+                </div>
+              </div>
+            </div>
+
             <!-- Section: Financement -->
             <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-8 border border-gray-200 dark:border-gray-800">
               <div class="flex items-center gap-4 mb-8">
@@ -337,8 +376,34 @@ const enrollForm = ref({
   bourse_id: null,
   frais_inscription_paye: true,
   mode_paiement: 'especes',
-  frais_retrait: 0
+  frais_retrait: 0,
+  email_pro: '',
+  password: ''
 })
+
+const generateEmailPro = (candidatData) => {
+    if (!candidatData) return '';
+    let prenom = candidatData.prenom ? candidatData.prenom.split(' ')[0].toLowerCase() : '';
+    let nom = candidatData.nom ? candidatData.nom.split(' ').join('').toLowerCase() : '';
+    prenom = prenom.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    nom = nom.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return `${prenom}.${nom}@escen.university`;
+}
+
+const generatePassword = () => {
+    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*";
+    let password = "";
+    for (let i = 0; i < 10; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    enrollForm.value.password = password;
+}
+
+const usePersonalEmail = () => {
+    if (candidat.value && candidat.value.email) {
+        enrollForm.value.email_pro = candidat.value.email;
+    }
+}
 
 // Fetching
 const init = async () => {
@@ -349,6 +414,8 @@ const init = async () => {
         if (res) {
             candidat.value = res
             enrollForm.value.advertiser_id = res.advertiser_id || null
+            enrollForm.value.email_pro = generateEmailPro(res)
+            generatePassword()
             
             await groupeStore.fetchGroupes({
                 niveau_id: res.niveau_id || res.niveau?.id
