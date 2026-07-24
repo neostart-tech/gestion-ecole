@@ -1,142 +1,194 @@
 <template>
-  <div class="page-wrapper">
-    <Breadcrumb
-      :items="[
-        { label: 'Administration', to: '/' },
-        { label: `Journal d'activité`, to: null },
-      ]"
-      title="Journal d'activité"
-      :title-class="'text-xl md:text-2xl text-gray-800 dark:text-gray-100'"
-      :spacing="'mb-2'"
-      :link-color="'text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300'"
-      :active-color="'text-gray-900 dark:text-gray-100 font-medium'"
-      :text-size="'text-base'"
-      align="left"
-    />
+  <div class="min-h-screen bg-[#f3f3f8] dark:bg-[#08080f] font-sans transition-colors duration-500 relative">
 
-    <!-- Filtres -->
-    <div class="filters-bar bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-      <input
-        v-model="filters.search"
-        type="search"
-        placeholder="Rechercher (chemin, description)..."
-        class="filter-input border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
-        @change="applyFilters"
-      />
-      <select v-model="filters.method" class="filter-input border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300" @change="applyFilters">
-        <option value="">Toutes les méthodes</option>
-        <option v-for="m in methods" :key="m" :value="m">{{ m }}</option>
-      </select>
-      <select v-model="filters.log_name" class="filter-input border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300" @change="applyFilters">
-        <option value="">Tous les modules</option>
-        <option v-for="m in logStore.modules" :key="m" :value="m">{{ m }}</option>
-      </select>
-      <input
-        v-model="filters.date_from"
-        type="date"
-        class="filter-input border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300"
-        @change="applyFilters"
-      />
-      <input
-        v-model="filters.date_to"
-        type="date"
-        class="filter-input border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300"
-        @change="applyFilters"
-      />
-      <button class="reset-btn border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700" @click="resetFilters">
-        Réinitialiser
-      </button>
+    <!-- Fond d'ambiance violet -->
+    <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+      <div class="absolute top-0 right-0 w-[50vw] h-[50vw] bg-[#7F45FD]/15 dark:bg-[#7F45FD]/25 blur-[120px] rounded-full translate-x-1/3 -translate-y-1/3"></div>
+      <div class="absolute bottom-0 left-0 w-[40vw] h-[40vw] bg-[#7F45FD]/15 dark:bg-[#7F45FD]/25 blur-[100px] rounded-full -translate-x-1/3 translate-y-1/3"></div>
+      <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48ZyBmaWxsPSIjN0Y0NUZEIiBmaWxsLW9wYWNpdHk9IjAuMDgiPjxwYXRoIGQ9Ik0zNiAzNHYtNGgxdjRoLTF6bTAgM3YtMWgxdjFoLTF6bTAgNHYtMWgxdjFoLTF6Ii8+PC9nPjwvZz48L3N2Zz4=')]"></div>
     </div>
 
-    <!-- Tableau -->
-    <div class="rounded-xl shadow p-4 sm:p-5 bg-white dark:bg-gray-800">
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-900/40">
-            <tr>
-              <th class="th">Date</th>
-              <th class="th">Utilisateur</th>
-              <th class="th">Action</th>
-              <!-- Masqués pour le moment (demande utilisateur) : Méthode, Chemin, Statut, Module, Détails.
-                   Ne pas supprimer le code ci-dessous, juste commenté pour pouvoir les remettre facilement. -->
-              <!--
-              <th class="th">Méthode</th>
-              <th class="th">Chemin</th>
-              <th class="th">Statut</th>
-              <th class="th">Module</th>
-              <th class="th"></th>
-              -->
-            </tr>
-          </thead>
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            <tr v-if="logStore.isLoading">
-              <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                Chargement...
-              </td>
-            </tr>
-            <template v-for="log in logStore.logs" :key="log.id">
-              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/40">
-                <td class="td whitespace-nowrap">{{ formatDate(log.created_at) }}</td>
-                <td class="td whitespace-nowrap">{{ log.causer?.nom || 'Système / anonyme' }}</td>
-                <td class="td action-cell">{{ log.action }}</td>
-                <!--
-                <td class="td">
-                  <span class="method-badge" :class="methodClass(log.properties?.method)">
-                    {{ log.properties?.method || '—' }}
-                  </span>
-                </td>
-                <td class="td font-mono text-xs">{{ log.properties?.path || '—' }}</td>
-                <td class="td">
-                  <span class="status-badge" :class="statusClass(log.properties?.status)">
-                    {{ log.properties?.status || '—' }}
-                  </span>
-                </td>
-                <td class="td whitespace-nowrap">{{ log.log_name }}</td>
-                <td class="td">
-                  <button class="details-btn text-blue-600 dark:text-blue-400" @click="toggleExpand(log.id)">
-                    {{ expandedId === log.id ? 'Masquer' : 'Détails' }}
-                  </button>
-                </td>
-                -->
-              </tr>
-              <!--
-              <tr v-if="expandedId === log.id">
-                <td colspan="8" class="px-6 py-4 bg-gray-50 dark:bg-gray-900/40">
-                  <pre class="details-pre text-gray-700 dark:text-gray-300">{{ JSON.stringify(log.properties, null, 2) }}</pre>
-                </td>
-              </tr>
-              -->
-            </template>
-            <tr v-if="!logStore.isLoading && logStore.logs.length === 0">
-              <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                Aucune activité trouvée.
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <div class="relative z-10 w-full p-4 sm:p-6 lg:p-8">
+
+      <Breadcrumb
+        :items="[
+          { label: 'Administration', to: '/' },
+          { label: `Journal d'activité`, to: null },
+        ]"
+        title="Journal d'activité"
+        :title-class="'text-xl md:text-2xl text-gray-800 dark:text-gray-100'"
+        :spacing="'mb-2'"
+        :link-color="'text-[#7F45FD] dark:text-[#a882ff] hover:text-[#6a35e8] dark:hover:text-[#c4a9ff]'"
+        :active-color="'text-gray-900 dark:text-gray-100 font-medium'"
+        :text-size="'text-base'"
+        align="left"
+      />
+
+      <!-- Carte unique : en-tête + outils + tableau -->
+      <div class="mt-6 bg-white dark:bg-[#11111e] border border-[#e8e8f0] dark:border-[#1a1a2a] rounded-2xl shadow-[0_8px_30px_rgba(127,69,253,0.04)] overflow-hidden">
+
+        <!-- En-tête -->
+        <div class="flex items-center gap-3 p-5 lg:p-6 border-b border-[#e8e8f0] dark:border-[#1a1a2a]">
+          <div class="w-1.5 h-8 bg-[#7F45FD] rounded-full shrink-0"></div>
+          <div>
+            <h1 class="text-2xl font-black text-[#1a1a2a] dark:text-[#fafafe] tracking-tight">Journal d'activité</h1>
+            <p class="text-sm text-[#8a8a9a] font-medium">Historique des actions effectuées sur la plateforme</p>
+          </div>
+        </div>
+
+        <!-- Barre d'outils -->
+        <div class="p-4 lg:p-5 border-b border-[#e8e8f0] dark:border-[#1a1a2a]">
+          <div class="flex flex-col xl:flex-row gap-3">
+            <div class="relative flex-1">
+              <input
+                v-model="filters.search"
+                type="search"
+                placeholder="Rechercher (chemin, description)..."
+                class="w-full pl-11 pr-4 py-3 text-sm bg-[#fafafe] dark:bg-[#0a0a12] border border-[#e8e8f0] dark:border-[#1a1a2a] rounded-xl focus:ring-2 focus:ring-[#7F45FD]/20 focus:border-[#7F45FD] outline-none transition-all text-[#1a1a2a] dark:text-white placeholder-[#8a8a9a]"
+                @change="applyFilters"
+              />
+              <svg class="w-5 h-5 absolute left-4 top-3 text-[#8a8a9a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+
+            <!-- Filtre par module et méthode retiré (demande utilisateur) : ne pas supprimer,
+                 juste commenté pour pouvoir le remettre facilement si besoin.
+            <select v-model="filters.method" class="filter-select" @change="applyFilters">
+              <option value="">Toutes les méthodes</option>
+              <option v-for="m in methods" :key="m" :value="m">{{ m }}</option>
+            </select>
+            <select v-model="filters.log_name" class="filter-select" @change="applyFilters">
+              <option value="">Tous les modules</option>
+              <option v-for="m in logStore.modules" :key="m" :value="m">{{ m }}</option>
+            </select>
+            -->
+
+            <div class="grid grid-cols-2 sm:flex gap-3 shrink-0">
+              <input
+                v-model="filters.date_from"
+                type="date"
+                class="w-full sm:w-auto px-4 py-3 text-sm bg-[#fafafe] dark:bg-[#0a0a12] border border-[#e8e8f0] dark:border-[#1a1a2a] rounded-xl outline-none focus:border-[#7F45FD] text-[#1a1a2a] dark:text-white"
+                @change="applyFilters"
+              />
+              <input
+                v-model="filters.date_to"
+                type="date"
+                class="w-full sm:w-auto px-4 py-3 text-sm bg-[#fafafe] dark:bg-[#0a0a12] border border-[#e8e8f0] dark:border-[#1a1a2a] rounded-xl outline-none focus:border-[#7F45FD] text-[#1a1a2a] dark:text-white"
+                @change="applyFilters"
+              />
+              <button
+                class="col-span-2 sm:col-auto px-4 py-3 bg-[#fafafe] dark:bg-[#0a0a12] border border-[#e8e8f0] dark:border-[#1a1a2a] text-[#8a8a9a] hover:text-[#7F45FD] rounded-xl shadow-sm transition-all text-sm font-semibold"
+                @click="resetFilters"
+              >
+                Réinitialiser
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SKELETON LOADER -->
+        <div v-if="logStore.isLoading" class="p-5 lg:p-6 space-y-4">
+          <div v-for="i in 6" :key="i" class="border border-[#e8e8f0] dark:border-[#1a1a2a] rounded-2xl p-6 flex items-center justify-between gap-6 animate-pulse">
+            <div class="h-3 bg-gray-200 dark:bg-gray-800/50 rounded w-32"></div>
+            <div class="h-3 bg-gray-200 dark:bg-gray-800/50 rounded w-40"></div>
+            <div class="h-3 bg-gray-200 dark:bg-gray-800/50 rounded flex-1 max-w-md"></div>
+          </div>
+        </div>
+
+        <!-- TABLEAU -->
+        <template v-else-if="logStore.logs.length > 0">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-[#e8e8f0] dark:divide-[#1a1a2a]">
+              <thead class="bg-[#fafafe] dark:bg-[#0a0a12]">
+                <tr>
+                  <th class="th">Date</th>
+                  <th class="th">Utilisateur</th>
+                  <th class="th">Action</th>
+                  <!-- Masqués pour le moment (demande utilisateur) : Méthode, Chemin, Statut, Module, Détails.
+                       Ne pas supprimer le code ci-dessous, juste commenté pour pouvoir les remettre facilement. -->
+                  <!--
+                  <th class="th">Méthode</th>
+                  <th class="th">Chemin</th>
+                  <th class="th">Statut</th>
+                  <th class="th">Module</th>
+                  <th class="th"></th>
+                  -->
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#e8e8f0] dark:divide-[#1a1a2a]">
+                <template v-for="log in logStore.logs" :key="log.id">
+                  <tr class="hover:bg-[#fafafe] dark:hover:bg-[#0a0a12] transition-colors">
+                    <td class="td whitespace-nowrap">{{ formatDate(log.created_at) }}</td>
+                    <td class="td whitespace-nowrap">{{ log.causer?.nom || 'Système / anonyme' }}</td>
+                    <td class="td action-cell">{{ log.action }}</td>
+                    <!--
+                    <td class="td">
+                      <span class="method-badge" :class="methodClass(log.properties?.method)">
+                        {{ log.properties?.method || '—' }}
+                      </span>
+                    </td>
+                    <td class="td font-mono text-xs">{{ log.properties?.path || '—' }}</td>
+                    <td class="td">
+                      <span class="status-badge" :class="statusClass(log.properties?.status)">
+                        {{ log.properties?.status || '—' }}
+                      </span>
+                    </td>
+                    <td class="td whitespace-nowrap">{{ log.log_name }}</td>
+                    <td class="td">
+                      <button class="details-btn text-[#7F45FD]" @click="toggleExpand(log.id)">
+                        {{ expandedId === log.id ? 'Masquer' : 'Détails' }}
+                      </button>
+                    </td>
+                    -->
+                  </tr>
+                  <!--
+                  <tr v-if="expandedId === log.id">
+                    <td colspan="8" class="px-6 py-4 bg-[#fafafe] dark:bg-[#0a0a12]">
+                      <pre class="details-pre text-gray-700 dark:text-gray-300">{{ JSON.stringify(log.properties, null, 2) }}</pre>
+                    </td>
+                  </tr>
+                  -->
+                </template>
+              </tbody>
+            </table>
+          </div>
+
+          <div v-if="logStore.meta.last_page > 1" class="px-6 py-4 border-t border-[#e8e8f0] dark:border-[#1a1a2a] flex items-center justify-between">
+            <div class="text-sm text-[#8a8a9a] font-medium">
+              Page {{ logStore.meta.current_page }} / {{ logStore.meta.last_page }} ({{ logStore.meta.total }} entrées)
+            </div>
+            <div class="flex gap-2">
+              <button
+                class="page-btn"
+                :disabled="logStore.meta.current_page <= 1"
+                @click="changePage(logStore.meta.current_page - 1)"
+              >
+                Précédent
+              </button>
+              <button
+                class="page-btn"
+                :disabled="logStore.meta.current_page >= logStore.meta.last_page"
+                @click="changePage(logStore.meta.current_page + 1)"
+              >
+                Suivant
+              </button>
+            </div>
+          </div>
+        </template>
+
+        <!-- Vide -->
+        <div v-else class="py-20 text-center">
+          <div class="w-16 h-16 bg-[#7F45FD]/5 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-[#7F45FD]/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-[#1a1a2a] dark:text-[#fafafe] mb-2">Aucune activité</h3>
+          <p class="text-sm font-medium text-[#8a8a9a]">Aucune activité trouvée pour ces critères.</p>
+        </div>
       </div>
 
-      <div v-if="logStore.meta.last_page > 1" class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-        <div class="text-sm text-gray-700 dark:text-gray-300">
-          Page {{ logStore.meta.current_page }} / {{ logStore.meta.last_page }} ({{ logStore.meta.total }} entrées)
-        </div>
-        <div class="flex gap-2">
-          <button
-            class="page-btn border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300"
-            :disabled="logStore.meta.current_page <= 1"
-            @click="changePage(logStore.meta.current_page - 1)"
-          >
-            Précédent
-          </button>
-          <button
-            class="page-btn border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300"
-            :disabled="logStore.meta.current_page >= logStore.meta.last_page"
-            @click="changePage(logStore.meta.current_page + 1)"
-          >
-            Suivant
-          </button>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -167,13 +219,14 @@ const waitForUserLoaded = () =>
     });
   });
 
+// Filtre par module et méthode retiré (demande utilisateur) — voir le
+// commentaire dans le template. `methods` et `expandedId` restent utilisés
+// par le code masqué ci-dessus, laissés en place pour la même raison.
 const methods = ["GET", "POST", "PUT", "PATCH", "DELETE"];
 const expandedId = ref(null);
 
 const filters = ref({
   search: "",
-  method: "",
-  log_name: "",
   date_from: "",
   date_to: "",
 });
@@ -217,7 +270,7 @@ const applyFilters = () => {
 };
 
 const resetFilters = () => {
-  filters.value = { search: "", method: "", log_name: "", date_from: "", date_to: "" };
+  filters.value = { search: "", date_from: "", date_to: "" };
   applyFilters();
 };
 
@@ -232,67 +285,28 @@ onMounted(async () => {
     return;
   }
 
-  await Promise.all([logStore.fetchLogs(), logStore.fetchModules()]);
+  await logStore.fetchLogs();
 });
 </script>
 
 <style scoped>
-.page-wrapper {
-  max-width: 1300px;
-  margin: 30px auto;
-  padding: 20px;
-}
-
-.filters-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  padding: 16px;
-  border: 1px solid;
-  border-radius: 12px;
-  margin-bottom: 20px;
-}
-
-.filter-input {
-  padding: 8px 12px;
-  border: 1px solid;
-  border-radius: 8px;
-  font-size: 13.5px;
-  outline: none;
-}
-
-.reset-btn {
-  padding: 8px 16px;
-  border: 1px solid;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  margin-left: auto;
-}
-
 .th {
-  padding: 0.75rem 1.5rem;
+  padding: 0.9rem 1.5rem;
   text-align: left;
   font-size: 0.7rem;
-  font-weight: 500;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #6b7280;
-}
-:global(.dark) .th {
-  color: #9ca3af;
+  letter-spacing: 0.1em;
+  color: #8a8a9a;
 }
 
 .td {
-  padding: 0.75rem 1.5rem;
+  padding: 1.1rem 1.5rem;
   font-size: 0.85rem;
-  color: #111827;
+  color: #1a1a2a;
 }
 :global(.dark) .td {
-  color: #e5e7eb;
+  color: #fafafe;
 }
 
 .action-cell {
@@ -346,24 +360,17 @@ onMounted(async () => {
 }
 
 .page-btn {
-  padding: 6px 14px;
-  border: 1px solid;
-  border-radius: 8px;
+  padding: 8px 16px;
+  border: 1px solid #e8e8f0;
+  border-radius: 10px;
   font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  background: none;
+  background: #fafafe;
+  color: #1a1a2a;
+  transition: all 0.2s;
 }
-.page-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-@media (max-width: 768px) {
-  .page-wrapper {
-    padding: 15px;
-  }
-  .reset-btn {
-    margin-left: 0;
-  }
-}
+.page-btn:hover:not(:disabled) { color: #7F45FD; border-color: #7F45FD; background: white; }
+.page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+:global(.dark) .page-btn { background: #0a0a12; border-color: #1a1a2a; color: #fafafe; }
 </style>

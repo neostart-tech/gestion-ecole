@@ -52,6 +52,41 @@ export const useCandidatureStore = defineStore("candidature", {
 
     // ============ ROUTES PRINCIPALES ============
 
+    // GET  api/candidature/dossiers-incomplets
+    async fetchDossiersIncomplets() {
+      this.isLoading = true;
+      this.error = null;
+      try {
+        const response = await axios.get(
+          "/candidature/dossiers-incomplets",
+          this.authHeaders(),
+        );
+        return response.data.data || response.data;
+      } catch (error) {
+        console.error("Erreur chargement dossiers incomplets:", error);
+        this.error =
+          error.response?.data?.message ||
+          "Erreur lors du chargement des dossiers incomplets";
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    // DELETE  api/candidature/{id}/supprimer-brouillon
+    async supprimerBrouillon(id) {
+      try {
+        const response = await axios.delete(
+          `/candidature/${id}/supprimer-brouillon`,
+          this.authHeaders(),
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Erreur suppression brouillon:", error);
+        throw error;
+      }
+    },
+
     // GET|HEAD  api/candidature/liste
     async fetchCandidatures() {
       this.isLoading = true;
@@ -325,7 +360,11 @@ export const useCandidatureStore = defineStore("candidature", {
           this.authHeaders(),
         );
         this.groupeActuel = group;
-        this.candidaturesGroupe = response.data.candidatures || response.data.data || response.data;
+        let result = response.data.candidatures || response.data.data || response.data;
+        if (result && !Array.isArray(result) && Array.isArray(result.data)) {
+            result = result.data;
+        }
+        this.candidaturesGroupe = result;
         return this.candidaturesGroupe;
       } catch (error) {
         console.error("Erreur chargement attribution groupe:", error);

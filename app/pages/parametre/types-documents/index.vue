@@ -183,7 +183,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
 import { Dialog, DialogPanel, DialogTitle, TransitionRoot, TransitionChild } from "@headlessui/vue";
@@ -191,9 +191,11 @@ import Breadcrumb from "~/components/Breadcrumb.vue";
 import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
 import { useNuxtApp } from '#app';
+import { useAccess } from "~/composables/useAccess";
 
 const { $axios, $swal } = useNuxtApp();
 const toast = useToast();
+const { can } = useAccess();
 
 const documents = ref([]);
 const isLoading = ref(false);
@@ -204,13 +206,21 @@ const searchQuery = ref("");
 const form = ref({ id: null, nom_affichage: "", document_key: "", is_multiple: false, is_photo: false, accepted_formats: 'all' });
 let manuallyEditedKey = false;
 
-const columns = [
-  { field: "nom_affichage", title: "Document", sort: true },
-  { field: "accepted_formats", title: "Format", sort: true },
-  { field: "is_photo", title: "Photo Profil", sort: true },
-  { field: "is_multiple", title: "Type Fichier", sort: true },
-  { field: "action", title: "Actions", sort: false, headerClass: "text-center" },
-];
+// Une colonne dont toutes les actions sont masquées (permission manquante) ne
+// doit pas non plus afficher son en-tête — sinon la colonne reste vide et vide
+// de sens à l'écran.
+const columns = computed(() => {
+  const cols = [
+    { field: "nom_affichage", title: "Document", sort: true },
+    { field: "accepted_formats", title: "Format", sort: true },
+    { field: "is_photo", title: "Photo Profil", sort: true },
+    { field: "is_multiple", title: "Type Fichier", sort: true },
+  ];
+  if (can("update-type-document") || can("delete-type-document")) {
+    cols.push({ field: "action", title: "Actions", sort: false, headerClass: "text-center" });
+  }
+  return cols;
+});
 
 const authHeaders = () => {
   const token = localStorage.getItem("gest-ecole-token");

@@ -203,6 +203,11 @@
                  </div>
               </template>
 
+              <!-- Slot Numéro de dossier -->
+              <template #numero_dossier_affiche="data">
+                 <span class="text-xs font-mono text-gray-700 dark:text-gray-300">{{ data.value.numero_dossier_affiche || '—' }}</span>
+              </template>
+
               <!-- Slot Filière -->
                <template #filiere.nom="data">
                   <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-[9px] font-medium uppercase tracking-wider">
@@ -337,6 +342,7 @@ const rejectionTarget = ref({ isBulk: false, candidate: null })
 // Datatable Columns Configuration
 const cols = ref([
   { field: 'candidat', title: 'Candidat', isUnique: true, hide: false },
+  { field: 'numero_dossier_affiche', title: 'Numéro de dossier', hide: false },
   { field: 'filiere.nom', title: 'Filière', hide: false },
   { field: 'niveau.libelle', title: 'Niveau', hide: false },
   { field: 'admission_date', title: 'Admis le', hide: false },

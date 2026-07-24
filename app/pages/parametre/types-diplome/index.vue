@@ -238,18 +238,30 @@ import {
 } from "@headlessui/vue";
 import Breadcrumb from "~/components/Breadcrumb.vue";
 import { useTypeDiplomeStore } from "~~/stores/typeDiplome";
+import { useAccess } from "~/composables/useAccess";
 
 const { $toastr, $swal } = useNuxtApp();
 const typeDiplomeStore = useTypeDiplomeStore();
+const { can } = useAccess();
 
 const showModal = ref(false);
 
-const columns = [
-  { field: "nom", title: "Diplôme", sort: true },
-  { field: "champs", title: "Champs configurés", sort: false },
-  { field: "actif", title: "Actif", sort: true },
-  { field: "action", title: "Actions", sort: false, headerClass: "text-center" },
-];
+// Une colonne dont toutes les actions sont masquées (permission manquante) ne
+// doit pas non plus afficher son en-tête — sinon la colonne reste vide et vide
+// de sens à l'écran.
+const columns = computed(() => {
+  const cols = [
+    { field: "nom", title: "Diplôme", sort: true, minWidth: "200px" },
+    { field: "champs", title: "Champs configurés", sort: false, minWidth: "600px" },
+  ];
+  if (can("update-type-diplome")) {
+    cols.push({ field: "actif", title: "Actif", sort: true });
+  }
+  if (can("update-type-diplome") || can("delete-type-diplome")) {
+    cols.push({ field: "action", title: "Actions", sort: false, headerClass: "text-center" });
+  }
+  return cols;
+});
 
 const champsDisponiblesLabels = computed(() => typeDiplomeStore.champsDisponibles || {});
 

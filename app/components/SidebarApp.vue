@@ -2401,6 +2401,20 @@
                       </span>
                     </NuxtLink>
                   </li>
+                  <li>
+                    <NuxtLink
+                      to="/candidatures/dossiers-incomplets"
+                      class="block px-3 py-2 text-sm rounded-lg transition-colors"
+                      :class="[
+                        $route.path === '/candidatures/dossiers-incomplets'
+                          ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 font-medium'
+                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
+                      ]"
+                      @click="toggleMobileMenu"
+                    >
+                      Dossiers incomplets
+                    </NuxtLink>
+                  </li>
                   <li
                     v-if="
                       parametreStore.isConcoursMode &&
@@ -3572,6 +3586,34 @@
                 </div>
                 <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
                   >Parametre</span
+                >
+              </NuxtLink>
+            </li>
+            <li>
+              <NuxtLink
+                to="/parametre/mon-activite"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/parametre/mon-activite'
+                    ? 'bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 text-pink-700 dark:text-pink-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/parametre/mon-activite'
+                      ? 'bg-pink-100 dark:bg-pink-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                  >Mon activité</span
                 >
               </NuxtLink>
             </li>

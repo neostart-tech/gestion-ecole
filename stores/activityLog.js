@@ -31,6 +31,24 @@ export const useActivityLogStore = defineStore("activityLog", {
       }
     },
 
+    // Historique personnel (self-service) : ne renvoie que l'activité de
+    // l'utilisateur connecté, accessible sans la permission view-logs.
+    async fetchMine(filters = {}, page = 1) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get("/logs/mine", {
+          ...this.authHeaders(),
+          params: { ...filters, page },
+        });
+
+        this.logs = response.data.data;
+        this.meta = response.data.meta;
+        return response.data;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
     async fetchModules() {
       const response = await axios.get("/logs/modules", this.authHeaders());
       this.modules = response.data.data;

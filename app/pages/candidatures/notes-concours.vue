@@ -73,6 +73,7 @@
                 <td class="px-6 py-4">
                   <h4 class="text-sm font-medium text-gray-900 dark:text-white">{{ row.candidature.nom }} {{ row.candidature.prenom }}</h4>
                   <p class="text-xs text-gray-500 dark:text-gray-400">{{ row.candidature.matricule_concours || row.candidature.numero_dossier_affiche }}</p>
+                  <p class="text-[11px] text-gray-400 dark:text-gray-500 font-mono">Dossier : {{ row.candidature.numero_dossier_affiche || '—' }}</p>
                 </td>
                 <td v-for="matiereLabel in allMatieresLabels" :key="matiereLabel" class="px-4 py-4 text-center">
                   <input

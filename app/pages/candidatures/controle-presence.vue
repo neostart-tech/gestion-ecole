@@ -94,13 +94,14 @@
               <tr>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Candidat</th>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Identifiant</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Numéro de dossier</th>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Filière</th>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Absent ?</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
               <tr v-if="filteredCandidates.length === 0">
-                <td colspan="4" class="px-6 py-12 text-center">
+                <td colspan="5" class="px-6 py-12 text-center">
                   <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Aucun candidat trouvé</h3>
                   <p class="text-gray-500 dark:text-gray-400">
                     {{ searchQuery ? 'Aucun résultat pour votre recherche' : "Aucun candidat n'a encore payé les frais de participation pour cette session." }}
@@ -125,6 +126,7 @@
                     {{ candidate.matricule_concours || candidate.numero_dossier_affiche }}
                   </span>
                 </td>
+                <td class="px-6 py-4 text-sm font-mono text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ candidate.numero_dossier_affiche || '—' }}</td>
                 <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">{{ candidate.filiere?.nom || '—' }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <input type="checkbox" v-model="selectedAbsents" :value="candidate.slug" class="w-5 h-5 rounded border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-rose-600 focus:ring-rose-500" />

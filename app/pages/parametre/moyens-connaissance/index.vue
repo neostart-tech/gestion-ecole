@@ -189,17 +189,27 @@ import {
 } from "@headlessui/vue";
 import Breadcrumb from "~/components/Breadcrumb.vue";
 import { useMoyenConnaissanceStore } from "~~/stores/moyenConnaissance";
+import { useAccess } from "~/composables/useAccess";
 
 const { $toastr, $swal } = useNuxtApp();
 const store = useMoyenConnaissanceStore();
+const { can } = useAccess();
 
 const showModal = ref(false);
 
-const columns = [
-  { field: "libelle", title: "Libellé", sort: true },
-  { field: "actif", title: "Actif", sort: true },
-  { field: "action", title: "Actions", sort: false, headerClass: "text-center" },
-];
+// Une colonne dont toutes les actions sont masquées (permission manquante) ne
+// doit pas non plus afficher son en-tête — sinon la colonne reste vide et vide
+// de sens à l'écran.
+const columns = computed(() => {
+  const cols = [{ field: "libelle", title: "Libellé", sort: true }];
+  if (can("update-moyen-connaissance")) {
+    cols.push({ field: "actif", title: "Actif", sort: true });
+  }
+  if (can("update-moyen-connaissance") || can("delete-moyen-connaissance")) {
+    cols.push({ field: "action", title: "Actions", sort: false, headerClass: "text-center" });
+  }
+  return cols;
+});
 
 const form = ref({
   id: null,

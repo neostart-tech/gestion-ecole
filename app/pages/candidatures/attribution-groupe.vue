@@ -89,6 +89,12 @@
             </template>
           </Column>
 
+          <Column header="Numéro de dossier">
+            <template #body="{ data }">
+              {{ data.numero_dossier_affiche || '—' }}
+            </template>
+          </Column>
+
           <Column header="Niveau">
             <template #body="{ data }">
               {{ data.niveau?.libelle || '—' }}

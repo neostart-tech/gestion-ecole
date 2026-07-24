@@ -49,6 +49,7 @@
           <thead>
             <tr class="bg-gray-50 dark:bg-gray-900/50 text-left border-b border-gray-100 dark:border-gray-700">
               <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Candidat</th>
+              <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Numéro de dossier</th>
               <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Choix</th>
               <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Dossier</th>
               <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Moyenne concours</th>
@@ -69,6 +70,7 @@
                   </div>
                 </div>
               </td>
+              <td class="px-6 py-4 text-sm font-mono text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ c.numero_dossier_affiche || '—' }}</td>
               <td class="px-6 py-4">
                 <div class="text-sm text-gray-900 dark:text-gray-200">{{ c.filiere?.nom }}</div>
                 <div class="text-xs text-gray-500">{{ c.niveau?.nom }}</div>
@@ -86,7 +88,7 @@
               <td class="px-6 py-4">
                  <div class="flex items-center gap-2">
                     <label class="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" v-model="decisionMap[c.id]" class="sr-only peer" @change="debouncedSubmit">
+                      <input type="checkbox" v-model="decisionMap[c.id]" class="sr-only peer">
                       <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
                       <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">
                         {{ decisionMap[c.id] ? 'Admis' : 'Non Admis' }}
@@ -148,7 +150,7 @@ const isLoading = ref(true)
 const decisionMap = reactive({})
 
 const filteredCandidatures = computed(() => {
-  let list = candidatureStore.candidatures.filter(c => c.dossier_valide)
+  let list = candidatureStore.candidatures.filter(c => c.dossier_valide && c.admission !== true && c.admission !== 1)
   
   if (filterFiliere.value) {
     list = list.filter(c => c.filiere_id == filterFiliere.value)
@@ -183,8 +185,23 @@ const refreshData = async () => {
 const finalSubmit = async () => {
     isSubmitting.value = true
     try {
+        const admisIds = []
+        const recalesIds = []
+        
+        filteredCandidatures.value.forEach(c => {
+            if (decisionMap[c.id]) admisIds.push(c.slug)
+            else recalesIds.push(c.slug)
+        })
+
+        if (admisIds.length === 0 && recalesIds.length === 0) {
+            $toastr.warning('Aucun candidat à enregistrer.')
+            isSubmitting.value = false
+            return
+        }
+
         const payload = {
-            decisions: decisionMap
+            admis: admisIds.join(','),
+            recales: recalesIds.join(',')
         }
         await candidatureStore.soumettreAdmission(payload)
         $toastr.success('Les admissions ont été mises à jour avec succès.')

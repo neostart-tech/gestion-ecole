@@ -8,7 +8,7 @@
       <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48ZyBmaWxsPSIjN0Y0NUZEIiBmaWxsLW9wYWNpdHk9IjAuMDgiPjxwYXRoIGQ9Ik0zNiAzNHYtNGgxdjRoLTF6bTAgM3YtMWgxdjFoLTF6bTAgNHYtMWgxdjFoLTF6Ii8+PC9nPjwvZz48L3N2Zz4=')]"></div>
     </div>
 
-    <div class="relative z-10 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+    <div class="relative z-10 w-full p-4 sm:p-6 lg:p-8 space-y-8">
       
       <!-- Header Intégré & Professionnel -->
       <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -232,6 +232,13 @@
               </span>
           </template>
 
+          <!-- Slot Numéro de dossier (bordereau si actif, sinon code) -->
+          <template #numero_dossier_affiche="data">
+              <span class="text-xs font-mono font-semibold text-[#1a1a2a] dark:text-[#fafafe]">
+                {{ data.value.numero_dossier_affiche || '—' }}
+              </span>
+          </template>
+
           <!-- Slot Statut -->
           <template #statut="data">
               <span :class="getStatutBadgeClass(data.value)" class="px-3 py-1.5 rounded-xl border text-[9px] font-bold uppercase tracking-[0.1em]">
@@ -340,6 +347,7 @@ const isLoading = ref(true)
 // Config des colonnes pour Vue3Datatable
 const cols = ref([
   { field: 'candidat', title: 'Candidat', hide: false },
+  { field: 'numero_dossier_affiche', title: 'Numéro de dossier', hide: false },
   { field: 'filiere.nom', title: 'Filière', hide: false },
   { field: 'niveau.libelle', title: 'Niveau', hide: false },
   { field: 'statut', title: 'Statut Dossier', hide: false },

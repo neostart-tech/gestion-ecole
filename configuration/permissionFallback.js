@@ -116,6 +116,7 @@ export const routePermissionFallback = [
       "valider-candidature", "rejeter-candidature", "rectifier-candidature", "transmettre-candidature",
       "reorienter-candidature", "attribuer-groupe-candidature", "controler-presence-candidature",
       "controler-admission-candidature", "inscrire-etudiant-candidature", "payer-participation-candidature",
+      "delete-brouillon-candidature",
     ],
   },
   {

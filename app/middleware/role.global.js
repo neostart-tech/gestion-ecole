@@ -32,6 +32,17 @@ export default defineNuxtRouteMiddleware((to) => {
 		return;
 	}
 
+	// Pages self-service : accessibles à tout utilisateur authentifié quel que
+	// soit son rôle, puisqu'elles ne montrent que ses propres données (pas de
+	// permission dédiée à vérifier — contrairement à publicRoutes ci-dessus,
+	// l'authentification reste requise).
+	const selfServiceRoutes = [
+		"/parametre/mon-activite",
+	];
+	if (selfServiceRoutes.includes(to.path)) {
+		return;
+	}
+
 	const userData = JSON.parse(localStorage.getItem("user") || "{}");
 	const userRoles = userData?.roles || [];
 
