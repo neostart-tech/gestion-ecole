@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-50 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 transition-colors duration-500">
     
     <!-- Layout Container -->
-    <div class="max-w-6xl mx-auto">
+    <div class="w-full max-w-[1400px] mx-auto">
       
       <!-- Header / Navigation -->
       <div class="flex items-center justify-between mb-8">
@@ -136,6 +136,19 @@
                     class="w-full prime-select-enroll"
                   />
                 </div>
+
+                <!-- Année Scolaire -->
+                <div class="space-y-3 pt-6 border-t border-gray-100 dark:border-gray-800">
+                  <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Année d'Inscription</label>
+                  <Select 
+                    v-model="enrollForm.annee_scolaire_id" 
+                    :options="anneeScolaireStore.annneescolaires" 
+                    optionLabel="libelle" 
+                    optionValue="id" 
+                    placeholder="Sélectionner une année scolaire" 
+                    class="w-full prime-select-enroll"
+                  />
+                </div>
               </div>
             </div>
 
@@ -151,7 +164,13 @@
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Matricule -->
+                <div class="space-y-2">
+                  <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Matricule Attendu</label>
+                  <input type="text" v-model="enrollForm.matricule" class="w-full h-11 px-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-sm font-medium focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all outline-none font-mono" placeholder="Ex: 001-ESC-2026" />
+                </div>
+
                 <!-- Email Pro -->
                 <div class="space-y-2">
                   <div class="flex items-center justify-between">
@@ -299,8 +318,12 @@
                     <span class="text-xs text-indigo-100/70 font-medium">Promotion</span>
                     <span class="text-sm font-semibold">{{ currentPromotion }}</span>
                   </div>
+                  <div class="flex items-center justify-between" v-if="candidat?.frais_scolarite_attendu">
+                    <span class="text-xs text-indigo-100/70 font-medium">Scolarité Attendue</span>
+                    <span class="text-sm font-semibold">{{ candidat.frais_scolarite_attendu.toLocaleString() }} FCFA</span>
+                  </div>
                   <div class="flex items-center justify-between">
-                    <span class="text-xs text-indigo-100/70 font-medium">Scolarité Active</span>
+                    <span class="text-xs text-indigo-100/70 font-medium">Frais d'Inscription</span>
                     <span class="text-sm font-semibold">{{ activeFraisMontant.toLocaleString() }} FCFA</span>
                   </div>
                    <div class="flex items-center justify-between">
@@ -352,6 +375,7 @@ import { useAdvertiserStore } from '~~/stores/adverstiser'
 import { useBourseStore } from '~~/stores/bourse'
 import { useGroupeStore } from '~~/stores/group'
 import { useFraisInscriptionStore } from '~~/stores/frais-inscription'
+import { useAnneScolaireStore } from '~~/stores/annee-scolaire'
 import { getStorageBaseUrl } from '~/utils/storageUrl'
 import { Switch } from '@headlessui/vue'
 
@@ -362,6 +386,7 @@ const advertiserStore = useAdvertiserStore()
 const bourseStore = useBourseStore()
 const groupeStore = useGroupeStore()
 const fraisInscriptionStore = useFraisInscriptionStore()
+const anneeScolaireStore = useAnneScolaireStore()
 
 const { $toastr, $swal } = useNuxtApp()
 
@@ -373,10 +398,12 @@ const candidat = ref(null)
 const enrollForm = ref({
   group_id: '',
   advertiser_id: null,
+  annee_scolaire_id: null,
   bourse_id: null,
   frais_inscription_paye: true,
   mode_paiement: 'especes',
   frais_retrait: 0,
+  matricule: '',
   email_pro: '',
   password: ''
 })
@@ -414,6 +441,8 @@ const init = async () => {
         if (res) {
             candidat.value = res
             enrollForm.value.advertiser_id = res.advertiser_id || null
+            enrollForm.value.annee_scolaire_id = res.active_annee_scolaire?.id || null
+            enrollForm.value.matricule = res.next_matricule || ''
             enrollForm.value.email_pro = generateEmailPro(res)
             generatePassword()
             
@@ -499,6 +528,7 @@ onMounted(() => {
   advertiserStore.fetchAdvertisers()
   bourseStore.fetchBourses()
   fraisInscriptionStore.fetchFrais()
+  anneeScolaireStore.fetchAnneeScolaire()
 })
 </script>
 
