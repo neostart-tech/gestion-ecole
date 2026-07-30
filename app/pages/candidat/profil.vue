@@ -3,18 +3,18 @@
     <!-- En-tête Premium -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-gray-100 dark:border-[#1a1a2a]">
       <div class="flex items-center gap-5">
-        <div class="w-14 h-14 rounded-[10px] bg-[#01b4d5]/10 text-[#01b4d5] flex items-center justify-center ring-4 ring-[#01b4d5]/5">
+        <div class="w-14 h-14 rounded-[10px] bg-[#4f46e5]/10 text-[#4f46e5] flex items-center justify-center ring-4 ring-[#4f46e5]/5">
           <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
         </div>
         <div>
-          <h2 class="text-2xl sm:text-3xl font-extrabold text-[#1A2238] dark:text-white tracking-tight">Informations du Candidat</h2>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Informations du Candidat</h2>
           <p class="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">Consultez et gérez vos données personnelles de candidature.</p>
         </div>
       </div>
 
       <div class="flex items-center gap-3">
         <!-- Bouton d'enregistrement visible uniquement en mode rectification -->
-        <button v-if="isRectification" @click="saveProfile" :disabled="isSaving || isSubmitting" class="h-11 px-6 bg-[#01b4d5] hover:bg-[#009ab5] text-white font-bold rounded-[10px] shadow-[0_4px_14px_0_rgba(1,180,213,0.39)] hover:shadow-[0_6px_20px_rgba(1,180,213,0.23)] hover:-translate-y-0.5 transition-all flex items-center gap-2.5 disabled:opacity-70 disabled:pointer-events-none whitespace-nowrap">
+        <button v-if="isRectification" @click="saveProfile" :disabled="isSaving || isSubmitting" class="h-11 px-6 bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold rounded-[10px] shadow-[0_4px_14px_0_rgba(79,70,229,0.39)] hover:shadow-[0_6px_20px_rgba(79,70,229,0.23)] hover:-translate-y-0.5 transition-all flex items-center gap-2.5 disabled:opacity-70 disabled:pointer-events-none whitespace-nowrap">
           <svg v-if="isSaving" class="animate-spin h-5 w-5 text-white shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
           <svg v-else class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
           <span class="hidden sm:inline">{{ isSaving ? 'Enregistrement...' : 'Sauvegarder' }}</span>
@@ -32,15 +32,15 @@
     </div>
 
     <!-- Message de Rectification -->
-    <div v-if="isRectification" class="bg-white dark:bg-[#11111e] rounded-[10px] border border-[#01b4d5]/20 shadow-xl shadow-[#01b4d5]/10 relative overflow-hidden mb-10">
-      <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#01b4d5] to-[#009ab5]"></div>
+    <div v-if="isRectification" class="bg-white dark:bg-[#11111e] rounded-[10px] border border-[#4f46e5]/20 shadow-xl shadow-[#4f46e5]/10 relative overflow-hidden mb-10">
+      <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#4f46e5] to-[#4338ca]"></div>
 
       <div class="p-8 md:p-10">
         <div class="flex flex-col md:flex-row gap-8 items-start">
 
           <!-- Icon -->
-          <div class="w-16 h-16 rounded-[10px] bg-[#01b4d5]/10 flex items-center justify-center flex-shrink-0 border border-[#01b4d5]/20 shadow-inner">
-            <svg class="w-8 h-8 text-[#01b4d5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          <div class="w-16 h-16 rounded-[10px] bg-[#4f46e5]/10 flex items-center justify-center flex-shrink-0 border border-[#4f46e5]/20 shadow-inner">
+            <svg class="w-8 h-8 text-[#4f46e5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
           </div>
 
           <!-- Content -->
@@ -68,7 +68,7 @@
 
     <!-- Loading State -->
     <div v-if="isLoading" class="flex flex-col items-center justify-center py-32">
-       <svg class="animate-spin h-10 w-10 text-[#01b4d5] mb-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+       <svg class="animate-spin h-10 w-10 text-[#4f46e5] mb-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
        <p class="text-gray-500 dark:text-gray-400 font-medium">Récupération sécurisée de votre profil...</p>
     </div>
 
@@ -76,8 +76,8 @@
 
       <!-- Section 1: Identité du candidat -->
       <div class="bg-white dark:bg-[#11111e] rounded-[10px] p-6 sm:p-8 border border-gray-100 dark:border-[#1a1a2a] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-        <h3 class="flex items-center gap-3 text-sm font-extrabold text-[#1A2238] dark:text-white uppercase tracking-widest mb-6">
-          <span class="w-8 h-8 rounded-[10px] bg-[#01b4d5]/10 flex items-center justify-center text-[#01b4d5]">
+        <h3 class="flex items-center gap-3 text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-widest mb-6">
+          <span class="w-8 h-8 rounded-[10px] bg-[#4f46e5]/10 flex items-center justify-center text-[#4f46e5]">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
           </span>
           Identité du Candidat
@@ -99,8 +99,8 @@
             <label class="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Prénoms</label>
             <input type="text" v-model="formData.prenom" :readonly="!isRectification" :class="inputClass" />
           </div>
-          <div v-if="champsSimplesConfig.nom_jeune_fille?.afficher || formData.nom_jeune_fille">
-            <label class="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">{{ champsSimplesConfig.nom_jeune_fille?.label || 'Nom de jeune fille' }}</label>
+          <div v-if="(champsSimplesConfig.nom_jeune_fille && champsSimplesConfig.nom_jeune_fille.afficher) || formData.nom_jeune_fille">
+            <label class="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">{{ (champsSimplesConfig.nom_jeune_fille && champsSimplesConfig.nom_jeune_fille.label) || 'Nom de jeune fille' }}</label>
             <input type="text" v-model="formData.nom_jeune_fille" :readonly="!isRectification" :class="inputClass" />
           </div>
           <div>
@@ -111,8 +111,8 @@
             <label class="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Lieu de naissance</label>
             <input type="text" v-model="formData.lieu_naissance" :readonly="!isRectification" :class="inputClass" />
           </div>
-          <div v-if="champsSimplesConfig.numero_bordereau?.afficher || formData.numero_bordereau">
-            <label class="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">{{ champsSimplesConfig.numero_bordereau?.label || 'Numéro de bordereau' }}</label>
+          <div v-if="(champsSimplesConfig.numero_bordereau && champsSimplesConfig.numero_bordereau.afficher) || formData.numero_bordereau">
+            <label class="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">{{ (champsSimplesConfig.numero_bordereau && champsSimplesConfig.numero_bordereau.label) || 'Numéro de bordereau' }}</label>
             <input type="text" v-model="formData.numero_bordereau" :readonly="!isRectification" :class="inputClass" />
           </div>
           <div>
@@ -120,8 +120,8 @@
             <div class="relative" ref="dropdownRef" v-if="isRectification">
                 <button type="button" @click="isDropdownOpen = !isDropdownOpen" :class="[inputClass, 'flex items-center justify-between text-left cursor-pointer']">
                     <div v-if="formData.nationalite" class="flex items-center gap-3">
-                        <img :src="`https://flagcdn.com/w20/${nationalitesList.find(n => n.value === formData.nationalite)?.code || 'tg'}.png`" class="w-6 shadow-sm rounded-[10px]" />
-                        <span class="text-[#1A2238] dark:text-white font-medium">{{ formData.nationalite }}</span>
+                        <img :src="`https://flagcdn.com/w20/${(nationalitesList.find(n => n.value === formData.nationalite) || {}).code || 'tg'}.png`" class="w-6 shadow-sm rounded-[10px]" />
+                        <span class="text-gray-900 dark:text-white font-medium">{{ formData.nationalite }}</span>
                     </div>
                     <div v-else class="text-gray-400 font-medium">Sélectionner une nationalité</div>
                     <svg class="w-4 h-4 text-gray-400 transition-transform duration-300" :class="{ 'rotate-180': isDropdownOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -129,7 +129,7 @@
 
                 <div v-if="isDropdownOpen" class="absolute z-50 w-full mt-2 bg-white dark:bg-[#1a1a2a] border border-gray-100 dark:border-[#242438] rounded-[10px] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] max-h-64 overflow-hidden flex flex-col">
                     <div class="p-2 border-b border-gray-50 dark:border-[#242438] bg-gray-50/50 dark:bg-[#11111e]/50">
-                         <input type="text" v-model="searchNat" placeholder="Rechercher un pays..." class="w-full px-4 py-2.5 bg-white dark:bg-[#0a0a12] border border-gray-200 dark:border-[#242438] rounded-[10px] text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#01b4d5] focus:ring-1 focus:ring-[#01b4d5] transition-all shadow-sm">
+                         <input type="text" v-model="searchNat" placeholder="Rechercher un pays..." class="w-full px-4 py-2.5 bg-white dark:bg-[#0a0a12] border border-gray-200 dark:border-[#242438] rounded-[10px] text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#4f46e5] focus:ring-1 focus:ring-[#4f46e5] transition-all shadow-sm">
                     </div>
                     <div class="overflow-y-auto p-1">
                         <div v-if="filteredNationalites.length === 0" class="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -137,18 +137,18 @@
                         </div>
                         <button type="button" v-for="nat in filteredNationalites" :key="nat.value" @click="selectNat(nat.value)" class="w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-[#242438] rounded-[10px] flex items-center gap-3 transition-colors">
                             <img :src="`https://flagcdn.com/w20/${nat.code}.png`" class="w-5 shadow-sm rounded-[10px]" />
-                            <span class="text-sm font-medium" :class="formData.nationalite === nat.value ? 'text-[#01b4d5]' : 'text-gray-700 dark:text-gray-300'">{{ nat.label }}</span>
-                            <svg v-if="formData.nationalite === nat.value" class="w-4 h-4 text-[#01b4d5] ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <span class="text-sm font-medium" :class="formData.nationalite === nat.value ? 'text-[#4f46e5]' : 'text-gray-700 dark:text-gray-300'">{{ nat.label }}</span>
+                            <svg v-if="formData.nationalite === nat.value" class="w-4 h-4 text-[#4f46e5] ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                         </button>
                     </div>
                 </div>
             </div>
             <div v-else :class="[inputClass, 'flex items-center gap-3']">
-                <img v-if="formData.nationalite" :src="`https://flagcdn.com/w20/${nationalitesList.find(n => n.value === formData.nationalite)?.code || 'tg'}.png`" class="w-6 shadow-sm rounded-[10px]" />
-                <span class="text-[#1A2238] dark:text-white font-medium">{{ formData.nationalite || 'Non renseigné' }}</span>
+                <img v-if="formData.nationalite" :src="`https://flagcdn.com/w20/${(nationalitesList.find(n => n.value === formData.nationalite) || {}).code || 'tg'}.png`" class="w-6 shadow-sm rounded-[10px]" />
+                <span class="text-gray-900 dark:text-white font-medium">{{ formData.nationalite || 'Non renseigné' }}</span>
             </div>
           </div>
-          <div v-if="champsSimplesConfig.comment_connu_ecole?.afficher" class="sm:col-span-2">
+          <div v-if="champsSimplesConfig.comment_connu_ecole && champsSimplesConfig.comment_connu_ecole.afficher" class="sm:col-span-2">
             <label class="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Comment avez-vous connu {{ sigleEtablissement || "l'établissement" }} ?</label>
             <select v-if="isRectification" v-model="formData.moyen_connaissance_id" :class="inputClass">
               <option value="">Sélectionner</option>
@@ -166,14 +166,14 @@
                <input type="tel" ref="phoneInput" :class="inputClass" />
             </div>
           </div>
-          <div v-if="champsSimplesConfig.tel2?.afficher || formData.tel2">
-            <label class="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">{{ champsSimplesConfig.tel2?.label || 'Téléphone secondaire' }}</label>
+          <div v-if="(champsSimplesConfig.tel2 && champsSimplesConfig.tel2.afficher) || formData.tel2">
+            <label class="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">{{ (champsSimplesConfig.tel2 && champsSimplesConfig.tel2.label) || 'Téléphone secondaire' }}</label>
             <div class="w-full" :class="{ 'pointer-events-none opacity-80': !isRectification }">
                <input type="tel" ref="phone2Input" :class="inputClass" />
             </div>
           </div>
-          <div v-if="champsSimplesConfig.tel3?.afficher || formData.tel3">
-            <label class="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">{{ champsSimplesConfig.tel3?.label || 'Téléphone supplémentaire' }}</label>
+          <div v-if="(champsSimplesConfig.tel3 && champsSimplesConfig.tel3.afficher) || formData.tel3">
+            <label class="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">{{ (champsSimplesConfig.tel3 && champsSimplesConfig.tel3.label) || 'Téléphone supplémentaire' }}</label>
             <div class="w-full" :class="{ 'pointer-events-none opacity-80': !isRectification }">
                <input type="tel" ref="phone3Input" :class="inputClass" />
             </div>
@@ -187,7 +187,7 @@
 
       <!-- Section 1.5: Formation Souhaitée -->
       <div class="bg-white dark:bg-[#11111e] rounded-[10px] p-6 sm:p-8 border border-gray-100 dark:border-[#1a1a2a] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-        <h3 class="flex items-center gap-3 text-sm font-extrabold text-[#1A2238] dark:text-white uppercase tracking-widest mb-6">
+        <h3 class="flex items-center gap-3 text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-widest mb-6">
           <span class="w-8 h-8 rounded-[10px] bg-purple-50 flex items-center justify-center text-purple-500">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
           </span>
@@ -196,13 +196,13 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
           <div>
             <label class="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Niveau visé</label>
-            <select disabled class="w-full px-4 py-3 bg-gray-50/50 dark:bg-[#0a0a12]/50 border border-gray-100 dark:border-[#1a1a2a] rounded-[10px] font-semibold text-[#1A2238] dark:text-white focus:outline-none placeholder-gray-300 pointer-events-none opacity-90">
+            <select disabled class="w-full px-4 py-3 bg-gray-50/50 dark:bg-[#0a0a12]/50 border border-gray-100 dark:border-[#1a1a2a] rounded-[10px] font-semibold text-gray-900 dark:text-white focus:outline-none placeholder-gray-300 pointer-events-none opacity-90">
               <option>{{ formData.niveau_nom || 'Non renseigné' }}</option>
             </select>
           </div>
           <div>
             <label class="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Filière souhaitée</label>
-            <select disabled class="w-full px-4 py-3 bg-gray-50/50 dark:bg-[#0a0a12]/50 border border-gray-100 dark:border-[#1a1a2a] rounded-[10px] font-semibold text-[#1A2238] dark:text-white focus:outline-none placeholder-gray-300 pointer-events-none opacity-90">
+            <select disabled class="w-full px-4 py-3 bg-gray-50/50 dark:bg-[#0a0a12]/50 border border-gray-100 dark:border-[#1a1a2a] rounded-[10px] font-semibold text-gray-900 dark:text-white focus:outline-none placeholder-gray-300 pointer-events-none opacity-90">
               <option>{{ formData.filiere_nom || 'Non renseigné' }}</option>
             </select>
           </div>
@@ -211,7 +211,7 @@
 
       <!-- Section 2: Parcours Scolaire (Baccalauréat) -->
       <div class="bg-white dark:bg-[#11111e] rounded-[10px] p-6 sm:p-8 border border-gray-100 dark:border-[#1a1a2a] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-        <h3 class="flex items-center gap-3 text-sm font-extrabold text-[#1A2238] dark:text-white uppercase tracking-widest mb-6">
+        <h3 class="flex items-center gap-3 text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-widest mb-6">
           <span class="w-8 h-8 rounded-[10px] bg-indigo-50 flex items-center justify-center text-indigo-500">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
           </span>
@@ -258,7 +258,7 @@
       <!-- Section 3: Tuteurs (multi-tuteur) -->
       <div class="bg-white dark:bg-[#11111e] rounded-[10px] p-6 sm:p-8 border border-gray-100 dark:border-[#1a1a2a] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
         <div class="flex items-center justify-between mb-6">
-          <h3 class="flex items-center gap-3 text-sm font-extrabold text-[#1A2238] dark:text-white uppercase tracking-widest">
+          <h3 class="flex items-center gap-3 text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-widest">
             <span class="w-8 h-8 rounded-[10px] bg-emerald-50 flex items-center justify-center text-emerald-600">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
             </span>
@@ -301,7 +301,7 @@
               <div>
                 <label class="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Téléphone</label>
                 <div class="w-full" :class="{ 'pointer-events-none opacity-80': !isRectification }">
-                  <input type="tel" v-model="tuteur.tel" :readonly="!isRectification" :ref="(el) => initPhoneWidget(el, tuteur._uid, (num) => (tuteur.tel = num))" :class="inputClass" />
+                  <input type="tel" v-model="tuteur.tel" :readonly="!isRectification" :data-uid="tuteur._uid" ref="tuteurPhoneRefs" :class="inputClass" />
                 </div>
               </div>
               <div>
@@ -323,7 +323,7 @@
                     { 'pointer-events-none opacity-70': !isRectification },
                   ]"
                 >
-                  <input type="checkbox" v-model="tuteur.responsable_des_frais" :disabled="!isRectification" class="w-4 h-4 rounded accent-[#01b4d5] shrink-0" />
+                  <input type="checkbox" v-model="tuteur.responsable_des_frais" :disabled="!isRectification" class="w-4 h-4 rounded accent-[#4f46e5] shrink-0" />
                   <span class="text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-widest">Responsable des frais</span>
                 </label>
               </div>
@@ -370,6 +370,7 @@ const candidature = ref(null);
 const phoneInput = ref(null);
 const phone2Input = ref(null);
 const phone3Input = ref(null);
+const tuteurPhoneRefs = ref([]);
 
 let itiTel = null;
 let itiTel2 = null;
@@ -393,22 +394,22 @@ const champsParcoursConfig = computed(() => {
 
 const typeDiplomeNom = computed(() => {
   const type = typesDiplome.value.find((t) => t.id === Number(formData.value.type_diplome_id));
-  return type?.nom || formData.value.type_diplome || "";
+  return (type && type.nom) || formData.value.type_diplome || "";
 });
 
 const moyenConnaissanceNom = computed(() => {
   const moyen = moyensConnaissance.value.find((m) => m.id === Number(formData.value.moyen_connaissance_id));
-  return moyen?.libelle || "";
+  return (moyen && moyen.libelle) || "";
 });
 
 const fetchCandidatureConfig = async () => {
   try {
     const res = await axios.get("/public/candidature-config");
-    typesDiplome.value = res.data?.types_diplome || [];
-    moyensConnaissance.value = res.data?.moyens_connaissance || [];
-    sigleEtablissement.value = res.data?.sigle || "";
+    typesDiplome.value = (res.data && res.data.types_diplome) || [];
+    moyensConnaissance.value = (res.data && res.data.moyens_connaissance) || [];
+    sigleEtablissement.value = (res.data && res.data.sigle) || "";
     const map = {};
-    (res.data?.champs || []).forEach((c) => { map[c.champ_key] = { obligatoire: !!c.obligatoire, label: c.label }; });
+    ((res.data && res.data.champs) || []).forEach((c) => { map[c.champ_key] = { obligatoire: !!c.obligatoire, label: c.label }; });
     champsSimplesConfig.value = map;
   } catch (e) {
     console.error("Erreur chargement configuration candidature", e);
@@ -452,12 +453,16 @@ const getCountryCode = () => {
 
 const initIti = (inputRef) => {
     if (inputRef.value && $intlTelInput) {
-        return $intlTelInput(inputRef.value, {
-            initialCountryLookup: () => getCountryCode(),
-            separateDialCode: true,
-            useFullscreenPopup: false,
-            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.15.0/build/js/utils.js",
-        });
+        try {
+            return $intlTelInput(inputRef.value, {
+                initialCountryLookup: () => getCountryCode(),
+                separateDialCode: true,
+                useFullscreenPopup: false,
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.15.0/build/js/utils.js",
+            });
+        } catch (e) {
+            console.warn("intl-tel-input could not be initialized (HMR or DOM mismatch):", e);
+        }
     }
     return null;
 };
@@ -500,30 +505,51 @@ const applyFallbackPhone = () => {
        }
 };
 
-// Widget d'indicatif téléphonique pour une liste dynamique de tuteurs — pattern
-// identique à modifier-[slug].vue : ref-callback qui initialise au montage et
-// détruit au démontage (el vaut null quand Vue retire l'élément du DOM).
-const initPhoneWidget = (el, key, onNumberChange) => {
-  if (!el) {
-    if (phoneWidgets[key]) {
-      try { phoneWidgets[key].destroy(); } catch (e) { /* déjà détruit */ }
-      delete phoneWidgets[key];
+// Initialisation des widgets téléphoniques pour les tuteurs
+const initTuteurPhones = () => {
+  if (!tuteurPhoneRefs.value || !$intlTelInput) return;
+  
+  // Nettoyage des widgets orphelins
+  const currentUids = tuteurs.value.map(t => String(t._uid));
+  for (const uid in phoneWidgets) {
+    if (!currentUids.includes(uid)) {
+      try { phoneWidgets[uid].destroy(); } catch (e) {}
+      delete phoneWidgets[uid];
     }
-    return;
   }
-  if (phoneWidgets[key] || !$intlTelInput) return;
 
-  const iti = $intlTelInput(el, {
-    initialCountryLookup: () => getCountryCode(),
-    separateDialCode: true,
-    useFullscreenPopup: false,
-    utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.15.0/build/js/utils.js",
+  // Initialisation des nouveaux widgets
+  tuteurPhoneRefs.value.forEach((el) => {
+    if (!el) return;
+    const uid = el.getAttribute("data-uid");
+    if (!uid || phoneWidgets[uid]) return;
+
+    try {
+      const iti = $intlTelInput(el, {
+        initialCountryLookup: () => getCountryCode(),
+        separateDialCode: true,
+        useFullscreenPopup: false,
+        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.15.0/build/js/utils.js",
+      });
+      phoneWidgets[uid] = iti;
+
+      const sync = () => {
+        const tuteur = tuteurs.value.find(t => String(t._uid) === uid);
+        if (tuteur) {
+          tuteur.tel = safeGetNumber(iti) || el.value;
+        }
+      };
+      el.addEventListener("blur", sync);
+      el.addEventListener("countrychange", sync);
+      
+      const tuteur = tuteurs.value.find(t => String(t._uid) === uid);
+      if (tuteur && tuteur.tel) {
+        iti.setNumber(tuteur.tel);
+      }
+    } catch (e) {
+      console.warn("Erreur init intl-tel-input pour tuteur", e);
+    }
   });
-  phoneWidgets[key] = iti;
-
-  const sync = () => onNumberChange(safeGetNumber(iti) || el.value);
-  el.addEventListener("blur", sync);
-  el.addEventListener("countrychange", sync);
 };
 
 const creerTuteurVide = () => ({
@@ -533,9 +559,11 @@ const creerTuteurVide = () => ({
 
 const ajouterTuteur = () => {
   tuteurs.value.push(creerTuteurVide());
+  nextTick(() => initTuteurPhones());
 };
 const retirerTuteur = (index) => {
   tuteurs.value.splice(index, 1);
+  nextTick(() => initTuteurPhones());
 };
 
 const formData = ref({
@@ -552,8 +580,8 @@ const isRectification = computed(() => {
 
 const inputClass = computed(() => {
   return isRectification.value
-    ? "w-full px-4 py-3 bg-white dark:bg-[#1a1a2a] border border-gray-200 dark:border-[#242438] focus:border-[#01b4d5] focus:ring-4 focus:ring-[#01b4d5]/10 rounded-[10px] font-semibold text-[#1A2238] dark:text-white transition-all shadow-sm placeholder-gray-300 dark:placeholder-gray-500"
-    : "w-full px-4 py-3 bg-gray-50/50 dark:bg-[#0a0a12]/50 border border-gray-100 dark:border-[#1a1a2a] rounded-[10px] font-semibold text-[#1A2238] dark:text-white focus:outline-none placeholder-gray-300 dark:placeholder-gray-500";
+    ? "w-full px-4 py-3 bg-white dark:bg-[#1a1a2a] border border-gray-200 dark:border-[#242438] focus:border-[#4f46e5] focus:ring-4 focus:ring-[#4f46e5]/10 rounded-[10px] font-semibold text-gray-900 dark:text-white transition-all shadow-sm placeholder-gray-300 dark:placeholder-gray-500"
+    : "w-full px-4 py-3 bg-gray-50/50 dark:bg-[#0a0a12]/50 border border-gray-100 dark:border-[#1a1a2a] rounded-[10px] font-semibold text-gray-900 dark:text-white focus:outline-none placeholder-gray-300 dark:placeholder-gray-500";
 });
 
 const initFormData = (data) => {
@@ -571,15 +599,15 @@ const initFormData = (data) => {
     tel3: data.tel3 || "",
     email: data.email || "",
     numero_bordereau: data.numero_bordereau || "",
-    moyen_connaissance_id: data.moyen_connaissance_id || data.moyen_connaissance?.id || "",
-    niveau_nom: data.niveau?.libelle || "",
-    filiere_nom: data.filiere?.nom || "",
+    moyen_connaissance_id: data.moyen_connaissance_id || (data.moyen_connaissance && data.moyen_connaissance.id) || "",
+    niveau_nom: (data.niveau && data.niveau.libelle) || "",
+    filiere_nom: (data.filiere && data.filiere.nom) || "",
     numero_table: data.numero_table || "",
     serie: data.serie || "",
     mention_bac: data.mention_bac || "",
     annee_bac: data.annee_bac || "",
     type_diplome: data.dernier_diplome || "",
-    type_diplome_id: data.type_diplome_id || data.type_diplome?.id || "",
+    type_diplome_id: data.type_diplome_id || (data.type_diplome && data.type_diplome.id) || "",
     etablissement_diplome: data.etablissement_diplome || "",
   };
 
@@ -603,6 +631,10 @@ const initFormData = (data) => {
         responsable_des_frais: Boolean(t.responsable_des_frais),
       }))
     : [creerTuteurVide()];
+    
+  nextTick(() => {
+    initTuteurPhones();
+  });
 };
 
 const buildTuteursPayload = () => {
@@ -669,7 +701,7 @@ const submitRectifications = async () => {
     showCancelButton: true,
     confirmButtonText: "Oui, soumettre",
     cancelButtonText: "Annuler",
-    confirmButtonColor: "#01b4d5",
+    confirmButtonColor: "#4f46e5",
   });
 
   if (!res.isConfirmed) return;

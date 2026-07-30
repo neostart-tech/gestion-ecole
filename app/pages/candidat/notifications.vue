@@ -5,7 +5,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-            <div class="p-2 bg-gradient-to-br from-[#01b4d5] to-[#009ab5] rounded-xl shadow-lg">
+            <div class="p-2 bg-gradient-to-br from-[#4f46e5] to-[#4338ca] rounded-xl shadow-lg">
               <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
@@ -18,7 +18,7 @@
         </div>
 
         <!-- Actions groupées -->
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2 mt-2 sm:mt-0">
           <button
             @click="fetchNotifications"
             class="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-[#242438] text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-[#1a1a2a] hover:bg-gray-50 dark:hover:bg-[#242438] transition-colors"
@@ -33,7 +33,7 @@
           <button
             v-if="currentNotifications.length > 0 && unreadCount > 0"
             @click="confirmMarkAllAsRead"
-            class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-[#01b4d5] hover:bg-[#009ab5] transition-colors shadow-sm hover:shadow"
+            class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-[#4f46e5] hover:bg-[#4338ca] transition-colors shadow-sm hover:shadow"
           >
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -56,7 +56,7 @@
                 :class="[
                   'py-4 px-1 inline-flex items-center gap-2 border-b-2 font-medium text-sm whitespace-nowrap transition-colors',
                   currentTab === 'all'
-                    ? 'border-[#01b4d5] text-[#01b4d5]'
+                    ? 'border-[#4f46e5] text-[#4f46e5]'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                 ]"
               >
@@ -74,7 +74,7 @@
                 :class="[
                   'py-4 px-1 inline-flex items-center gap-2 border-b-2 font-medium text-sm whitespace-nowrap transition-colors',
                   currentTab === 'unread'
-                    ? 'border-[#01b4d5] text-[#01b4d5]'
+                    ? 'border-[#4f46e5] text-[#4f46e5]'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                 ]"
               >
@@ -95,7 +95,7 @@
                 :class="[
                   'py-4 px-1 inline-flex items-center gap-2 border-b-2 font-medium text-sm whitespace-nowrap transition-colors',
                   currentTab === 'read'
-                    ? 'border-[#01b4d5] text-[#01b4d5]'
+                    ? 'border-[#4f46e5] text-[#4f46e5]'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                 ]"
               >
@@ -113,13 +113,13 @@
 
         <!-- Barre d'actions contextuelles -->
         <div v-if="currentNotifications.length > 0" class="px-4 sm:px-6 py-3 bg-gray-50 dark:bg-[#0a0a12] border-b border-gray-200 dark:border-[#1a1a2a]">
-          <div class="flex items-center justify-between flex-wrap gap-2">
-            <div class="flex items-center gap-2">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   v-model="selectAll"
-                  class="w-4 h-4 text-[#01b4d5] border-gray-300 rounded focus:ring-[#01b4d5]"
+                  class="w-4 h-4 text-[#4f46e5] border-gray-300 rounded focus:ring-[#4f46e5]"
                 >
                 <span class="text-sm text-gray-700 dark:text-gray-300">Tout sélectionner</span>
               </label>
@@ -160,7 +160,7 @@
         <!-- Loading state -->
         <div v-if="isLoading" class="p-12 text-center">
           <div class="flex flex-col items-center justify-center">
-            <div class="w-16 h-16 border-4 border-[#01b4d5]/20 border-t-[#01b4d5] rounded-full animate-spin"></div>
+            <div class="w-16 h-16 border-4 border-[#4f46e5]/20 border-t-[#4f46e5] rounded-full animate-spin"></div>
             <p class="mt-4 text-gray-600 dark:text-gray-400">
               Chargement des notifications...
             </p>
@@ -186,7 +186,7 @@
               <button
                 v-if="currentTab !== 'all'"
                 @click="currentTab = 'all'"
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-[#01b4d5] hover:bg-[#009ab5] transition-colors"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-[#4f46e5] hover:bg-[#4338ca] transition-colors"
               >
                 Voir toutes les notifications
               </button>
@@ -200,17 +200,17 @@
               :key="notification.id"
               class="p-4 sm:p-6 hover:bg-gray-50 dark:hover:bg-[#0a0a12] transition-colors relative group"
               :class="{
-                'bg-gradient-to-r from-cyan-50/50 dark:from-cyan-900/10 to-transparent': !notification.lu && currentTab !== 'read'
+                'bg-gradient-to-r from-indigo-50/50 dark:from-indigo-900/10 to-transparent': !notification.lu && currentTab !== 'read'
               }"
             >
-              <div class="flex items-start gap-4">
+              <div class="flex items-start gap-3 sm:gap-4">
                 <!-- Checkbox de sélection -->
                 <div class="flex-shrink-0 pt-1">
                   <input
                     type="checkbox"
                     :value="notification.id"
                     v-model="selectedNotifications"
-                    class="w-4 h-4 text-[#01b4d5] border-gray-300 rounded focus:ring-[#01b4d5]"
+                    class="w-4 h-4 text-[#4f46e5] border-gray-300 rounded focus:ring-[#4f46e5]"
                     @click.stop
                   >
                 </div>
@@ -219,7 +219,7 @@
                 <div class="flex-shrink-0 pt-1.5">
                   <div
                     v-if="!notification.lu"
-                    class="w-2.5 h-2.5 bg-[#01b4d5] rounded-full shadow-lg shadow-cyan-200 animate-pulse-custom"
+                    class="w-2.5 h-2.5 bg-[#4f46e5] rounded-full shadow-lg shadow-indigo-200 animate-pulse-custom"
                   ></div>
                   <div v-else class="w-2.5 h-2.5"></div>
                 </div>
@@ -237,53 +237,72 @@
 
                 <!-- Contenu principal -->
                 <div class="flex-1 min-w-0">
-                  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
-                    <div>
-                      <h4 class="text-base font-semibold text-gray-900 dark:text-white">
-                        {{ notification.titre || notification.title || 'Notification' }}
-                      </h4>
-                      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                        {{ notification.contenu || notification.message }}
-                      </p>
-                    </div>
-                    <div class="flex flex-col items-end gap-2">
-                      <span class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                        {{ formatRelativeTime(notification.created_at) }}
-                      </span>
-                      <span
-                        :class="[
-                          'inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium',
-                          getLevelBadge(notification.type),
-                        ]"
-                      >
-                        {{ getLevelLabel(notification.type) }}
-                      </span>
-                    </div>
+                  <div class="flex justify-between items-start gap-3">
+                    <h4 class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white pr-2">
+                      {{ notification.titre || notification.title || 'Notification' }}
+                    </h4>
+                    <span
+                      :class="[
+                        'inline-flex items-center px-2 py-1 rounded-lg text-[10px] sm:text-xs font-medium whitespace-nowrap',
+                        getLevelBadge(notification.type),
+                      ]"
+                    >
+                      {{ getLevelLabel(notification.type) }}
+                    </span>
                   </div>
+                  <p class="mt-1 text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-2 sm:line-clamp-none">
+                    {{ notification.contenu || notification.message }}
+                  </p>
 
-                  <div class="mt-3 flex flex-wrap items-center gap-3 text-xs">
-                    <span class="text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      {{ formatTime(notification.created_at) }}
-                    </span>
+                  <div class="mt-2.5 flex items-center justify-between gap-2">
+                    <div class="flex flex-wrap items-center gap-3 text-[11px] sm:text-xs">
+                      <span class="text-gray-500 dark:text-gray-400 flex items-center gap-1 font-medium">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {{ formatRelativeTime(notification.created_at) }} • {{ formatTime(notification.created_at) }}
+                      </span>
 
-                    <span v-if="notification.lu" class="text-green-600 dark:text-green-400 flex items-center gap-1">
-                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                      </svg>
-                      Lu
-                    </span>
+                      <span v-if="notification.lu" class="text-green-600 dark:text-green-400 flex items-center gap-1 font-medium">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Lu
+                      </span>
+                    </div>
+
+                    <!-- Actions mobiles (visibles uniquement sur petits écrans) -->
+                    <div class="flex sm:hidden items-center gap-1">
+                      <button
+                        v-if="!notification.lu"
+                        @click.stop="handleMarkAsRead(notification.id)"
+                        class="p-1.5 rounded-lg text-gray-400 hover:text-[#4f46e5] hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all"
+                        title="Marquer comme lu"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </button>
+
+                      <button
+                        @click.stop="handleDeleteNotification(notification.id)"
+                        class="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                        title="Supprimer"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                <!-- Actions sur la notification -->
-                <div class="flex-shrink-0 flex items-start gap-1">
+                <!-- Actions sur la notification (Desktop) -->
+                <div class="hidden sm:flex flex-shrink-0 items-start gap-1">
                   <button
                     v-if="!notification.lu"
                     @click.stop="handleMarkAsRead(notification.id)"
-                    class="p-2 rounded-lg text-gray-400 hover:text-[#01b4d5] hover:bg-cyan-50 dark:hover:bg-cyan-900/20 transition-all"
+                    class="p-2 rounded-lg text-gray-400 hover:text-[#4f46e5] hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all"
                     title="Marquer comme lu"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -480,7 +499,7 @@ const bulkMarkAsRead = async () => {
     showCancelButton: true,
     confirmButtonText: 'Oui',
     cancelButtonText: 'Annuler',
-    confirmButtonColor: '#01b4d5',
+    confirmButtonColor: '#4f46e5',
   })
   if (!res.isConfirmed) return
   try {
@@ -526,7 +545,7 @@ const confirmMarkAllAsRead = async () => {
     showCancelButton: true,
     confirmButtonText: 'Oui',
     cancelButtonText: 'Annuler',
-    confirmButtonColor: '#01b4d5',
+    confirmButtonColor: '#4f46e5',
   })
   if (!res.isConfirmed) return
   try {
@@ -553,7 +572,7 @@ const getNotificationStyle = (type) => {
   }
   return {
     icon: '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
-    bgClass: 'bg-gradient-to-br from-[#01b4d5] to-[#009ab5]',
+    bgClass: 'bg-gradient-to-br from-[#4f46e5] to-[#4338ca]',
   }
 }
 
@@ -561,7 +580,7 @@ const getLevelBadge = (level) => {
   const t = level?.toLowerCase() || ''
   if (t === 'alerte' || t === 'warning') return 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-400 border border-orange-200 dark:border-orange-800'
   if (t === 'succes' || t === 'success') return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border border-green-200 dark:border-green-800'
-  return 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-800 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-800'
+  return 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800'
 }
 
 const getLevelLabel = (level) => {

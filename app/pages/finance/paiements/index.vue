@@ -19,7 +19,7 @@
 
       <div class="flex items-center gap-3 bg-white/60 dark:bg-gray-800/60 backdrop-blur-md p-2 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-gray-700/50">
         <button
-          @click="openAddModal"
+          @click="navigateTo('/admin/paiements')"
           class="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none transition-all transform hover:-translate-y-0.5 active:translate-y-0"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,9 +48,13 @@
     <!-- Main Table -->
     <div class="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl overflow-hidden shadow-xl relative z-10 transition-colors">
       <Vue3Datatable
+        :isServerMode="true"
         :columns="columns"
         :rows="paiements"
         :search="searchQuery"
+        :totalRows="totalRows"
+        :pageSize="params.pagesize"
+        @change="changeServer"
         skin="bh-table-striped"
         class="premium-table"
       >
@@ -168,22 +172,22 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, onMounted, reactive, watch } from "vue";
 import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
 import { Dialog, DialogPanel, DialogTitle, TransitionRoot } from "@headlessui/vue";
+import { useDashboardPaiementStore } from "../../../../stores/dashboard-paiement";
 
-// Simulation des étudiants
+const dashboardStore = useDashboardPaiementStore();
+
+const paiements = ref([]);
+const totalRows = ref(0);
+const isLoading = ref(false);
+const params = reactive({ current_page: 1, pagesize: 20 });
+
+// Simulation des étudiants pour le modal (à remplacer par une recherche API)
 const etudiants = ref([
-  { id: 1, nom: "Alice" },
-  { id: 2, nom: "Bob" },
-  { id: 3, nom: "Charlie" },
-]);
-
-// Paiements par défaut (simulation)
-const paiements = ref([
-  { id: 1, etudiant: "Alice", mode: "especes", banque: "--", numero_recu: "--", date_paiement: "2026-04-10" },
-  { id: 2, etudiant: "Bob", mode: "banque", banque: "UBA", numero_recu: "12345", date_paiement: "2026-02-19" },
+  { id: 1, nom: "Recherche d'étudiant à implémenter..." },
 ]);
 
 const searchQuery = ref("");
@@ -196,9 +200,42 @@ const columns = [
   { field: "mode", title: "Type" },
   { field: "banque", title: "Banque" },
   { field: "numero_recu", title: "Réf. Reçu" },
+  { field: "montant", title: "Montant" },
   { field: "date_paiement", title: "Date" },
   { field: "action", title: "Actions", width: "100px", sort: false, cellClass: "text-center" },
 ];
+
+const changeServer = (data) => {
+  params.current_page = data.current_page;
+  params.pagesize = data.pagesize;
+};
+
+const fetchPaiements = async () => {
+  isLoading.value = true;
+  try {
+    const res = await dashboardStore.loadHistoriquePaiements(null, null, params.current_page, params.pagesize);
+    if (res && res.items) {
+      paiements.value = res.items;
+      totalRows.value = res.total;
+    }
+  } catch (error) {
+    console.error("Erreur de chargement", error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+onMounted(() => {
+  fetchPaiements();
+});
+
+watch(() => params.current_page, () => {
+  fetchPaiements();
+});
+watch(() => params.pagesize, () => {
+  params.current_page = 1;
+  fetchPaiements();
+});
 
 const openAddModal = () => {
   modalTitle.value = "Nouveau paiement";
@@ -217,19 +254,13 @@ const closeModal = () => {
 };
 
 const savePayment = () => {
-  if(form.value.id) {
-    const index = paiements.value.findIndex(p => p.id === form.value.id);
-    if(index !== -1) paiements.value[index] = { ...form.value };
-  } else {
-    form.value.id = paiements.value.length + 1;
-    paiements.value.push({ ...form.value });
-  }
+  alert("La sauvegarde sera connectée à l'API via le store Paiement.");
   closeModal();
 };
 
 const deletePayment = (id) => {
   if(confirm("Voulez-vous supprimer ce paiement ?")) {
-    paiements.value = paiements.value.filter(p => p.id !== id);
+    alert("La suppression sera connectée à l'API.");
   }
 };
 </script>

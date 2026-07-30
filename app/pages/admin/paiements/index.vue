@@ -41,15 +41,40 @@
             <h1
               class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white"
             >
-              Paiement étudiant
+              Encaissement étudiant
             </h1>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              Gérez les paiements de vos étudiants
+              Gérez les encaissements de vos étudiants
             </p>
           </div>
         </div>
 
         <div class="flex items-center gap-2">
+          <!-- Selecteur d'année scolaire -->
+          <Dropdown
+            v-model="paiementStore.anneeScolaireId"
+            :options="anneesFormattees"
+            optionLabel="label"
+            optionValue="id"
+            placeholder="Année scolaire"
+            class="w-48 !bg-white dark:!bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm mr-2"
+            @change="handleAnneeChange"
+          >
+            <template #value="slotProps">
+              <div v-if="slotProps.value" class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>{{ anneesFormattees.find(a => a.id === slotProps.value)?.label || 'Sélectionner' }}</span>
+              </div>
+            </template>
+            <template #option="slotProps">
+              <div class="flex items-center gap-2 text-sm">
+                <span>{{ slotProps.option.label }}</span>
+              </div>
+            </template>
+          </Dropdown>
+
           <!-- Boutons PDF - affichés seulement si l'étudiant a des paiements -->
           <template
             v-if="
@@ -355,6 +380,28 @@
                       }}
                     </p>
                   </div>
+                  <!-- Mode de formation -->
+                  <div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                      Mode de formation
+                    </p>
+                    <p
+                      class="font-medium text-gray-900 dark:text-white flex items-center gap-1"
+                    >
+                      <svg
+                        class="w-4 h-4 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                      </svg>
+                      {{
+                        paiementStore.infosEtudiant.etudiant.mode_formation || "Non défini"
+                      }}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -413,8 +460,59 @@
           </div>
         </div>
 
+        <!-- Message bloquant si aucun échéancier -->
+        <div v-if="paiementStore.montantTotal === 0" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center">
+          <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/50 mb-4">
+            <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Aucun frais enregistré</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-6">Cet étudiant n'a aucun échéancier ou frais de scolarité paramétré pour le moment. Vous ne pouvez pas enregistrer de paiement.</p>
+          <NuxtLink to="/admin/negociations/creer-une-negociation" class="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Générer l'échéancier maintenant
+          </NuxtLink>
+        </div>
+
+        <!-- Message d'Anomalie Financière (Bloquant) -->
+        <div v-else-if="paiementStore.infosEtudiant.anomalie && paiementStore.infosEtudiant.anomalie.has_anomalie" class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-6 shadow-sm">
+          <div class="flex items-start">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/50 flex-shrink-0">
+              <i class="pi pi-exclamation-triangle text-red-600 dark:text-red-400 text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <h3 class="text-lg font-bold text-red-800 dark:text-red-200">
+                Paiement bloqué : Incohérence financière détectée !
+              </h3>
+              <div class="mt-2 text-sm text-red-700 dark:text-red-300 max-w-2xl">
+                <p>
+                  Une différence a été trouvée entre la scolarité académique attendue et le contrat financier actuel de l'étudiant.
+                </p>
+                <ul class="list-disc pl-5 mt-2 font-medium space-y-1">
+                  <li>Montant du contrat actuel : {{ formatMontant(paiementStore.infosEtudiant.anomalie.dash) }}</li>
+                  <li>Tarif académique théorique : {{ formatMontant(paiementStore.infosEtudiant.anomalie.sit) }}</li>
+                  <li>Écart à régulariser : {{ formatMontant(paiementStore.infosEtudiant.anomalie.diff) }}</li>
+                </ul>
+                <p class="mt-3">
+                  Tant que cette situation n'est pas corrigée, aucun encaissement ne peut être enregistré.
+                </p>
+              </div>
+              <div class="mt-4">
+                <NuxtLink :to="`/finance/recouvrement/${paiementStore.infosEtudiant.etudiant.slug}`" class="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm">
+                  <i class="pi pi-wrench"></i>
+                  Régulariser ce dossier
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Formulaire de paiement -->
         <div
+          v-else
           class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden"
         >
           <div class="p-6">
@@ -439,7 +537,8 @@
 
             <form @submit.prevent="handlePaiement" class="space-y-4">
               <!-- Sélection élément -->
-              <div v-if="elementsPayables.length > 1">
+              <!-- Sélection élément (Scolarité uniquement) -->
+              <div v-if="paiementForm.nature_paiement !== 'inscription' && elementsPayables.length > 1">
                 <label
                   class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                 >
@@ -466,6 +565,7 @@
                     v-model="paiementForm.montant"
                     :min="1"
                     :max="maxMontant"
+                    :disabled="paiementForm.nature_paiement === 'inscription'"
                     placeholder="0"
                     class="w-full"
                     :useGrouping="true"
@@ -476,7 +576,7 @@
                     locale="fr-FR"
                   />
                   <div class="mt-2 text-sm text-gray-500">
-                    Reste: {{ formatMontant(paiementStore.resteAPayer) }}
+                    Reste: {{ formatMontant(maxMontant) }}
                   </div>
                 </div>
                 <!-- Dans le formulaire de paiement, après le champ montant -->
@@ -546,12 +646,10 @@
                   </label>
                   <SelectButton
                     v-model="paiementForm.nature_paiement"
-                    :options="[
-                      { label: 'Scolarité', value: 'scolarite' },
-                      { label: 'Inscription', value: 'inscription' }
-                    ]"
+                    :options="naturesPaiementOptions"
                     optionLabel="label"
                     optionValue="value"
+                    optionDisabled="disabled"
                     class="w-full text-xs premium-select-button"
                   />
                 </div>
@@ -646,6 +744,7 @@
 
         <!-- Éléments à payer -->
         <div
+          v-if="paiementStore.montantTotal > 0"
           class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden"
         >
           <div class="p-6">
@@ -843,7 +942,7 @@
         </div>
 
         <!-- Historique et Récapitulatif -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div v-if="paiementStore.montantTotal > 0" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Historique -->
           <div
             class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden"
@@ -886,7 +985,7 @@
 
               <div v-else class="space-y-3">
                 <div
-                  v-for="item in paiementStore.historiquePaiements.slice(0, 3)"
+                  v-for="item in paiementStore.historiquePaiements"
                   :key="item.id"
                   class="border-b border-gray-100 dark:border-gray-700 last:border-0 pb-3 last:pb-0"
                 >
@@ -927,6 +1026,15 @@
                       
                       <!-- Actions -->
                       <div class="mt-2 flex justify-end gap-2">
+                        <button
+                          @click="openSingleRecu(item)"
+                          class="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-md transition-colors"
+                          title="Télécharger le reçu"
+                        >
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </button>
                         <Can action="update-paiement">
                           <button
                             @click="openEditModal(item)"
@@ -1584,6 +1692,16 @@
       </Dialog>
     </TransitionRoot>
 
+    <!-- Composant générique pour le reçu individuel -->
+    <FinanceRecuPaiement 
+      v-if="singleRecuPaiement && singleRecuEtudiant"
+      :is-open="showSingleRecuModal"
+      :etudiant="singleRecuEtudiant"
+      :operation="singleRecuPaiement"
+      :app-name="appName"
+      @close="showSingleRecuModal = false"
+    />
+
     <!-- Toast -->
     <Toast position="top-right" />
   </div>
@@ -1611,6 +1729,7 @@ import {
 import { usePaiementGlobalStore } from "~~/stores/paiement";
 import { useEtudiantStore } from "~~/stores/etudiant";
 import { useParametreStore } from "~~/stores/parametre";
+import { useAnneScolaireStore } from "~~/stores/annee-scolaire";
 
 let html2pdf = null;
 if (process.client) {
@@ -1620,6 +1739,7 @@ if (process.client) {
 }
 
 const toast = useToast();
+const anneesStore = useAnneScolaireStore();
 const paiementStore = usePaiementGlobalStore();
 const etudiantStore = useEtudiantStore();
 const parametreStore = useParametreStore();
@@ -1681,6 +1801,11 @@ const previewUrl = ref("");
 const isImagePreview = ref(false);
 const isPDFPreview = ref(false);
 
+// État pour le reçu individuel
+const showSingleRecuModal = ref(false);
+const singleRecuPaiement = ref(null);
+const singleRecuEtudiant = ref(null);
+
 // App name
 const appName = computed(() => parametreStore.getAppName || "Établissement");
 
@@ -1716,6 +1841,14 @@ const quickStats = computed(() => {
       valueClass: "text-gray-900 dark:text-white",
     },
   ];
+});
+
+// Formater les années scolaires pour le dropdown
+const anneesFormattees = computed(() => {
+  return (anneesStore.annneescolaires || []).map(a => ({
+    id: a.id,
+    label: a.nom || `${a.annee_debut} - ${a.annee_fin}`
+  }));
 });
 
 // Formater les étudiants pour le dropdown
@@ -1788,15 +1921,28 @@ const elementsPayables = computed(() => {
   return elements.filter((e) => (e.reste || e.reste_a_payer) > 0);
 });
 
-const maxMontant = computed(() => {
-  if (paiementForm.value.payable_id) {
-    return montantRestantElement.value || paiementStore.resteAPayer;
+const isInscriptionPayee = computed(() => {
+  return !!paiementStore.recap?.inscription_payee;
+});
+
+const naturesPaiementOptions = computed(() => [
+  { label: 'Scolarité', value: 'scolarite', disabled: false },
+  { 
+    label: isInscriptionPayee.value ? 'Inscription (Soldée)' : 'Inscription', 
+    value: 'inscription', 
+    disabled: isInscriptionPayee.value 
   }
-  return paiementStore.resteAPayer;
+]);
+
+const maxMontant = computed(() => {
+  if (paiementForm.value.nature_paiement === 'inscription') {
+    return paiementStore.recap?.montant_inscription || 0;
+  }
+  return paiementStore.resteAPayer || null;
 });
 
 const montantRestantElement = computed(() => {
-  if (!paiementForm.value.payable_id || !paiementStore.infosEtudiant)
+  if (!paiementForm.value.payable_id || !paiementStore.infosEtudiant || paiementForm.value.nature_paiement === 'inscription')
     return null;
   const element = paiementStore.elementsAPayer.find(
     (e) => e.id === paiementForm.value.payable_id,
@@ -1804,31 +1950,27 @@ const montantRestantElement = computed(() => {
   return element ? element.reste || element.reste_a_payer : null;
 });
 
-// Surveiller le changement de nature pour adapter l'élément sélectionné
-watch(() => paiementForm.value.nature_paiement, (newNature) => {
-  if (!paiementStore.infosEtudiant) return;
-  
-  const elements = paiementStore.elementsAPayer;
-  if (newNature === 'inscription') {
-    // Chercher une tranche/échéance qui parle d'inscription
-    const found = elements.find(e => 
-      (e.reste || e.reste_a_payer) > 0 && 
-      (e.libelle.toLowerCase().includes('inscr') || e.libelle.toLowerCase().includes('admis'))
-    );
-    if (found) {
-      paiementForm.value.payable_id = found.id;
-      paiementForm.value.payable_type = found.payable_type || (paiementStore.hasFraisNegocie ? 'echeance' : 'tranche');
-      paiementForm.value.montant = found.reste || found.reste_a_payer;
-    }
-  } else if (newNature === 'scolarite') {
-    // Si on repasse en scolarité et qu'on était sur une inscription, on reset
-    const current = elements.find(e => e.id === paiementForm.value.payable_id);
-    if (current && (current.libelle.toLowerCase().includes('inscr') || current.libelle.toLowerCase().includes('admis'))) {
-       paiementForm.value.payable_id = null;
-       paiementForm.value.montant = null;
-    }
+// Surveiller si l'inscription est réglée pour basculer automatiquement sur la scolarité
+watch(isInscriptionPayee, (isPayee) => {
+  if (isPayee && paiementForm.value.nature_paiement === 'inscription') {
+    paiementForm.value.nature_paiement = 'scolarite';
   }
-});
+}, { immediate: true });
+
+// Surveiller le récapitulatif et la nature pour préremplir et verrouiller le montant d'inscription
+watch(
+  [() => paiementForm.value.nature_paiement, () => paiementStore.recap],
+  ([newNature, recap]) => {
+    if (newNature === 'inscription') {
+      paiementForm.value.payable_id = null;
+      paiementForm.value.payable_type = null;
+      if (recap?.montant_inscription) {
+        paiementForm.value.montant = recap.montant_inscription;
+      }
+    }
+  },
+  { immediate: true, deep: true }
+);
 
 // Surveiller le changement d'élément pour adapter la nature automatiquement
 watch(() => paiementForm.value.payable_id, (newId) => {
@@ -1871,7 +2013,24 @@ onMounted(async () => {
       isLoading.value = false;
     }
   }
+
+  try {
+    await anneesStore.fetchAnneeScolaire();
+    const activeAnnee = anneesStore.activeAnnee;
+    if (activeAnnee && !paiementStore.anneeScolaireId) {
+      paiementStore.setAnneeScolaire(activeAnnee.id);
+    }
+  } catch (error) {
+    console.error("Erreur lors du chargement des années scolaires:", error);
+  }
 });
+
+const handleAnneeChange = () => {
+  if (selectedEtudiant.value) {
+    // Recharger les données de l'étudiant pour la nouvelle année sélectionnée
+    handleEtudiantChange(selectedEtudiant.value);
+  }
+};
 
 const handleEtudiantChange = async () => {
   if (!selectedEtudiant.value) {
@@ -2098,134 +2257,24 @@ const handlePaiement = async () => {
   isSubmitting.value = true;
 
   try {
-    // Vérifier si le paiement concerne une échéance spécifique
-    if (paiementForm.value.payable_id) {
-      // Récupérer l'échéance concernée
-      const echeance = paiementStore.elementsAPayer.find(
-        (e) => e.id === paiementForm.value.payable_id,
-      );
+    const result = await paiementStore.effectuerPaiement({
+      etudiant_id: selectedEtudiant.value.id,
+      montant: montantSaisi,
+      mode_paiement: paiementForm.value.mode_paiement,
+      nature_paiement: paiementForm.value.nature_paiement || 'scolarite',
+      reference: paiementForm.value.reference || null,
+      commentaire: paiementForm.value.commentaire || null,
+      frais_retrait: paiementForm.value.frais_retrait || 0,
+      payable_id: paiementForm.value.payable_id || null,
+      payable_type: paiementForm.value.payable_type || null,
+    });
 
-      if (!echeance) {
-        throw new Error("Échéance non trouvée");
-      }
-
-      const resteEcheance = echeance.reste || echeance.reste_a_payer || 0;
-
-      // Cas 1: Le montant payé est inférieur ou égal au reste de l'échéance
-      if (montantSaisi <= resteEcheance) {
-        // Paiement simple sur une seule échéance
-        const result = await paiementStore.effectuerPaiement({
-          etudiant_id: selectedEtudiant.value.id,
-          montant: montantSaisi,
-          mode_paiement: paiementForm.value.mode_paiement,
-          nature_paiement: paiementForm.value.nature_paiement,
-          reference: paiementForm.value.reference || null,
-          commentaire: paiementForm.value.commentaire || null,
-          frais_retrait: paiementForm.value.frais_retrait || 0,
-          payable_id: paiementForm.value.payable_id,
-          payable_type: paiementForm.value.payable_type,
-        });
-
-        toast.add({
-          severity: "success",
-          summary: "Succès",
-          detail: `Paiement de ${formatMontant(montantSaisi)} effectué sur "${echeance.libelle}"`,
-          life: 5000,
-        });
-      }
-      // Cas 2: Le montant payé dépasse le reste de l'échéance
-      else {
-        // Répartition automatique sur plusieurs échéances
-        const resultat = await repartirPaiementSurEcheances(
-          montantSaisi,
-          echeance.id,
-        );
-
-        if (resultat.montantRestant === 0) {
-          toast.add({
-            severity: "success",
-            summary: "Paiement réparti avec succès",
-            detail: `${formatMontant(montantSaisi)} réparti sur ${resultat.echeances.length} échéance(s)`,
-            life: 5000,
-          });
-        } else {
-          toast.add({
-            severity: "warning",
-            summary: "Paiement partiel",
-            detail: `${formatMontant(montantSaisi - resultat.montantRestant)} payé sur ${resultat.echeances.length} échéance(s). Reste: ${formatMontant(resultat.montantRestant)}`,
-            life: 5000,
-          });
-        }
-      }
-    }
-    // Paiement sans échéance spécifique (paiement global)
-    else {
-      // Trier les échéances par ordre
-      const echeancesNonSoldees = paiementStore.elementsAPayer
-        .filter((e) => (e.reste || e.reste_a_payer) > 0)
-        .sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
-
-      if (echeancesNonSoldees.length === 0) {
-        throw new Error("Aucune échéance à payer");
-      }
-
-      let montantRestant = montantSaisi;
-      const paiementsEffectues = [];
-      const echeancesConcernees = [];
-
-      // Parcourir toutes les échéances dans l'ordre
-      for (const echeance of echeancesNonSoldees) {
-        if (montantRestant <= 0) break;
-
-        const resteEcheance = echeance.reste || echeance.reste_a_payer || 0;
-        if (resteEcheance <= 0) continue;
-
-        const montantAEcheance = Math.min(montantRestant, resteEcheance);
-
-        const result = await paiementStore.effectuerPaiement({
-          etudiant_id: selectedEtudiant.value.id,
-          montant: montantAEcheance,
-          mode_paiement: paiementForm.value.mode_paiement,
-          reference: paiementForm.value.reference || null,
-          commentaire: paiementForm.value.commentaire || null,
-          payable_id: echeance.id,
-          payable_type: paiementStore.hasFraisNegocie ? "echeance" : "tranche",
-        });
-
-        paiementsEffectues.push({
-          echeance: echeance.libelle,
-          montant: montantAEcheance,
-        });
-
-        echeancesConcernees.push(echeance.libelle);
-        montantRestant -= montantAEcheance;
-
-        if (montantRestant > 0) {
-          toast.add({
-            severity: "info",
-            summary: "Répartition automatique",
-            detail: `${formatMontant(montantAEcheance)} payé sur "${echeance.libelle}". Passage à l'échéance suivante...`,
-            life: 3000,
-          });
-        }
-      }
-
-      if (montantRestant === 0) {
-        toast.add({
-          severity: "success",
-          summary: "Paiement réparti avec succès",
-          detail: `${formatMontant(montantSaisi)} réparti sur ${echeancesConcernees.length} échéance(s)`,
-          life: 5000,
-        });
-      } else {
-        toast.add({
-          severity: "warning",
-          summary: "Paiement partiel",
-          detail: `${formatMontant(montantSaisi - montantRestant)} payé sur ${echeancesConcernees.length} échéance(s). Reste: ${formatMontant(montantRestant)}`,
-          life: 5000,
-        });
-      }
-    }
+    toast.add({
+      severity: "success",
+      summary: "Succès",
+      detail: `Paiement de ${formatMontant(montantSaisi)} enregistré avec succès`,
+      life: 5000,
+    });
 
     // Recharger les données
     await paiementStore.getInfosEtudiant(selectedEtudiant.value.id);
@@ -2405,7 +2454,26 @@ const previewPDF = async () => {
   showPDFModal.value = true;
 };
 
-// Téléchargement du PDF
+// Ouvrir le reçu individuel avec le composant générique
+const openSingleRecu = (paiement) => {
+  singleRecuPaiement.value = {
+    ...paiement,
+    date: paiement.created_at || paiement.date_formatted,
+    description: paiement.nature_paiement === 'inscription' ? "Frais d'inscription" : `Frais de scolarité - ${paiement.libelle}`,
+    reference: paiement.reference
+  };
+  
+  singleRecuEtudiant.value = {
+    nom_complet: selectedEtudiant.value.nom_complet,
+    matricule: selectedEtudiant.value.matricule,
+    filiere: selectedEtudiant.value.filiere || 'N/A',
+    reste: paiementStore.resteAPayer || 0
+  };
+  
+  showSingleRecuModal.value = true;
+};
+
+// Téléchargement du PDF global
 const downloadPDF = async () => {
   if (!html2pdf || !recuContent.value) {
     toast.add({

@@ -29,7 +29,7 @@ export const useAnneScolaireStore = defineStore("annee-scolaire", {
           this.authHeaders(),
         );
 
-        this.annneescolaires = response.data.data;
+        this.annneescolaires = response.data.data || response.data || [];
       } catch (error) {
         console.error("Erreur chargement des années scolaires:", error);
         throw error;

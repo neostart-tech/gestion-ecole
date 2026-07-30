@@ -338,7 +338,7 @@
               <!-- Footer Note -->
               <div class="mt-8 pt-6 border-t border-white/10">
                 <p class="text-white/60 text-sm text-center">
-                  © 2024 ESCEN University • Tous droits réservés
+                  © {{ new Date().getFullYear() }} {{ appName || 'Edu-Manager' }} • Tous droits réservés
                 </p>
               </div>
             </div>

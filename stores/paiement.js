@@ -5,6 +5,10 @@ import axios from "axios";
 
 export const usePaiementGlobalStore = defineStore("paiementGlobal", {
   state: () => ({
+    setAnneeScolaire(anneeId) {
+      this.anneeScolaireId = anneeId;
+    },
+
     // Recherche d'étudiants
     etudiantsRecherche: [],
     
@@ -20,19 +24,22 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
     
     // Métadonnées
     lastUpdated: null,
+    anneeScolaireId: null,
   }),
 
   getters: {
     // Headers d'authentification
-    authHeaders: () => {
+    authHeaders: (state) => {
       const token = localStorage.getItem("gest-ecole-token");
-      return {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
       };
+      if (state.anneeScolaireId) {
+        headers["X-Annee-Scolaire-Id"] = state.anneeScolaireId;
+      }
+      return { headers };
     },
 
     // Vérifier si l'étudiant a un frais négocié
@@ -173,7 +180,8 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
       
       try {
         const url = etudiantId ? `/paiements/infos/${etudiantId}` : `/paiements/infos`;
-        const response = await axios.get(url, this.authHeaders);
+        const params = this.anneeScolaireId ? { annee_id: this.anneeScolaireId } : {};
+        const response = await axios.get(url, { ...this.authHeaders, params });
         
         if (response.data.success) {
           this.infosEtudiant = response.data.data;
@@ -216,7 +224,8 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
       
       try {
         const url = etudiantId ? `/paiements/recap/${etudiantId}` : `/paiements/recap`;
-        const response = await axios.get(url, this.authHeaders);
+        const params = this.anneeScolaireId ? { annee_id: this.anneeScolaireId } : {};
+        const response = await axios.get(url, { ...this.authHeaders, params });
         
         if (response.data.success) {
           this.recap = response.data.data;
@@ -254,7 +263,8 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
       
       try {
         const url = etudiantId ? `/paiements/historique/${etudiantId}` : `/paiements/historique`;
-        const response = await axios.get(url, this.authHeaders);
+        const params = this.anneeScolaireId ? { annee_id: this.anneeScolaireId } : {};
+        const response = await axios.get(url, { ...this.authHeaders, params });
         
         if (response.data.success) {
           this.historiquePaiements = response.data.data || [];

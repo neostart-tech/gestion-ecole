@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-gray-900 p-4 md:p-8 font-sans">
-    <div class="max-w-3xl mx-auto space-y-5">
+  <div class="min-h-screen bg-slate-50 dark:bg-gray-900 p-4 md:px-6 md:py-6 font-sans">
+    <div class="w-full max-w-full mx-auto space-y-5">
 
       <!-- Retour -->
       <button @click="navigateTo('/finance/recouvrement?tab=students')" class="flex items-center gap-2 text-sm text-slate-400 hover:text-slate-700 dark:hover:text-gray-200 transition-colors mb-2">
@@ -43,19 +43,8 @@
 
       <!-- Main Content -->
       <template v-else>
-        <!-- Alerte Abandon -->
-        <div v-if="etudiant?.statut === 'abandon'" class="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-center gap-3 text-red-700 shadow-sm animate-pulse">
-          <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-          </svg>
-          <div>
-            <p class="font-black text-sm uppercase tracking-tight">Dossier en arrêt (Abandon)</p>
-            <p class="text-xs opacity-80">Cet étudiant a été déclaré en situation d'abandon. Les opérations de recouvrement sont suspendues.</p>
-          </div>
-        </div>
-
         <!-- Profil -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 p-5 flex items-start justify-between gap-4 flex-wrap" :class="{'opacity-75 grayscale-[0.5]': etudiant?.statut === 'abandon'}">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 p-5 flex items-start justify-between gap-4 flex-wrap mb-5" :class="{'opacity-75 grayscale-[0.5]': etudiant?.statut === 'abandon'}">
         <div class="flex items-center gap-4">
           <div class="w-14 h-14 rounded-full bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-xl uppercase">
             {{ initiales }}
@@ -83,12 +72,97 @@
         </div>
       </div>
 
+        <!-- Alerte Anomalie Financière (Design Premium) -->
+        <div v-if="etudiant?.anomalie?.has_anomalie" class="relative overflow-hidden rounded-3xl p-1 mb-6 shadow-2xl group animate-in fade-in slide-in-from-top-4 duration-700">
+          <!-- Background Glow/Gradient -->
+          <div class="absolute inset-0 bg-gradient-to-br from-rose-500 via-red-600 to-red-900 opacity-90 transition-opacity group-hover:opacity-100"></div>
+          <!-- Animated Background shapes -->
+          <div class="absolute top-[-50%] left-[-10%] w-[50%] h-[150%] bg-white/10 rotate-12 blur-3xl pointer-events-none mix-blend-overlay"></div>
+          
+          <div class="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-[22px] p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-8">
+            <!-- Icon -->
+            <div class="relative flex-shrink-0">
+              <div class="absolute inset-0 bg-red-400 rounded-full blur-lg opacity-50 animate-pulse"></div>
+              <div class="relative w-16 h-16 rounded-2xl bg-gradient-to-b from-white/20 to-white/5 border border-white/20 flex items-center justify-center shadow-inner">
+                <svg class="w-8 h-8 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 space-y-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-black uppercase tracking-widest border border-white/10 shadow-sm">Action Requise</span>
+                <span class="w-2 h-2 rounded-full bg-red-400 animate-ping"></span>
+              </div>
+              <h3 class="text-2xl font-black text-white tracking-tight drop-shadow-sm">Contrat financier invalide</h3>
+              <p class="text-rose-100 font-medium text-sm md:text-base max-w-xl leading-relaxed">
+                Le système a détecté une incohérence majeure entre le tarif académique officiel et le montant actuellement facturé à cet étudiant. Le recouvrement est bloqué.
+              </p>
+            </div>
+
+            <!-- Stats Box (Glassmorphism) -->
+            <div class="w-full md:w-auto bg-black/20 border border-white/10 rounded-2xl p-4 sm:px-6 flex items-center gap-4 sm:gap-6 shadow-inner backdrop-blur-md">
+              <div class="text-center">
+                <p class="text-[10px] font-bold text-rose-200 uppercase tracking-widest mb-1 opacity-80">Attendu</p>
+                <p class="text-lg font-black text-white tabular-nums">{{ formatMontantShort(etudiant.anomalie.sit) }}</p>
+              </div>
+              <div class="w-px h-10 bg-white/10"></div>
+              <div class="text-center">
+                <p class="text-[10px] font-bold text-rose-200 uppercase tracking-widest mb-1 opacity-80">Facturé</p>
+                <p class="text-lg font-black text-white tabular-nums">{{ formatMontantShort(etudiant.anomalie.dash) }}</p>
+              </div>
+              <div class="w-px h-10 bg-rose-500/50"></div>
+              <div class="text-center relative">
+                <div class="absolute -top-2 -right-3">
+                  <span class="flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500 border border-white/50"></span>
+                  </span>
+                </div>
+                <p class="text-[10px] font-bold text-rose-200 uppercase tracking-widest mb-1 opacity-80">Écart</p>
+                <p class="text-xl font-black text-rose-300 tabular-nums drop-shadow-md">{{ formatMontantShort(Math.abs(etudiant.anomalie.diff)) }}</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Actions de résolution -->
+          <div class="relative bg-black/40 backdrop-blur-md rounded-b-[22px] border-t border-white/10 p-5 md:px-8 mt-[-10px] pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p class="text-rose-100/80 text-sm font-medium">Sélectionnez une action pour régulariser ce dossier :</p>
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+              <NuxtLink :to="`/admin/negociations/creer-une-negociation?etudiants=${etudiant.slug}`" class="flex-1 sm:flex-none text-center px-6 py-2.5 bg-white text-red-700 hover:bg-rose-50 rounded-xl text-sm font-black transition-colors shadow-lg shadow-black/20">
+                Ajuster le contrat
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alerte Abandon -->
+        <div v-if="etudiant?.statut === 'abandon'" class="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-center gap-3 text-red-700 shadow-sm animate-pulse mb-5">
+          <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <div>
+            <p class="font-black text-sm uppercase tracking-tight">Dossier en arrêt (Abandon)</p>
+            <p class="text-xs opacity-80">Cet étudiant a été déclaré en situation d'abandon. Les opérations de recouvrement sont suspendues.</p>
+          </div>
+        </div>
+
       <!-- KPIs -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div v-if="!etudiant?.anomalie?.has_anomalie" class="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-slate-100 dark:border-gray-700 p-4">
-          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Scolarité Dû</p>
+          <div class="flex justify-between items-start mb-2">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Scolarité Dû</p>
+            <span v-if="etudiant?.frais_negocies?.bourse" class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+              Bourse : {{ etudiant.frais_negocies.bourse }}{{ etudiant.frais_negocies.type_bourse === 'pourcentage' ? '%' : (etudiant.frais_negocies.type_bourse === 'montant' || !etudiant.frais_negocies.type_bourse ? ' FCFA' : '') }}
+            </span>
+          </div>
           <p class="text-xl font-black text-slate-800 dark:text-white tabular-nums">{{ formatMontantShort(etudiant?.montant_du) }}</p>
-          <span class="text-xs text-slate-400">FCFA</span>
+          <div class="flex items-center gap-2 mt-0.5">
+            <span class="text-xs text-slate-400">FCFA</span>
+            <span v-if="etudiant?.frais_negocies?.bourse" class="text-[10px] text-slate-400 line-through">{{ formatMontantShort(etudiant.frais_negocies.montant_initial) }}</span>
+          </div>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-slate-100 dark:border-gray-700 p-4">
           <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Scolarité Payée</p>
@@ -112,7 +186,7 @@
       </div>
 
       <!-- Barre de progression -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl border border-slate-100 dark:border-gray-700 p-4">
+      <div v-if="!etudiant?.anomalie?.has_anomalie" class="bg-white dark:bg-gray-800 rounded-xl border border-slate-100 dark:border-gray-700 p-4">
         <div class="flex justify-between text-sm mb-2">
           <span class="text-slate-500 dark:text-gray-400">Progression du recouvrement</span>
           <span class="font-bold text-indigo-600 dark:text-indigo-400">{{ tauxCouverture }}%</span>
@@ -124,7 +198,7 @@
       </div>
 
       <!-- Échéancier -->
-      <div class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 overflow-hidden">
+      <div v-if="!etudiant?.anomalie?.has_anomalie" class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 overflow-hidden">
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-gray-700">
           <h2 class="text-sm font-black text-slate-800 dark:text-white">Échéancier de paiement</h2>
           <span class="text-xs text-slate-400">{{ echeances.length }} tranches</span>
@@ -165,7 +239,7 @@
       </div>
 
       <!-- Historique -->
-      <div class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 overflow-hidden">
+      <div v-if="!etudiant?.anomalie?.has_anomalie" class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 overflow-hidden">
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-gray-700">
           <h2 class="text-sm font-black text-slate-800 dark:text-white">Historique des versements</h2>
           <span class="text-xs text-slate-400">{{ historique.length }} opérations</span>
@@ -183,12 +257,15 @@
             <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400 tabular-nums whitespace-nowrap">
               +{{ formatMontantShort(op.montant) }} FCFA
             </span>
+            <button @click="genererRecu(op)" class="ml-2 text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 p-1 rounded-md hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors" title="Télécharger le reçu">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            </button>
           </div>
         </div>
       </div>
 
       <!-- Actions -->
-      <div class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 overflow-hidden">
+      <div v-if="!etudiant?.anomalie?.has_anomalie" class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 overflow-hidden">
         <div class="px-5 py-4 border-b border-slate-100 dark:border-gray-700">
           <h2 class="text-sm font-black text-slate-800 dark:text-white">Actions</h2>
         </div>
@@ -199,13 +276,6 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
             Nouveau paiement
-          </button>
-          <button @click="genererRecu"
-            class="flex items-center gap-2 bg-slate-50 hover:bg-white dark:bg-gray-700 dark:hover:bg-gray-600 border border-slate-200 dark:border-gray-600 text-slate-700 dark:text-gray-200 text-sm font-semibold px-4 py-2 rounded-xl transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-            Générer le reçu
           </button>
           <Can action="send-rappel-recouvrement">
             <button @click="envoyerRappel"
@@ -235,119 +305,14 @@
 
     </div>
 
-    <!-- Modal de reçu -->
-    <TransitionRoot appear :show="showRecuModal" as="template">
-      <Dialog as="div" class="relative z-50" @close="closeRecuModal">
-        <div class="fixed inset-0 bg-black/60" />
-
-        <div class="fixed inset-0 flex items-center justify-center p-4">
-          <DialogPanel class="w-full max-w-4xl rounded-xl bg-white dark:bg-gray-800 p-6 max-h-[90vh] overflow-y-auto">
-            <DialogTitle class="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span>Reçu de paiement</span>
-              </div>
-              <button @click="closeRecuModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </DialogTitle>
-
-            <div v-if="etudiant" class="space-y-4">
-              <!-- Contenu du reçu -->
-              <div ref="recuContent" class="bg-white p-8" style="font-family: Arial, Helvetica, sans-serif; color: #333; line-height: 1.5;">
-                <!-- En-tête -->
-                <div style="text-align: center; margin-bottom: 2rem; border-bottom: 2px solid #4f46e5; padding-bottom: 1rem;">
-                  <h1 style="font-size: 24px; font-weight: bold; color: #1e293b; margin: 0 0 0.5rem 0;">{{ appName }}</h1>
-                  <p style="font-size: 14px; color: #64748b; margin: 0;">Reçu de paiement officiel</p>
-                  <p style="font-size: 12px; color: #94a3b8; margin-top: 0.5rem;">N° REC-{{ etudiant.matricule }}-{{ new Date().toISOString().split('T')[0].replace(/-/g, '') }}</p>
-                </div>
-
-                <!-- Informations étudiant -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-                  <div>
-                    <p style="font-size: 12px; color: #64748b; margin: 0 0 0.25rem 0;">Étudiant</p>
-                    <p style="font-weight: 600; color: #1e293b; margin: 0;">{{ etudiant.nom_complet }}</p>
-                    <p style="font-size: 12px; color: #64748b; margin: 0;">Matricule: {{ etudiant.matricule }}</p>
-                  </div>
-                  <div>
-                    <p style="font-size: 12px; color: #64748b; margin: 0 0 0.25rem 0;">Filière / Niveau</p>
-                    <p style="font-weight: 600; color: #1e293b; margin: 0;">{{ etudiant.filiere }}</p>
-                    <p style="font-size: 12px; color: #64748b; margin: 0;">{{ etudiant.niveau }}</p>
-                  </div>
-                </div>
-
-                <!-- Tableau des paiements (Historique) -->
-                <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin: 1.5rem 0 1rem 0;">Détail des paiements</h3>
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; border: 1px solid #e2e8f0;">
-                  <thead>
-                    <tr style="background-color: #f8fafc;">
-                      <th style="padding: 0.75rem; text-align: left; font-size: 12px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0;">Description</th>
-                      <th style="padding: 0.75rem; text-align: left; font-size: 12px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0;">Date</th>
-                      <th style="padding: 0.75rem; text-align: right; font-size: 12px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0;">Montant</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="op in historique" :key="op.id" style="border-bottom: 1px solid #e2e8f0;">
-                      <td style="padding: 0.75rem; font-size: 13px;">{{ op.description }}</td>
-                      <td style="padding: 0.75rem; font-size: 13px;">{{ formatDate(op.date) }}</td>
-                      <td style="padding: 0.75rem; text-align: right; font-size: 13px; font-family: monospace;">{{ formatMontantShort(op.montant) }} FCFA</td>
-                    </tr>
-                    <tr v-if="historique.length === 0">
-                      <td colspan="3" style="padding: 1rem; text-align: center; font-size: 13px; color: #94a3b8;">Aucun paiement enregistré</td>
-                    </tr>
-                  </tbody>
-                </table>
-
-                <!-- Récapitulatif -->
-                <div style="display: flex; justify-content: flex-end; gap: 2rem; padding-top: 1rem; border-top: 2px solid #e2e8f0;">
-                  <div>
-                    <p style="font-size: 12px; color: #64748b; margin: 0 0 0.25rem 0;">Total payé</p>
-                    <p style="font-size: 18px; font-weight: bold; color: #059669; margin: 0;">{{ formatMontantShort(etudiant.montant_paye) }} FCFA</p>
-                  </div>
-                  <div>
-                    <p style="font-size: 12px; color: #64748b; margin: 0 0 0.25rem 0;">Reste à payer</p>
-                    <p style="font-size: 18px; font-weight: bold; color: #d97706; margin: 0;">{{ formatMontantShort(etudiant.reste) }} FCFA</p>
-                  </div>
-                </div>
-
-                <!-- Signature -->
-                <div style="display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #e2e8f0;">
-                  <div>
-                    <p style="font-size: 12px; color: #64748b; margin: 0 0 0.25rem 0;">Date d'émission</p>
-                    <p style="font-weight: 500; color: #1e293b; margin: 0;">{{ formatDate(new Date()) }}</p>
-                  </div>
-                  <div style="text-align: right;">
-                    <p style="font-size: 12px; color: #64748b; margin: 0 0 0.25rem 0;">Cachet et signature</p>
-                    <div style="width: 200px; height: 50px; border-bottom: 2px dashed #cbd5e1; margin-top: 0.5rem;"></div>
-                  </div>
-                </div>
-              </div>
-
-               <!-- Boutons d'action -->
-              <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <button
-                  @click="closeRecuModal"
-                  class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  Fermer
-                </button>
-                <button
-                  @click="downloadRecu"
-                  :disabled="isDownloadingRecu"
-                  class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2"
-                >
-                  {{ isDownloadingRecu ? 'Téléchargement...' : 'Télécharger le reçu' }}
-                </button>
-              </div>
-            </div>
-          </DialogPanel>
-        </div>
-      </Dialog>
-    </TransitionRoot>
+    <!-- Modal de reçu centralisé -->
+    <FinanceRecuPaiement
+      :is-open="showRecuModal"
+      :etudiant="etudiant"
+      :operation="selectedOperation"
+      :app-name="appName"
+      @close="closeRecuModal"
+    />
 
   </div>
 </template>
@@ -371,8 +336,7 @@ const echeances = computed(() => recouvrementStore.echeances);
 const historique = computed(() => recouvrementStore.historique);
 
 const showRecuModal = ref(false);
-const recuContent = ref(null);
-const isDownloadingRecu = ref(false);
+const selectedOperation = ref(null);
 const appName = computed(() => parametreStore.getAppName || 'Établissement');
 
 const initiales = computed(() => {
@@ -416,33 +380,13 @@ const ouvrirModalPaiement = () => {
   navigateTo('/admin/paiements');
 };
 
-const genererRecu = () => {
+const genererRecu = (op) => {
+  selectedOperation.value = op;
   showRecuModal.value = true;
 };
 
 const closeRecuModal = () => {
   showRecuModal.value = false;
-};
-
-const downloadRecu = async () => {
-  if (!recuContent.value) return;
-  isDownloadingRecu.value = true;
-  try {
-    const html2pdfModule = await import('html2pdf.js');
-    const html2pdf = html2pdfModule.default;
-    const opt = {
-      margin: [0.5, 0.5, 0.5, 0.5],
-      filename: `recu_${etudiant.value?.matricule || 'etudiant'}_${new Date().toISOString().split('T')[0]}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, logging: false, backgroundColor: '#ffffff', useCORS: true },
-      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-    await html2pdf().set(opt).from(recuContent.value).save();
-  } catch (error) {
-    console.error('Erreur téléchargement reçu:', error);
-  } finally {
-    isDownloadingRecu.value = false;
-  }
 };
 
 const envoyerRappel = async () => {

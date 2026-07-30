@@ -141,13 +141,13 @@ export const useNegociationStore = defineStore('negociation', {
         const response = await axios.put(`/admin/negociations/${id}`, data, this.authHeaders)
         
         // Mettre à jour la négociation dans la liste
-        const index = this.negociations.findIndex(n => n.id === id)
+        const index = this.negociations.findIndex(n => n.id === id || n.slug === id)
         if (index !== -1) {
           this.negociations[index] = response.data
         }
         
         // Mettre à jour la négociation courante si c'est la même
-        if (this.currentNegociation?.id === id) {
+        if (this.currentNegociation?.id === id || this.currentNegociation?.slug === id) {
           this.currentNegociation = response.data
         }
         

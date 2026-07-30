@@ -1008,7 +1008,7 @@ const form = ref({
   montant: null,
   description: null,
   genre: null,
-  mode_formation: 'Tous',
+  mode_formation: 'Présentiel',
   frequence: 'bimestriel',
   existingTranches: [],
 });
@@ -1036,7 +1036,7 @@ const rows = computed(() =>
     id: f.id,
     annee: f.annee_scolaire.nom || "--",
     genre: f.genre ?? "",
-    mode_formation: f.mode_formation ?? "Tous",
+    mode_formation: (f.mode_formation === 'Tous' || !f.mode_formation) ? "Présentiel" : f.mode_formation,
     niveau: f.niveau.libelle,
     niveau_id: f.niveau.id,
     filiere: f?.filiere?.code || "--",
@@ -1067,7 +1067,7 @@ const openAddModal = () => {
     montant: null,
     description: null,
     genre: null,
-    mode_formation: 'Tous',
+    mode_formation: 'Présentiel',
     frequence: 'bimestriel',
   };
   showModal.value = true;
@@ -1212,7 +1212,6 @@ const genreOptions = computed(() => {
 
 const modeFormationOptions = computed(() => {
   return [
-    { label: "Tous", value: "Tous" },
     { label: "Présentiel", value: "Présentiel" },
     { label: "En ligne", value: "En ligne" },
   ];

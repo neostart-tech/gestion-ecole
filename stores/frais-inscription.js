@@ -77,16 +77,17 @@ export const useFraisInscriptionStore = defineStore("fraisInscription", {
     async activateFrais(id) {
       this.isLoading = true;
       try {
-        await axios.put(
+        const response = await axios.put(
           `/frais-inscription/activate/${id}`,
           null,
           this.authHeaders()
         );
-        // On met à jour l'état localement : tout le monde à false excepté celui-là
-        this.frais = this.frais.map((f) => ({
-          ...f,
-          active: f.id === id
-        }));
+        // On met à jour l'état localement
+        const updatedFrais = response.data.data ?? response.data;
+        const index = this.frais.findIndex((f) => f.id === id);
+        if (index !== -1) {
+          this.frais[index] = updatedFrais;
+        }
       } catch (error) {
         console.error("Erreur activation frais d'inscription:", error);
         throw error;

@@ -72,7 +72,7 @@
               </th>
               <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Nom & Prénoms</th>
               <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Filière</th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Identifiant</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Numéro de dossier</th>
               <th class="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
@@ -104,7 +104,7 @@
               <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">{{ candidate.filiere?.nom || '—' }}</td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                  {{ candidate.matricule_concours || candidate.numero_dossier_affiche }}
+                  {{ candidate.numero_dossier_affiche || '—' }}
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">

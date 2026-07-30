@@ -1,13 +1,13 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
       
       <!-- Header -->
       <div class="mb-6">
         <Breadcrumb
           :items="[
             { label: 'Tableau de bord', to: '/admin/dashboard' },
-            { label: 'Frais scolaires', to: '/admin/negociations' },
+            { label: 'Situation financière', to: '/admin/etudiants/situation' },
             { label: 'Nouvel échéancier', to: null }
           ]"
           title="Créer un échéancier"
@@ -135,22 +135,22 @@
           </div>
 
           <!-- Liste bourses -->
-          <div v-else-if="boursesEtudiant.length" class="space-y-4">
+          <div v-else-if="allBourses.length" class="space-y-4">
             <Message severity="success" :closable="false" class="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
               <div class="flex items-center">
                 <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3">
                   <i class="pi pi-check text-white text-sm"></i>
                 </div>
                 <div>
-                  <span class="font-medium">Félicitations !</span>
-                  <p class="text-sm mt-1">Cet étudiant bénéficie de {{ boursesEtudiant.length }} bourse(s)</p>
+                  <span class="font-medium">Bourses disponibles</span>
+                  <p class="text-sm mt-1">Sélectionnez une bourse à affecter à l'étudiant ({{ allBourses.length }} disponible(s))</p>
                 </div>
               </div>
             </Message>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div
-                v-for="bourse in boursesEtudiant"
+                v-for="bourse in allBourses"
                 :key="bourse.id"
                 @click="selectBourse(bourse)"
                 class="relative overflow-hidden rounded-xl border-2 transition-all duration-300 cursor-pointer group"
@@ -200,7 +200,7 @@
           </div>
 
           <!-- Pas de bourse -->
-          <div v-else class="relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 p-8 text-center rounded-xl">
+          <div v-else-if="allBourses.length === 0" class="relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 p-8 text-center rounded-xl">
             <div class="absolute top-0 right-0 w-32 h-32 bg-gray-200 rounded-full blur-3xl opacity-30"></div>
             <div class="relative">
               <div class="w-20 h-20 mx-auto bg-gray-200 rounded-full flex items-center justify-center mb-4">
@@ -208,8 +208,8 @@
               </div>
               <h3 class="text-lg font-medium text-gray-700 mb-2">Aucune bourse</h3>
               <p class="text-gray-500 max-w-md mx-auto">
-                Cet étudiant ne bénéficie pas de bourse pour le moment. 
-                Vous pouvez continuer la création de l'échéancier sans appliquer de réduction.
+                Aucune bourse n'est paramétrée dans le système. 
+                Vous pouvez continuer la création de l'échéancier.
               </p>
               <Button
                 @click="continueWithoutBourse"
@@ -338,16 +338,21 @@
                 <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white mr-3">
                   <i class="pi pi-tag text-sm"></i>
                 </div>
-                <div>
-                  <p class="text-xs text-green-600">Bourse appliquée</p>
-                  <p class="font-semibold text-gray-900">{{ selectedBourse.nom }}</p>
-                  <p class="text-sm text-green-600 mt-1">
-                    Réduction: {{ selectedBourse.type === 'pourcentage' 
-                      ? selectedBourse.valeur + '%' 
-                      : formatMontant(selectedBourse.valeur) }}
-                  </p>
+                  <div class="flex flex-col">
+                    <p class="text-xs text-green-600">Bourse appliquée</p>
+                    <p class="font-semibold text-gray-900">{{ selectedBourse.nom }}</p>
+                    <div class="mt-2 flex flex-col gap-1">
+                      <p class="text-xs text-green-700 bg-green-100 px-2 py-1 rounded w-fit">
+                        Réduction : {{ selectedBourse.type === 'pourcentage' 
+                          ? selectedBourse.valeur + '%' 
+                          : formatMontant(selectedBourse.valeur) }}
+                      </p>
+                      <p class="text-sm font-bold text-gray-900 mt-1 border-t border-green-200 pt-1">
+                        Nouveau total à payer : <span class="text-indigo-600">{{ formatMontant(montantApresBourse) }}</span>
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>
             </div>
           </div>
 
@@ -411,24 +416,7 @@
               </div>
             </div>
 
-            <!-- Fréquence pour tranches globales -->
-            <div v-if="form.type_paiement === 'tranches_globales'">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Fréquence de paiement <span class="text-red-500">*</span>
-              </label>
-              <div class="flex flex-wrap gap-2">
-                <Button
-                  v-for="freq in frequenceOptions"
-                  :key="freq.value"
-                  @click="form.frequence_paiement = freq.value"
-                  :label="freq.label"
-                  :class="form.frequence_paiement === freq.value
-                    ? 'p-button-primary'
-                    : 'p-button-outlined p-button-secondary'"
-                  class="flex-1"
-                />
-              </div>
-            </div>
+            <!-- Fréquence pour tranches globales masquée selon la demande -->
 
             <!-- Section Échéances (Négociation ou Aperçu Global) -->
             <div v-if="form.type_paiement === 'negociation' || (form.type_paiement === 'tranches_globales' && form.echeances.length > 0)">
@@ -509,7 +497,6 @@
                               v-model="echeance.date_limite"
                               placeholder="JJ/MM/AAAA"
                               class="w-full"
-                              :minDate="new Date()"
                               dateFormat="dd/mm/yy"
                               showIcon
                               :disabled="isLocked(echeance) || form.type_paiement === 'tranches_globales'"
@@ -611,6 +598,7 @@
                   :label="isSubmitting ? (existingNegociation ? 'Mise à jour...' : 'Création...') : (existingNegociation ? 'Mettre à jour' : 'Enregistrer')"
                   :icon="isSubmitting ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
                   class="p-button-primary"
+                  :disabled="!canSubmit || isSubmitting"
                 />
               </Can>
             </div>
@@ -668,7 +656,6 @@
             <Calendar
               v-model="autoGenDateDebut"
               class="w-full"
-              :minDate="new Date()"
               dateFormat="dd/mm/yy"
             />
           </div>
@@ -712,6 +699,7 @@ import { useAnneScolaireStore } from '~~/stores/annee-scolaire'
 import { useEtudiantStore } from '~~/stores/etudiant'
 import { useBourseStore } from '~~/stores/bourse'
 import { useFraisStore } from '~~/stores/frais-de-scolarite'
+import { useRoute } from 'vue-router'
 
 // PrimeVue components
 import Dropdown from 'primevue/dropdown'
@@ -734,12 +722,15 @@ const anneeStore = useAnneScolaireStore()
 const etudiantStore = useEtudiantStore()
 const bourseStore = useBourseStore()
 const fraisStore = useFraisStore()
+const route = useRoute()
 
 // États
 const selectedStudent = ref(null)
 const etudiantsList = ref([])
 const loadingEtudiants = ref(false)
 const boursesEtudiant = ref([])
+const allBourses = ref([])
+const initialBourseId = ref(null)
 const selectedBourse = ref(null)
 const bourseLoading = ref(false)
 const fraisDisponibles = ref([])
@@ -877,8 +868,8 @@ const canSubmit = computed(() => {
       form.echeances.every(e => e.libelle?.trim() && e.montant > 0 && e.date_limite)
   }
 
-  
-  return form.frequence_paiement 
+  // Pour les tranches globales, le formulaire est valide si l'étudiant et les frais sont sélectionnés (ce qui est déjà vérifié au début)
+  return true
 })
 
 // Watch étudiant
@@ -927,32 +918,102 @@ watch([selectedFrais, selectedBourse], () => {
   }
 }, { immediate: true })
 
-// Watch pour charger les tranches par défaut ou gérer le type de paiement
-watch([selectedFrais, () => form.type_paiement], ([newFrais, newType]) => {
-  // Protection CRITIQUE : Ne JAMAIS écraser si une négociation existe déjà ou est en cours de chargement
-  if (loadingExisting.value || existingNegociation.value) return
+watch([() => selectedFrais.value, () => form.type_paiement, () => selectedBourse.value], ([newFrais, newType]) => {
+  if (loadingExisting.value) return
+  if (!newFrais) return;
 
-  if (newFrais && (newType === 'tranches_globales' || (newType === 'negociation' && form.echeances.length === 0))) {
-    if (newFrais.tranches && newFrais.tranches.length > 0) {
-      // Calcul du coefficient de bourse pour l'aperçu
-      let coeff = 1
-      if (selectedBourse.value) {
-        if (selectedBourse.value.type === 'pourcentage') {
-          coeff = 1 - (selectedBourse.value.valeur / 100)
-        }
+  const maxTotal = montantApresBourse.value || newFrais.montant;
+
+  // S'il y a DEJA des échéances dans l'interface (générées manuellement, automatiquement ou par défaut)
+  // On les retaille proportionnellement pour qu'elles collent au nouveau total (bénéfique pour la Bourse)
+  // On ne touche pas aux échéances déjà payées.
+  if (form.echeances.length > 0) {
+    const echeancesNonPayees = form.echeances.filter(e => !isLocked(e));
+    const echeancesPayees = form.echeances.filter(e => isLocked(e));
+    const totalPaye = echeancesPayees.reduce((sum, e) => sum + (parseFloat(e.montant) || 0), 0);
+    
+    const maxRestant = Math.max(0, maxTotal - totalPaye);
+    const currentRestant = echeancesNonPayees.reduce((sum, e) => sum + (parseFloat(e.montant) || 0), 0);
+
+    // S'il y a un décalage, on recalcule proportionnellement
+    if (echeancesNonPayees.length > 0 && Math.abs(currentRestant - maxRestant) > 1) {
+      // Si currentRestant est 0 (ex: tranches vides), on divise équitablement
+      if (currentRestant === 0) {
+         const part = Math.floor(maxRestant / echeancesNonPayees.length);
+         echeancesNonPayees.forEach((e, i) => {
+            e.montant = (i === echeancesNonPayees.length - 1) ? (maxRestant - (part * i)) : part;
+         });
+      } else {
+         const coeff = maxRestant / currentRestant;
+         let runningTotal = 0;
+         
+         const newEcheancesNonPayees = echeancesNonPayees.map((e, i) => {
+            let newMontant = 0;
+            if (i === echeancesNonPayees.length - 1) {
+               newMontant = maxRestant - runningTotal;
+            } else {
+               newMontant = Math.round(parseFloat(e.montant) * coeff);
+               if (runningTotal + newMontant > maxRestant) {
+                  newMontant = maxRestant - runningTotal;
+               }
+            }
+            const finalMontant = Math.max(0, newMontant);
+            runningTotal += finalMontant;
+            return { ...e, montant: finalMontant };
+         });
+         
+         // Reconstruire le tableau en conservant l'ordre
+         const finalArray = [];
+         let unPaidIndex = 0;
+         for (let i = 0; i < form.echeances.length; i++) {
+            if (isLocked(form.echeances[i])) {
+               finalArray.push(form.echeances[i]);
+            } else {
+               finalArray.push(newEcheancesNonPayees[unPaidIndex]);
+               unPaidIndex++;
+            }
+         }
+         form.echeances = finalArray;
       }
+    }
+  } 
+  // S'il n'y a AUCUNE tranche, on génère à partir des tranches par défaut du Frais
+  else {
+    const sourceTranches = newFrais.tranches?.data || newFrais.tranches || []
+    if (sourceTranches.length > 0) {
+      const coeff = (newFrais.montant && newFrais.montant > 0) ? (maxTotal / newFrais.montant) : 1;
+      let currentTotal = 0;
+      const validTranches = [];
 
-      form.echeances = newFrais.tranches.map(t => ({
-        libelle: t.libelle,
-        montant: Math.round(parseFloat(t.montant) * coeff),
-        date_limite: t.date_limite ? new Date(t.date_limite) : null,
-        montant_paye: 0,
-        statut: 'en_attente',
-        ordre: t.ordre
-      }))
+      for (let i = 0; i < sourceTranches.length; i++) {
+        const t = sourceTranches[i];
+        if (currentTotal >= maxTotal) break;
+
+        let montantFinal = 0;
+        if (i === sourceTranches.length - 1) {
+          montantFinal = maxTotal - currentTotal;
+        } else {
+          montantFinal = Math.round(parseFloat(t.montant) * coeff);
+          if (currentTotal + montantFinal > maxTotal) {
+             montantFinal = maxTotal - currentTotal;
+          }
+        }
+
+        validTranches.push({
+          libelle: t.libelle,
+          montant: montantFinal,
+          date_limite: t.date_limite ? new Date(t.date_limite) : null,
+          montant_paye: 0,
+          statut: 'en_attente',
+          ordre: t.ordre
+        });
+
+        currentTotal += montantFinal;
+      }
+      form.echeances = validTranches;
     }
   }
-})
+}, { deep: true })
 
 // Initialisation
 onMounted(async () => {
@@ -965,11 +1026,15 @@ onMounted(async () => {
     ])
     
     // Sélectionner automatiquement l'année scolaire active
-    if (anneeStore.activeAnneeScolaire) {
-      form.annee_scolaire_id = anneeStore.activeAnneeScolaire.id
-    } else if (anneeStore.annees && anneeStore.annees.length > 0) {
-      const active = anneeStore.annees.find(a => a.active)
-      if (active) form.annee_scolaire_id = active.id
+    if (anneeStore.activeAnnee) {
+      form.annee_scolaire_id = anneeStore.activeAnnee.id
+    } else if (anneeStore.annneescolaires && anneeStore.annneescolaires.length > 0) {
+      const active = anneeStore.annneescolaires.find(a => a.active === true || a.active === 1)
+      if (active) {
+        form.annee_scolaire_id = active.id
+      } else {
+        form.annee_scolaire_id = anneeStore.annneescolaires[0].id
+      }
     }
     
     // Formater la liste des étudiants
@@ -977,6 +1042,7 @@ onMounted(async () => {
       label: `${etudiant.nom} ${etudiant.prenom} - ${etudiant.matricule}`,
       value: {
         id: etudiant.id,
+        slug: etudiant.slug,
         nom: etudiant.nom,
         prenom: etudiant.prenom,
         matricule: etudiant.matricule,
@@ -989,6 +1055,15 @@ onMounted(async () => {
       }
     }))
     
+    // Auto-select student from route query param 'etudiants'
+    if (route.query.etudiants) {
+      const q = route.query.etudiants;
+      const match = etudiantsList.value.find(e => e.value.id == q || e.value.slug === q);
+      if (match) {
+        selectedStudent.value = match.value;
+      }
+    }
+
     $swal.fire({
       title: 'Chargement réussi',
       text: 'Les données ont été récupérées.',
@@ -1085,30 +1160,39 @@ function getInitialsFromValue(studentValue) {
 async function loadBourses(etudiantId) {
   bourseLoading.value = true
   boursesEtudiant.value = []
+  allBourses.value = []
   selectedBourse.value = null
   form.bourse_etudiant_id = null
+  initialBourseId.value = null
   
   try {
+    // 1. Charger TOUTES les bourses disponibles
+    const globalResult = await bourseStore.fetchBourses()
+    allBourses.value = globalResult?.data || globalResult || []
+
+    // 2. Vérifier si l'étudiant a DÉJÀ une bourse assignée
     const result = await bourseStore.fetchBoursesByEtudiant(etudiantId)
+    let assigned = result?.data || result || []
+    if (!Array.isArray(assigned)) assigned = [assigned].filter(Boolean)
     
-    if (result && Array.isArray(result)) {
-      boursesEtudiant.value = result
-    } else if (result?.data && Array.isArray(result.data)) {
-      boursesEtudiant.value = result.data
-    } else {
-      boursesEtudiant.value = []
-    }
+    boursesEtudiant.value = assigned
     
-    // Si une seule bourse, la sélectionner automatiquement
-    if (boursesEtudiant.value.length === 1) {
-      selectBourse(boursesEtudiant.value[0])
+    if (assigned.length > 0) {
+      const b = assigned[0]
+      const bId = b.id || b.bourse_id || b.pivot_data?.bourse_id
+      initialBourseId.value = bId
+      
+      const match = allBourses.value.find(item => item.id === bId)
+      // Commenté à la demande de l'utilisateur pour ne pas sélectionner de bourse par défaut
+      // if (match) selectBourse(match)
     }
   } catch (error) {
     console.error('Erreur chargement bourses:', error)
     boursesEtudiant.value = []
+    allBourses.value = []
     $swal.fire({
       title: 'Erreur',
-      text: 'Impossible de charger les bourses de l\'étudiant.',
+      text: 'Impossible de charger les bourses.',
       icon: 'error',
       confirmButtonColor: '#6366f1'
     })
@@ -1185,17 +1269,33 @@ async function loadFraisDisponibles(etudiant) {
 }
 
 function selectBourse(bourse) {
-  selectedBourse.value = bourse
-  form.bourse_etudiant_id = bourse.id
-  $swal.fire({
-    title: 'Bourse appliquée',
-    text: `La bourse "${bourse.nom}" a été sélectionnée.`,
-    icon: 'success',
-    timer: 2000,
-    showConfirmButton: false,
-    toast: true,
-    position: 'top-end'
-  })
+  if (selectedBourse.value?.id === bourse.id) {
+    // Désélectionner
+    selectedBourse.value = null
+    form.bourse_etudiant_id = null
+    $swal.fire({
+      title: 'Bourse retirée',
+      text: `La bourse "${bourse.nom}" a été retirée.`,
+      icon: 'info',
+      timer: 2000,
+      showConfirmButton: false,
+      toast: true,
+      position: 'top-end'
+    })
+  } else {
+    // Sélectionner
+    selectedBourse.value = bourse
+    form.bourse_etudiant_id = bourse.id
+    $swal.fire({
+      title: 'Bourse appliquée',
+      text: `La bourse "${bourse.nom}" a été sélectionnée.`,
+      icon: 'success',
+      timer: 2000,
+      showConfirmButton: false,
+      toast: true,
+      position: 'top-end'
+    })
+  }
 }
 
 function selectFrais(frais) {
@@ -1513,6 +1613,23 @@ async function submitForm() {
 
   isSubmitting.value = true
   try {
+    // Gérer l'affectation de la bourse SI changée
+    const currentSelectedId = selectedBourse.value?.id || null
+    if (currentSelectedId !== initialBourseId.value) {
+        if (initialBourseId.value) {
+            await bourseStore.retirerBourse({
+                etudiant_id: form.etudiant_id,
+                bourse_id: initialBourseId.value
+            }).catch(e => console.warn('Erreur retrait bourse:', e))
+        }
+        if (currentSelectedId) {
+            await bourseStore.affecterBourse({
+                etudiant_id: form.etudiant_id,
+                bourse_id: currentSelectedId
+            }).catch(e => console.warn('Erreur affectation bourse:', e))
+        }
+    }
+
     const data = {
       etudiant_id: form.etudiant_id,
       frais_scolarite_id: form.frais_scolarite_id,
@@ -1521,29 +1638,26 @@ async function submitForm() {
       frequence_paiement: form.frequence_paiement,
       bourse_etudiant_id: form.bourse_etudiant_id,
       commentaire: form.commentaire,
-      echeances: form.type_paiement === 'negociation' 
-        ? form.echeances.map(e => {
-            let dateStr = null;
-            if (e.date_limite) {
-              const d = new Date(e.date_limite);
-              // Format YYYY-MM-DD sans décalage de fuseau horaire
-              const year = d.getFullYear();
-              const month = String(d.getMonth() + 1).padStart(2, '0');
-              const day = String(d.getDate()).padStart(2, '0');
-              dateStr = `${year}-${month}-${day}`;
-            }
-            return {
-              id: e.id || null,
-              libelle: e.libelle,
-              montant: e.montant,
-              date_limite: dateStr
-            };
-          })
-        : []
+      echeances: form.echeances.map(e => {
+        let dateStr = null;
+        if (e.date_limite) {
+          const d = new Date(e.date_limite);
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          dateStr = `${year}-${month}-${day}`;
+        }
+        return {
+          id: e.id || null,
+          libelle: e.libelle,
+          montant: e.montant,
+          date_limite: dateStr
+        };
+      })
     }
 
     if (existingNegociation.value) {
-      await negociationStore.updateNegociation(existingNegociation.value.id, data)
+      await negociationStore.updateNegociation(existingNegociation.value.slug, data)
       $swal.fire({
         title: 'Succès !',
         text: 'L\'échéancier a été mis à jour avec succès.',
@@ -1563,7 +1677,7 @@ async function submitForm() {
     }
     
     resetForm()
-    setTimeout(() => navigateTo('/admin/negociations/'), 1500)
+    setTimeout(() => navigateTo('/admin/etudiants/situation'), 1500)
   } catch (error) {
     console.error('Erreur submission:', error)
     
@@ -1577,14 +1691,14 @@ async function submitForm() {
       
       $swal.fire({
         title: 'Erreur de validation',
-        html: `<strong>${errorMsg}</strong>${detailedList}`,
+        html: `<strong>${errorMsg}</strong>`,
         icon: 'error',
         confirmButtonColor: '#ef4444'
       });
     } else {
       $swal.fire({
         title: 'Erreur',
-        text: errorMsg,
+        text: error.response?.data?.message || 'Une erreur est survenue lors de l\'enregistrement',
         icon: 'error',
         confirmButtonColor: '#ef4444'
       });

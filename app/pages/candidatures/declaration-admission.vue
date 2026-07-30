@@ -51,14 +51,25 @@
               <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Candidat</th>
               <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Numéro de dossier</th>
               <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Choix</th>
-              <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Dossier</th>
               <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Moyenne concours</th>
               <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Admission</th>
-              <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-            <tr v-for="c in filteredCandidatures" :key="c.id" class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+            <tr v-if="filteredCandidatures.length === 0">
+              <td colspan="5" class="px-6 py-16 text-center">
+                <div class="flex flex-col items-center justify-center">
+                  <div class="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                    </svg>
+                  </div>
+                  <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-1">Aucune admission trouvée</h3>
+                  <p class="text-sm text-gray-500 max-w-sm mx-auto">Aucun dossier ne correspond à votre recherche ou il n'y a pas de candidats à traiter pour le moment.</p>
+                </div>
+              </td>
+            </tr>
+            <tr v-else v-for="c in filteredCandidatures" :key="c.id" class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
                   <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 font-bold">
@@ -76,10 +87,6 @@
                 <div class="text-xs text-gray-500">{{ c.niveau?.nom }}</div>
               </td>
               <td class="px-6 py-4">
-                <span v-if="c.dossier_valide" class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Validé</span>
-                <span v-else class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">En cours</span>
-              </td>
-              <td class="px-6 py-4">
                 <span v-if="c.moyenne_concours !== null && c.moyenne_concours !== undefined" class="text-sm font-bold" :class="c.moyenne_concours >= 10 ? 'text-green-600' : 'text-rose-600'">
                   {{ c.moyenne_concours }}/20
                 </span>
@@ -90,17 +97,11 @@
                     <label class="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" v-model="decisionMap[c.id]" class="sr-only peer">
                       <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
-                      <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+                      <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300 whitespace-nowrap">
                         {{ decisionMap[c.id] ? 'Admis' : 'Non Admis' }}
                       </span>
                     </label>
                  </div>
-              </td>
-              <td class="px-6 py-4 text-right">
-                <div v-if="c.admission" class="text-xs font-bold text-green-600 flex items-center justify-end gap-1">
-                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
-                   Déjà Admis
-                </div>
               </td>
             </tr>
           </tbody>
@@ -113,8 +114,8 @@
       <Can action="controler-admission-candidature">
         <button
           @click="finalSubmit"
-          :disabled="isSubmitting"
-          class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+          :disabled="isSubmitting || filteredCandidatures.length === 0"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:active:scale-100 hover:scale-105 active:scale-95"
         >
           <span v-if="isSubmitting" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
           <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

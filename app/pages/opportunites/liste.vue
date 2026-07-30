@@ -325,19 +325,33 @@
                       />
                     </div>
 
-                    <!-- Titre -->
-                    <div>
-                      <label
-                        class="block text-sm font-semibold text-gray-900 dark:text-white mb-2"
-                        >Titre *</label
-                      >
-                      <input
-                        v-model="editForm.title"
-                        type="text"
-                        placeholder="Titre de l'opportunité"
-                        class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        required
-                      />
+                    <!-- Titre et Date -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label
+                          class="block text-sm font-semibold text-gray-900 dark:text-white mb-2"
+                          >Titre *</label
+                        >
+                        <input
+                          v-model="editForm.title"
+                          type="text"
+                          placeholder="Titre de l'opportunité"
+                          class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label
+                          class="block text-sm font-semibold text-gray-900 dark:text-white mb-2"
+                          >Date de publication</label
+                        >
+                        <input
+                          v-model="editForm.created_at"
+                          type="date"
+                          class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                        <p class="text-xs text-gray-500 mt-1">Laissez vide pour aujourd'hui. Modifiez pour antidater.</p>
+                      </div>
                     </div>
 
                     <!-- Type d'annonce et Type de contrat -->
@@ -415,19 +429,16 @@
                       >
                         Contenu {{ !editForm.file_path ? "*" : "" }}
                       </label>
-                      <Editor
-                        api-key="2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl"
-                        v-model="editForm.content"
-                        :init="{
-                          height: 250,
-                          menubar: false,
-                          plugins: 'lists link image media table wordcount',
-                          toolbar:
-                            'undo redo | bold italic underline | bullist numlist | link image media | removeformat',
-                          content_style:
-                            'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-                        }"
-                      />
+                      <ClientOnly>
+                        <QuillEditor
+                          v-model:content="editForm.content"
+                          contentType="html"
+                          :toolbar="toolbarOptions"
+                          theme="snow"
+                          class="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg"
+                          style="min-height: 250px;"
+                        />
+                      </ClientOnly>
                     </div>
 
                     <!-- Fichier -->
@@ -848,7 +859,18 @@ import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
 import Breadcrumb from "~/components/Breadcrumb.vue";
 import Dropdown from "primevue/dropdown";
-import Editor from "@tinymce/tinymce-vue";
+
+const toolbarOptions = [
+  [{ 'font': [] }],
+  [{ 'size': ['small', false, 'large', 'huge'] }],
+  [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+  ['bold', 'italic', 'underline', 'strike'],
+  [{ 'color': [] }, { 'background': [] }],
+  [{ 'align': [] }],
+  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+  ['link', 'image', 'video'],
+  ['clean']
+];
 
 import { useAnnonceStore } from "~~/stores/annonce";
 import { useAdvertiserStore } from "~~/stores/adverstiser";
@@ -882,6 +904,7 @@ const editForm = ref({
   content: "",
   filepath: null,
   duration: "",
+  created_at: "", // Pour l'antidatage
 });
 
 const selectedAnnonce = ref({});
@@ -991,6 +1014,7 @@ const openEditModal = (annonce) => {
     content: annonce.content || "",
     filepath: annonce.filepath || null,
     duration: annonce.duration || "",
+    created_at: annonce.created_at ? annonce.created_at.split('T')[0] : "", // Format YYYY-MM-DD
   };
 
   showEditModal.value = true;
@@ -1061,6 +1085,9 @@ const submitForm = async () => {
     formData.append("content", editForm.value.content || "");
     if (editForm.value.duration) {
       formData.append("duration", editForm.value.duration);
+    }
+    if (editForm.value.created_at) {
+      formData.append("created_at", editForm.value.created_at);
     }
     if (editForm.value.file_path instanceof File) {
       formData.append("file_path", editForm.value.file_path);

@@ -59,8 +59,8 @@
           </div>
         </div>
 
-        <!-- Ligne 2: Statut -->
-        <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
+        <!-- Ligne 2: Statut et Date -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="space-y-2">
             <label class="block text-sm font-medium text-gray-700">
               Statut <span class="text-rose-500">*</span>
@@ -73,6 +73,17 @@
               <option value="draft">Brouillon</option>
               <option value="published">Publié</option>
             </select>
+          </div>
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">
+              Date de publication
+            </label>
+            <input
+              v-model="form.created_at"
+              type="datetime-local"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all bg-white"
+            />
+            <p class="text-xs text-gray-500">Modifiez pour antidater.</p>
           </div>
         </div>
 
@@ -179,21 +190,16 @@
             </div>
           </div>
 
-          <!-- Éditeur TinyMCE -->
-          <div class="border border-gray-300 rounded-lg overflow-hidden">
+          <!-- Éditeur Quill -->
+          <div class="border border-gray-300 rounded-lg overflow-hidden bg-white">
             <ClientOnly>
-              <Editor
-                api-key="2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl"
-                v-model="form.content"
-                :init="{
-                  height: 250,
-                  menubar: false,
-                  plugins: 'lists link image media table wordcount',
-                  toolbar:
-                    'undo redo | bold italic underline | bullist numlist | link image media | removeformat',
-                  content_style:
-                    'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-                }"
+              <QuillEditor
+                v-model:content="form.content"
+                contentType="html"
+                :toolbar="toolbarOptions"
+                theme="snow"
+                class="w-full text-gray-900"
+                style="min-height: 250px;"
               />
             </ClientOnly>
           </div>
@@ -242,10 +248,21 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import Editor from "@tinymce/tinymce-vue";
 import { useBlogStore } from "~~/stores/blog";
 import loading from "~/components/loading.vue";
 import { useRoute } from "vue-router";
+
+const toolbarOptions = [
+  [{ 'font': [] }],
+  [{ 'size': ['small', false, 'large', 'huge'] }],
+  [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+  ['bold', 'italic', 'underline', 'strike'],
+  [{ 'color': [] }, { 'background': [] }],
+  [{ 'align': [] }],
+  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+  ['link', 'image', 'video'],
+  ['clean']
+];
 
 // Données du formulaire
 const form = ref({
@@ -253,6 +270,7 @@ const form = ref({
   imageFile: null, // Stocke le fichier image (nouvelle image)
   content: "",
   status: "draft",
+  created_at: "", // Pour antidater
   id: null, // Pour la modification
   existingImage: null, // URL de l'image existante
 });
@@ -307,6 +325,14 @@ async function loadBlogForEdit(slug) {
       form.value.title = blog.title || "";
       form.value.content = blog.content || "";
       form.value.status = blog.status || "draft";
+      
+      if (blog.date_publication) {
+        // Formater date pour datetime-local input
+        // Remplacer l'espace par un T pour que new Date() puisse parser correctement sur tous les navigateurs
+        const date = new Date(blog.date_publication.replace(' ', 'T'));
+        const pad = (n) => n.toString().padStart(2, '0');
+        form.value.created_at = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+      }
       
       // Stocker l'image existante
       if (blog.image) {
@@ -398,6 +424,10 @@ const savePublication = async () => {
     formData.append("title", form.value.title.trim());
     formData.append("content", form.value.content);
     formData.append("status", form.value.status);
+    
+    if (form.value.created_at) {
+      formData.append("publication_date", form.value.created_at);
+    }
     
     // Gestion de l'image
     if (form.value.imageFile) {

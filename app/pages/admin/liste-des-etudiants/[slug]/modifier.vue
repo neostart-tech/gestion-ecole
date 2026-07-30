@@ -19,7 +19,7 @@
     </div>
 
     <!-- Main Content -->
-    <div v-else-if="etudiant" class="max-w-6xl mx-auto">
+    <div v-else-if="etudiant" class="w-full max-w-[1400px] mx-auto">
       <form @submit.prevent="handleUpdate" class="space-y-6" enctype="multipart/form-data">
         <!-- Actions fixes & Navigation (Sticky Top) -->
         <div class="sticky top-4 z-30 space-y-4">
@@ -96,7 +96,7 @@
           </div>
         </div>
 
-        <div class="space-y-6 pb-20 max-w-5xl mx-auto">
+        <div class="space-y-6 pb-20 w-full mx-auto">
             <!-- TAB 1: Général & Académique -->
             <div v-if="activeTab === 'general'" class="space-y-6">
               <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
@@ -196,74 +196,108 @@
 
             <!-- TAB 2: Famille & Responsables -->
             <div v-if="activeTab === 'family'" class="space-y-6">
-              <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
-                <div class="p-6 border-b border-gray-50 dark:border-gray-700 bg-gradient-to-r from-amber-50/30 to-transparent dark:from-amber-900/10">
+              <!-- Liste des Tuteurs -->
+              <div v-for="(tuteur, index) in form.tuteurs" :key="'tuteur_'+index" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
+                <div class="p-6 border-b border-gray-50 dark:border-gray-700 bg-gradient-to-r from-amber-50/30 to-transparent dark:from-amber-900/10 flex items-center justify-between">
                   <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <span class="w-1 h-6 bg-amber-500 rounded-full"></span>
-                    Informations du Tuteur
+                    Informations du Tuteur {{ index + 1 }}
                   </h3>
-                </div>
-                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div class="space-y-1">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Nom du tuteur</label>
-                    <input v-model="form.tuteur.nom" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
-                  </div>
-                  <div class="space-y-1">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Prénom du tuteur</label>
-                    <input v-model="form.tuteur.prenom" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
-                  </div>
-                  <div class="space-y-1">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Téléphone du tuteur</label>
-                    <input v-model="form.tuteur.tel" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
-                  </div>
-                  <div class="space-y-1">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Email du tuteur</label>
-                    <input v-model="form.tuteur.email" type="email" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
-                  </div>
-                  <div class="space-y-1 md:col-span-2">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Adresse complète</label>
-                    <input v-model="form.tuteur.adresse" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
-                  </div>
-                </div>
-              </div>
-
-              <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
-                <div class="p-6 border-b border-gray-50 dark:border-gray-700 bg-gradient-to-r from-blue-50/30 to-transparent dark:from-blue-900/10 flex items-center justify-between">
-                  <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <span class="w-1 h-6 bg-blue-500 rounded-full"></span>
-                    Responsable des frais
-                  </h3>
-                  <button 
-                    type="button"
-                    @click="copyTuteurToResponsable"
-                    class="px-4 py-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-lg transition-all flex items-center gap-2"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
-                    IDENTIQUE AU TUTEUR
+                  <button v-if="form.tuteurs.length > 1" type="button" @click="removeTuteur(index)" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    Supprimer
                   </button>
                 </div>
                 <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div class="space-y-1">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Nom du responsable</label>
-                    <input v-model="form.responsable.nom" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Nom du tuteur</label>
+                    <input v-model="tuteur.nom" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
                   </div>
                   <div class="space-y-1">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Prénom du responsable</label>
-                    <input v-model="form.responsable.prenom" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Prénom du tuteur</label>
+                    <input v-model="tuteur.prenom" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
                   </div>
                   <div class="space-y-1">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Téléphone</label>
-                    <input v-model="form.responsable.tel" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Téléphone du tuteur</label>
+                    <input v-model="tuteur.tel" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
                   </div>
                   <div class="space-y-1">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Email</label>
-                    <input v-model="form.responsable.email" type="email" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Email du tuteur</label>
+                    <input v-model="tuteur.email" type="email" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Profession</label>
+                    <input v-model="tuteur.profession" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
                   </div>
                   <div class="space-y-1 md:col-span-2">
                     <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Adresse complète</label>
-                    <input v-model="form.responsable.adresse" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                    <input v-model="tuteur.adresse" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
                   </div>
                 </div>
+              </div>
+              
+              <div class="flex justify-end">
+                <button type="button" @click="addTuteur" class="px-4 py-2 text-sm font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 rounded-xl transition-all flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                  Ajouter un autre tuteur
+                </button>
+              </div>
+
+              <!-- Liste des Responsables -->
+              <div v-for="(responsable, index) in form.responsables" :key="'resp_'+index" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
+                <div class="p-6 border-b border-gray-50 dark:border-gray-700 bg-gradient-to-r from-blue-50/30 to-transparent dark:from-blue-900/10 flex items-center justify-between">
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <span class="w-1 h-6 bg-blue-500 rounded-full"></span>
+                    Responsable des frais {{ index + 1 }}
+                  </h3>
+                  <div class="flex items-center gap-3">
+                    <button 
+                      v-if="form.tuteurs[index]"
+                      type="button"
+                      @click="copyTuteurToResponsable(index)"
+                      class="px-4 py-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-lg transition-all flex items-center gap-2"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
+                      IDENTIQUE AU TUTEUR {{ index + 1 }}
+                    </button>
+                    <button v-if="form.responsables.length > 1" type="button" @click="removeResponsable(index)" class="text-red-500 hover:text-red-700 text-sm font-bold p-1">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="space-y-1">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Nom du responsable</label>
+                    <input v-model="responsable.nom" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Prénom du responsable</label>
+                    <input v-model="responsable.prenom" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Téléphone</label>
+                    <input v-model="responsable.tel" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Email</label>
+                    <input v-model="responsable.email" type="email" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Profession</label>
+                    <input v-model="responsable.profession" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                  </div>
+                  <div class="space-y-1 md:col-span-2">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Adresse complète</label>
+                    <input v-model="responsable.adresse" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex justify-end">
+                <button type="button" @click="addResponsable" class="px-4 py-2 text-sm font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                  Ajouter un autre responsable
+                </button>
               </div>
             </div>
 
@@ -402,8 +436,8 @@ const form = ref({
   nom_jeune_fille: "",
   biographie: "",
   mode_formation: "Présentiel",
-  tuteur: { nom: "", prenom: "", tel: "", email: "", profession: "", adresse: "" },
-  responsable: { nom: "", prenom: "", tel: "", email: "", profession: "", adresse: "" },
+  tuteurs: [{ nom: "", prenom: "", tel: "", email: "", profession: "", adresse: "" }],
+  responsables: [{ nom: "", prenom: "", tel: "", email: "", profession: "", adresse: "" }],
 });
 
 const files = ref({});
@@ -427,6 +461,8 @@ const getFileUrl = (path) => {
     if (path.startsWith('/storage/')) return `${baseUrl}${path}`;
     return `${baseUrl}/storage/${path}`;
 };
+
+const { $swal } = useNuxtApp();
 
 const getExistingSingleFile = (documentKey) => {
   if (!etudiant.value || !etudiant.value.album) return null;
@@ -492,22 +528,18 @@ const loadData = async () => {
         nom_jeune_fille: etudiant.value.nom_jeune_fille || "",
         biographie: etudiant.value.biographie || "",
         mode_formation: etudiant.value.dernier_groupe?.mode_formation || "Présentiel",
-        tuteur: {
-          nom: etudiant.value.tuteur?.nom || "",
-          prenom: etudiant.value.tuteur?.prenom || "",
-          tel: etudiant.value.tuteur?.tel || "",
-          email: etudiant.value.tuteur?.email || "",
-          profession: etudiant.value.tuteur?.profession || "",
-          adresse: etudiant.value.tuteur?.adresse || ""
-        },
-        responsable: {
-          nom: etudiant.value.responsable?.nom || "",
-          prenom: etudiant.value.responsable?.prenom || "",
-          tel: etudiant.value.responsable?.tel || "",
-          email: etudiant.value.responsable?.email || "",
-          profession: etudiant.value.responsable?.profession || "",
-          adresse: etudiant.value.responsable?.adresse || ""
-        }
+        tuteurs: etudiant.value.tuteurs?.length > 0 
+          ? etudiant.value.tuteurs.map(t => ({
+              nom: t.nom || "", prenom: t.prenom || "", tel: t.tel || "", 
+              email: t.email || "", profession: t.profession || "", adresse: t.adresse || ""
+            }))
+          : [{ nom: "", prenom: "", tel: "", email: "", profession: "", adresse: "" }],
+        responsables: etudiant.value.responsables?.length > 0
+          ? etudiant.value.responsables.map(r => ({
+              nom: r.nom || "", prenom: r.prenom || "", tel: r.tel || "", 
+              email: r.email || "", profession: r.profession || "", adresse: r.adresse || ""
+            }))
+          : [{ nom: "", prenom: "", tel: "", email: "", profession: "", adresse: "" }]
       };
 
       // Load documents
@@ -561,9 +593,28 @@ const handleUpdate = async () => {
       }
     });
 
-    await etudiantStore.updateEtudiant(route.params.slug, formDataToSend);
-    toast.add({ severity: 'success', summary: 'Succès', detail: 'Données enregistrées', life: 3000 });
-    setTimeout(() => { router.push(`/admin/liste-des-etudiants/${route.params.slug}/detail`); }, 1000);
+    const response = await etudiantStore.updateEtudiant(route.params.slug, formDataToSend);
+    
+    if (response && response.financial_impact) {
+      $swal.fire({
+        title: 'Attention Requise !',
+        text: 'Le mode de formation ou le groupe de cet étudiant a été modifié. Cela peut impacter sa grille tarifaire et sa scolarité.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ajuster les finances',
+        cancelButtonText: 'Plus tard',
+        confirmButtonColor: '#4f46e5',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          router.push(`/finance/recouvrement/${route.params.slug}`);
+        } else {
+          router.push(`/admin/liste-des-etudiants/${route.params.slug}/detail`);
+        }
+      });
+    } else {
+      toast.add({ severity: 'success', summary: 'Succès', detail: 'Données enregistrées', life: 3000 });
+      setTimeout(() => { router.push(`/admin/liste-des-etudiants/${route.params.slug}/detail`); }, 1000);
+    }
   } catch (error) {
     toast.add({ severity: 'error', summary: 'Erreur', detail: error.response?.data?.message || 'Erreur serveur', life: 5000 });
   } finally {
@@ -571,16 +622,38 @@ const handleUpdate = async () => {
   }
 };
 
-const copyTuteurToResponsable = () => {
-  form.value.responsable = { 
-    ...form.value.responsable, // Garder les autres champs (profession)
-    nom: form.value.tuteur.nom,
-    prenom: form.value.tuteur.prenom,
-    tel: form.value.tuteur.tel,
-    email: form.value.tuteur.email,
-    adresse: form.value.tuteur.adresse
-  };
-  toast.add({ severity: 'info', summary: 'Copié', detail: 'Informations du tuteur dupliquées', life: 2000 });
+const copyTuteurToResponsable = (index) => {
+  if (form.value.tuteurs[index] && form.value.responsables[index]) {
+    form.value.responsables[index] = { 
+      ...form.value.responsables[index], 
+      nom: form.value.tuteurs[index].nom,
+      prenom: form.value.tuteurs[index].prenom,
+      tel: form.value.tuteurs[index].tel,
+      email: form.value.tuteurs[index].email,
+      adresse: form.value.tuteurs[index].adresse
+    };
+    toast.add({ severity: 'info', summary: 'Copié', detail: 'Informations du tuteur copiées', life: 2000 });
+  }
+};
+
+const addTuteur = () => {
+  form.value.tuteurs.push({ nom: "", prenom: "", tel: "", email: "", profession: "", adresse: "" });
+};
+
+const removeTuteur = (index) => {
+  if (form.value.tuteurs.length > 1) {
+    form.value.tuteurs.splice(index, 1);
+  }
+};
+
+const addResponsable = () => {
+  form.value.responsables.push({ nom: "", prenom: "", tel: "", email: "", profession: "", adresse: "" });
+};
+
+const removeResponsable = (index) => {
+  if (form.value.responsables.length > 1) {
+    form.value.responsables.splice(index, 1);
+  }
 };
 
 const formatDate = (date) => {

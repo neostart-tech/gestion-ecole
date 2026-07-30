@@ -20,6 +20,7 @@ export const useDashboardPaiementStore = defineStore("dashboardPaiement", {
     periode: 'annee',
     dateDebut: null,
     dateFin: null,
+    anneeScolaireId: null,
     
     // États de chargement
     isLoading: false,
@@ -32,13 +33,14 @@ export const useDashboardPaiementStore = defineStore("dashboardPaiement", {
 
   getters: {
     // Headers d'authentification
-    authHeaders: () => {
+    authHeaders: (state) => {
       const token = localStorage.getItem("gest-ecole-token");
       return {
         headers: {
           Authorization: token ? `Bearer ${token}` : "",
           "Content-Type": "application/json",
           Accept: "application/json",
+          ...(state.anneeScolaireId ? { 'X-Annee-Scolaire-Id': state.anneeScolaireId } : {})
         },
       };
     },
@@ -261,6 +263,13 @@ export const useDashboardPaiementStore = defineStore("dashboardPaiement", {
     },
 
     /**
+     * Définir l'année scolaire
+     */
+    setAnneeScolaire(anneeId) {
+      this.anneeScolaireId = anneeId;
+    },
+
+    /**
      * Définir les dates personnalisées
      */
     setDatesPersonnalisees(debut, fin) {
@@ -282,7 +291,8 @@ export const useDashboardPaiementStore = defineStore("dashboardPaiement", {
 
       try {
         const params = {
-          periode: this.periode
+          periode: this.periode,
+          annee_id: this.anneeScolaireId
         };
 
         if (this.periode === 'personnalise') {

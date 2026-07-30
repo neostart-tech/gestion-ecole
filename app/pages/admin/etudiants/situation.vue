@@ -2,8 +2,8 @@
 
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 lg:p-8 transition-colors">
-    <!-- En-tête avec Breadcrumb -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+    <!-- En-tête avec Breadcrumb et actions -->
+    <div class="flex flex-col gap-4 mb-6">
       <Breadcrumb
         :items="[
           { label: 'Tableau de bord', to: '/admin/dashboard' },
@@ -16,7 +16,7 @@
       />
 
       <!-- Boutons d'action -->
-      <div class="flex items-center gap-3">
+      <div class="flex flex-row flex-wrap items-center gap-3 w-full justify-start mt-1">
         <button
           @click="rafraichir"
           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-750 text-gray-700 dark:text-gray-300 font-medium transition-all shadow-sm hover:shadow-md disabled:opacity-50"
@@ -27,6 +27,18 @@
           </svg>
           <span class="hidden sm:inline">{{ store.isPageLoading ? 'Chargement...' : 'Rafraîchir' }}</span>
         </button>
+        
+        <Can action="create-negociation">
+          <NuxtLink
+            to="/admin/negociations/creer-une-negociation"
+            class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            <span class="hidden sm:inline whitespace-nowrap">Créer Échéancier</span>
+          </NuxtLink>
+        </Can>
         
         <button
           @click="exporterExcel"
@@ -62,6 +74,32 @@
 
     <!-- Contenu principal -->
     <template v-else>
+      <!-- KPIs Grid (Commenté pour le déplacer vers le dashboard financier) -->
+      <!-- 
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4 mb-6">
+        <div v-for="(kpi, index) in kpis" :key="index"
+          class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col gap-3 hover:-translate-y-1 transition-transform duration-300 min-h-[160px]">
+          <div class="flex items-center justify-between">
+            <div :class="[kpi.bgColor, kpi.iconColor]" class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="kpi.icon" />
+              </svg>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">{{ kpi.label }}</h3>
+            <p class="text-xl font-black text-gray-800 dark:text-white mt-1">{{ kpi.value }}</p>
+          </div>
+          <div class="mt-auto space-y-1.5 pt-3 border-t border-gray-50 dark:border-gray-700">
+            <div v-for="(detail, dIdx) in kpi.details" :key="dIdx" class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 text-xs">
+              <span class="text-gray-500 dark:text-gray-400 font-medium whitespace-nowrap">{{ detail.label }}</span>
+              <span class="font-bold sm:text-right" :class="detail.color">{{ detail.value }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      -->
+
       <!-- Carte principale avec tableau -->
       <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700">
         <!-- Barre de filtres et recherche -->
@@ -319,6 +357,26 @@
                     <span class="tracking-widest">BLOQUER</span>
                   </button>
                 </Can>
+
+                <Can action="create-echeancier">
+                  <button
+                    @click="bulkCreateEcheanciers"
+                    class="flex-1 md:flex-none flex items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-2.5 rounded-2xl transition-all duration-300 text-[10px] md:text-xs font-black group bg-orange-500 hover:bg-orange-600 text-white shadow-md active:scale-95 text-center"
+                    title="Générer les échéanciers pour la sélection"
+                  >
+                    <Icon name="heroicons:calendar-days" class="w-4 h-4 md:w-5 md:h-5 text-white" />
+                    <span class="tracking-widest">GÉNÉRER ÉCHÉANCIERS</span>
+                  </button>
+                </Can>
+
+                <button
+                  @click="openBulkChangeModeModal"
+                  class="flex-1 md:flex-none flex items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-2.5 rounded-2xl transition-all duration-300 text-[10px] md:text-xs font-black group bg-amber-500 hover:bg-amber-600 text-white shadow-md active:scale-95 text-center"
+                  title="Changer le mode de formation pour tous les sélectionnés"
+                >
+                  <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                  <span class="tracking-widest">MODE FORMATION</span>
+                </button>
               </div>
               
               <div class="hidden md:flex flex-1"></div>
@@ -378,7 +436,15 @@
 
             <!-- Template pour les montants -->
             <template #montant_total_formatted="data">
-              <p class="text-sm font-mono text-gray-900 dark:text-white">{{ data.value.montant_total_formatted }}</p>
+              <div class="flex flex-col justify-center">
+                <p class="text-sm font-mono font-bold text-gray-900 dark:text-white">{{ data.value.montant_total_formatted }}</p>
+                <div v-if="data.value.frais_negocies && data.value.frais_negocies.bourse" class="flex flex-col gap-0.5 mt-0.5">
+                  <span class="text-[10px] text-gray-400 line-through">{{ formatMontant(data.value.frais_negocies.montant_initial) }}</span>
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 w-fit border border-indigo-200 dark:border-indigo-800">
+                    Bourse : {{ data.value.frais_negocies.bourse }}{{ data.value.frais_negocies.type_bourse === 'pourcentage' ? '%' : (data.value.frais_negocies.type_bourse === 'montant' || !data.value.frais_negocies.type_bourse ? ' FCFA' : '') }}
+                  </span>
+                </div>
+              </div>
             </template>
 
             <template #montant_paye_formatted="data">
@@ -438,37 +504,58 @@
 
                 <div class="flex items-center gap-0.5">
                   <button
+                    @click="ouvrirDossier(data.value)"
+                    class="flex items-center justify-center w-8 h-8 text-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-all"
+                    title="Ouvrir le dossier (Recouvrement)"
+                  >
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </button>
+                  <button
                     @click="voirEcheances(data.value)"
                     class="flex items-center justify-center w-8 h-8 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-all"
-                    title="Échéances"
+                    title="Détails des Échéances"
                   >
                     <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </button>
-
                   <button
-                    @click="openRecuModal(data.value)"
-                    class="flex items-center justify-center w-8 h-8 text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/40 rounded-lg transition-all"
-                    title="Imprimer reçu"
+                    @click="openChangeModeModal(data.value)"
+                    class="flex items-center justify-center w-8 h-8 text-gray-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-all"
+                    title="Changer le mode de formation"
                   >
                     <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
                     </svg>
                   </button>
 
-                  <div class="flex items-center ml-1" title="Statut d'accès (On: Actif / Off: Bloqué)">
+
+
+
+
+                  <div class="flex items-center ml-1">
                     <Can action="update-situation-etudiant">
                       <button
+                        v-if="data.value.statut_global === 'actif'"
                         @click="toggleBlocage(data.value)"
-                        class="relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
-                        :class="data.value.statut_global === 'actif' ? 'bg-indigo-600' : 'bg-gray-300 dark:bg-gray-600'"
+                        class="flex items-center justify-center w-8 h-8 text-red-500 hover:text-white hover:bg-red-500 bg-red-50 dark:bg-red-900/20 rounded-lg transition-all"
+                        title="Bloquer l'accès"
                       >
-                        <span
-                          aria-hidden="true"
-                          class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                          :class="data.value.statut_global === 'actif' ? 'translate-x-4' : 'translate-x-0'"
-                        ></span>
+                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                      </button>
+                      <button
+                        v-else
+                        @click="toggleBlocage(data.value)"
+                        class="flex items-center justify-center w-8 h-8 text-emerald-500 hover:text-white hover:bg-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg transition-all"
+                        title="Débloquer l'accès"
+                      >
+                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                        </svg>
                       </button>
                     </Can>
                   </div>
@@ -649,15 +736,7 @@
                   </svg>
                   Voir les échéances
                 </button>
-                <button
-                  @click="openRecuModal(selectedEtudiant)"
-                  class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Voir le reçu
-                </button>
+
               </div>
             </div>
           </DialogPanel>
@@ -762,126 +841,141 @@
       </Dialog>
     </TransitionRoot>
 
-    <!-- Modal de reçu -->
-    <TransitionRoot appear :show="showRecuModal" as="template">
-      <Dialog as="div" class="relative z-50" @close="closeRecuModal">
-        <div class="fixed inset-0 bg-black/60" />
+    <!-- Modal de reçu réutilisable -->
+    <RecuPaiement
+      v-if="showRecuModal && selectedEtudiant"
+      :is-open="showRecuModal"
+      :etudiant="selectedEtudiant"
+      :operation="{ 
+        montant: selectedEtudiant.montant_paye, 
+        description: 'Scolarité totale payée', 
+        reference: 'SIT-' + selectedEtudiant.matricule,
+        date: new Date(),
+        mode_paiement: 'Espèce/Banque'
+      }"
+      :app-name="appName"
+      @close="closeRecuModal"
+    />
 
-        <div class="fixed inset-0 flex items-center justify-center p-4">
-          <DialogPanel class="w-full max-w-4xl rounded-xl bg-white dark:bg-gray-800 p-6 max-h-[90vh] overflow-y-auto">
-            <DialogTitle class="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span>Reçu de paiement</span>
-              </div>
-              <button @click="closeRecuModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </DialogTitle>
-
-            <div v-if="selectedEtudiant" class="space-y-4">
-              <!-- Contenu du reçu -->
-              <div ref="recuContent" class="bg-white p-8" style="font-family: Arial, Helvetica, sans-serif; color: #333; line-height: 1.5;">
-                <!-- En-tête -->
-                <div style="text-align: center; margin-bottom: 2rem; border-bottom: 2px solid #4f46e5; padding-bottom: 1rem;">
-                  <h1 style="font-size: 24px; font-weight: bold; color: #1e293b; margin: 0 0 0.5rem 0;">{{ appName }}</h1>
-                  <p style="font-size: 14px; color: #64748b; margin: 0;">Reçu de paiement officiel</p>
-                  <p style="font-size: 12px; color: #94a3b8; margin-top: 0.5rem;">N° REC-{{ selectedEtudiant.matricule }}-{{ new Date().toISOString().split('T')[0].replace(/-/g, '') }}</p>
-                </div>
-
-                <!-- Informations étudiant -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-                  <div>
-                    <p style="font-size: 12px; color: #64748b; margin: 0 0 0.25rem 0;">Étudiant</p>
-                    <p style="font-weight: 600; color: #1e293b; margin: 0;">{{ selectedEtudiant.nom }} {{ selectedEtudiant.prenom }}</p>
-                    <p style="font-size: 12px; color: #64748b; margin: 0;">Matricule: {{ selectedEtudiant.matricule }}</p>
-                  </div>
-                  <div>
-                    <p style="font-size: 12px; color: #64748b; margin: 0 0 0.25rem 0;">Filière / Niveau</p>
-                    <p style="font-weight: 600; color: #1e293b; margin: 0;">{{ selectedEtudiant.filiere }}</p>
-                    <p style="font-size: 12px; color: #64748b; margin: 0;">{{ selectedEtudiant.niveau }}</p>
-                  </div>
-                </div>
-
-                <!-- Tableau des paiements -->
-                <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin: 1.5rem 0 1rem 0;">Détail des paiements</h3>
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; border: 1px solid #e2e8f0;">
-                  <thead>
-                    <tr style="background-color: #f8fafc;">
-                      <th style="padding: 0.75rem; text-align: left; font-size: 12px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0;">Échéance</th>
-                      <th style="padding: 0.75rem; text-align: left; font-size: 12px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0;">Date</th>
-                      <th style="padding: 0.75rem; text-align: right; font-size: 12px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0;">Montant</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="paiement in paiementsDeLEtudiant" :key="paiement.id" style="border-bottom: 1px solid #e2e8f0;">
-                      <td style="padding: 0.75rem; font-size: 13px;">{{ paiement.libelle }}</td>
-                      <td style="padding: 0.75rem; font-size: 13px;">{{ formatDate(paiement.date) }}</td>
-                      <td style="padding: 0.75rem; text-align: right; font-size: 13px; font-family: monospace;">{{ formatMontant(paiement.montant) }}</td>
-                    </tr>
-                    <tr v-if="paiementsDeLEtudiant.length === 0">
-                      <td colspan="3" style="padding: 1rem; text-align: center; font-size: 13px; color: #94a3b8;">Aucun paiement enregistré</td>
-                    </tr>
-                  </tbody>
-                </table>
-
-                <!-- Récapitulatif -->
-                <div style="display: flex; justify-content: flex-end; gap: 2rem; padding-top: 1rem; border-top: 2px solid #e2e8f0;">
-                  <div>
-                    <p style="font-size: 12px; color: #64748b; margin: 0 0 0.25rem 0;">Total payé</p>
-                    <p style="font-size: 18px; font-weight: bold; color: #059669; margin: 0;">{{ selectedEtudiant.montant_paye_formatted }}</p>
-                  </div>
-                  <div>
-                    <p style="font-size: 12px; color: #64748b; margin: 0 0 0.25rem 0;">Reste à payer</p>
-                    <p style="font-size: 18px; font-weight: bold; color: #d97706; margin: 0;">{{ selectedEtudiant.montant_restant_formatted }}</p>
-                  </div>
-                </div>
-
-                <!-- Signature -->
-                <div style="display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #e2e8f0;">
-                  <div>
-                    <p style="font-size: 12px; color: #64748b; margin: 0 0 0.25rem 0;">Date d'émission</p>
-                    <p style="font-weight: 500; color: #1e293b; margin: 0;">{{ formatDate(new Date()) }}</p>
-                  </div>
-                  <div style="text-align: right;">
-                    <p style="font-size: 12px; color: #64748b; margin: 0 0 0.25rem 0;">Cachet et signature</p>
-                    <div style="width: 200px; height: 50px; border-bottom: 2px dashed #cbd5e1; margin-top: 0.5rem;"></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Boutons d'action -->
-              <div class="flex justify-end gap-3 pt-4">
-                <button
-                  @click="closeRecuModal"
-                  class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  Fermer
-                </button>
-                <button
-                  @click="downloadRecu"
-                  :disabled="isDownloadingRecu"
-                  class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2"
-                >
-                  <svg v-if="isDownloadingRecu" class="w-4 h-4 animate-spin" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                  </svg>
-                  <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  {{ isDownloadingRecu ? 'Téléchargement...' : 'Télécharger le reçu' }}
-                </button>
+    <!-- Modal Changement de Mode de Formation (Individuel) -->
+    <div v-if="showChangeModeModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+      <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-100 dark:border-gray-700 space-y-5">
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-gray-700 pb-4">
+          <div>
+            <h3 class="text-lg font-black text-slate-800 dark:text-white">Changer le Mode de Formation</h3>
+            <p class="text-xs text-slate-500 dark:text-gray-400 font-medium mt-0.5">
+              {{ changeModeEtudiant?.nom }} {{ changeModeEtudiant?.prenom }}
+              <span class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-gray-700 text-slate-600 dark:text-gray-300">
+                {{ changeModeEtudiant?.matricule }}
+              </span>
+            </p>
+          </div>
+          <button @click="showChangeModeModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <p class="text-sm text-slate-600 dark:text-gray-300">
+          Le changement de mode de formation déclenchera un <span class="font-bold text-amber-600 dark:text-amber-400">recalcul automatique</span> des tarifs de scolarité applicables.
+        </p>
+        <div class="space-y-2">
+          <label
+            v-for="mode in modesFormation"
+            :key="mode.value"
+            class="flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all"
+            :class="changeModeSelected === mode.value
+              ? 'border-amber-500 bg-amber-50/50 dark:bg-amber-900/20 ring-2 ring-amber-500/20'
+              : 'border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700/50'"
+          >
+            <div class="flex items-center gap-3">
+              <input type="radio" v-model="changeModeSelected" :value="mode.value" class="w-4 h-4 text-amber-600 focus:ring-amber-500" />
+              <div>
+                <span class="font-bold text-sm text-slate-800 dark:text-white">{{ mode.label }}</span>
+                <p class="text-xs text-slate-400">{{ mode.desc }}</p>
               </div>
             </div>
-          </DialogPanel>
+            <span v-if="changeModeEtudiant?.mode_formation === mode.value" class="text-xs font-semibold px-2 py-0.5 bg-slate-200 dark:bg-gray-700 text-slate-600 dark:text-gray-300 rounded-md">Actuel</span>
+          </label>
         </div>
-      </Dialog>
-    </TransitionRoot>
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button @click="showChangeModeModal = false" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-300 text-sm font-bold hover:bg-slate-100 dark:hover:bg-gray-700 transition-all">Annuler</button>
+          <button
+            @click="submitChangeMode"
+            :disabled="savingChangeMode || changeModeSelected === changeModeEtudiant?.mode_formation"
+            class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold shadow-md shadow-amber-500/20 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg v-if="savingChangeMode" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Enregistrer & Recalculer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Changement Groupe (Mode Formation Groupé) -->
+    <div v-if="showBulkChangeModeModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+      <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-100 dark:border-gray-700 space-y-5">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-gray-700 pb-4">
+          <div>
+            <h3 class="text-lg font-black text-slate-800 dark:text-white">Changement Groupé du Mode</h3>
+            <p class="text-xs text-slate-500 dark:text-gray-400 font-medium mt-0.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-bold">
+                {{ selectedIds.length }} étudiant(s) sélectionné(s)
+              </span>
+            </p>
+          </div>
+          <button @click="showBulkChangeModeModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <p class="text-sm text-slate-600 dark:text-gray-300">
+          Tous les <strong>{{ selectedIds.length }} étudiants</strong> sélectionnés seront mis à jour avec le mode choisi. Les tarifs seront <span class="font-bold text-amber-600 dark:text-amber-400">recalculés automatiquement</span> pour chacun.
+        </p>
+
+        <div class="space-y-2">
+          <label
+            v-for="mode in modesFormation"
+            :key="mode.value"
+            class="flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all"
+            :class="bulkModeSelected === mode.value
+              ? 'border-amber-500 bg-amber-50/50 dark:bg-amber-900/20 ring-2 ring-amber-500/20'
+              : 'border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700/50'"
+          >
+            <input type="radio" v-model="bulkModeSelected" :value="mode.value" class="w-4 h-4 text-amber-600 focus:ring-amber-500" />
+            <div>
+              <span class="font-bold text-sm text-slate-800 dark:text-white">{{ mode.label }}</span>
+              <p class="text-xs text-slate-400">{{ mode.desc }}</p>
+            </div>
+          </label>
+        </div>
+
+        <!-- Progress bar pendant le traitement -->
+        <div v-if="savingBulkMode" class="space-y-2">
+          <div class="flex justify-between text-xs text-slate-500">
+            <span>Traitement en cours...</span>
+            <span>{{ bulkProgress }}/{{ selectedIds.length }}</span>
+          </div>
+          <div class="w-full h-2 bg-slate-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div
+              class="h-full bg-amber-500 rounded-full transition-all duration-300"
+              :style="{ width: selectedIds.length > 0 ? (bulkProgress / selectedIds.length * 100) + '%' : '0%' }"
+            ></div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button @click="showBulkChangeModeModal = false" :disabled="savingBulkMode" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-300 text-sm font-bold hover:bg-slate-100 dark:hover:bg-gray-700 transition-all disabled:opacity-50">Annuler</button>
+          <button
+            @click="submitBulkChangeMode"
+            :disabled="savingBulkMode || !bulkModeSelected"
+            class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold shadow-md shadow-amber-500/20 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg v-if="savingBulkMode" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Appliquer à tous ({{ selectedIds.length }})
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -907,8 +1001,10 @@ import {
 import Vue3Datatable from "@bhplugin/vue3-datatable"
 import "@bhplugin/vue3-datatable/dist/style.css"
 import Breadcrumb from "~/components/Breadcrumb.vue"
+import RecuPaiement from "~/components/finance/RecuPaiement.vue"
 import { useEtudiantSituationStore } from '~~/stores/etudiant-situation'
 import { useParametreStore } from '~~/stores/parametre'
+import { useDiagnosticFinancierStore } from '~~/stores/diagnosticFinancier'
 import { useDebounce } from '@vueuse/core'
 import Swal from 'sweetalert2'
 import config from '~~/config'
@@ -916,6 +1012,7 @@ import config from '~~/config'
 // Stores
 const store = useEtudiantSituationStore()
 const parametreStore = useParametreStore()
+const diagnosticStore = useDiagnosticFinancierStore()
 
 // États locaux
 const currentPage = ref(1)
@@ -925,9 +1022,23 @@ const showDetailsModal = ref(false)
 const showEcheancesModal = ref(false)
 const showRecuModal = ref(false)
 const selectedEtudiant = ref(null)
-const recuContent = ref(null)
-const isDownloadingRecu = ref(false)
 const selectedIds = ref([]) // IDs des étudiants sélectionnés
+
+// État du modal de changement de mode de formation (individuel)
+const showChangeModeModal = ref(false)
+const changeModeEtudiant = ref(null)
+const changeModeSelected = ref('Présentiel')
+const savingChangeMode = ref(false)
+
+// État du modal de changement de mode de formation (groupé)
+const showBulkChangeModeModal = ref(false)
+const bulkModeSelected = ref('Présentiel')
+const savingBulkMode = ref(false)
+const bulkProgress = ref(0)
+const modesFormation = [
+  { value: 'Présentiel', label: 'Présentiel', desc: 'Cours en salle, présence physique requise' },
+  { value: 'En ligne',   label: 'En ligne',   desc: 'Cours à distance, 100% online' },
+]
 
 // Debounce pour la recherche
 const debouncedSearch = useDebounce(searchQuery, 300)
@@ -1236,35 +1347,19 @@ const closeRecuModal = () => {
   selectedEtudiant.value = null
 }
 
-const downloadRecu = async () => {
-  if (!recuContent.value) return
-  
-  isDownloadingRecu.value = true
-  
-  try {
-    const html2pdfModule = await import('html2pdf.js')
-    const html2pdf = html2pdfModule.default
-    
-    const opt = {
-      margin: [0.5, 0.5, 0.5, 0.5],
-      filename: `recu_${selectedEtudiant.value?.matricule || 'etudiant'}_${new Date().toISOString().split('T')[0]}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { 
-        scale: 2, 
-        logging: false, 
-        backgroundColor: '#ffffff',
-        useCORS: true
-      },
-      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-    }
-    
-    await html2pdf().set(opt).from(recuContent.value).save()
-  } catch (error) {
-    console.error('Erreur téléchargement reçu:', error)
-  } finally {
-    isDownloadingRecu.value = false
+const ouvrirDossier = (etudiant) => {
+  if (etudiant.statut === 'aucun_frais') {
+    useNuxtApp().$toastr.warning("Cet étudiant n'a pas de frais configurés.")
+    return
+  }
+
+  if (etudiant.slug) {
+    navigateTo(`/finance/recouvrement/${etudiant.slug}`)
+  } else {
+    useNuxtApp().$toastr.error("Identifiant de recouvrement introuvable pour cet étudiant")
   }
 }
+
 
 const toggleBlocage = async (etudiant) => {
   const isCurrentlyBlocked = etudiant.statut_global === 'bloque'
@@ -1355,5 +1450,93 @@ const bulkAction = async (nouveauStatut) => {
       store.isPageLoading = false
     }
   }
+}
+
+const bulkCreateEcheanciers = () => {
+  if (selectedIds.value.length === 0) return
+  const ids = selectedIds.value.join(',')
+  // On redirige vers la page de création en passant les IDs sélectionnés
+  navigateTo(`/admin/negociations/creer-une-negociation?etudiants=${ids}`)
+}
+
+// ---- Changement rapide du mode de formation (individuel) ----
+const openChangeModeModal = (etudiant) => {
+  changeModeEtudiant.value = etudiant
+  changeModeSelected.value = etudiant.mode_formation || 'Présentiel'
+  showChangeModeModal.value = true
+}
+
+const submitChangeMode = async () => {
+  if (!changeModeEtudiant.value) return
+  savingChangeMode.value = true
+  try {
+    await diagnosticStore.changerModeFormation(
+      changeModeEtudiant.value.id,
+      changeModeSelected.value
+    )
+    Swal.fire({
+      icon: 'success',
+      title: 'Mode mis à jour',
+      text: `Mode de formation changé en "${changeModeSelected.value}" et frais recalculés.`,
+      timer: 2500,
+      showConfirmButton: false
+    })
+    showChangeModeModal.value = false
+    await store.refreshData()
+  } catch (error) {
+    const msg = error.response?.data?.message || 'Échec de la modification du mode de formation.'
+    Swal.fire('Erreur', msg, 'error')
+  } finally {
+    savingChangeMode.value = false
+  }
+}
+
+// ---- Changement groupé du mode de formation ----
+const openBulkChangeModeModal = () => {
+  if (selectedIds.value.length === 0) return
+  bulkModeSelected.value = 'Présentiel'
+  bulkProgress.value = 0
+  showBulkChangeModeModal.value = true
+}
+
+const submitBulkChangeMode = async () => {
+  if (!bulkModeSelected.value || selectedIds.value.length === 0) return
+  savingBulkMode.value = true
+  bulkProgress.value = 0
+
+  const ids = [...selectedIds.value]
+  let errors = 0
+
+  for (const id of ids) {
+    try {
+      await diagnosticStore.changerModeFormation(id, bulkModeSelected.value)
+      bulkProgress.value++
+    } catch {
+      errors++
+      bulkProgress.value++
+    }
+  }
+
+  savingBulkMode.value = false
+  showBulkChangeModeModal.value = false
+
+  if (errors === 0) {
+    Swal.fire({
+      icon: 'success',
+      title: 'Mise à jour groupée réussie',
+      text: `${ids.length} étudiant(s) passé(s) en mode "${bulkModeSelected.value}" avec recalcul des frais.`,
+      timer: 3000,
+      showConfirmButton: false
+    })
+  } else {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Terminé avec des erreurs',
+      text: `${ids.length - errors} succès, ${errors} échec(s). Veuillez relancer pour les échecs.`,
+    })
+  }
+
+  selectedIds.value = []
+  await store.refreshData()
 }
 </script>
