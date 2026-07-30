@@ -25,21 +25,8 @@
 
 
 
-    <div class="flex gap-6 border-b-2 border-slate-200 dark:border-gray-800 mb-8 overflow-x-auto no-scrollbar">
-      <button @click="activeTab = 'dashboard'"
-        :class="{'text-indigo-600 border-indigo-600 dark:text-indigo-400 dark:border-indigo-400': activeTab === 'dashboard', 'text-slate-400 border-transparent hover:text-slate-600': activeTab !== 'dashboard'}"
-        class="px-2 py-4 border-b-4 font-black uppercase text-sm tracking-wider whitespace-nowrap transition-colors">
-        Tableaux de Bord
-      </button>
-      <button @click="activeTab = 'students'"
-        :class="{'text-indigo-600 border-indigo-600 dark:text-indigo-400 dark:border-indigo-400': activeTab === 'students', 'text-slate-400 border-transparent hover:text-slate-600': activeTab !== 'students'}"
-        class="px-2 py-4 border-b-4 font-black uppercase text-sm tracking-wider whitespace-nowrap transition-colors">
-        Liste Globale Étudiants
-      </button>
-    </div>
 
-    <!-- TAB DASHBOARD -->
-    <div v-if="activeTab === 'dashboard'" class="space-y-8 relative z-10 transition-all duration-300" :class="{'opacity-75 pointer-events-none': dashboardLoading}">
+    <div class="space-y-8 relative z-10 transition-all duration-300" :class="{'opacity-75 pointer-events-none': dashboardLoading}">
       
       <div v-if="dashboardLoading && !globalLoading" class="absolute inset-0 bg-white/20 dark:bg-slate-900/20 backdrop-blur-[1.5px] z-50 flex items-start justify-center rounded-3xl transition-all duration-300 pointer-events-auto" style="padding-top: 10%;">
         <div class="bg-white dark:bg-gray-800 px-6 py-4 rounded-full shadow-[0_10px_40px_-5px_rgba(79,70,229,0.3)] border border-indigo-100 dark:border-indigo-900/50 flex items-center gap-3 animate-bounce">
@@ -318,196 +305,8 @@
         </div>
       </div>
 
-      <!-- Liste des abandons -->
-      <div class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 p-6 max-h-[460px] overflow-y-auto">
-        <h2 class="text-base font-black text-slate-800 dark:text-white mb-5 text-center">Liste des abandons</h2>
-        <table class="w-full text-left border-collapse text-sm">
-          <thead>
-            <tr class="border-b border-slate-100 dark:border-gray-700">
-              <th class="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Nom & prénoms</th>
-              <th class="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Niveau</th>
-              <th class="py-3 px-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Filière</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="abandons.length === 0">
-              <td colspan="3" class="py-8 text-center text-slate-400 font-medium">Aucun abandon déclaré.</td>
-            </tr>
-            <tr v-for="ab in abandons" :key="ab.id"
-              class="border-b border-slate-50 dark:border-gray-800 hover:bg-slate-50 dark:hover:bg-gray-800/40 transition-colors">
-              <td class="py-3 px-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xs uppercase">
-                    {{ (ab.nom || '?').charAt(0) }}
-                  </div>
-                  <div class="flex flex-col">
-                    <span class="font-semibold text-slate-700 dark:text-gray-300">{{ ab.nom }}</span>
-                    <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wide">{{ ab.matricule }}</span>
-                  </div>
-                </div>
-              </td>
-              <td class="py-3 px-4 text-slate-500 dark:text-gray-400 text-sm">{{ ab.niveau }}</td>
-              <td class="py-3 px-4">
-                <span class="px-2 py-1 bg-slate-50 dark:bg-gray-700 rounded-md text-xs font-mono text-slate-500 dark:text-gray-400 border border-slate-100 dark:border-gray-600">
-                  {{ ab.filiere }}
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
 
       </template>
-    </div>
-
-    <!-- TAB ÉTUDIANTS -->
-    <div v-if="activeTab === 'students'" class="relative z-10">
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-5 mb-6">
-
-        <!-- Filtres -->
-        <div class="lg:col-span-3 bg-white dark:bg-gray-800 p-5 rounded-2xl border border-slate-100 dark:border-gray-700 flex flex-wrap gap-4 items-end">
-          <div class="flex-1 min-w-[200px]">
-            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Recherche</label>
-            <div class="relative">
-              <input v-model="searchQuery" type="text" placeholder="Matricule, nom…"
-                class="w-full bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
-              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-              </svg>
-            </div>
-          </div>
-          <div class="w-48">
-            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Niveau</label>
-            <select v-model="filterNiveau"
-              class="w-full bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl py-2.5 px-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer">
-              <option value="">Tous les niveaux</option>
-              <option v-for="n in niveaux" :key="n.id" :value="n.id">{{ n.libelle || n.nom }}</option>
-            </select>
-          </div>
-          <div class="w-48">
-            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Statut Scolarité</label>
-            <select v-model="filterStatut"
-              class="w-full bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl py-2.5 px-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer">
-              <option value="">Tous</option>
-              <option value="solde">Soldé</option>
-              <option value="retard">Retard</option>
-              <option value="en_cours">À jour</option>
-              <option value="abandon">Abandon</option>
-            </select>
-          </div>
-          <div class="w-48">
-            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Statut Inscription</label>
-            <select v-model="filterStatutInscription"
-              class="w-full bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-xl py-2.5 px-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer">
-              <option value="">Tous</option>
-              <option value="solde">Soldé</option>
-              <option value="non_paye">Non payé</option>
-            </select>
-          </div>
-          <!-- Boutons Export supprimés -->
-        </div>
-
-        <!-- Encaissement global -->
-        <div class="bg-indigo-600 dark:bg-indigo-700 rounded-2xl p-6 text-white flex flex-col justify-center gap-2">
-          <p class="text-indigo-200 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-            </svg>
-            Encaissement global
-          </p>
-          <p class="text-2xl font-black tabular-nums">{{ formatMontant(totalEncaisse) }}</p>
-          <div class="inline-flex items-center gap-2 text-xs font-semibold bg-black/20 px-3 py-1.5 rounded-lg w-fit">
-            <span class="w-2 h-2 bg-emerald-400 rounded-full"></span>
-            Taux : {{ tauxGlobal }}%
-          </div>
-        </div>
-      </div>
-
-      <!-- Datatable et Skeleton -->
-      <div class="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl overflow-hidden p-2">
-        <!-- Skeleton Loading -->
-        <div v-if="loading || globalLoading" class="p-6">
-          <div class="space-y-4">
-            <div v-for="i in 5" :key="i" class="flex gap-4">
-              <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 animate-pulse"></div>
-              <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 animate-pulse"></div>
-              <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 animate-pulse"></div>
-              <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 animate-pulse"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Table -->
-        <Vue3Datatable
-          v-else-if="students"
-          :columns="columns"
-          :rows="students"
-          :search="searchQuery"
-          skin="bh-table-striped"
-          :rowClass="(row) => row.est_en_abandon ? 'opacity-50 grayscale dark:opacity-30' : ''"
-          class="premium-table"
-        >
-          <template #etudiant="{ value }">
-            <div class="flex items-center gap-3 py-1">
-              <div class="w-8 h-8 flex-shrink-0 rounded-full bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xs uppercase">
-                {{ value.etudiant.charAt(0) }}
-              </div>
-              <div class="flex flex-col">
-                <span class="font-bold text-sm text-slate-800 dark:text-gray-200 leading-tight truncate max-w-[180px]" :title="value.etudiant">{{ value.etudiant }}</span>
-                <span class="text-[10px] font-mono font-bold text-slate-400 mt-0.5 uppercase tracking-wider">{{ value.matricule }}</span>
-              </div>
-            </div>
-          </template>
-          <template #niveau="{ value }">
-             <div class="text-xs font-bold text-slate-600 dark:text-gray-300 uppercase tracking-tighter">
-                {{ value.niveau }}
-             </div>
-          </template>
-          <template #filiere="{ value }">
-             <div class="text-[10px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded inline-block truncate max-w-[140px]" :title="value.filiere">
-                {{ value.filiere }}
-             </div>
-          </template>
-          <template #statut="{ value }">
-            <div class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider border" :class="getStatusClass(value.statut)">
-              {{ getStatusLabel(value.statut) }}
-            </div>
-          </template>
-          <template #inscription_statut="{ value }">
-            <div v-if="value.inscription_statut" class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider border transition-all"
-              :class="value.inscription_statut === 'solde' ? 'bg-indigo-50 text-indigo-700 border-indigo-100' : 'bg-slate-50 text-slate-400 border-slate-100'">
-              {{ value.inscription_statut === 'solde' ? 'Inscr. Validée' : 'Inscr. Non Payée' }}
-            </div>
-            <div v-else class="text-[10px] text-slate-300 italic font-medium px-2.5 py-1">--</div>
-          </template>
-          <template #montant_paye="{ value }">
-            <div class="flex flex-col">
-              <span class="text-sm font-bold text-slate-800 dark:text-white tabular-nums">{{ formatMontant(value.montant_paye) }}</span>
-              <span class="text-xs text-slate-400 mt-0.5 tabular-nums">/ {{ formatMontantShort(value.montant_du) }}</span>
-            </div>
-          </template>
-          <template #reste="{ value }">
-            <span :class="value.reste > 0 ? 'text-slate-800 dark:text-gray-100 font-bold' : 'text-slate-400'" class="text-sm tabular-nums">
-              {{ value.reste > 0 ? formatMontant(value.reste) : 'Soldé' }}
-            </span>
-          </template>
-          <template #prochaine_echeance_date="{ value }">
-            <div class="flex flex-col py-1">
-              <span class="text-xs font-medium text-slate-700 dark:text-gray-300">{{ value.prochaine_echeance_date }}</span>
-              <span class="text-xs text-slate-400 mt-0.5 tabular-nums">{{ formatMontant(value.prochaine_echeance_montant) }}</span>
-            </div>
-          </template>
-          <template #action="{ value }">
-            <button @click="openManagePaiement(value)"
-              class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 text-xs font-semibold transition-colors py-1.5 px-3 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 flex items-center gap-1">
-              Ouvrir
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-              </svg>
-            </button>
-          </template>
-        </Vue3Datatable>
-      </div>
     </div>
   </div>
 </template>
@@ -525,48 +324,13 @@ const { $swal } = useNuxtApp();
 const route = useRoute();
 const recouvrementStore = useRecouvrementStore();
 
-const activeTab = ref(route.query.tab || 'dashboard');
-const searchQuery = ref('');
-const filterNiveau = ref('');
-const filterStatut = ref(route.query.statut || '');
-const filterStatutInscription = ref('');
 const journalierDate = ref(new Date().toISOString().split('T')[0]);
 const currentYear = new Date().getFullYear();
 const selectedPeriods = ref([`${currentYear}-${String(new Date().getMonth() + 1).padStart(2, '0')}`]);
 const dashboardLoading = ref(false);
 const globalLoading = ref(true);
-const isExporting = ref(false);
 
-// Export Excel via l'API (téléchargement direct avec token)
-const exportExcel = async () => {
-  isExporting.value = true;
-  try {
-    const token = localStorage.getItem('gest-ecole-token');
-    const params = new URLSearchParams();
-    if (filterNiveau.value) params.append('niveau_id', filterNiveau.value);
-    const url = `/finance/export/xlsx?${params.toString()}`;
-    const response = await fetch(url, {
-      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
-    });
-    if (!response.ok) throw new Error('Erreur export');
-    const blob = await response.blob();
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `etat_paiements_${new Date().toISOString().split('T')[0]}.xlsx`;
-    link.click();
-    URL.revokeObjectURL(link.href);
-  } catch (e) {
-    console.error('Export Excel échoué:', e);
-    alert('Erreur lors de l\'export Excel. Veuillez réessayer.');
-  } finally {
-    isExporting.value = false;
-  }
-};
 
-// Impression PDF via le navigateur
-const printPDF = () => {
-  window.print();
-};
 
 const monthOptions = computed(() => {
   const months = [
@@ -584,18 +348,7 @@ const monthOptions = computed(() => {
   return options;
 });
 
-const columns = [
-  { field: 'etudiant', title: 'Étudiant', width: '240px', sort: true },
-  { field: 'niveau', title: 'Niveau', width: '100px', sort: true },
-  { field: 'filiere', title: 'Filière', width: '130px', sort: true },
-  { field: 'montant_du', title: 'Total dû', visible: false },
-  { field: 'montant_paye', title: 'Scol. Payée' },
-  { field: 'reste', title: 'Scol. Reste' },
-  { field: 'statut', title: 'Statut Scol.' },
-  { field: 'inscription_statut', title: 'Statut Inscr.' },
-  { field: 'prochaine_echeance_date', title: 'Prochain paiement' },
-  { field: 'action', title: 'Actions', width: '120px', sort: false }
-];
+
 
 const loadJournalier = async () => {
   dashboardLoading.value = true;
@@ -659,17 +412,12 @@ const refreshAll = async () => {
     loadJournalier(),
     loadMensuel(),
     recouvrementStore.fetchAbandons(),
-    recouvrementStore.fetchNiveaux(),
-    recouvrementStore.fetchRecouvrements(filterNiveau.value, filterStatut.value, filterStatutInscription.value)
+    recouvrementStore.fetchNiveaux()
   ]);
   globalLoading.value = false;
 };
 
-const loading = computed(() => recouvrementStore.loading);
-const students = computed(() => recouvrementStore.students);
 const niveaux = computed(() => recouvrementStore.niveaux);
-const totalEncaisse = computed(() => recouvrementStore.totalEncaisse);
-const tauxGlobal = computed(() => recouvrementStore.tauxGlobal);
 const journalier = computed(() => recouvrementStore.journalier);
 const mensuel = computed(() => recouvrementStore.mensuel);
 const abandons = computed(() => recouvrementStore.abandons);
@@ -686,31 +434,7 @@ const formatMontantShort = (m) => {
   return new Intl.NumberFormat('fr-FR').format(m);
 };
 
-const getStatusLabel = (status) => ({
-  solde: 'Scolarité soldée',
-  retard: 'Retard',
-  avance: 'Payé en avance',
-  en_cours: 'À jour',
-  abandon: 'Abandon'
-})[status] || status;
-
-const getStatusClass = (status) => ({
-  solde: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800/30',
-  retard: 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400 border-red-100 dark:border-red-800/30',
-  avance: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400 border-indigo-100 dark:border-indigo-800/30',
-  en_cours: 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400 border-amber-100 dark:border-amber-800/30',
-  abandon: 'bg-slate-50 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-gray-700'
-})[status] || '';
-
-const openManagePaiement = (student) => {
-  navigateTo(`/finance/recouvrement/${student.slug}`);
-};
-
 onMounted(() => refreshAll());
-
-watch([filterNiveau, filterStatut, filterStatutInscription], () => {
-  recouvrementStore.fetchRecouvrements(filterNiveau.value, filterStatut.value, filterStatutInscription.value);
-});
 
 watch(selectedPeriods, async (newVal) => {
   if (!newVal) return;

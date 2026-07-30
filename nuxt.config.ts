@@ -14,7 +14,7 @@ export default defineNuxtConfig({
 	css: ["~/assets/css/main.css", "~/assets/css/calendar.css",'~/assets/css/calendarstyle.css','flag-icons/css/flag-icons.min.css'],
 
 	// Ajoutez les plugins
-	plugins: ["~/plugins/theme.client.ts", "~/plugins/toastr.client.js"],
+	plugins: ["~/plugins/theme.client.ts", "~/plugins/toastr.client.js", "~~/plugins/vue-quill.client.js"],
 
 	vite: {
 		plugins: [tailwindcss()],

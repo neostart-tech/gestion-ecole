@@ -26,13 +26,41 @@
       </div>
 
       <div class="flex items-center gap-3">
+        <client-only>
+          <VDropdown placement="bottom-end">
+            <button
+              class="flex items-center gap-2 px-4 py-3 rounded-2xl border bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold uppercase text-[10px] tracking-widest shadow-sm"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+              Colonnes
+              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" /></svg>
+            </button>
+
+            <template #popper>
+              <div class="w-56 p-3 rounded-xl shadow-lg bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700">
+                <div v-for="col in columns" :key="col.field" class="flex items-center gap-3 py-2">
+                  <input
+                    type="checkbox"
+                    v-model="col.visible"
+                    :disabled="col.field === 'action'"
+                    class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <span class="text-xs font-bold text-slate-700 dark:text-gray-300 uppercase tracking-widest">
+                    {{ col.title }}
+                  </span>
+                </div>
+              </div>
+            </template>
+          </VDropdown>
+        </client-only>
+
         <Can action="create-frais-inscription">
           <button
             @click="openAddModal"
             class="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-indigo-600 text-white hover:bg-indigo-700 transition-all shadow-md hover:shadow-indigo-500/25 group"
           >
             <svg class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14M5 12h14"/></svg>
-            <span class="text-sm font-bold uppercase tracking-wider">Ajouter un tarif</span>
+            <span class="text-[10px] font-bold uppercase tracking-widest">Ajouter un tarif</span>
           </button>
         </Can>
       </div>
@@ -46,7 +74,7 @@
 
       <div v-else class="overflow-x-auto p-4 transition-all duration-500 ease-in-out">
         <Vue3Datatable
-          :columns="columns"
+          :columns="visibleColumns"
           :rows="rows"
           :search="searchQuery"
           skin="bh-table-hover"
@@ -81,7 +109,6 @@
                   'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2',
                   data.value.active ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-gray-700'
                 ]"
-                :disabled="data.value.active"
               >
                 <span
                   class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
@@ -97,21 +124,29 @@
 
           <!-- Actions Template -->
           <template #action="data">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 justify-end">
               <Can action="update-frais-inscription">
                 <button
-                  @click="openEditModal(data.value)"
-                  class="p-2.5 rounded-xl text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all group"
-                  title="Modifier"
+                  @click="data.value.has_payments ? null : openEditModal(data.value)"
+                  :disabled="data.value.has_payments"
+                  :class="[
+                    'p-2.5 rounded-xl transition-all group',
+                    data.value.has_payments ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed' : 'text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20'
+                  ]"
+                  :title="data.value.has_payments ? 'Impossible de modifier : des paiements sont liés' : 'Modifier'"
                 >
                   <svg class="w-5 h-5 transform group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                 </button>
               </Can>
               <Can action="delete-frais-inscription">
                 <button
-                  @click="confirmDelete(data.value)"
-                  class="p-2.5 rounded-xl text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all group"
-                  title="Supprimer"
+                  @click="data.value.has_payments ? null : confirmDelete(data.value)"
+                  :disabled="data.value.has_payments"
+                  :class="[
+                    'p-2.5 rounded-xl transition-all group',
+                    data.value.has_payments ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed' : 'text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20'
+                  ]"
+                  :title="data.value.has_payments ? 'Impossible de supprimer : des paiements sont liés' : 'Supprimer'"
                 >
                   <svg class="w-5 h-5 transform group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 </button>
@@ -165,6 +200,32 @@
                   </div>
 
                   <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Niveau (Optionnel)</label>
+                    <Dropdown
+                      v-model="form.niveau_id"
+                      :options="niveauStore.niveaux"
+                      optionLabel="libelle"
+                      optionValue="id"
+                      placeholder="Global"
+                      showClear
+                      class="w-full"
+                    />
+                  </div>
+
+                  <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Filière (Optionnelle)</label>
+                    <Dropdown
+                      v-model="form.filiere_id"
+                      :options="filiereStore.filieres"
+                      optionLabel="nom"
+                      optionValue="id"
+                      placeholder="Global"
+                      showClear
+                      class="w-full"
+                    />
+                  </div>
+
+                  <div class="space-y-2">
                     <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Montant des frais (FCFA)</label>
                     <InputNumber
                       v-model="form.montant"
@@ -210,10 +271,15 @@ import Breadcrumb from '~/components/Breadcrumb.vue';
 import InputNumber from 'primevue/inputnumber';
 import { useFraisInscriptionStore } from '~~/stores/frais-inscription';
 import { useAnneScolaireStore } from '~~/stores/annee-scolaire';
+import { useNiveauStore } from '~~/stores/niveau';
+import { useFiliereStore } from '~~/stores/filiere';
+import Dropdown from 'primevue/dropdown';
 
 const { $toastr, $swal } = useNuxtApp();
 const fraisStore = useFraisInscriptionStore();
 const anneeScolaireStore = useAnneScolaireStore();
+const niveauStore = useNiveauStore();
+const filiereStore = useFiliereStore();
 
 const searchQuery = ref('');
 const showModal = ref(false);
@@ -224,13 +290,17 @@ const form = ref({
   montant: null
 });
 
-const columns = [
-  { field: 'annee', title: 'Année scolaire', sortable: true },
-  { field: 'montant', title: 'Montant (FCFA)', sortable: true },
-  { field: 'active', title: 'Statut', sortable: true },
-  { field: 'created_at_fmt', title: 'Date création', sortable: true },
-  { field: 'action', title: 'Actions', sortable: false, width: '120px', cellClass: 'text-right' }
-];
+const columns = ref([
+  { field: 'annee', title: 'Année scolaire', sortable: true, visible: true },
+  { field: 'niveau_nom', title: 'Niveau', sortable: true, visible: false },
+  { field: 'filiere_nom', title: 'Filière', sortable: true, visible: false },
+  { field: 'montant', title: 'Montant (FCFA)', sortable: true, visible: true },
+  { field: 'active', title: 'Statut', sortable: true, visible: true },
+  { field: 'created_at_fmt', title: 'Date création', sortable: true, visible: true },
+  { field: 'action', title: 'Actions', sortable: false, width: '120px', cellClass: 'text-right', visible: true }
+]);
+
+const visibleColumns = computed(() => columns.value.filter(c => c.visible));
 
 const rows = computed(() => {
   return (fraisStore.frais || []).map(f => ({
@@ -238,6 +308,11 @@ const rows = computed(() => {
     montant: f.montant || 0,
     active: f.active || false,
     annee: f.annee_scolaire?.nom || f.annee_scolaire_id || 'Archives / N/A',
+    niveau_nom: f.niveau?.nom || 'Global',
+    filiere_nom: f.filiere?.nom || 'Global',
+    niveau_id: f.niveau_id,
+    filiere_id: f.filiere_id,
+    has_payments: f.has_payments || false,
     created_at_fmt: formatDate(f.created_at)
   }));
 });
@@ -250,7 +325,9 @@ const openAddModal = () => {
   isEditing.value = false;
   form.value = {
     id: null,
-    montant: null
+    montant: null,
+    niveau_id: null,
+    filiere_id: null
   };
   showModal.value = true;
 };
@@ -259,7 +336,9 @@ const openEditModal = (item) => {
   isEditing.value = true;
   form.value = {
     id: item.id,
-    montant: item.montant
+    montant: item.montant,
+    niveau_id: item.niveau_id,
+    filiere_id: item.filiere_id
   };
   showModal.value = true;
 };
@@ -276,10 +355,18 @@ const handleSubmit = async () => {
 
   try {
     if (isEditing.value) {
-      await fraisStore.updateFrais(form.value.id, { montant: form.value.montant });
+      await fraisStore.updateFrais(form.value.id, { 
+        montant: form.value.montant,
+        niveau_id: form.value.niveau_id,
+        filiere_id: form.value.filiere_id
+      });
       $toastr.success('Tarif mis à jour avec succès');
     } else {
-      await fraisStore.addFrais({ montant: form.value.montant });
+      await fraisStore.addFrais({ 
+        montant: form.value.montant,
+        niveau_id: form.value.niveau_id,
+        filiere_id: form.value.filiere_id
+      });
       $toastr.success('Nouveau tarif enregistré');
     }
     closeModal();
@@ -289,26 +376,11 @@ const handleSubmit = async () => {
 };
 
 const confirmActivation = async (item) => {
-  if (item.active) return;
-  
-  const result = await $swal.fire({
-    title: 'Activer ce tarif ?',
-    text: `Cela désactivera automatiquement tous les autres tarifs d'inscription.`,
-    icon: 'info',
-    showCancelButton: true,
-    confirmButtonColor: '#4f46e5',
-    cancelButtonColor: '#64748b',
-    confirmButtonText: 'Oui, activer',
-    cancelButtonText: 'Annuler'
-  });
-
-  if (result.isConfirmed) {
-    try {
-      await fraisStore.activateFrais(item.id);
-      $toastr.success('Le tarif est désormais actif');
-    } catch (err) {
-      $toastr.error('Erreur lors de l\'activation');
-    }
+  try {
+    await fraisStore.activateFrais(item.id);
+    $toastr.success(`Le tarif est désormais ${item.active ? 'désactivé' : 'actif'}`);
+  } catch (err) {
+    $toastr.error('Erreur lors de la modification de l\'état');
   }
 };
 
@@ -354,7 +426,9 @@ const formatDate = (dateString) => {
 onMounted(async () => {
   await Promise.all([
     fraisStore.fetchFrais(),
-    anneeScolaireStore.fetchAnneeScolaire() // Nom correct de l'action dans le store
+    anneeScolaireStore.fetchAnneeScolaire(),
+    niveauStore.fetchNiveaux(),
+    filiereStore.fetchFilieres()
   ]);
 });
 </script>

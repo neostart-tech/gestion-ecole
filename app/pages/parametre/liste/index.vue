@@ -247,6 +247,18 @@
               :param="parametres.mode_selection_candidats"
               v-model="formData.mode_selection_candidats"
             />
+            <!-- Format du Matricule -->
+            <DynamicParamField
+              v-if="parametres.matricule_prefix"
+              :param="parametres.matricule_prefix"
+              v-model="formData.matricule_prefix"
+            />
+            <!-- Domaine d'email -->
+            <DynamicParamField
+              v-if="parametres.email_domain"
+              :param="parametres.email_domain"
+              v-model="formData.email_domain"
+            />
             <p class="text-xs text-gray-500 dark:text-gray-400">
               Ce mode s'applique à toute candidature qui n'est liée à aucune session de concours. Une session de
               concours créée dans <span class="font-medium">Paramètres &gt; Sessions de concours</span> peut

@@ -46,8 +46,8 @@
           </div>
         </div>
 
-        <!-- Ligne 2: Statut -->
-        <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
+        <!-- Ligne 2: Statut et Date -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="space-y-2">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Statut <span class="text-rose-500">*</span>
@@ -60,6 +60,17 @@
               <option value="draft">Brouillon</option>
               <option value="published">Publié</option>
             </select>
+          </div>
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Date de publication
+            </label>
+            <input
+              v-model="form.created_at"
+              type="datetime-local"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all bg-white"
+            />
+            <p class="text-xs text-gray-500">Laissez vide pour la date d'aujourd'hui. Modifiez pour antidater.</p>
           </div>
         </div>
 
@@ -165,27 +176,8 @@
             </div>
           </div>
 
-          <!-- Éditeur TinyMCE -->
-          <div class="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
-            <ClientOnly>
-              <Editor
-                :key="isDarkEditor ? 'dark' : 'light'"
-                api-key="2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl"
-                v-model="form.content"
-                :init="{
-                  height: 250,
-                  menubar: false,
-                  plugins: 'lists link table wordcount',
-                  toolbar:
-                    'undo redo | bold italic underline | bullist numlist | removeformat',
-                  skin: isDarkEditor ? 'oxide-dark' : 'oxide',
-                  content_css: isDarkEditor ? 'dark' : 'default',
-                  content_style:
-                    `body { font-family:Helvetica,Arial,sans-serif; font-size:14px; color:${isDarkEditor ? '#e5e7eb' : '#1f2937'}; background-color:${isDarkEditor ? '#1f2937' : '#ffffff'}; }`,
-                }"
-              />
-            </ClientOnly>
-          </div>
+          <CustomQuillEditor v-model="form.content" />
+
         </div>
 
         <!-- Boutons d'action -->
@@ -231,22 +223,24 @@
 
 <script setup>
 import { ref, computed } from "vue";
-import Editor from "@tinymce/tinymce-vue";
 import { useBlogStore } from "~~/stores/blog";
 import { useThemeStore } from "~~/stores/theme";
 
 const themeStore = useThemeStore();
-// TinyMCE ne peut pas changer de skin à chaud : l'éditeur est remonté
-// (via :key sur <Editor>) à chaque bascule clair/sombre.
-const isDarkEditor = computed(() => themeStore.shouldBeDark());
+
+const contentLength = computed(() => {
+  if (!form.value.content) return 0;
+  return form.value.content.replace(/<[^>]*>?/gm, '').length;
+});
 
 // Données du formulaire
 const form = ref({
   title: "",
-  imageFile: null, // Stocke le fichier image (pas la base64)
+  imageFile: null,
   content: "",
   status: "draft",
-  id: null, // Pour la modification
+  created_at: "", // Pour antidater
+  id: null,
 });
 
 // Pour la prévisualisation
@@ -268,10 +262,7 @@ if (route.query.id) {
   loadBlogForEdit(route.query.id);
 }
 
-// Longueur du contenu
-const contentLength = computed(() => {
-  return form.value.content ? form.value.content.length : 0;
-});
+
 
 // Charger un blog pour modification
 async function loadBlogForEdit(id) {
@@ -364,19 +355,34 @@ const savePublication = async () => {
     formData.append("content", form.value.content);
     formData.append("status", form.value.status);
     
+    if (form.value.created_at) {
+      formData.append("created_at", form.value.created_at);
+    }
+    
     // IMPORTANT: Ajouter le fichier image si présent
     if (form.value.imageFile) {
       formData.append("image", form.value.imageFile);
     }
 
     let response;
-    
     if (form.value.id) {
       response = await blogStore.updateBlog(form.value.id, formData);
+      
+      // Si la modification demande une publication mais que ce n'est pas pris en compte, on force :
+      if (form.value.status === 'published' && response?.status !== 'published') {
+         await blogStore.publishBlog(response.slug || response.id);
+      }
+      
       $toastr.success("Publication modifiée avec succès");
     } else {
       // CRÉATION
       response = await blogStore.createBlog(formData);
+      
+      // Correction : Forcer la publication immédiatement si c'est sélectionné
+      if (form.value.status === 'published') {
+         await blogStore.publishBlog(response.slug || response.id);
+      }
+      
       $toastr.success("Publication créée avec succès");
     }
 

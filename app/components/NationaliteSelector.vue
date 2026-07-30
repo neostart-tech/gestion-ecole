@@ -164,7 +164,9 @@ const togoCountry = computed(() => {
 
 const selectedCountry = computed(() => {
   if (!props.modelValue) return null
-  return $countries.find(c => c.name === props.modelValue)
+  const found = $countries.find(c => c.name.toLowerCase() === props.modelValue.toLowerCase())
+  if (found) return found
+  return { name: props.modelValue, code: '??', flagCode: 'unknown' }
 })
 
 const filteredCountries = computed(() => {

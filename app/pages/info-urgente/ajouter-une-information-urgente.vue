@@ -39,17 +39,9 @@
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Résumé / Contenu <span class="text-rose-500">*</span>
           </label>
-          <ClientOnly>
-            <EditorTinyMCE
-              v-model="form.summary"
-              placeholder="Contenu de l'actualité"
-            />
-            <template #fallback>
-              <div class="h-64 flex items-center justify-center bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-                <span class="text-gray-400 dark:text-gray-500">Chargement de l'éditeur...</span>
-              </div>
-            </template>
-          </ClientOnly>
+          <CustomQuillEditor
+            v-model="form.summary"
+          />
         </div>
 
         <!-- Destinataires -->
@@ -202,7 +194,6 @@ import { ref, onMounted, computed } from "vue";
 import { useUrgentInfoStore } from "~~/stores/urgent-info";
 import { useGroupeStore } from '~~/stores/group';
 import Breadcrumb from "~/components/Breadcrumb.vue";
-import EditorTinyMCE from "~/components/EditorTinyMCE.vue";
 
 // Stores
 const urgentinfoStore = useUrgentInfoStore();

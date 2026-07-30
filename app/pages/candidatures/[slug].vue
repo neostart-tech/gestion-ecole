@@ -565,7 +565,11 @@ const getStatutStyle = (c) => {
 // Une candidature suit le mode concours uniquement si sa session le précise explicitement
 // (même logique que le backend). Une candidature sans session suit toujours le mode dossier
 // uniquement — aucun repli sur un paramètre global.
-const suitModeConcours = computed(() => Boolean(candidat.value?.avec_epreuve_ecrite))
+const suitModeConcours = computed(() => Boolean(
+  candidat.value?.avec_epreuve_ecrite ?? 
+  candidat.value?.concours_session?.avec_epreuve_ecrite ?? 
+  candidat.value?.concoursSession?.avec_epreuve_ecrite
+))
 
 const nextStep = computed(() => {
   const c = candidat.value

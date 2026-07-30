@@ -131,30 +131,7 @@
       <!-- Datatable Area -->
       <div class="p-4 sm:p-6 text-gray-900 dark:text-white">
         <!-- Collection Dock -->
-        <Transition enter-active-class="transition duration-500 ease-out" enter-from-class="opacity-0 -translate-y-4" enter-to-class="opacity-100 translate-y-0" leave-active-class="transition duration-300 ease-in" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 -translate-y-4">
-          <div v-if="selectedIds.length > 0" class="mb-6 flex flex-col md:flex-row items-center gap-4 px-6 py-4 rounded-2xl border border-indigo-100 bg-indigo-50/40 dark:bg-indigo-900/20 dark:border-indigo-800/50 backdrop-blur-md transition-all duration-300">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-medium">
-                {{ selectedIds.length }}
-              </div>
-              <div class="flex flex-col">
-                <span class="text-[10px] font-medium uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Actions Collective</span>
-                <span class="text-sm font-medium">{{ selectedIds.length }} candidat{{ selectedIds.length > 1 ? 's' : '' }} sélectionné{{ selectedIds.length > 1 ? 's' : '' }}</span>
-              </div>
-            </div>
-            <div class="flex-1"></div>
-            <div class="flex items-center gap-2">
-              <Can action="rejeter-candidature">
-                <button @click="bulkReject" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-medium transition-all">
-                  REJETER
-                </button>
-              </Can>
-              <button @click="selectedIds = []" class="px-4 py-2 text-gray-400 hover:text-red-500 transition-all font-medium text-xs uppercase tracking-widest">
-                Annuler
-              </button>
-            </div>
-          </div>
-        </Transition>
+
 
         <!-- SKELETON LOADER -->
         <div v-if="isLoading" class="space-y-4">
@@ -183,8 +160,7 @@
               :rows="filteredAdmis"
               :columns="visibleColumns"
               :loading="isLoading"
-              :hasCheckbox="true"
-              @rowSelect="onRowSelect"
+              :hasCheckbox="false"
               skin="bh-table-hover"
               class="elite-table-v2"
               :pageSize="10"
@@ -208,18 +184,16 @@
                  <span class="text-xs font-mono text-gray-700 dark:text-gray-300">{{ data.value.numero_dossier_affiche || '—' }}</span>
               </template>
 
-              <!-- Slot Filière -->
-               <template #filiere.nom="data">
-                  <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-[9px] font-medium uppercase tracking-wider">
-                     {{ data.value.filiere?.nom }}
-                  </span>
-               </template>
-
-              <!-- Slot Niveau -->
-               <template #niveau.libelle="data">
-                  <span class="px-3 py-1 bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-100 dark:border-violet-900/50 rounded-lg text-[9px] font-medium uppercase tracking-wider whitespace-nowrap">
-                     {{ data.value.niveau?.libelle || data.value.niveau_nom || 'N/A' }}
-                  </span>
+              <!-- Slot Programme (Filière & Niveau) -->
+               <template #programme="data">
+                  <div class="flex flex-col gap-1.5 items-start">
+                     <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-[9px] font-medium uppercase tracking-wider">
+                        {{ data.value.filiere?.nom }}
+                     </span>
+                     <span class="px-3 py-1 bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-100 dark:border-violet-900/50 rounded-lg text-[9px] font-medium uppercase tracking-wider whitespace-nowrap">
+                        {{ data.value.niveau?.libelle || data.value.niveau_nom || 'N/A' }}
+                     </span>
+                  </div>
                </template>
 
               <!-- Slot Date Admission -->
@@ -235,23 +209,18 @@
                     <button @click="navigateToEnroll(data.value)" class="w-9 h-9 bg-violet-600 text-white rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all" title="Inscrire le candidat">
                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
                     </button>
-                    <Can action="rejeter-candidature">
-                      <button @click="rejectCandidate(data.value)" class="w-9 h-9 bg-rose-50 dark:bg-rose-900/30 text-rose-600 rounded-xl flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all" title="Rejeter">
-                         <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-                      </button>
-                    </Can>
                  </div>
               </template>
            </vue3-datatable>
         </template>
 
         <!-- Empty State -->
-        <div v-else class="py-24 text-center">
-           <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gray-50 dark:bg-gray-900 mb-6 border border-gray-100 dark:border-gray-800">
-              <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+         <div v-else class="py-24 text-center">
+           <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gray-50 dark:bg-gray-800/50 mb-6 border border-gray-100 dark:border-gray-700">
+              <svg class="w-10 h-10 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
            </div>
-            <h3 class="text-lg font-medium text-gray-400 uppercase tracking-tighter">File d'attente vide</h3>
-            <p class="text-[11px] font-medium text-gray-400 uppercase tracking-widest mt-2">Aucun candidat prêt pour l'admission finale.</p>
+            <h3 class="text-lg font-medium text-gray-600 dark:text-gray-400 uppercase tracking-tighter">File d'attente vide</h3>
+            <p class="text-[11px] font-medium text-gray-500 dark:text-gray-500 uppercase tracking-widest mt-2">Aucun candidat prêt pour l'admission finale.</p>
          </div>
     </div>
     </div>
@@ -343,8 +312,7 @@ const rejectionTarget = ref({ isBulk: false, candidate: null })
 const cols = ref([
   { field: 'candidat', title: 'Candidat', isUnique: true, hide: false },
   { field: 'numero_dossier_affiche', title: 'Numéro de dossier', hide: false },
-  { field: 'filiere.nom', title: 'Filière', hide: false },
-  { field: 'niveau.libelle', title: 'Niveau', hide: false },
+  { field: 'programme', title: 'Filière & Niveau', hide: false },
   { field: 'admission_date', title: 'Admis le', hide: false },
   { field: 'actions', title: 'Actions', hide: false, sort: false, headerClass: 'justify-end', cellClass: 'justify-end' },
 ])
@@ -464,11 +432,11 @@ const formatDate = (dateString) => {
 onMounted(() => { refreshData() })
 </script>
 
-<style scoped>
-:deep(.elite-table-v2) {
+<style>
+.elite-table-v2 {
    background: transparent !important;
 }
-:deep(.elite-table-v2 thead tr th) {
+.elite-table-v2 thead tr th {
    font-size: 10px;
    font-weight: 600;
    color: #94a3b8;
@@ -477,29 +445,30 @@ onMounted(() => { refreshData() })
    padding: 1.5rem 1rem;
    border-bottom: 1px solid #f1f5f9;
 }
-.dark :deep(.elite-table-v2 thead tr th) {
-   border-bottom-color: #1e293b;
-   color: #64748b;
+.dark .elite-table-v2 thead tr th {
+   border-bottom-color: #334155;
+   color: #94a3b8;
 }
-:deep(.elite-table-v2 tbody tr) {
+.elite-table-v2 tbody tr {
    border: none;
+   background: transparent !important;
    transition: all 0.3s;
 }
-:deep(.elite-table-v2 tbody tr:hover) {
+.elite-table-v2 tbody tr:hover {
    background-color: #f8fafc !important;
 }
-.dark :deep(.elite-table-v2 tbody tr:hover) {
+.dark .elite-table-v2 tbody tr:hover {
    background-color: #1e293b !important;
 }
-:deep(.elite-table-v2 tbody tr td) {
+.elite-table-v2 tbody tr td {
    padding: 1rem 1rem;
    border-bottom: 1px solid #f1f5f9;
 }
-.dark :deep(.elite-table-v2 tbody tr td) {
+.dark .elite-table-v2 tbody tr td {
    border-bottom-color: #334155;
 }
 
-:deep(.prime-select-dashboard) {
+.prime-select-dashboard {
   border-radius: 0.75rem !important;
   border: 1px solid #e2e8f0 !important;
   background: white !important;
@@ -508,15 +477,15 @@ onMounted(() => { refreshData() })
   font-size: 0.875rem !important;
   color: #1e293b !important;
 }
-.dark :deep(.prime-select-dashboard) {
+.dark .prime-select-dashboard {
   background: #1f2937 !important;
   border-color: #374151 !important;
   color: #f3f4f6 !important;
 }
-:deep(.prime-select-dashboard .p-select-label) {
+.prime-select-dashboard .p-select-label {
   padding: 0.625rem 0.5rem !important;
 }
-:deep(.p-select-panel) {
+.p-select-panel {
   border-radius: 0.75rem !important;
 }
 

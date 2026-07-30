@@ -12,7 +12,13 @@
 
       <!-- Zone Logo -->
       <div class="h-20 flex items-center justify-center px-6 border-b border-gray-50 dark:border-[#1a1a2a] relative">
-        <img src="/logo/logo_escen.png" alt="Logo" class="max-h-12 object-contain drop-shadow-sm" />
+        <img v-if="appLogo" :src="appLogo" :alt="appName" class="max-h-12 object-contain drop-shadow-sm" />
+        <div v-else class="flex items-center justify-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#4f46e5] to-[#4338ca] flex items-center justify-center text-white font-bold shadow-md">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" /></svg>
+          </div>
+          <span class="text-sm font-extrabold text-[#111827] dark:text-white truncate max-w-[150px]">{{ appName }}</span>
+        </div>
         <button @click="isMobileMenuOpen = false" class="absolute right-4 lg:hidden p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-[#1a1a2a] rounded-lg">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
@@ -22,13 +28,13 @@
       <div class="px-6 py-6 border-b border-gray-50 dark:border-[#1a1a2a] bg-gray-50/30 dark:bg-[#0a0a12]/30">
         <div class="flex items-center space-x-4">
           <div class="relative">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#01b4d5] to-[#009ab5] flex items-center justify-center text-white font-extrabold text-lg shadow-[0_4px_12px_rgba(1,180,213,0.3)]">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#4f46e5] to-[#4338ca] flex items-center justify-center text-white font-extrabold text-lg shadow-[0_4px_12px_rgba(79,70,229,0.3)]">
               {{ candidatInitials }}
             </div>
             <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-white dark:border-[#11111e] rounded-full"></span>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-[15px] font-bold text-[#1A2238] dark:text-white truncate" :title="candidatFullName">{{ candidatFullName }}</p>
+            <p class="text-[15px] font-bold text-[#111827] dark:text-white truncate" :title="candidatFullName">{{ candidatFullName }}</p>
             <p class="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate mt-0.5">Candidat</p>
           </div>
         </div>
@@ -38,49 +44,49 @@
       <div class="flex-1 overflow-y-auto py-6 px-4 space-y-1.5 custom-scrollbar">
 
         <div class="flex items-center px-2 mb-4 mt-2">
-          <div class="w-1 h-4 bg-[#01b4d5] rounded-full"></div>
+          <div class="w-1 h-4 bg-[#4f46e5] rounded-full"></div>
           <h2 class="ml-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Mon espace</h2>
         </div>
 
-        <NuxtLink to="/candidat/dashboard" class="flex items-center px-3 py-3 rounded-xl transition-all duration-300 relative overflow-hidden group" :class="[$route.path === '/candidat/dashboard' ? 'bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-[#01b4d5]/10 dark:to-transparent text-[#01b4d5]' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a2a] hover:text-[#1A2238] dark:hover:text-white']" @click="isMobileMenuOpen = false">
-          <div class="p-2 rounded-lg transition-colors" :class="[$route.path === '/candidat/dashboard' ? 'bg-cyan-100/50 dark:bg-[#01b4d5]/20 shadow-sm text-[#01b4d5]' : 'bg-gray-100 dark:bg-[#1a1a2a] group-hover:bg-gray-200 dark:group-hover:bg-[#242438]']">
+        <NuxtLink to="/candidat/dashboard" class="flex items-center px-3 py-3 rounded-xl transition-all duration-300 relative overflow-hidden group" :class="[$route.path === '/candidat/dashboard' ? 'bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-[#4f46e5]/10 dark:to-transparent text-[#4f46e5]' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a2a] hover:text-[#111827] dark:hover:text-white']" @click="isMobileMenuOpen = false">
+          <div class="p-2 rounded-lg transition-colors" :class="[$route.path === '/candidat/dashboard' ? 'bg-indigo-100/50 dark:bg-[#4f46e5]/20 shadow-sm text-[#4f46e5]' : 'bg-gray-100 dark:bg-[#1a1a2a] group-hover:bg-gray-200 dark:group-hover:bg-[#242438]']">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
             </svg>
           </div>
-          <span class="ml-3 font-semibold text-sm flex-1 relative z-10" :class="{'font-bold text-[#01b4d5]': $route.path === '/candidat/dashboard'}">Tableau de bord</span>
-          <div v-if="$route.path === '/candidat/dashboard'" class="w-1.5 h-1.5 bg-[#01b4d5] rounded-full relative z-10 shadow-[0_0_8px_#01b4d5]"></div>
+          <span class="ml-3 font-semibold text-sm flex-1 relative z-10" :class="{'font-bold text-[#4f46e5]': $route.path === '/candidat/dashboard'}">Tableau de bord</span>
+          <div v-if="$route.path === '/candidat/dashboard'" class="w-1.5 h-1.5 bg-[#4f46e5] rounded-full relative z-10 shadow-[0_0_8px_#4f46e5]"></div>
         </NuxtLink>
 
-        <NuxtLink to="/candidat/profil" class="flex items-center px-3 py-3 rounded-xl transition-all duration-300 relative overflow-hidden group" :class="[$route.path === '/candidat/profil' ? 'bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-[#01b4d5]/10 dark:to-transparent text-[#01b4d5]' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a2a] hover:text-[#1A2238] dark:hover:text-white']" @click="isMobileMenuOpen = false">
-          <div class="p-2 rounded-lg transition-colors" :class="[$route.path === '/candidat/profil' ? 'bg-cyan-100/50 dark:bg-[#01b4d5]/20 shadow-sm text-[#01b4d5]' : 'bg-gray-100 dark:bg-[#1a1a2a] group-hover:bg-gray-200 dark:group-hover:bg-[#242438]']">
+        <NuxtLink to="/candidat/profil" class="flex items-center px-3 py-3 rounded-xl transition-all duration-300 relative overflow-hidden group" :class="[$route.path === '/candidat/profil' ? 'bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-[#4f46e5]/10 dark:to-transparent text-[#4f46e5]' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a2a] hover:text-[#111827] dark:hover:text-white']" @click="isMobileMenuOpen = false">
+          <div class="p-2 rounded-lg transition-colors" :class="[$route.path === '/candidat/profil' ? 'bg-indigo-100/50 dark:bg-[#4f46e5]/20 shadow-sm text-[#4f46e5]' : 'bg-gray-100 dark:bg-[#1a1a2a] group-hover:bg-gray-200 dark:group-hover:bg-[#242438]']">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
             </svg>
           </div>
-          <span class="ml-3 font-semibold text-sm flex-1 relative z-10" :class="{'font-bold text-[#01b4d5]': $route.path === '/candidat/profil'}">Infos personnelles</span>
-          <div v-if="$route.path === '/candidat/profil'" class="w-1.5 h-1.5 bg-[#01b4d5] rounded-full relative z-10 shadow-[0_0_8px_#01b4d5]"></div>
+          <span class="ml-3 font-semibold text-sm flex-1 relative z-10" :class="{'font-bold text-[#4f46e5]': $route.path === '/candidat/profil'}">Infos personnelles</span>
+          <div v-if="$route.path === '/candidat/profil'" class="w-1.5 h-1.5 bg-[#4f46e5] rounded-full relative z-10 shadow-[0_0_8px_#4f46e5]"></div>
         </NuxtLink>
 
-        <NuxtLink to="/candidat/documents" class="flex items-center px-3 py-3 rounded-xl transition-all duration-300 relative overflow-hidden group" :class="[$route.path === '/candidat/documents' ? 'bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-[#01b4d5]/10 dark:to-transparent text-[#01b4d5]' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a2a] hover:text-[#1A2238] dark:hover:text-white']" @click="isMobileMenuOpen = false">
-          <div class="p-2 rounded-lg transition-colors" :class="[$route.path === '/candidat/documents' ? 'bg-cyan-100/50 dark:bg-[#01b4d5]/20 shadow-sm text-[#01b4d5]' : 'bg-gray-100 dark:bg-[#1a1a2a] group-hover:bg-gray-200 dark:group-hover:bg-[#242438]']">
+        <NuxtLink to="/candidat/documents" class="flex items-center px-3 py-3 rounded-xl transition-all duration-300 relative overflow-hidden group" :class="[$route.path === '/candidat/documents' ? 'bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-[#4f46e5]/10 dark:to-transparent text-[#4f46e5]' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a2a] hover:text-[#111827] dark:hover:text-white']" @click="isMobileMenuOpen = false">
+          <div class="p-2 rounded-lg transition-colors" :class="[$route.path === '/candidat/documents' ? 'bg-indigo-100/50 dark:bg-[#4f46e5]/20 shadow-sm text-[#4f46e5]' : 'bg-gray-100 dark:bg-[#1a1a2a] group-hover:bg-gray-200 dark:group-hover:bg-[#242438]']">
              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
              </svg>
           </div>
-          <span class="ml-3 font-semibold text-sm flex-1 relative z-10" :class="{'font-bold text-[#01b4d5]': $route.path === '/candidat/documents'}">Mes documents</span>
-          <div v-if="$route.path === '/candidat/documents'" class="w-1.5 h-1.5 bg-[#01b4d5] rounded-full relative z-10 shadow-[0_0_8px_#01b4d5]"></div>
+          <span class="ml-3 font-semibold text-sm flex-1 relative z-10" :class="{'font-bold text-[#4f46e5]': $route.path === '/candidat/documents'}">Mes documents</span>
+          <div v-if="$route.path === '/candidat/documents'" class="w-1.5 h-1.5 bg-[#4f46e5] rounded-full relative z-10 shadow-[0_0_8px_#4f46e5]"></div>
         </NuxtLink>
 
-        <NuxtLink to="/candidat/notifications" class="flex items-center px-3 py-3 rounded-xl transition-all duration-300 relative overflow-hidden group" :class="[$route.path === '/candidat/notifications' ? 'bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-[#01b4d5]/10 dark:to-transparent text-[#01b4d5]' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a2a] hover:text-[#1A2238] dark:hover:text-white']" @click="isMobileMenuOpen = false">
-          <div class="relative p-2 rounded-lg transition-colors" :class="[$route.path === '/candidat/notifications' ? 'bg-cyan-100/50 dark:bg-[#01b4d5]/20 shadow-sm text-[#01b4d5]' : 'bg-gray-100 dark:bg-[#1a1a2a] group-hover:bg-gray-200 dark:group-hover:bg-[#242438]']">
+        <NuxtLink to="/candidat/notifications" class="flex items-center px-3 py-3 rounded-xl transition-all duration-300 relative overflow-hidden group" :class="[$route.path === '/candidat/notifications' ? 'bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-[#4f46e5]/10 dark:to-transparent text-[#4f46e5]' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a2a] hover:text-[#111827] dark:hover:text-white']" @click="isMobileMenuOpen = false">
+          <div class="relative p-2 rounded-lg transition-colors" :class="[$route.path === '/candidat/notifications' ? 'bg-indigo-100/50 dark:bg-[#4f46e5]/20 shadow-sm text-[#4f46e5]' : 'bg-gray-100 dark:bg-[#1a1a2a] group-hover:bg-gray-200 dark:group-hover:bg-[#242438]']">
              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
              </svg>
              <span v-if="unreadNotifications.length > 0" class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-[#11111e]"></span>
           </div>
-          <span class="ml-3 font-semibold text-sm flex-1 relative z-10" :class="{'font-bold text-[#01b4d5]': $route.path === '/candidat/notifications'}">Notifications</span>
-          <div v-if="$route.path === '/candidat/notifications'" class="w-1.5 h-1.5 bg-[#01b4d5] rounded-full relative z-10 shadow-[0_0_8px_#01b4d5]"></div>
+          <span class="ml-3 font-semibold text-sm flex-1 relative z-10" :class="{'font-bold text-[#4f46e5]': $route.path === '/candidat/notifications'}">Notifications</span>
+          <div v-if="$route.path === '/candidat/notifications'" class="w-1.5 h-1.5 bg-[#4f46e5] rounded-full relative z-10 shadow-[0_0_8px_#4f46e5]"></div>
         </NuxtLink>
       </div>
 
@@ -94,7 +100,7 @@
     </aside>
 
     <!-- Main Wrapper -->
-    <div class="flex-1 lg:ml-80 flex flex-col min-h-screen">
+    <div class="flex-1 lg:ml-80 flex flex-col min-h-screen min-w-0 w-full max-w-full">
 
       <!-- Topbar Header -->
       <header class="h-20 bg-white/80 dark:bg-[#11111e]/80 backdrop-blur-xl border-b border-gray-100 dark:border-[#1a1a2a] flex items-center justify-between px-4 lg:px-8 fixed top-0 right-0 left-0 lg:left-80 z-20 shadow-[0_2px_10px_rgba(0,0,0,0.01)] transition-all duration-300">
@@ -104,14 +110,14 @@
           <button @click="isMobileMenuOpen = true" class="lg:hidden p-2.5 bg-white dark:bg-[#1a1a2a] rounded-xl shadow-sm border border-gray-100 dark:border-[#242438] text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#242438] active:scale-95 transition-all">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
           </button>
-          <h1 class="text-lg lg:text-xl font-extrabold text-[#1A2238] dark:text-white hidden sm:block">Dossier Candidat</h1>
+          <h1 class="text-lg lg:text-xl font-extrabold text-[#111827] dark:text-white hidden sm:block">Dossier Candidat</h1>
         </div>
 
         <div class="flex items-center gap-3 lg:gap-5">
           <!-- Bascule de thème (clair / sombre / système) -->
           <button
             @click="toggleTheme"
-            class="w-10 h-10 rounded-xl bg-white dark:bg-[#1a1a2a] border border-gray-100 dark:border-[#242438] flex items-center justify-center text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#242438] hover:text-[#01b4d5] transition-all shadow-sm relative group cursor-pointer"
+            class="w-10 h-10 rounded-xl bg-white dark:bg-[#1a1a2a] border border-gray-100 dark:border-[#242438] flex items-center justify-center text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#242438] hover:text-[#4f46e5] transition-all shadow-sm relative group cursor-pointer"
             :title="`Mode ${currentThemeMode === 'dark' ? 'sombre' : currentThemeMode === 'light' ? 'clair' : 'système'}`"
           >
             <svg v-if="currentThemeMode === 'dark'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -128,7 +134,7 @@
 
           <!-- Notifications Dropdown -->
           <div class="relative dropdown-container">
-            <button @click="isNotificationDropdownOpen = !isNotificationDropdownOpen" class="w-10 h-10 rounded-xl bg-white dark:bg-[#1a1a2a] border border-gray-100 dark:border-[#242438] flex items-center justify-center text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#242438] hover:text-[#01b4d5] transition-all shadow-sm relative group cursor-pointer">
+            <button @click="isNotificationDropdownOpen = !isNotificationDropdownOpen" class="w-10 h-10 rounded-xl bg-white dark:bg-[#1a1a2a] border border-gray-100 dark:border-[#242438] flex items-center justify-center text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#242438] hover:text-[#4f46e5] transition-all shadow-sm relative group cursor-pointer">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
               <span v-if="unreadNotifications.length > 0" class="absolute -top-1 -right-1 min-w-[1.25rem] h-5 bg-red-500 border-2 border-white dark:border-[#11111e] rounded-full text-[10px] font-bold text-white flex items-center justify-center px-1 shadow-sm">{{ unreadNotifications.length > 9 ? '9+' : unreadNotifications.length }}</span>
             </button>
@@ -141,11 +147,11 @@
               leave-from-class="transform scale-100 opacity-100 translate-y-0"
               leave-to-class="transform scale-95 opacity-0 translate-y-2"
             >
-              <div v-if="isNotificationDropdownOpen" class="absolute right-0 mt-4 w-80 bg-white/95 dark:bg-[#11111e]/95 backdrop-blur-xl rounded-[1.5rem] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-white/50 dark:border-[#1a1a2a] p-2 z-50 overflow-hidden" @click.stop>
+              <div v-if="isNotificationDropdownOpen" class="absolute -right-12 sm:right-0 mt-4 w-[calc(100vw-2rem)] sm:w-80 max-w-[320px] bg-white/95 dark:bg-[#11111e]/95 backdrop-blur-xl rounded-[1.5rem] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-white/50 dark:border-[#1a1a2a] p-2 z-50 overflow-hidden" @click.stop>
 
                 <div class="px-4 py-3 mb-2 bg-gradient-to-br from-gray-50 to-white dark:from-[#0a0a12] dark:to-[#11111e] rounded-xl border border-gray-100/50 dark:border-[#1a1a2a] flex justify-between items-center">
-                  <p class="text-sm font-extrabold text-[#1A2238] dark:text-white">Notifications</p>
-                  <span v-if="unreadNotifications.length > 0" class="bg-cyan-100 dark:bg-cyan-900/30 text-cyan-800 dark:text-cyan-400 text-[10px] font-bold px-2 py-0.5 rounded-full">{{ unreadNotifications.length }} nouvelle(s)</span>
+                  <p class="text-sm font-extrabold text-[#111827] dark:text-white">Notifications</p>
+                  <span v-if="unreadNotifications.length > 0" class="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-400 text-[10px] font-bold px-2 py-0.5 rounded-full">{{ unreadNotifications.length }} nouvelle(s)</span>
                 </div>
 
                 <div v-if="unreadNotifications.length === 0" class="p-4 text-center">
@@ -156,14 +162,14 @@
                 </div>
 
                 <div v-else class="max-h-80 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
-                  <div v-for="notif in unreadNotifications.slice(0, 3)" :key="notif.id" class="p-3 bg-cyan-50/50 dark:bg-cyan-900/10 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 rounded-xl transition-colors border-l-2 border-[#01b4d5] cursor-pointer" @click="$router.push('/candidat/notifications'); isNotificationDropdownOpen = false">
+                  <div v-for="notif in unreadNotifications.slice(0, 3)" :key="notif.id" class="p-3 bg-indigo-50/50 dark:bg-indigo-900/10 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-colors border-l-2 border-[#4f46e5] cursor-pointer" @click="$router.push('/candidat/notifications'); isNotificationDropdownOpen = false">
                     <p class="text-xs font-bold text-gray-900 dark:text-white line-clamp-1">{{ notif.titre || notif.title || 'Notification' }}</p>
                     <p class="text-[11px] text-gray-600 dark:text-gray-400 line-clamp-2 mt-0.5">{{ notif.contenu || notif.message }}</p>
                     <p class="text-[10px] text-gray-400 mt-1">{{ formatRelativeTime(notif.created_at) }}</p>
                   </div>
                 </div>
 
-                <NuxtLink to="/candidat/notifications" class="block w-full text-center mt-2 p-2 text-xs font-bold text-[#01b4d5] hover:bg-cyan-50 dark:hover:bg-cyan-900/20 rounded-xl transition-colors" @click="isNotificationDropdownOpen = false">
+                <NuxtLink to="/candidat/notifications" class="block w-full text-center mt-2 p-2 text-xs font-bold text-[#4f46e5] hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-colors" @click="isNotificationDropdownOpen = false">
                   Voir toutes les notifications
                 </NuxtLink>
               </div>
@@ -177,12 +183,12 @@
           <div class="relative dropdown-container">
             <div @click="isProfileDropdownOpen = !isProfileDropdownOpen" class="flex items-center gap-2 lg:gap-3 cursor-pointer group select-none">
                <div class="hidden sm:block text-right">
-                 <p class="text-sm font-bold text-[#1A2238] dark:text-white leading-none group-hover:text-[#01b4d5] transition-colors">{{ candidatShortName }}</p>
+                 <p class="text-sm font-bold text-[#111827] dark:text-white leading-none group-hover:text-[#4f46e5] transition-colors">{{ candidatShortName }}</p>
                </div>
-               <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#01b4d5] to-[#009ab5] flex items-center justify-center text-white font-bold shadow-sm group-hover:shadow-md transition-all">
+               <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4f46e5] to-[#4338ca] flex items-center justify-center text-white font-bold shadow-sm group-hover:shadow-md transition-all">
                 {{ candidatInitials }}
                </div>
-               <svg :class="{'rotate-180 text-[#01b4d5]': isProfileDropdownOpen, 'text-gray-400': !isProfileDropdownOpen}" class="w-4 h-4 transition-transform duration-200 group-hover:text-[#01b4d5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+               <svg :class="{'rotate-180 text-[#4f46e5]': isProfileDropdownOpen, 'text-gray-400': !isProfileDropdownOpen}" class="w-4 h-4 transition-transform duration-200 group-hover:text-[#4f46e5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </div>
 
             <transition
@@ -193,11 +199,11 @@
               leave-from-class="transform scale-100 opacity-100 translate-y-0"
               leave-to-class="transform scale-95 opacity-0 translate-y-2"
             >
-              <div v-if="isProfileDropdownOpen" class="absolute right-0 mt-4 w-64 bg-white/95 dark:bg-[#11111e]/95 backdrop-blur-xl rounded-[1.5rem] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-white/50 dark:border-[#1a1a2a] p-2 z-50">
+              <div v-if="isProfileDropdownOpen" class="absolute -right-2 sm:right-0 mt-4 w-[calc(100vw-2rem)] sm:w-64 max-w-[256px] bg-white/95 dark:bg-[#11111e]/95 backdrop-blur-xl rounded-[1.5rem] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-white/50 dark:border-[#1a1a2a] p-2 z-50">
 
                 <div class="px-4 py-3 mb-2 bg-gradient-to-br from-gray-50 to-white dark:from-[#0a0a12] dark:to-[#11111e] rounded-xl border border-gray-100/50 dark:border-[#1a1a2a]">
-                  <p class="text-xs font-bold text-[#01b4d5] uppercase tracking-widest mb-1">Connecté en tant que</p>
-                  <p class="text-sm font-extrabold text-[#1A2238] dark:text-white truncate" :title="candidatFullName">{{ candidatFullName }}</p>
+                  <p class="text-xs font-bold text-[#4f46e5] uppercase tracking-widest mb-1">Connecté en tant que</p>
+                  <p class="text-sm font-extrabold text-[#111827] dark:text-white truncate" :title="candidatFullName">{{ candidatFullName }}</p>
                   <p class="text-xs font-medium text-gray-500 dark:text-gray-400 truncate">Candidat</p>
                 </div>
 
@@ -215,7 +221,7 @@
       </header>
 
       <!-- Main Content -->
-      <main class="flex-1 p-4 lg:p-8 mt-20 relative z-10">
+      <main class="flex-1 min-w-0 w-full overflow-x-hidden p-4 lg:p-8 mt-20 relative z-10">
         <slot />
       </main>
 
@@ -223,7 +229,7 @@
       <footer class="py-6 px-8 border-t border-gray-200/60 dark:border-[#1a1a2a] bg-white/50 dark:bg-[#11111e]/50 backdrop-blur-sm mt-auto text-center lg:text-left flex flex-col lg:flex-row justify-between items-center gap-4">
         <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">© {{ new Date().getFullYear() }} {{ appName }}. Tous droits réservés.</p>
         <p class="text-xs text-gray-400 dark:text-gray-500">
-          Développé par <a href="https://neostart.tech/" target="_blank" rel="noopener noreferrer" class="font-bold text-[#01b4d5] hover:underline">Neo Start Technology</a>
+          Développé par <a href="https://neostart.tech/" target="_blank" rel="noopener noreferrer" class="font-bold text-[#4f46e5] hover:underline">Neo Start Technology</a>
         </p>
       </footer>
     </div>
@@ -253,7 +259,8 @@ const toggleTheme = () => {
   themeStore.updateThemeSettings({ mode: next })
 }
 
-const appName = computed(() => parametreStore.getAppName || 'ESCEN University')
+const appName = computed(() => parametreStore.getAppName || 'Portail Candidat')
+const appLogo = computed(() => parametreStore.getAppLogo || '')
 
 const candidat = computed(() => candidatAuthStore.candidat)
 

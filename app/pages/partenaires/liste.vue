@@ -432,26 +432,19 @@
               </FloatLabel>
 
               <FloatLabel variant="on">
-                <!-- <Textarea
-                  id="details"
-                  v-model="form.details"
-                  rows="4"
-                  class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
-                /> -->
-                <Editor
-                  api-key="2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl"
-                  v-model="form.details"
-                  :init="{
-                    height: 250,
-                    menubar: false,
-                    plugins: 'lists link image media table wordcount',
-                    toolbar:
-                      'undo redo | bold italic underline | bullist numlist | link image media | removeformat',
-                    content_style:
-                      'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-                  }"
-                />
-                <!-- <label for="details">Description</label> -->
+                <!-- Éditeur Quill -->
+                <div class="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden bg-white dark:bg-gray-800 mt-2">
+                  <ClientOnly>
+                    <QuillEditor
+                      v-model:content="form.details"
+                      contentType="html"
+                      :toolbar="toolbarOptions"
+                      theme="snow"
+                      class="w-full text-gray-900 dark:text-white"
+                      style="min-height: 250px;"
+                    />
+                  </ClientOnly>
+                </div>
               </FloatLabel>
 
               <div class="flex justify-end gap-3">
@@ -494,8 +487,19 @@ import { useAdvertiserStore } from "~~/stores/adverstiser";
 import FloatLabel from "primevue/floatlabel";
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
-import Editor from "@tinymce/tinymce-vue";
 import ButtonDelete from "~/components/ui/buttonDelete.vue";
+
+const toolbarOptions = [
+  [{ 'font': [] }],
+  [{ 'size': ['small', false, 'large', 'huge'] }],
+  [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+  ['bold', 'italic', 'underline', 'strike'],
+  [{ 'color': [] }, { 'background': [] }],
+  [{ 'align': [] }],
+  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+  ['link', 'image', 'video'],
+  ['clean']
+];
 
 const { $toastr, $swal } = useNuxtApp();
 const advertiserStore = useAdvertiserStore();

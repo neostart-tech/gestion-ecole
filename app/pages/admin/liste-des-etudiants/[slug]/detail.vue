@@ -235,20 +235,26 @@
                     class="group bg-white dark:bg-gray-800 rounded-3xl border overflow-hidden shadow-sm transition-all duration-500"
                     :class="etudiantStore.etudiant.album && etudiantStore.etudiant.album[req.document_key] ? 'border-gray-100 dark:border-gray-700 hover:shadow-xl' : 'border-dashed border-red-200 dark:border-red-900/30 opacity-75'"
                 >
-                    <template v-if="etudiantStore.etudiant.album && etudiantStore.etudiant.album[req.document_key]">
+                    <template v-if="etudiantStore.etudiant.album && parseFiles(etudiantStore.etudiant.album[req.document_key]).length > 0">
+                      <template v-for="files in [parseFiles(etudiantStore.etudiant.album[req.document_key])]">
                         <div class="h-32 md:h-40 bg-gray-100 dark:bg-gray-900 flex items-center justify-center overflow-hidden">
-                            <img v-if="isImage(etudiantStore.etudiant.album[req.document_key])" :src="getFileUrl(etudiantStore.etudiant.album[req.document_key])" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                            <img v-if="isImage(files[0])" :src="getFileUrl(files[0])" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                             <div v-else class="flex flex-col items-center text-gray-400">
                                 <svg class="w-10 h-10 md:w-12 md:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                <span class="text-[10px] font-black uppercase mt-2 tracking-widest">{{ getFileExtension(etudiantStore.etudiant.album[req.document_key]) }}</span>
+                                <span class="text-[10px] font-black uppercase mt-2 tracking-widest">{{ getFileExtension(files[0]) }}</span>
+                                <span v-if="files.length > 1" class="text-[9px] font-bold mt-1 px-2 py-0.5 bg-gray-200 dark:bg-gray-700 rounded-full text-gray-600 dark:text-gray-300">+{{ files.length - 1 }} autre(s)</span>
                             </div>
                         </div>
-                        <div class="p-4 md:p-5 flex items-center justify-between gap-2">
+                        <div class="p-4 md:p-5 flex flex-col gap-3">
                             <h4 class="text-[10px] md:text-xs font-black text-gray-800 dark:text-white uppercase tracking-tight truncate">{{ req.nom_affichage }}</h4>
-                            <a :href="getFileUrl(etudiantStore.etudiant.album[req.document_key])" target="_blank" class="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-lg hover:bg-indigo-600 hover:text-white transition-all shrink-0">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                            </a>
+                            <div class="flex flex-wrap gap-2">
+                                <a v-for="(file, idx) in files" :key="idx" :href="getFileUrl(file)" target="_blank" class="flex-1 md:flex-none justify-center px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-lg hover:bg-indigo-600 hover:text-white transition-all text-[10px] font-bold flex items-center gap-1.5 shrink-0">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                    Fichier {{ files.length > 1 ? idx + 1 : '' }}
+                                </a>
+                            </div>
                         </div>
+                      </template>
                     </template>
                     <template v-else>
                         <div class="h-32 md:h-40 bg-gray-50 dark:bg-gray-900/50 flex flex-col items-center justify-center text-red-400 dark:text-red-500/50">
@@ -534,6 +540,20 @@ const formatDate = (date) => date ? new Date(date).toLocaleDateString('fr-FR', {
 const getFileUrl = (path) => `${process.dev ? config.app_dev_storage_url : config.app_prod_storage_url}/storage/${path}`;
 const isImage = (path) => /\.(jpg|jpeg|png|webp|svg)$/i.test(path);
 const getFileExtension = (path) => path?.split('.').pop().toUpperCase();
+
+const parseFiles = (value) => {
+    if (!value) return [];
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'string') {
+        try {
+            const parsed = JSON.parse(value);
+            return Array.isArray(parsed) ? parsed : [value];
+        } catch (e) {
+            return [value];
+        }
+    }
+    return [];
+};
 
 const printDossier = async () => {
     const html2pdf = await loadHtml2Pdf();

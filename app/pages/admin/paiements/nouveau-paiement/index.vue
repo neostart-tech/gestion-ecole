@@ -89,6 +89,10 @@
                       <Tag value="Tél" severity="warning" />
                       <span class="text-sm">{{ paiementStore.infosEtudiant.etudiant.telephone || 'N/A' }}</span>
                     </div>
+                    <div class="flex items-center gap-1">
+                      <Tag value="Mode" severity="secondary" />
+                      <span class="text-sm font-medium">{{ paiementStore.infosEtudiant.etudiant.mode_formation || 'Non défini' }}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -127,8 +131,44 @@
           </template>
         </Card>
 
+        <!-- Message d'Anomalie Financière (Bloquant) -->
+        <div v-if="paiementStore.infosEtudiant.anomalie && paiementStore.infosEtudiant.anomalie.has_anomalie" class="bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4 mb-6 rounded-r-lg shadow-sm">
+          <div class="flex items-start">
+            <div class="flex-shrink-0">
+              <i class="pi pi-exclamation-triangle text-red-500 text-xl"></i>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-lg font-bold text-red-800 dark:text-red-200">
+                Paiement bloqué : Incohérence financière détectée !
+              </h3>
+              <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+                <p>
+                  Une différence a été trouvée entre la scolarité académique attendue et le contrat financier actuel de l'étudiant.
+                </p>
+                <ul class="list-disc pl-5 mt-1 font-medium">
+                  <li>Montant du contrat actuel : {{ formatMontant(paiementStore.infosEtudiant.anomalie.dash) }}</li>
+                  <li>Tarif académique théorique : {{ formatMontant(paiementStore.infosEtudiant.anomalie.sit) }}</li>
+                  <li>Écart à régulariser : {{ formatMontant(paiementStore.infosEtudiant.anomalie.diff) }}</li>
+                </ul>
+                <p class="mt-2">
+                  Tant que cette situation n'est pas corrigée, aucun paiement ne peut être enregistré.
+                </p>
+              </div>
+              <div class="mt-4">
+                <NuxtLink :to="`/finance/recouvrement/${paiementStore.infosEtudiant.etudiant.slug}`">
+                  <Button
+                    label="Régulariser ce dossier"
+                    icon="pi pi-wrench"
+                    class="p-button-danger p-button-sm"
+                  />
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Formulaire de paiement -->
-        <Card class="shadow-lg border border-gray-100 dark:border-gray-700">
+        <Card v-else class="shadow-lg border border-gray-100 dark:border-gray-700">
           <template #title>
             <div class="flex items-center gap-2 px-6 pt-6">
               <i class="pi pi-credit-card text-indigo-600"></i>
@@ -464,7 +504,6 @@ import Toast from "primevue/toast";
 import { usePaiementGlobalStore } from "~~/stores/paiement";
 
 definePageMeta({
-  middleware: 'auth',
   layout: 'admin'
 });
 

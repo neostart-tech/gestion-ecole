@@ -1618,6 +1618,44 @@
                 <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium flex-1">Cartes d'étudiants</span>
               </NuxtLink>
             </li>
+            
+            <!-- Abandons -->
+            <li
+              v-if="
+                hasAnyRole([
+                  'directeur-academique',
+                  'directeur-general',
+                  'directeur-general-adjoint',
+                  'informaticien',
+                  'admin'
+                ]) || hasAnyPermission(['view-liste-abandons'])
+              "
+            >
+              <NuxtLink
+                to="/admin/etudiants/abandons"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/admin/etudiants/abandons'
+                    ? 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/admin/etudiants/abandons'
+                      ? 'bg-rose-100 dark:bg-rose-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM17 11h4" />
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium flex-1">Liste des abandons</span>
+              </NuxtLink>
+            </li>
           </ul>
         </section>
         <!-- SECTION GESTION FINANCIÈRE -->
@@ -1955,52 +1993,9 @@
                 >
               </NuxtLink>
             </li>
-            <li
-              v-if="
-                hasAnyRole([
-                  'responsable-administratif-et-financier',
-                  'directeur-general-adjoint',
-                  'directeur-general',
-                  'directeur-des-affaires-financieres',
-                  'admin',
-                  'charge-de-la-clientele'
-                ])
-              "
-            >
-              <NuxtLink
-                to="/admin/negociations"
-                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
-                :class="[
-                  $route.path === '/admin/negociations'
-                    ? 'bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 text-emerald-700 dark:text-emerald-400'
-                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
-                ]"
-                @click="toggleMobileMenu"
-              >
-                <div
-                  :class="[
-                    'p-1 rounded-lg',
-                    $route.path === '/admin/negociations'
-                      ? 'bg-emerald-100 dark:bg-emerald-900/30'
-                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
-                  ]"
-                >
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      d="M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2zm0 2v12h14V6H5zm4 2v2H7V8h2zm8 0v2h-2V8h2zM8 12h8v2H8v-2zm0 4h4v2H8v-2z"
-                    />
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662c.722-.481 1.324-1.256 1.324-2.246 0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.51-1.31c-.562-.649-1.413-1.076-2.353-1.253V5z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
-                  >Echancier et paiements</span
-                >
-              </NuxtLink>
-            </li>
+
+
+
             <li
               v-if="
                 hasAnyRole([
@@ -2043,7 +2038,7 @@
                   </svg>
                 </div>
                 <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
-                  >État des paiements</span
+                  >État des encaissements</span
                 >
               </NuxtLink>
             </li>
@@ -2089,7 +2084,7 @@
                   </svg>
                 </div>
                 <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
-                  >Paiements</span
+                  >Encaissements</span
                 >
               </NuxtLink>
             </li>
@@ -2136,7 +2131,7 @@
                   </svg>
                 </div>
                 <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
-                  >Situation des paiements</span
+                  >Situation des encaissements</span
                 >
               </NuxtLink>
             </li>
@@ -2266,6 +2261,46 @@
                 </div>
                 <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
                   >Gestion des Dépenses</span
+                >
+              </NuxtLink>
+            </li>
+            
+            <!-- Lien vers le Diagnostic Financier -->
+            <li
+              v-if="
+                hasAnyRole([
+                  'responsable-administratif-et-financier',
+                  'directeur-general-adjoint',
+                  'directeur-general',
+                  'directeur-des-affaires-financieres',
+                  'admin'
+                ])
+              "
+            >
+              <NuxtLink
+                to="/finance/diagnostic"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/finance/diagnostic'
+                    ? 'bg-gradient-to-r from-rose-50 to-orange-50 dark:from-rose-900/20 dark:to-orange-900/20 text-rose-700 dark:text-rose-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/finance/diagnostic'
+                      ? 'bg-rose-100 dark:bg-rose-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                  >Diagnostic & Audit</span
                 >
               </NuxtLink>
             </li>
@@ -2495,25 +2530,7 @@
                       Admission
                     </NuxtLink>
                   </li>
-                  <li
-                    v-if="
-                      parametreStore.isConcoursMode &&
-                      !hasAnyRole(['directeur-academique', 'logiticien-academique'])
-                    "
-                  >
-                    <NuxtLink
-                      to="/candidatures/attribution-groupe"
-                      class="block px-3 py-2 text-sm rounded-lg transition-colors"
-                      :class="[
-                        $route.path === '/candidatures/attribution-groupe'
-                          ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 font-medium'
-                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
-                      ]"
-                      @click="toggleMobileMenu"
-                    >
-                      Attribution de groupe
-                    </NuxtLink>
-                  </li>
+
                   <li
                     v-if="
                       !hasAnyRole(['directeur-academique', 'logiticien-academique'])
@@ -4600,14 +4617,23 @@ onMounted(() => {
   reclamationStore.fetchReclamations();
   parametreStore.fetchParametres();
 
-  // Activer le menu actif
+  // Activer le menu actif et scroller
   setTimeout(() => {
-    const selector = document.querySelector(
-      '.sidebar ul a[href="' + window.location.pathname + '"]',
-    );
-    if (selector) {
-      selector.classList.add("active");
-      const ul: any = selector.closest("ul.sub-menu");
+    let activeLink = document.querySelector('.sidebar-scroll a.router-link-exact-active, .sidebar-scroll a.router-link-active');
+    
+    if (!activeLink) {
+      activeLink = document.querySelector(
+        '.sidebar-scroll a[href="' + window.location.pathname + '"]',
+      );
+    }
+
+    if (activeLink) {
+      activeLink.classList.add("active");
+      
+      // Auto-scroll au niveau du lien
+      activeLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      const ul: any = activeLink.closest("ul.sub-menu");
       if (ul) {
         let ele: any =
           ul.closest("li.menu")?.querySelectorAll(".nav-link") || [];
@@ -4619,7 +4645,7 @@ onMounted(() => {
         }
       }
     }
-  }, 100);
+  }, 300);
 });
 </script>
 

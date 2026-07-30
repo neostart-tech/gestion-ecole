@@ -1,15 +1,15 @@
 <template>
   <div class="w-full space-y-8">
     <!-- Header Welcome -->
-    <div v-if="candidature" class="bg-gradient-to-r from-gray-900 to-[#1A2238] rounded-[10px] p-8 shadow-2xl relative overflow-hidden border border-gray-800">
+    <div v-if="candidature" class="bg-gradient-to-r from-gray-900 to-[#111827] rounded-[10px] p-8 shadow-2xl relative overflow-hidden border border-gray-800">
       <div class="absolute -right-20 -top-20 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-[#01b4d5]/20 rounded-full blur-2xl pointer-events-none"></div>
+      <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-[#4f46e5]/20 rounded-full blur-2xl pointer-events-none"></div>
 
       <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
         <div>
           <h1 class="text-2xl sm:text-3xl font-extrabold text-white mb-2 flex items-center gap-3">
-            Bonjour, <span class="text-[#01b4d5]">{{ candidature?.prenom || 'Candidat' }}</span>
-            <svg class="w-7 h-7 text-[#01b4d5] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+            Bonjour, <span class="text-[#4f46e5]">{{ candidature?.prenom || 'Candidat' }}</span>
+            <svg class="w-7 h-7 text-[#4f46e5] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
           </h1>
           <p class="text-gray-400 font-medium">Bienvenue sur votre espace d'admission {{ appName }}.</p>
         </div>
@@ -24,15 +24,15 @@
     <div v-else class="bg-gray-200 dark:bg-gray-800 animate-pulse rounded-[10px] h-32 w-full"></div>
 
     <!-- Message de Rectification sur le Dashboard -->
-    <div v-if="isRectification" class="bg-white dark:bg-[#11111e] rounded-[10px] border border-[#01b4d5]/20 shadow-xl shadow-[#01b4d5]/10 relative overflow-hidden mb-8">
-      <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#01b4d5] to-[#009ab5]"></div>
+    <div v-if="isRectification" class="bg-white dark:bg-[#11111e] rounded-[10px] border border-[#4f46e5]/20 shadow-xl shadow-[#4f46e5]/10 relative overflow-hidden mb-8">
+      <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#4f46e5] to-[#4338ca]"></div>
 
       <div class="p-8 md:p-10">
         <div class="flex flex-col md:flex-row gap-8 items-start">
 
           <!-- Icon -->
-          <div class="w-16 h-16 rounded-[10px] bg-[#01b4d5]/10 flex items-center justify-center flex-shrink-0 border border-[#01b4d5]/20 shadow-inner">
-            <svg class="w-8 h-8 text-[#01b4d5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          <div class="w-16 h-16 rounded-[10px] bg-[#4f46e5]/10 flex items-center justify-center flex-shrink-0 border border-[#4f46e5]/20 shadow-inner">
+            <svg class="w-8 h-8 text-[#4f46e5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
           </div>
 
           <!-- Content -->
@@ -55,7 +55,7 @@
 
             <!-- Actions -->
             <div class="flex flex-col sm:flex-row gap-5 items-center">
-              <button @click="submitRectification" :disabled="isSubmitting" class="w-full sm:w-auto px-8 py-4 bg-[#01b4d5] hover:bg-[#009ab5] text-white font-bold rounded-[10px] shadow-[0_4px_14px_0_rgba(1,180,213,0.39)] hover:shadow-[0_6px_20px_rgba(1,180,213,0.23)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70 disabled:pointer-events-none">
+              <button @click="submitRectification" :disabled="isSubmitting" class="w-full sm:w-auto px-8 py-4 bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold rounded-[10px] shadow-[0_4px_14px_0_rgba(79,70,229,0.39)] hover:shadow-[0_6px_20px_rgba(79,70,229,0.23)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70 disabled:pointer-events-none">
                 <svg v-if="isSubmitting" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                 <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                 {{ isSubmitting ? 'Envoi en cours...' : "J'ai terminé mes corrections" }}
@@ -71,7 +71,7 @@
 
       <!-- Timeline Col -->
       <div class="lg:col-span-2 bg-white dark:bg-[#11111e] rounded-[10px] p-8 shadow-xl border border-gray-100 dark:border-[#1a1a2a] relative overflow-hidden">
-        <h3 class="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white uppercase tracking-widest mb-8 border-l-4 border-[#01b4d5] pl-3">
+        <h3 class="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white uppercase tracking-widest mb-8 border-l-4 border-[#4f46e5] pl-3">
           État d'avancement du dossier
         </h3>
 
@@ -96,7 +96,7 @@
                    :class="{
                      'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]': etape.statut === 'termine',
                      'bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.5)]': etape.statut === 'alerte',
-                     'bg-gradient-to-r from-[#01b4d5] to-[#009ab5] shadow-[0_0_15px_rgba(1,180,213,0.5)]': etape.statut === 'en_cours',
+                     'bg-gradient-to-r from-[#4f46e5] to-[#4338ca] shadow-[0_0_15px_rgba(79,70,229,0.5)]': etape.statut === 'en_cours',
                      'bg-gray-200 dark:bg-gray-700': etape.statut === 'attente',
                    }">
                 <svg v-if="etape.statut === 'termine'" class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
@@ -109,7 +109,7 @@
                     :class="{
                       'text-gray-900 dark:text-white': etape.statut === 'termine',
                       'text-orange-600 dark:text-orange-400': etape.statut === 'alerte',
-                      'text-[#01b4d5]': etape.statut === 'en_cours',
+                      'text-[#4f46e5]': etape.statut === 'en_cours',
                       'text-gray-400 dark:text-gray-500': etape.statut === 'attente',
                     }">{{ etape.titre }}</h4>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">{{ etape.description }}</p>
@@ -118,9 +118,9 @@
                   <div class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-ping"></div>
                   <span class="text-[10px] text-orange-600 dark:text-orange-400 font-bold uppercase tracking-wider">Correction demandée</span>
                 </div>
-                <div v-else-if="etape.statut === 'en_cours'" class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] bg-[#01b4d5]/10 border border-[#01b4d5]/20">
-                  <div class="w-1.5 h-1.5 rounded-full bg-[#01b4d5] animate-ping"></div>
-                  <span class="text-[10px] text-[#01b4d5] font-bold uppercase tracking-wider">Étape actuelle en cours</span>
+                <div v-else-if="etape.statut === 'en_cours'" class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] bg-[#4f46e5]/10 border border-[#4f46e5]/20">
+                  <div class="w-1.5 h-1.5 rounded-full bg-[#4f46e5] animate-ping"></div>
+                  <span class="text-[10px] text-[#4f46e5] font-bold uppercase tracking-wider">Étape actuelle en cours</span>
                 </div>
                 <p v-else-if="etape.statut === 'termine'" class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider mt-2 bg-emerald-50 dark:bg-emerald-900/20 inline-block px-2.5 py-1 rounded-[10px] border border-emerald-100 dark:border-emerald-800">{{ etape.badge || 'Terminé' }}</p>
               </div>
@@ -138,7 +138,7 @@
           <div class="absolute inset-0 bg-gradient-to-br from-transparent to-gray-50 dark:to-[#0a0a12] pointer-events-none"></div>
           <div class="relative z-10">
             <div class="w-16 h-16 mx-auto rounded-[10px] flex items-center justify-center mb-4 transform -rotate-6 shadow-sm border transition-transform duration-500 group-hover:rotate-0"
-                 :class="candidature?.admission ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800' : (isRectification ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-500 dark:text-orange-400 border-orange-100 dark:border-orange-800' : (candidature?.dossier_valide ? 'bg-[#01b4d5]/10 text-[#01b4d5] border-[#01b4d5]/20' : 'bg-orange-50 dark:bg-orange-900/20 text-orange-500 dark:text-orange-400 border-orange-100 dark:border-orange-800'))">
+                 :class="candidature?.admission ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800' : (isRectification ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-500 dark:text-orange-400 border-orange-100 dark:border-orange-800' : (candidature?.dossier_valide ? 'bg-[#4f46e5]/10 text-[#4f46e5] border-[#4f46e5]/20' : 'bg-orange-50 dark:bg-orange-900/20 text-orange-500 dark:text-orange-400 border-orange-100 dark:border-orange-800'))">
                <svg v-if="candidature?.admission" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                <svg v-else-if="isRectification" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                <svg v-else class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -153,7 +153,7 @@
         </div>
 
         <!-- Shortcut Card Profil -->
-        <nuxt-link to="/candidat/profil" class="block bg-gradient-to-br from-[#01b4d5] to-[#009ab5] rounded-[10px] p-6 shadow-lg shadow-[#01b4d5]/20 hover:shadow-xl hover:shadow-[#01b4d5]/40 transition-all duration-300 transform hover:-translate-y-1 group relative overflow-hidden">
+        <nuxt-link to="/candidat/profil" class="block bg-gradient-to-br from-[#4f46e5] to-[#4338ca] rounded-[10px] p-6 shadow-lg shadow-[#4f46e5]/20 hover:shadow-xl hover:shadow-[#4f46e5]/40 transition-all duration-300 transform hover:-translate-y-1 group relative overflow-hidden">
           <div class="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-bl-full pointer-events-none transform translate-x-8 -translate-y-8 group-hover:translate-x-4 group-hover:-translate-y-4 transition-transform duration-500"></div>
 
           <div class="flex items-center justify-between relative z-10">
@@ -161,7 +161,7 @@
               <h3 class="text-lg font-bold text-white mb-1">Mon Profil</h3>
               <p class="text-xs text-white/80">Consulter mes informations</p>
             </div>
-            <div class="w-10 h-10 bg-white/20 rounded-[10px] flex items-center justify-center backdrop-blur-sm border border-white/20 group-hover:bg-white group-hover:text-[#01b4d5] text-white transition-colors duration-300">
+            <div class="w-10 h-10 bg-white/20 rounded-[10px] flex items-center justify-center backdrop-blur-sm border border-white/20 group-hover:bg-white group-hover:text-[#4f46e5] text-white transition-colors duration-300">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </div>
           </div>
@@ -174,7 +174,7 @@
               <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1">Mes Fichiers</h3>
               <p class="text-xs text-gray-500 dark:text-gray-400">Gérer mes pièces jointes</p>
             </div>
-            <div class="w-10 h-10 bg-gray-50 dark:bg-[#1a1a2a] rounded-[10px] flex items-center justify-center border border-gray-100 dark:border-[#242438] text-gray-400 group-hover:text-[#01b4d5] transition-colors duration-300">
+            <div class="w-10 h-10 bg-gray-50 dark:bg-[#1a1a2a] rounded-[10px] flex items-center justify-center border border-gray-100 dark:border-[#242438] text-gray-400 group-hover:text-[#4f46e5] transition-colors duration-300">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
             </div>
           </div>

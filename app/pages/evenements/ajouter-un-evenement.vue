@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div class="max-w-4xl mx-auto px-4 py-8 md:py-12">
+    <div class="w-full px-4 py-8 md:px-8 md:py-12">
       
       <!-- Breadcrumb -->
       <div class="flex items-center gap-2 text-sm text-gray-500 mb-8 font-medium">
@@ -137,7 +137,7 @@
                     </svg>
                   </div>
                   <p class="text-sm font-medium text-gray-500">Cliquez pour ajouter une image</p>
-                  <p class="text-xs text-gray-400 mt-1">PNG, JPG ou GIF (Max. 5Mo)</p>
+                  <p class="text-xs text-gray-400 mt-1">PNG, JPG ou GIF (Max. 10Mo)</p>
                 </div>
                 <input type="file" ref="imageInput" class="hidden" accept="image/*" @change="handleImage" />
               </div>
@@ -150,7 +150,7 @@
               </label>
               <div class="min-h-[300px] border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-[#7C86FF]/20 focus-within:border-[#7C86FF] transition-all">
                 <ClientOnly>
-                  <EditorTinyMCE v-model="form.details" />
+                  <CustomQuillEditor v-model="form.details" />
                   <template #fallback>
                     <div class="h-64 flex items-center justify-center bg-gray-50 text-gray-400 font-medium">
                       Chargement de l'éditeur...
@@ -191,7 +191,6 @@
 <script setup>
 import { ref } from "vue";
 import { useEvenementStore } from "~~/stores/evenement";
-import EditorTinyMCE from "~/components/EditorTinyMCE.vue";
 
 const evenementStore = useEvenementStore();
 const { $toastr } = useNuxtApp();
@@ -219,8 +218,8 @@ const destinations = [
 const handleImage = (e) => {
   const file = e.target.files[0];
   if (!file) return;
-  if (file.size > 5 * 1024 * 1024) {
-    $toastr.warning("Fichier trop lourd (Max 5Mo)");
+  if (file.size > 10 * 1024 * 1024) {
+    $toastr.warning("Fichier trop lourd (Max 10Mo)");
     return;
   }
   
@@ -264,37 +263,4 @@ const goBack = () => navigateTo("/evenements/liste");
 </script>
 
 <style scoped>
-/* Styles pour l'éditeur TinyMCE avec la couleur personnalisée */
-:deep(.tox-tinymce) {
-  border: none !important;
-}
-
-:deep(.tox-editor-header) {
-  border-bottom: 1px solid #e5e7eb !important;
-  background-color: #fafafa !important;
-}
-
-:deep(.tox .tox-edit-area__iframe) {
-  background-color: white !important;
-}
-
-:deep(.tox .tox-toolbar__primary) {
-  background-color: #fafafa !important;
-}
-
-:deep(.tox .tox-button--primary) {
-  background-color: #7C86FF !important;
-}
-
-:deep(.tox .tox-button--primary:hover) {
-  background-color: #6B76F0 !important;
-}
-
-:deep(.tox .tox-collection__item--active) {
-  background-color: #7C86FF20 !important;
-}
-
-:deep(.tox .tox-statusbar) {
-  border-top: 1px solid #e5e7eb !important;
-}
 </style>

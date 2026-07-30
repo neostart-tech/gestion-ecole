@@ -89,18 +89,31 @@
           />
         </div>
 
-        <!-- Titre -->
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-gray-700">
-            Titre <span class="text-rose-500">*</span>
-          </label>
-          <input
-            v-model="form.titre"
-            type="text"
-            required
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-            placeholder="Titre de l'opportunité"
-          />
+        <!-- Titre et Date -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">
+              Titre <span class="text-rose-500">*</span>
+            </label>
+            <input
+              v-model="form.titre"
+              type="text"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+              placeholder="Titre de l'opportunité"
+            />
+          </div>
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">
+              Date de publication
+            </label>
+            <input
+              v-model="form.created_at"
+              type="date"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all bg-white"
+            />
+            <p class="text-xs text-gray-500">Laissez vide pour aujourd'hui. Modifiez pour antidater.</p>
+          </div>
         </div>
 
         <!-- Document officiel -->
@@ -193,16 +206,8 @@
             Contenu de l'annonce <span class="text-rose-500">*</span>
           </label>
           
-          <!-- Éditeur TinyMCE -->
-          <div class="border border-gray-300 rounded-lg overflow-hidden">
-            <ClientOnly>
-              <Editor
-                v-model="form.contenu"
-                :init="editorConfig"
-                :key="editorKey"
-              />
-            </ClientOnly>
-          </div>
+          <!-- Éditeur Quill -->
+          <CustomQuillEditor v-model="form.contenu" />
         </div>
 
         <!-- Boutons d'action -->
@@ -280,34 +285,9 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue';
-import Editor from '@tinymce/tinymce-vue';
+import { ref, nextTick, computed } from 'vue';
 
-// Réinitialiser l'éditeur
-const editorKey = ref(0);
-const forceEditorRerender = () => {
-  editorKey.value += 1;
-};
-
-// Configuration de TinyMCE
-const editorConfig = {
-  apiKey: '2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl',
-  height: 400,
-  menubar: false,
-  plugins: [
-    'advlist', 'autolink', 'lists', 'link', 'charmap', 'preview',
-    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-    'insertdatetime', 'table', 'code', 'help', 'wordcount'
-  ],
-  toolbar: 'undo redo | blocks | ' +
-    'bold italic forecolor | alignleft aligncenter ' +
-    'alignright alignjustify | bullist numlist outdent indent | ' +
-    'removeformat | help | link image',
-  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }',
-  language: 'fr_FR',
-  branding: false,
-  statusbar: false
-};
+const isDarkEditor = computed(() => themeStore.shouldBeDark());
 
 // Données réactives
 const dragover = ref(false);
@@ -322,6 +302,7 @@ const form = ref({
   localisation: '',
   duree: '',
   titre: '',
+  created_at: '',
   document: null,
   contenu: ''
 });
@@ -438,7 +419,7 @@ const saveOpportunity = () => {
     id: opportunities.length > 0 ? Math.max(...opportunities.map(o => o.id)) + 1 : 1,
     titre: form.value.titre,
     annonceur: form.value.annonceur,
-    date: new Date().toISOString().split('T')[0],
+    date: form.value.created_at || new Date().toISOString().split('T')[0],
     typeOpportunite: form.value.typeOpportunite,
     typeContrat: form.value.typeContrat,
     localisation: form.value.localisation,
@@ -471,33 +452,14 @@ const closeSuccessModal = () => {
     localisation: '',
     duree: '',
     titre: '',
+    created_at: '',
     document: null,
     contenu: ''
   };
-  
-  // Réinitialiser l'éditeur
-  forceEditorRerender();
 };
-
-// Réinitialiser l'éditeur si nécessaire
-onMounted(() => {
-  nextTick(() => {
-    forceEditorRerender();
-  });
-});
 </script>
 
 <style scoped>
-/* Styles pour l'éditeur */
-:deep(.tox-tinymce) {
-  border: none !important;
-  border-radius: 0.5rem !important;
-}
-
-:deep(.tox-editor-header) {
-  border-bottom: 1px solid #e5e7eb !important;
-}
-
 /* Animation pour le drag & drop */
 @keyframes pulse {
   0%, 100% { opacity: 1; }

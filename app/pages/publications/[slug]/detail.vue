@@ -23,7 +23,7 @@
       </div>
 
       <!-- Contenu du blog -->
-      <div v-else-if="blog" class="max-w-4xl mx-auto">
+      <div v-else-if="blog" class="w-full">
         <!-- Barre d'actions flottante (mobile) -->
         <div class="lg:hidden mb-4">
           <div class="flex items-center justify-between gap-2 overflow-x-auto pb-2">

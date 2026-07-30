@@ -71,6 +71,21 @@
               >Mise à jour en temps réel</span
             >
 
+            <!-- Sélecteur Année Scolaire -->
+            <select
+              v-model="dashboardStore.anneeScolaireId"
+              @change="rafraichirDonnees"
+              class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+            >
+              <option
+                v-for="annee in anneeScolaireStore.annneescolaires"
+                :key="annee.id"
+                :value="annee.id"
+              >
+                {{ annee.nom }}
+              </option>
+            </select>
+
             <!-- Sélecteur de période -->
             <div
               class="flex bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-1"
@@ -180,7 +195,7 @@
         <div
           v-for="(kpi, index) in kpis"
           :key="index"
-          @click="navigateTo('/finance/recouvrement?tab=students')"
+          @click="navigateTo('/admin/etudiants/situation')"
           class="group bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-700 animate-fade-in-up cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-800"
           :style="{ animationDelay: index * 100 + 'ms' }"
         >
@@ -473,7 +488,14 @@
         <!-- Répartition du CA par niveau (Camembert) -->
         <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm">
           <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4 text-center">Répartition du CA par niveau</h3>
-          <div class="h-[350px] relative w-full flex justify-center">
+          <div v-if="dashboardStore.statistiques?.encaissements_par_niveau?.reduce((a, b) => a + (Number(b.total) || 0), 0) === 0" class="h-[350px] flex flex-col items-center justify-center opacity-60">
+             <div class="w-16 h-16 bg-slate-50 dark:bg-gray-700/50 rounded-full flex items-center justify-center mb-4">
+                 <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>
+             </div>
+             <p class="text-xs font-black text-slate-400 uppercase tracking-widest text-center">Aucune donnée</p>
+             <p class="text-[10px] text-slate-300 mt-1 text-center italic">Aucun chiffre d'affaires enregistré</p>
+          </div>
+          <div v-else class="h-[350px] relative w-full flex justify-center">
             <canvas ref="repartitionChart"></canvas>
           </div>
         </div>
@@ -752,7 +774,7 @@
           </h3>
           <!-- Pas de classement dédié : on renvoie vers la liste globale des paiements -->
           <NuxtLink
-            to="/finance/paiements"
+            to="/admin/paiements"
             class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline whitespace-nowrap flex-shrink-0"
           >
             Voir tous les paiements →
@@ -864,7 +886,7 @@
             Étudiants en retard
           </h3>
           <NuxtLink
-            to="/finance/recouvrement?tab=students&statut=retard"
+            to="/admin/etudiants/situation?statut=retard"
             class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline whitespace-nowrap flex-shrink-0"
           >
             Voir tout →
@@ -1239,7 +1261,7 @@
             Paiements récents
           </h3>
           <NuxtLink
-            to="/finance/paiements"
+            to="/admin/paiements"
             class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline whitespace-nowrap flex-shrink-0"
           >
             Voir tout →
@@ -1339,10 +1361,12 @@ import { ref, computed, onMounted, watch, nextTick } from "vue";
 import { useToast } from "primevue/usetoast";
 import Toast from "primevue/toast";
 import { useDashboardPaiementStore } from "~~/stores/dashboard-paiement";
+import { useAnneScolaireStore } from "~~/stores/annee-scolaire";
 import Chart from "chart.js/auto";
 
 const toast = useToast();
 const dashboardStore = useDashboardPaiementStore();
+const anneeScolaireStore = useAnneScolaireStore();
 
 // États locaux
 const isLoading = ref(true);
@@ -1536,6 +1560,10 @@ const areNewChartsDataReady = computed(() => {
 
 // Méthodes
 onMounted(async () => {
+  await anneeScolaireStore.fetchAnneeScolaire();
+  if (!dashboardStore.anneeScolaireId && anneeScolaireStore.activeAnnee) {
+    dashboardStore.setAnneeScolaire(anneeScolaireStore.activeAnnee.id);
+  }
   await chargerDonnees();
 });
 
@@ -1591,7 +1619,7 @@ const filterByStatut = (statutKey) => {
     life: 2000,
   });
   
-  navigateTo(`/finance/recouvrement?tab=students&statut=${statutKey}`);
+  navigateTo(`/admin/etudiants/situation?statut=${statutKey}`);
 };
 
 const chargerDonnees = async () => {
@@ -1653,10 +1681,8 @@ const initializeCharts = () => {
     console.log("Initialisation graphique évolution", evolutionChartData.value);
     
     // S'assurer que le canvas est propre
-    const ctx = evolutionChart.value.getContext('2d');
-    if (ctx) {
-      ctx.clearRect(0, 0, evolutionChart.value.width, evolutionChart.value.height);
-    }
+    const existingEvolution = Chart.getChart(evolutionChart.value);
+    if (existingEvolution) existingEvolution.destroy();
 
     evolutionChartInstance = new Chart(evolutionChart.value, {
       type: "line",
@@ -1734,10 +1760,8 @@ const initializeCharts = () => {
   if (statutChart.value && dashboardStore.graphiqueStatuts.length) {
     console.log("Initialisation graphique statuts", dashboardStore.graphiqueStatuts);
     
-    const ctx = statutChart.value.getContext('2d');
-    if (ctx) {
-      ctx.clearRect(0, 0, statutChart.value.width, statutChart.value.height);
-    }
+    const existingStatut = Chart.getChart(statutChart.value);
+    if (existingStatut) existingStatut.destroy();
 
     statutChartInstance = new Chart(statutChart.value, {
       type: "doughnut",
@@ -1793,8 +1817,8 @@ const initializeCharts = () => {
 
     // 1. Recouvrement par niveau (Bar + Ligne)
     if (recouvrementChart.value) {
-      const ctx = recouvrementChart.value.getContext('2d');
-      if (ctx) ctx.clearRect(0, 0, recouvrementChart.value.width, recouvrementChart.value.height);
+      const existingRecouvrement = Chart.getChart(recouvrementChart.value);
+      if (existingRecouvrement) existingRecouvrement.destroy();
 
       recouvrementChartInstance = new Chart(recouvrementChart.value, {
         type: 'bar',
@@ -1824,8 +1848,8 @@ const initializeCharts = () => {
 
     // 2. Retard de paiement YTD (Horizontal Bar)
     if (retardChart.value && retardsData.length > 0) {
-      const ctx = retardChart.value.getContext('2d');
-      if (ctx) ctx.clearRect(0, 0, retardChart.value.width, retardChart.value.height);
+      const existingRetard = Chart.getChart(retardChart.value);
+      if (existingRetard) existingRetard.destroy();
       
       retardChartInstance = new Chart(retardChart.value, {
         type: 'bar',
@@ -1855,15 +1879,15 @@ const initializeCharts = () => {
 
     // 3. Répartition CA (Pie)
     if (repartitionChart.value) {
-      const ctx = repartitionChart.value.getContext('2d');
-      if (ctx) ctx.clearRect(0, 0, repartitionChart.value.width, repartitionChart.value.height);
+      const existingRepartition = Chart.getChart(repartitionChart.value);
+      if (existingRepartition) existingRepartition.destroy();
 
       repartitionChartInstance = new Chart(repartitionChart.value, {
         type: 'pie',
         data: {
           labels,
           datasets: [{
-            data: encaissementsData.map(n => n.previsions),
+            data: encaissementsData.map(n => n.total),
             backgroundColor: encaissementsData.map((_, i) => getNiveauColor(i)),
             borderWidth: 1
           }]
@@ -1888,8 +1912,8 @@ const initializeCharts = () => {
 
     // 4. Effectifs / Abandons (Stacked)
     if (effectifsChart.value && effectifsData.length > 0) {
-      const ctx = effectifsChart.value.getContext('2d');
-      if (ctx) ctx.clearRect(0, 0, effectifsChart.value.width, effectifsChart.value.height);
+      const existingEffectifs = Chart.getChart(effectifsChart.value);
+      if (existingEffectifs) existingEffectifs.destroy();
 
       effectifsChartInstance = new Chart(effectifsChart.value, {
         type: 'bar',
