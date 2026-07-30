@@ -368,6 +368,15 @@
                     <span class="tracking-widest">GÉNÉRER ÉCHÉANCIERS</span>
                   </button>
                 </Can>
+
+                <button
+                  @click="openBulkChangeModeModal"
+                  class="flex-1 md:flex-none flex items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-2.5 rounded-2xl transition-all duration-300 text-[10px] md:text-xs font-black group bg-amber-500 hover:bg-amber-600 text-white shadow-md active:scale-95 text-center"
+                  title="Changer le mode de formation pour tous les sélectionnés"
+                >
+                  <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                  <span class="tracking-widest">MODE FORMATION</span>
+                </button>
               </div>
               
               <div class="hidden md:flex flex-1"></div>
@@ -510,6 +519,15 @@
                   >
                     <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                  <button
+                    @click="openChangeModeModal(data.value)"
+                    class="flex items-center justify-center w-8 h-8 text-gray-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-all"
+                    title="Changer le mode de formation"
+                  >
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
                     </svg>
                   </button>
 
@@ -838,6 +856,126 @@
       :app-name="appName"
       @close="closeRecuModal"
     />
+
+    <!-- Modal Changement de Mode de Formation (Individuel) -->
+    <div v-if="showChangeModeModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+      <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-100 dark:border-gray-700 space-y-5">
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-gray-700 pb-4">
+          <div>
+            <h3 class="text-lg font-black text-slate-800 dark:text-white">Changer le Mode de Formation</h3>
+            <p class="text-xs text-slate-500 dark:text-gray-400 font-medium mt-0.5">
+              {{ changeModeEtudiant?.nom }} {{ changeModeEtudiant?.prenom }}
+              <span class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-gray-700 text-slate-600 dark:text-gray-300">
+                {{ changeModeEtudiant?.matricule }}
+              </span>
+            </p>
+          </div>
+          <button @click="showChangeModeModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <p class="text-sm text-slate-600 dark:text-gray-300">
+          Le changement de mode de formation déclenchera un <span class="font-bold text-amber-600 dark:text-amber-400">recalcul automatique</span> des tarifs de scolarité applicables.
+        </p>
+        <div class="space-y-2">
+          <label
+            v-for="mode in modesFormation"
+            :key="mode.value"
+            class="flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all"
+            :class="changeModeSelected === mode.value
+              ? 'border-amber-500 bg-amber-50/50 dark:bg-amber-900/20 ring-2 ring-amber-500/20'
+              : 'border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700/50'"
+          >
+            <div class="flex items-center gap-3">
+              <input type="radio" v-model="changeModeSelected" :value="mode.value" class="w-4 h-4 text-amber-600 focus:ring-amber-500" />
+              <div>
+                <span class="font-bold text-sm text-slate-800 dark:text-white">{{ mode.label }}</span>
+                <p class="text-xs text-slate-400">{{ mode.desc }}</p>
+              </div>
+            </div>
+            <span v-if="changeModeEtudiant?.mode_formation === mode.value" class="text-xs font-semibold px-2 py-0.5 bg-slate-200 dark:bg-gray-700 text-slate-600 dark:text-gray-300 rounded-md">Actuel</span>
+          </label>
+        </div>
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button @click="showChangeModeModal = false" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-300 text-sm font-bold hover:bg-slate-100 dark:hover:bg-gray-700 transition-all">Annuler</button>
+          <button
+            @click="submitChangeMode"
+            :disabled="savingChangeMode || changeModeSelected === changeModeEtudiant?.mode_formation"
+            class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold shadow-md shadow-amber-500/20 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg v-if="savingChangeMode" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Enregistrer & Recalculer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Changement Groupe (Mode Formation Groupé) -->
+    <div v-if="showBulkChangeModeModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+      <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-100 dark:border-gray-700 space-y-5">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-gray-700 pb-4">
+          <div>
+            <h3 class="text-lg font-black text-slate-800 dark:text-white">Changement Groupé du Mode</h3>
+            <p class="text-xs text-slate-500 dark:text-gray-400 font-medium mt-0.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-bold">
+                {{ selectedIds.length }} étudiant(s) sélectionné(s)
+              </span>
+            </p>
+          </div>
+          <button @click="showBulkChangeModeModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <p class="text-sm text-slate-600 dark:text-gray-300">
+          Tous les <strong>{{ selectedIds.length }} étudiants</strong> sélectionnés seront mis à jour avec le mode choisi. Les tarifs seront <span class="font-bold text-amber-600 dark:text-amber-400">recalculés automatiquement</span> pour chacun.
+        </p>
+
+        <div class="space-y-2">
+          <label
+            v-for="mode in modesFormation"
+            :key="mode.value"
+            class="flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all"
+            :class="bulkModeSelected === mode.value
+              ? 'border-amber-500 bg-amber-50/50 dark:bg-amber-900/20 ring-2 ring-amber-500/20'
+              : 'border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700/50'"
+          >
+            <input type="radio" v-model="bulkModeSelected" :value="mode.value" class="w-4 h-4 text-amber-600 focus:ring-amber-500" />
+            <div>
+              <span class="font-bold text-sm text-slate-800 dark:text-white">{{ mode.label }}</span>
+              <p class="text-xs text-slate-400">{{ mode.desc }}</p>
+            </div>
+          </label>
+        </div>
+
+        <!-- Progress bar pendant le traitement -->
+        <div v-if="savingBulkMode" class="space-y-2">
+          <div class="flex justify-between text-xs text-slate-500">
+            <span>Traitement en cours...</span>
+            <span>{{ bulkProgress }}/{{ selectedIds.length }}</span>
+          </div>
+          <div class="w-full h-2 bg-slate-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div
+              class="h-full bg-amber-500 rounded-full transition-all duration-300"
+              :style="{ width: selectedIds.length > 0 ? (bulkProgress / selectedIds.length * 100) + '%' : '0%' }"
+            ></div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button @click="showBulkChangeModeModal = false" :disabled="savingBulkMode" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-300 text-sm font-bold hover:bg-slate-100 dark:hover:bg-gray-700 transition-all disabled:opacity-50">Annuler</button>
+          <button
+            @click="submitBulkChangeMode"
+            :disabled="savingBulkMode || !bulkModeSelected"
+            class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold shadow-md shadow-amber-500/20 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg v-if="savingBulkMode" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Appliquer à tous ({{ selectedIds.length }})
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -866,6 +1004,7 @@ import Breadcrumb from "~/components/Breadcrumb.vue"
 import RecuPaiement from "~/components/finance/RecuPaiement.vue"
 import { useEtudiantSituationStore } from '~~/stores/etudiant-situation'
 import { useParametreStore } from '~~/stores/parametre'
+import { useDiagnosticFinancierStore } from '~~/stores/diagnosticFinancier'
 import { useDebounce } from '@vueuse/core'
 import Swal from 'sweetalert2'
 import config from '~~/config'
@@ -873,6 +1012,7 @@ import config from '~~/config'
 // Stores
 const store = useEtudiantSituationStore()
 const parametreStore = useParametreStore()
+const diagnosticStore = useDiagnosticFinancierStore()
 
 // États locaux
 const currentPage = ref(1)
@@ -883,6 +1023,22 @@ const showEcheancesModal = ref(false)
 const showRecuModal = ref(false)
 const selectedEtudiant = ref(null)
 const selectedIds = ref([]) // IDs des étudiants sélectionnés
+
+// État du modal de changement de mode de formation (individuel)
+const showChangeModeModal = ref(false)
+const changeModeEtudiant = ref(null)
+const changeModeSelected = ref('Présentiel')
+const savingChangeMode = ref(false)
+
+// État du modal de changement de mode de formation (groupé)
+const showBulkChangeModeModal = ref(false)
+const bulkModeSelected = ref('Présentiel')
+const savingBulkMode = ref(false)
+const bulkProgress = ref(0)
+const modesFormation = [
+  { value: 'Présentiel', label: 'Présentiel', desc: 'Cours en salle, présence physique requise' },
+  { value: 'En ligne',   label: 'En ligne',   desc: 'Cours à distance, 100% online' },
+]
 
 // Debounce pour la recherche
 const debouncedSearch = useDebounce(searchQuery, 300)
@@ -1301,5 +1457,86 @@ const bulkCreateEcheanciers = () => {
   const ids = selectedIds.value.join(',')
   // On redirige vers la page de création en passant les IDs sélectionnés
   navigateTo(`/admin/negociations/creer-une-negociation?etudiants=${ids}`)
+}
+
+// ---- Changement rapide du mode de formation (individuel) ----
+const openChangeModeModal = (etudiant) => {
+  changeModeEtudiant.value = etudiant
+  changeModeSelected.value = etudiant.mode_formation || 'Présentiel'
+  showChangeModeModal.value = true
+}
+
+const submitChangeMode = async () => {
+  if (!changeModeEtudiant.value) return
+  savingChangeMode.value = true
+  try {
+    await diagnosticStore.changerModeFormation(
+      changeModeEtudiant.value.id,
+      changeModeSelected.value
+    )
+    Swal.fire({
+      icon: 'success',
+      title: 'Mode mis à jour',
+      text: `Mode de formation changé en "${changeModeSelected.value}" et frais recalculés.`,
+      timer: 2500,
+      showConfirmButton: false
+    })
+    showChangeModeModal.value = false
+    await store.refreshData()
+  } catch (error) {
+    const msg = error.response?.data?.message || 'Échec de la modification du mode de formation.'
+    Swal.fire('Erreur', msg, 'error')
+  } finally {
+    savingChangeMode.value = false
+  }
+}
+
+// ---- Changement groupé du mode de formation ----
+const openBulkChangeModeModal = () => {
+  if (selectedIds.value.length === 0) return
+  bulkModeSelected.value = 'Présentiel'
+  bulkProgress.value = 0
+  showBulkChangeModeModal.value = true
+}
+
+const submitBulkChangeMode = async () => {
+  if (!bulkModeSelected.value || selectedIds.value.length === 0) return
+  savingBulkMode.value = true
+  bulkProgress.value = 0
+
+  const ids = [...selectedIds.value]
+  let errors = 0
+
+  for (const id of ids) {
+    try {
+      await diagnosticStore.changerModeFormation(id, bulkModeSelected.value)
+      bulkProgress.value++
+    } catch {
+      errors++
+      bulkProgress.value++
+    }
+  }
+
+  savingBulkMode.value = false
+  showBulkChangeModeModal.value = false
+
+  if (errors === 0) {
+    Swal.fire({
+      icon: 'success',
+      title: 'Mise à jour groupée réussie',
+      text: `${ids.length} étudiant(s) passé(s) en mode "${bulkModeSelected.value}" avec recalcul des frais.`,
+      timer: 3000,
+      showConfirmButton: false
+    })
+  } else {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Terminé avec des erreurs',
+      text: `${ids.length - errors} succès, ${errors} échec(s). Veuillez relancer pour les échecs.`,
+    })
+  }
+
+  selectedIds.value = []
+  await store.refreshData()
 }
 </script>

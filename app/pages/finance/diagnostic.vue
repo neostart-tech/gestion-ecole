@@ -24,7 +24,7 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="flex items-center justify-center py-20 relative z-10">
+    <div v-if="loading && !result" class="flex items-center justify-center py-20 relative z-10">
       <div class="flex flex-col items-center gap-4">
         <div class="w-12 h-12 border-4 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
         <p class="text-slate-500 font-medium animate-pulse">Analyse comptable en cours...</p>
@@ -85,8 +85,35 @@
           >
             <!-- Custom columns -->
             <template #nom="data">
-              <span class="font-bold text-slate-800 dark:text-white">{{ data.value.nom }}</span>
+              <div>
+                <span class="font-bold text-slate-800 dark:text-white block">{{ data.value.nom }}</span>
+                <span v-if="data.value.niveau" class="text-xs text-slate-400">{{ data.value.niveau }}</span>
+              </div>
             </template>
+
+            <template #mode_formation="data">
+              <div class="flex items-center gap-2">
+                <span 
+                  class="px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1"
+                  :class="data.value.mode_formation === 'En ligne' 
+                    ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+                    : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                  {{ data.value.mode_formation || 'Présentiel' }}
+                </span>
+                <button 
+                  @click="openChangeModeModal(data.value)"
+                  title="Changer le mode de formation"
+                  class="p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                  </svg>
+                </button>
+              </div>
+            </template>
+
             <template #sit="data">
               <div class="text-right font-semibold text-slate-600 dark:text-gray-300 tabular-nums">
                 {{ formatMontant(data.value.sit) }}
@@ -103,14 +130,71 @@
               </div>
             </template>
             <template #actions="data">
-              <div class="text-center flex justify-center">
-                <NuxtLink :to="`/finance/recouvrement/${data.value.slug}`" class="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 rounded-xl text-xs font-bold transition-all">
+              <div class="text-center flex justify-center items-center gap-2">
+                <button 
+                  @click="openChangeModeModal(data.value)" 
+                  class="inline-flex items-center gap-1.5 px-3 py-2 bg-amber-50 hover:bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50 rounded-xl text-xs font-bold transition-all border border-amber-200 dark:border-amber-800 shadow-sm"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                  Changer Mode
+                </button>
+                <NuxtLink :to="`/finance/recouvrement/${data.value.slug}`" class="inline-flex items-center gap-1.5 px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 rounded-xl text-xs font-bold transition-all">
                     Régulariser
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                 </NuxtLink>
               </div>
             </template>
           </vue3-datatable>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Changer Mode de Formation -->
+    <div v-if="showModeModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+      <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-100 dark:border-gray-700 space-y-6 animate-scale-up">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-gray-700 pb-4">
+          <div>
+            <h3 class="text-lg font-black text-slate-800 dark:text-white">Changement Rapide du Mode</h3>
+            <p class="text-xs text-slate-500 dark:text-gray-400 font-medium">{{ selectedEtudiant?.nom }}</p>
+          </div>
+          <button @click="showModeModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <p class="text-sm text-slate-600 dark:text-gray-300">
+            Sélectionnez le nouveau mode de formation. Les tarifs et frais de scolarité seront <span class="font-bold text-indigo-600 dark:text-indigo-400">recalculés automatiquement</span> pour cet étudiant.
+          </p>
+
+          <div class="space-y-2">
+            <label v-for="mode in modesDisponibles" :key="mode" 
+              class="flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all"
+              :class="selectedMode === mode 
+                ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20 text-indigo-900 dark:text-indigo-200 ring-2 ring-indigo-500/20' 
+                : 'border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700/50 text-slate-700 dark:text-gray-300'"
+            >
+              <div class="flex items-center gap-3">
+                <input type="radio" v-model="selectedMode" :value="mode" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500" />
+                <span class="font-bold text-sm">{{ mode }}</span>
+              </div>
+              <span v-if="selectedEtudiant?.mode_formation === mode" class="text-xs font-semibold px-2 py-0.5 bg-slate-200 dark:bg-gray-700 text-slate-600 dark:text-gray-300 rounded-md">Actuel</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button @click="showModeModal = false" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-300 text-sm font-bold hover:bg-slate-100 dark:hover:bg-gray-700 transition-all">
+            Annuler
+          </button>
+          <button 
+            @click="submitChangeMode" 
+            :disabled="savingMode || selectedMode === selectedEtudiant?.mode_formation"
+            class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-md shadow-indigo-500/20 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg v-if="savingMode" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Enregistrer & Recalculer
+          </button>
         </div>
       </div>
     </div>
@@ -126,13 +210,21 @@ import '@bhplugin/vue3-datatable/dist/style.css';
 
 const cols = [
   { field: 'nom', title: 'Étudiant' },
+  { field: 'mode_formation', title: 'Mode Formation' },
   { field: 'sit', title: 'Tarif Académique (Attendu)', headerClass: 'justify-end' },
   { field: 'dash', title: 'Contrat Actuel (Facturé)', headerClass: 'justify-end' },
   { field: 'diff', title: 'Écart (Différence)', headerClass: 'justify-end' },
-  { field: 'actions', title: 'Action', sort: false, headerClass: 'justify-center' }
+  { field: 'actions', title: 'Actions', sort: false, headerClass: 'justify-center' }
 ];
 
 const search = ref('');
+
+// Modal & Quick Change State
+const showModeModal = ref(false);
+const selectedEtudiant = ref(null);
+const selectedMode = ref('Présentiel');
+const savingMode = ref(false);
+const modesDisponibles = ['Présentiel', 'En ligne'];
 
 const diagnosticStore = useDiagnosticFinancierStore();
 const { $toast } = useNuxtApp();
@@ -145,6 +237,39 @@ const loadDiagnostic = async () => {
     await diagnosticStore.fetchDiagnostic();
   } catch (error) {
     console.error("Erreur chargement diagnostic:", error);
+  }
+};
+
+const openChangeModeModal = (etudiant) => {
+  selectedEtudiant.value = etudiant;
+  selectedMode.value = etudiant.mode_formation || 'Présentiel';
+  showModeModal.value = true;
+};
+
+const submitChangeMode = async () => {
+  if (!selectedEtudiant.value) return;
+  savingMode.value = true;
+  try {
+    const res = await diagnosticStore.changerModeFormation(
+      selectedEtudiant.value.id,
+      selectedMode.value
+    );
+    if ($toast?.success) {
+      $toast.success(res.message || "Mode de formation mis à jour avec succès !");
+    } else {
+      alert(res.message || "Mode de formation mis à jour avec succès !");
+    }
+    showModeModal.value = false;
+  } catch (error) {
+    console.error("Erreur lors de la modification du mode:", error);
+    const msg = error.response?.data?.message || "Échec de la modification du mode.";
+    if ($toast?.error) {
+      $toast.error(msg);
+    } else {
+      alert(msg);
+    }
+  } finally {
+    savingMode.value = false;
   }
 };
 
