@@ -2279,7 +2279,7 @@
             >
               <NuxtLink
                 to="/finance/diagnostic"
-                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                class="flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 group"
                 :class="[
                   $route.path === '/finance/diagnostic'
                     ? 'bg-gradient-to-r from-rose-50 to-orange-50 dark:from-rose-900/20 dark:to-orange-900/20 text-rose-700 dark:text-rose-400'
@@ -2287,21 +2287,29 @@
                 ]"
                 @click="toggleMobileMenu"
               >
-                <div
-                  :class="[
-                    'p-1 rounded-lg',
-                    $route.path === '/finance/diagnostic'
-                      ? 'bg-rose-100 dark:bg-rose-900/30'
-                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
-                  ]"
-                >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                  </svg>
+                <div class="flex items-center">
+                  <div
+                    :class="[
+                      'p-1 rounded-lg',
+                      $route.path === '/finance/diagnostic'
+                        ? 'bg-rose-100 dark:bg-rose-900/30'
+                        : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                    ]"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                  </div>
+                  <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                    >Diagnostic & Audit</span
+                  >
                 </div>
-                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
-                  >Diagnostic & Audit</span
+                <span
+                  v-if="themeStore.isSidebarOpen && (diagnosticStore.result?.nb_differences || 0) > 0"
+                  class="ml-auto bg-rose-500 text-white text-[11px] font-black px-2 py-0.5 rounded-full animate-pulse shadow-sm"
                 >
+                  {{ diagnosticStore.result?.nb_differences }}
+                </span>
               </NuxtLink>
             </li>
           </ul>
@@ -4189,6 +4197,7 @@ import { useMessageStore } from "~~/stores/message";
 import { useReclamationStore } from "~~/stores/reclamation";
 import { useParametreStore } from "~~/stores/parametre";
 import { useCandidatureStore } from "~~/stores/candidature";
+import { useDiagnosticFinancierStore } from "~~/stores/diagnosticFinancier";
 import config from "~~/config";
 
 import Swal from "sweetalert2";
@@ -4222,6 +4231,7 @@ const parametreStore = useParametreStore();
 const messageStore = useMessageStore();
 const reclamationStore = useReclamationStore();
 const candidatureStore = useCandidatureStore();
+const diagnosticStore = useDiagnosticFinancierStore();
 const route = useRoute();
 
 // État des dropdowns
@@ -4612,6 +4622,7 @@ onMounted(() => {
   fetchRoles();
   fetchCount();
   candidatureStore.fetchCountATraiter();
+  diagnosticStore.fetchDiagnostic().catch(() => {});
 
   messageCount.value = messageStore.totalUnread.count;
   reclamationStore.fetchReclamations();
