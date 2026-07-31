@@ -2747,6 +2747,20 @@
                       Journal d'activité
                     </NuxtLink>
                   </li>
+                  <li v-if="hasAnyRole(['informaticien', 'directeur-general', 'directeur-general-adjoint', 'admin', 'superadmin']) || can('view-logs')">
+                    <NuxtLink
+                      to="/sauvegardes/liste"
+                      class="block px-3 py-2 text-sm rounded-lg transition-colors"
+                      :class="[
+                        $route.path.startsWith('/sauvegardes')
+                          ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 font-medium'
+                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
+                      ]"
+                      @click="toggleMobileMenu"
+                    >
+                      Sauvegardes BDD &amp; Fichiers
+                    </NuxtLink>
+                  </li>
                 </ul>
               </vue-collapsible>
             </li>

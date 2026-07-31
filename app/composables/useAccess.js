@@ -18,5 +18,17 @@ export const useAccess = () => {
     return permissions.includes(permission);
   };
 
-  return { can };
+  const hasRole = (role) => {
+    if (!user.value) return false;
+    const userRole = user.value?.role?.slug || user.value?.role;
+    return userRole === role;
+  };
+
+  const hasAnyRole = (roles = []) => {
+    if (!user.value) return false;
+    const userRole = user.value?.role?.slug || user.value?.role;
+    return roles.includes(userRole);
+  };
+
+  return { can, hasRole, hasAnyRole };
 };

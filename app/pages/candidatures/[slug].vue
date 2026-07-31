@@ -498,7 +498,7 @@ const personalItems = computed(() => [
   { label: 'Téléphone 1', value: candidat.value?.tel },
   { label: 'Téléphone 2', value: candidat.value?.tel2 },
   { label: 'Numéro de bordereau', value: candidat.value?.numero_bordereau },
-  { label: 'Comment il/elle nous a connus', value: candidat.value?.moyen_connaissance?.libelle },
+  { label: 'Comment il/elle nous a connus', value: candidat.value?.moyen_connaissance?.libelle ? (candidat.value.moyen_connaissance.libelle.trim().toLowerCase() === 'autre' && candidat.value.moyen_connaissance_precision ? `Autre (${candidat.value.moyen_connaissance_precision})` : candidat.value.moyen_connaissance.libelle) : (candidat.value?.moyen_connaissance_precision || '—') },
 ])
 
 const responsableItems = computed(() => {
