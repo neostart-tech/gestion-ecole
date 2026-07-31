@@ -139,6 +139,10 @@
                 <option value="">Sélectionnez</option>
                 <option v-for="moyen in moyensConnaissanceActifs" :key="moyen.id" :value="moyen.id">{{ moyen.libelle }}</option>
               </select>
+              <div v-if="isMoyenAutre" class="mt-3">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Veuillez préciser <span class="text-red-500">*</span></label>
+                <input v-model="formData.moyen_connaissance_precision" type="text" required class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500" placeholder="Précisez le moyen de connaissance..." />
+              </div>
             </div>
           </div>
         </div>
@@ -544,6 +548,7 @@ const formData = reactive({
   filiere_id: '',
   numero_bordereau: '',
   moyen_connaissance_id: '',
+  moyen_connaissance_precision: '',
   numero_table: '',
   annee_bac: '',
   serie: '',
@@ -565,6 +570,12 @@ const champsConfig = computed(() => {
 const sigleEtablissement = computed(() => parametreStore.getParamValue('sigle_etablissement'))
 
 const moyensConnaissanceActifs = computed(() => (moyenConnaissanceStore.moyensConnaissance || []).filter(m => m.actif))
+
+const isMoyenAutre = computed(() => {
+  if (!formData.moyen_connaissance_id) return false
+  const moyen = (moyenConnaissanceStore.moyensConnaissance || []).find(m => m.id === Number(formData.moyen_connaissance_id))
+  return moyen && (moyen.libelle || '').trim().toLowerCase() === 'autre'
+})
 
 // Types de diplôme actifs (configurés dans Paramètre > Types de diplôme).
 const typesDiplomeActifs = computed(() => (typeDiplomeStore.typesDiplome || []).filter(t => t.actif))
@@ -725,6 +736,7 @@ const validerAvantEnvoi = () => {
   if (champsParcoursConfig.value.etablissement_diplome && !formData.etablissement_diplome) manquants.push('Établissement')
   if (champsConfig.value.numero_bordereau?.afficher && champsConfig.value.numero_bordereau.obligatoire && !formData.numero_bordereau) manquants.push(champsConfig.value.numero_bordereau.label)
   if (champsConfig.value.comment_connu_ecole?.afficher && champsConfig.value.comment_connu_ecole.obligatoire && !formData.moyen_connaissance_id) manquants.push('Comment avez-vous connu ' + (sigleEtablissement.value || "l'établissement"))
+  if (isMoyenAutre.value && !formData.moyen_connaissance_precision) manquants.push('Précision du moyen de connaissance (Autre)')
 
   tuteurs.value.forEach((t, i) => {
     if (!t.nom || !t.prenom || !t.profession || !t.tel || !t.adresse) {

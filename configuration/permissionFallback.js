@@ -16,6 +16,7 @@
 export const routePermissionFallback = [
   { prefix: "/roles", anySlugOf: ["assign-role-permissions", "create-role", "update-role", "delete-role"] },
   { prefix: "/journal-activite", anySlugOf: ["view-logs"] },
+  { prefix: "/sauvegardes", anySlugOf: ["view-logs", "manage-backups"] },
   { prefix: "/filieres", anySlugOf: ["view-filiere", "create-filiere", "update-filiere", "delete-filiere"] },
   { prefix: "/salles", anySlugOf: ["view-salle", "create-salle", "update-salle", "delete-salle"] },
   { prefix: "/ues", anySlugOf: ["view-ue", "create-ue", "update-ue", "delete-ue"] },

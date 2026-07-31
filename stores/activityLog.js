@@ -54,5 +54,15 @@ export const useActivityLogStore = defineStore("activityLog", {
       this.modules = response.data.data;
       return this.modules;
     },
+
+    async deleteLog(id) {
+      const response = await axios.delete(`/logs/${id}`, this.authHeaders());
+      return response.data;
+    },
+
+    async bulkDeleteLogs(ids) {
+      const response = await axios.post("/logs/bulk-delete", { ids }, this.authHeaders());
+      return response.data;
+    },
   },
 });
