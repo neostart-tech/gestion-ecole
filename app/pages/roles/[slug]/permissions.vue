@@ -225,15 +225,25 @@ const coveragePercent = computed(() => {
   return Math.min(100, Math.round((grantedCount.value / allPermissions.value.length) * 100));
 });
 
-const ACTION_PREFIXES = ["create", "view", "update", "delete", "publish", "send", "declare", "duplicate"];
+const ACTION_PREFIXES = ["create", "view", "update", "delete", "publish", "send", "declare", "duplicate", "grade", "manage", "valider", "rejeter", "rectifier", "transmettre", "reorienter", "controler", "inscrire", "payer", "affecter", "reinscrire", "moderate", "reply", "annuler"];
 
 const permissionDomain = (permission) => {
   const slug = permission.slug || "";
+  if (
+    ["create-question-examen", "update-question-examen", "delete-question-examen", "grade-examen", "manage-exam-session"].includes(slug)
+  ) {
+    return "examen-en-ligne";
+  }
+  if (["view-logs", "delete-log", "clear-activity-log"].includes(slug)) {
+    return "journal-activite";
+  }
   const prefix = ACTION_PREFIXES.find((a) => slug.startsWith(`${a}-`));
   return prefix ? slug.slice(prefix.length + 1) : (slug || "autre");
 };
 
 const formatDomainLabel = (domain) => {
+  if (domain === "examen-en-ligne") return "Examens en ligne";
+  if (domain === "journal-activite") return "Journal d'activité (Audit)";
   const label = domain.replace(/-/g, " ");
   return label.charAt(0).toUpperCase() + label.slice(1);
 };

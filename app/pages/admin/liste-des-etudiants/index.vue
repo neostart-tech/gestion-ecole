@@ -1539,24 +1539,28 @@ const visibleColumns = computed(() => columns.value.filter((c) => c.visible));
 
 // Rows filtrées
 const filteredRows = computed(() => {
-  let filtered = etdudiantStore.etudiants.map((e) => {
+  let filtered = (etdudiantStore.etudiants || []).map((e) => {
+    const grpId = e?.dernier_groupe?.group?.id || e?.dernier_groupe?.groupe_id || e?.groupe_id || null;
     const groupe = groupeStore.groupes.find(
-      (g) => g.inscrits > 0 && e.groupe_id === g.id,
+      (g) => Number(g.id) === Number(grpId),
     );
+
+    const levelName = e?.dernier_groupe?.niveau?.libelle || e?.dernier_groupe?.niveau?.nom || groupe?.niveau?.libelle || groupe?.niveau?.nom || "";
+    const groupName = e?.dernier_groupe?.group?.nom || e?.dernier_groupe?.nom || groupe?.nom || "";
 
     return {
       id: e.id,
-      matricule: e.matricule,
-      nom_complet: `${e.nom} ${e.prenom}`,
+      matricule: e.matricule || "Sans matricule",
+      nom_complet: `${e.nom || ''} ${e.prenom || ''}`.trim(),
       email: e.email || "--",
       genre: e.genre,
       tel: e.tel || "--",
       nationalite: e.nationalite || "--",
       annee_admission: e.annee_admission || "--",
       date_naissance: e.date_naissance,
-      groupe:  `${e?.dernier_groupe?.niveau?.nom} ${e?.dernier_groupe?.group?.nom}` || null,
-      groupe_id: e?.dernier_groupe?.group?.id || null,
-      filiere_nom: e?.dernier_groupe?.filiere?.nom || null,
+      groupe: (levelName || groupName) ? `${levelName} ${groupName}`.trim() : "--",
+      groupe_id: grpId,
+      filiere_nom: e?.dernier_groupe?.filiere?.nom || e?.dernier_groupe?.filiere?.libelle || "--",
       statut: e.statut || "actif",
       raw: e,
     };
@@ -1564,20 +1568,23 @@ const filteredRows = computed(() => {
 
   if (filters.value.niveau) {
     filtered = filtered.filter((e) => {
-      const groupe = groupeStore.groupes.find((g) => g.id === e.groupe_id);
-      return groupe?.niveau.id === filters.value.niveau;
+      const groupe = groupeStore.groupes.find((g) => Number(g.id) === Number(e.groupe_id));
+      const nivId = groupe?.niveau?.id ?? e.raw?.dernier_groupe?.niveau?.id;
+      return nivId && Number(nivId) === Number(filters.value.niveau);
     });
   }
 
   if (filters.value.filiere) {
     filtered = filtered.filter((e) => {
-      const groupe = groupeStore.groupes.find((g) => g.id === e.groupe_id);
-      return groupe?.filieres.some((f) => f.id === filters.value.filiere);
+      const groupe = groupeStore.groupes.find((g) => Number(g.id) === Number(e.groupe_id));
+      const filId = e.raw?.dernier_groupe?.filiere?.id ?? e.raw?.dernier_groupe?.filiere_id;
+      if (filId && Number(filId) === Number(filters.value.filiere)) return true;
+      return groupe?.filieres?.some((f) => Number(f.id) === Number(filters.value.filiere));
     });
   }
 
   if (filters.value.groupe) {
-    filtered = filtered.filter((e) => e.groupe_id === filters.value.groupe);
+    filtered = filtered.filter((e) => e.groupe_id && Number(e.groupe_id) === Number(filters.value.groupe));
   }
 
   if (searchQuery.value) {

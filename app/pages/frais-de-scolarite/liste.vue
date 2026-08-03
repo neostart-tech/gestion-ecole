@@ -1106,7 +1106,35 @@ const handleDuplicate = async () => {
   }
 
   if (duplicateForm.value.source_year_id === duplicateForm.value.target_year_id) {
-    $toastr.error("L'année source et cible doivent être différentes");
+    $toastr.error("L'année source et l'année cible doivent être différentes");
+    return;
+  }
+
+  // 1. Contrôle : L'année source doit contenir des frais à copier
+  const sourceYearHasFees = fraisScolariteStore.frais.some(
+    (f) => Number(f.annee_scolaire_id ?? f.annee_scolaire?.id) === Number(duplicateForm.value.source_year_id)
+  );
+  if (!sourceYearHasFees) {
+    await $swal.fire({
+      title: "Année source vide",
+      text: "L'année source sélectionnée ne contient aucun tarif de scolarité à dupliquer.",
+      icon: "warning",
+      confirmButtonColor: "#7F45FD",
+    });
+    return;
+  }
+
+  // 2. Contrôle anti-doublons : L'année cible ne doit pas avoir DEJA des frais configurés
+  const targetYearHasFees = fraisScolariteStore.frais.some(
+    (f) => Number(f.annee_scolaire_id ?? f.annee_scolaire?.id) === Number(duplicateForm.value.target_year_id)
+  );
+  if (targetYearHasFees) {
+    await $swal.fire({
+      title: "Duplication bloquée (Anti-doublons)",
+      text: "L'année cible sélectionnée possède DÉJÀ des frais de scolarité paramétrés. Pour éviter d'engendrer des doublons de tarifs, la duplication est refusée.",
+      icon: "error",
+      confirmButtonColor: "#EF4444",
+    });
     return;
   }
 
@@ -1114,11 +1142,12 @@ const handleDuplicate = async () => {
   try {
     const res = await $swal.fire({
       title: "Confirmer la duplication ?",
-      text: "Tous les tarifs de l'année cible seront complétés par ceux de l'année source.",
+      text: "Tous les tarifs de l'année source seront copiés vers la nouvelle année.",
       icon: "question",
       showCancelButton: true,
       confirmButtonText: "Oui, dupliquer",
       cancelButtonText: "Annuler",
+      confirmButtonColor: "#10B981",
     });
 
     if (res.isConfirmed) {

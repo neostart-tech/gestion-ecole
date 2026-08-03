@@ -11,7 +11,7 @@
   <!-- Sidebar -->
   <aside
     :class="[
-      'fixed top-0 left-0 z-40 h-screen transition-all duration-300 bg-white dark:bg-gray-900 shadow-xl',
+      'fixed top-0 left-0 z-40 h-screen transition-all duration-300 bg-white dark:bg-gray-900 shadow-xl overflow-x-hidden sidebar-scroll flex flex-col',
       themeStore.isSidebarOpen ? 'w-80' : 'w-20',
       themeStore.isMobileSidebarOpen
         ? 'translate-x-0'
@@ -145,23 +145,45 @@
     </div>
 
     <!-- Menu avec scroll personnalisé -->
-    <div class="h-[calc(100vh-8rem)] overflow-y-auto py-4 sidebar-scroll">
+    <div
+      class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden py-4 sidebar-scroll"
+      :class="{ 'sidebar-collapsed-scroll': !themeStore.isSidebarOpen }"
+    >
       <nav class="px-3">
         <!-- QUICK ACTIONS - Barre d'actions rapides -->
 
         <!-- SECTION MON ESPACE - Refonte moderne -->
         <section v-if="showMonEspaceSection" class="mb-6">
-          <div class="flex items-center px-2 mb-2">
-            <div class="w-1 h-5 bg-blue-600 rounded-full"></div>
-            <h2
-              v-if="themeStore.isSidebarOpen"
-              class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400"
+          <div
+            v-if="themeStore.isSidebarOpen"
+            @click="toggleSection('monEspace')"
+            class="flex items-center justify-between px-2 mb-2 cursor-pointer select-none group/sec hover:opacity-80 transition-opacity"
+          >
+            <div class="flex items-center">
+              <div class="w-1 h-5 bg-blue-600 rounded-full"></div>
+              <h2
+                class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 group-hover/sec:text-gray-700 dark:group-hover/sec:text-gray-200"
+              >
+                Mon espace
+              </h2>
+            </div>
+            <svg
+              class="w-3.5 h-3.5 text-gray-400 group-hover/sec:text-gray-600 dark:group-hover/sec:text-gray-300 transition-transform duration-200 mr-1"
+              :class="{ '-rotate-90': collapsedSections['monEspace'] }"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              Mon espace
-            </h2>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
           </div>
 
-          <ul class="space-y-1">
+          <div
+            class="grid transition-[grid-template-rows,opacity] duration-300 ease-in-out"
+            :class="(!themeStore.isSidebarOpen || !collapsedSections['monEspace']) ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
+          >
+            <div class="overflow-hidden">
+              <ul class="space-y-1">
             <!-- Dashboard - carte active -->
             <li
               v-if="
@@ -187,7 +209,7 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleMobileMenu"
-                @mouseenter="handleMouseEnter($event, 'dashboard', { title: 'Tableau de bord' })"
+                @mouseenter="handleMouseEnter($event, 'dashboard', { title: 'Tableau de bord', to: '/' })"
                 @mouseleave="handleMouseLeave"
               >
                 <div
@@ -228,7 +250,7 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleMobileMenu"
-                @mouseenter="handleMouseEnter($event, 'actualites', { title: 'Actualités' })"
+                @mouseenter="handleMouseEnter($event, 'actualites', { title: 'Actualités', to: '/actualites' })"
                 @mouseleave="handleMouseLeave"
               >
                 <div
@@ -269,7 +291,7 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleMobileMenu"
-                @mouseenter="handleMouseEnter($event, 'annonces', { title: 'Annonces' })"
+                @mouseenter="handleMouseEnter($event, 'annonces', { title: 'Annonces', to: '/annonces' })"
                 @mouseleave="handleMouseLeave"
               >
                 <div
@@ -327,7 +349,7 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleMobileMenu"
-                @mouseenter="handleMouseEnter($event, 'emploi-du-temps', { title: 'Emploi du temps' })"
+                @mouseenter="handleMouseEnter($event, 'emploi-du-temps', { title: 'Emploi du temps', to: '/emploi-du-temps' })"
                 @mouseleave="handleMouseLeave"
               >
                 <div
@@ -372,7 +394,7 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleMobileMenu"
-                @mouseenter="handleMouseEnter($event, 'profile', { title: 'Info personnelle' })"
+                @mouseenter="handleMouseEnter($event, 'profile', { title: 'Info personnelle', to: '/profile/info' })"
                 @mouseleave="handleMouseLeave"
               >
                 <div
@@ -871,7 +893,7 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleMobileMenu"
-                @mouseenter="handleMouseEnter($event, 'payments', { title: 'Mes paiements' })"
+                @mouseenter="handleMouseEnter($event, 'payments', { title: 'Mes paiements', to: '/etudiant/mes-paiements' })"
                 @mouseleave="handleMouseLeave"
               >
                 <div
@@ -934,21 +956,42 @@
               </NuxtLink>
             </li>
           </ul>
+            </div>
+          </div>
         </section>
 
         <!-- SECTION ADMINISTRATION ACADÉMIQUE -->
         <section v-if="showAdminAcademiqueSection" class="mb-6">
-          <div class="flex items-center px-2 mb-2">
-            <div class="w-1 h-5 bg-amber-500 rounded-full"></div>
-            <h2
-              v-if="themeStore.isSidebarOpen"
-              class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400"
+          <div
+            v-if="themeStore.isSidebarOpen"
+            @click="toggleSection('academique')"
+            class="flex items-center justify-between px-2 mb-2 cursor-pointer select-none group/sec hover:opacity-80 transition-opacity"
+          >
+            <div class="flex items-center">
+              <div class="w-1 h-5 bg-amber-500 rounded-full"></div>
+              <h2
+                class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 group-hover/sec:text-gray-700 dark:group-hover/sec:text-gray-200"
+              >
+                Administration académique
+              </h2>
+            </div>
+            <svg
+              class="w-3.5 h-3.5 text-gray-400 group-hover/sec:text-gray-600 dark:group-hover/sec:text-gray-300 transition-transform duration-200 mr-1"
+              :class="{ '-rotate-90': collapsedSections['academique'] }"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              Administration académique
-            </h2>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
           </div>
 
-          <ul class="space-y-1">
+          <div
+            class="grid transition-[grid-template-rows,opacity] duration-300 ease-in-out"
+            :class="(!themeStore.isSidebarOpen || !collapsedSections['academique']) ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
+          >
+            <div class="overflow-hidden">
+              <ul class="space-y-1">
             <!-- Emploi du temps
 						<li
 							v-if="
@@ -1185,7 +1228,7 @@
                 </svg>
               </button>
 
-              <vue-collapsible :isOpen="activeDropdown === 'filieres'">
+              <vue-collapsible :isOpen="themeStore.isSidebarOpen && activeDropdown === 'filieres'">
                 <ul class="pl-11 space-y-1 mt-1">
                   <li>
                     <NuxtLink
@@ -1280,7 +1323,7 @@
                 </svg>
               </button>
 
-              <vue-collapsible :isOpen="activeDropdown === 'matieres'">
+              <vue-collapsible :isOpen="themeStore.isSidebarOpen && activeDropdown === 'matieres'">
                 <ul class="pl-11 space-y-1 mt-1">
                   <li v-if="showUe">
                     <NuxtLink
@@ -1657,20 +1700,41 @@
               </NuxtLink>
             </li>
           </ul>
+            </div>
+          </div>
         </section>
         <!-- SECTION GESTION FINANCIÈRE -->
         <section v-if="showFinanceSection" class="mb-6">
-          <div class="flex items-center px-2 mb-2">
-            <div class="w-1 h-5 bg-emerald-500 rounded-full"></div>
-            <h2
-              v-if="themeStore.isSidebarOpen"
-              class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400"
+          <div
+            v-if="themeStore.isSidebarOpen"
+            @click="toggleSection('financiere')"
+            class="flex items-center justify-between px-2 mb-2 cursor-pointer select-none group/sec hover:opacity-80 transition-opacity"
+          >
+            <div class="flex items-center">
+              <div class="w-1 h-5 bg-emerald-500 rounded-full"></div>
+              <h2
+                class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 group-hover/sec:text-gray-700 dark:group-hover/sec:text-gray-200"
+              >
+                Gestion financière
+              </h2>
+            </div>
+            <svg
+              class="w-3.5 h-3.5 text-gray-400 group-hover/sec:text-gray-600 dark:group-hover/sec:text-gray-300 transition-transform duration-200 mr-1"
+              :class="{ '-rotate-90': collapsedSections['financiere'] }"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              Gestion financière
-            </h2>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
           </div>
 
-          <ul class="space-y-1">
+          <div
+            class="grid transition-[grid-template-rows,opacity] duration-300 ease-in-out"
+            :class="(!themeStore.isSidebarOpen || !collapsedSections['financiere']) ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
+          >
+            <div class="overflow-hidden">
+              <ul class="space-y-1">
             <li
               v-if="
                 hasAnyRole([
@@ -1776,7 +1840,7 @@
                 </svg>
               </button>
 
-              <vue-collapsible :isOpen="activeDropdown === 'paiements'">
+              <vue-collapsible :isOpen="themeStore.isSidebarOpen && activeDropdown === 'paiements'">
                 <ul class="pl-11 space-y-1 mt-1">
                   <li>
                     <NuxtLink
@@ -2313,21 +2377,42 @@
               </NuxtLink>
             </li>
           </ul>
+            </div>
+          </div>
         </section>
 
         <!-- SECTION CANDIDATURES & ADMISSIONS -->
         <section v-if="showCandidaturesSection" class="mb-6">
-          <div class="flex items-center px-2 mb-2">
-            <div class="w-1 h-5 bg-purple-500 rounded-full"></div>
-            <h2
-              v-if="themeStore.isSidebarOpen"
-              class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400"
+          <div
+            v-if="themeStore.isSidebarOpen"
+            @click="toggleSection('candidatures')"
+            class="flex items-center justify-between px-2 mb-2 cursor-pointer select-none group/sec hover:opacity-80 transition-opacity"
+          >
+            <div class="flex items-center">
+              <div class="w-1 h-5 bg-purple-500 rounded-full"></div>
+              <h2
+                class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 group-hover/sec:text-gray-700 dark:group-hover/sec:text-gray-200"
+              >
+                Candidatures
+              </h2>
+            </div>
+            <svg
+              class="w-3.5 h-3.5 text-gray-400 group-hover/sec:text-gray-600 dark:group-hover/sec:text-gray-300 transition-transform duration-200 mr-1"
+              :class="{ '-rotate-90': collapsedSections['candidatures'] }"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              Candidatures
-            </h2>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
           </div>
 
-          <ul class="space-y-1">
+          <div
+            class="grid transition-[grid-template-rows,opacity] duration-300 ease-in-out"
+            :class="(!themeStore.isSidebarOpen || !collapsedSections['candidatures']) ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
+          >
+            <div class="overflow-hidden">
+              <ul class="space-y-1">
             <li
               class="space-y-1"
               v-if="
@@ -2404,7 +2489,7 @@
                 </svg>
               </button>
 
-              <vue-collapsible :isOpen="activeDropdown === 'candidatures'">
+              <vue-collapsible :isOpen="themeStore.isSidebarOpen && activeDropdown === 'candidatures'">
                 <ul class="pl-11 space-y-1 mt-1">
                   <li
                     v-if="
@@ -2579,21 +2664,42 @@
               </vue-collapsible>
             </li>
           </ul>
+            </div>
+          </div>
         </section>
 
         <!-- SECTION GESTION DU PERSONNEL -->
         <section v-if="showPersonnelSection" class="mb-6">
-          <div class="flex items-center px-2 mb-2">
-            <div class="w-1 h-5 bg-indigo-500 rounded-full"></div>
-            <h2
-              v-if="themeStore.isSidebarOpen"
-              class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400"
+          <div
+            v-if="themeStore.isSidebarOpen"
+            @click="toggleSection('personnel')"
+            class="flex items-center justify-between px-2 mb-2 cursor-pointer select-none group/sec hover:opacity-80 transition-opacity"
+          >
+            <div class="flex items-center">
+              <div class="w-1 h-5 bg-indigo-500 rounded-full"></div>
+              <h2
+                class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 group-hover/sec:text-gray-700 dark:group-hover/sec:text-gray-200"
+              >
+                Personnel
+              </h2>
+            </div>
+            <svg
+              class="w-3.5 h-3.5 text-gray-400 group-hover/sec:text-gray-600 dark:group-hover/sec:text-gray-300 transition-transform duration-200 mr-1"
+              :class="{ '-rotate-90': collapsedSections['personnel'] }"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              Personnel
-            </h2>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
           </div>
 
-          <ul class="space-y-1">
+          <div
+            class="grid transition-[grid-template-rows,opacity] duration-300 ease-in-out"
+            :class="(!themeStore.isSidebarOpen || !collapsedSections['personnel']) ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
+          >
+            <div class="overflow-hidden">
+              <ul class="space-y-1">
             <li
               v-if="
                 hasAnyRole([
@@ -2665,7 +2771,7 @@
                 </svg>
               </button>
 
-              <vue-collapsible :isOpen="activeDropdown === 'personnel'">
+              <vue-collapsible :isOpen="themeStore.isSidebarOpen && activeDropdown === 'personnel'">
                 <ul class="pl-11 space-y-1 mt-1">
                   <li
                     v-if="
@@ -2765,20 +2871,42 @@
               </vue-collapsible>
             </li>
           </ul>
+            </div>
+          </div>
         </section>
 
         <!-- SECTION ÉTUDIANTS -->
         <section v-if="hasRole('etudiant')" class="mb-6">
-          <div class="flex items-center px-2 mb-2">
-            <div class="w-1 h-5 bg-cyan-500 rounded-full"></div>
-            <h2
-              v-if="themeStore.isSidebarOpen"
-              class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400"
+          <div
+            v-if="themeStore.isSidebarOpen"
+            @click="toggleSection('parcours')"
+            class="flex items-center justify-between px-2 mb-2 cursor-pointer select-none group/sec hover:opacity-80 transition-opacity"
+          >
+            <div class="flex items-center">
+              <div class="w-1 h-5 bg-cyan-500 rounded-full"></div>
+              <h2
+                class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 group-hover/sec:text-gray-700 dark:group-hover/sec:text-gray-200"
+              >
+                Mon parcours et paiements
+              </h2>
+            </div>
+            <svg
+              class="w-3.5 h-3.5 text-gray-400 group-hover/sec:text-gray-600 dark:group-hover/sec:text-gray-300 transition-transform duration-200 mr-1"
+              :class="{ '-rotate-90': collapsedSections['parcours'] }"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              Mon parcours et paiements
-            </h2>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
           </div>
-          <ul class="space-y-1">
+
+          <div
+            class="grid transition-[grid-template-rows,opacity] duration-300 ease-in-out"
+            :class="(!themeStore.isSidebarOpen || !collapsedSections['parcours']) ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
+          >
+            <div class="overflow-hidden">
+              <ul class="space-y-1">
             <!-- Messages avec badge animé -->
             <li v-if="hasAnyRole(['etudiant'])">
               <NuxtLink
@@ -2817,14 +2945,15 @@
               </NuxtLink>
             </li>
           </ul>
+            </div>
+          </div>
         </section>
 
         <!-- SECTION ENSEIGNANTS -->
         <section v-if="hasRole('professeur')" class="mb-6">
-          <div class="flex items-center px-2 mb-2">
+          <div v-if="themeStore.isSidebarOpen" class="flex items-center px-2 mb-2">
             <div class="w-1 h-5 bg-orange-500 rounded-full"></div>
             <h2
-              v-if="themeStore.isSidebarOpen"
               class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400"
             >
               Espace enseignant
@@ -2834,17 +2963,36 @@
 
         <!-- SECTION COMMUNICATION -->
         <section v-if="showCommunicationSection" class="mb-6">
-          <div class="flex items-center px-2 mb-2">
-            <div class="w-1 h-5 bg-pink-500 rounded-full"></div>
-            <h2
-              v-if="themeStore.isSidebarOpen"
-              class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400"
+          <div
+            v-if="themeStore.isSidebarOpen"
+            @click="toggleSection('communication')"
+            class="flex items-center justify-between px-2 mb-2 cursor-pointer select-none group/sec hover:opacity-80 transition-opacity"
+          >
+            <div class="flex items-center">
+              <div class="w-1 h-5 bg-pink-500 rounded-full"></div>
+              <h2
+                class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 group-hover/sec:text-gray-700 dark:group-hover/sec:text-gray-200"
+              >
+                Communication
+              </h2>
+            </div>
+            <svg
+              class="w-3.5 h-3.5 text-gray-400 group-hover/sec:text-gray-600 dark:group-hover/sec:text-gray-300 transition-transform duration-200 mr-1"
+              :class="{ '-rotate-90': collapsedSections['communication'] }"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              Communication
-            </h2>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
           </div>
 
-          <ul class="space-y-1">
+          <div
+            class="grid transition-[grid-template-rows,opacity] duration-300 ease-in-out"
+            :class="(!themeStore.isSidebarOpen || !collapsedSections['communication']) ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
+          >
+            <div class="overflow-hidden">
+              <ul class="space-y-1">
             <!-- Tableau de bord -->
             <li v-if="hasAnyRole(['responsable-marketing', 'admin', 'directeur-general', 'directeur-general-adjoint', 'superadmin']) || hasAnyPermission(['create-communication', 'update-communication', 'delete-communication'])">
               <NuxtLink
@@ -3079,7 +3227,7 @@
                 </svg>
               </button>
 
-              <vue-collapsible :isOpen="activeDropdown === 'publications'">
+              <vue-collapsible :isOpen="themeStore.isSidebarOpen && activeDropdown === 'publications'">
                 <ul class="pl-11 space-y-1 mt-1">
                   <li>
                     <NuxtLink
@@ -3200,7 +3348,7 @@
                 </svg>
               </button>
 
-              <vue-collapsible :isOpen="activeDropdown === 'evenements'">
+              <vue-collapsible :isOpen="themeStore.isSidebarOpen && activeDropdown === 'evenements'">
                 <ul class="pl-11 space-y-1 mt-1">
                   <li>
                     <NuxtLink
@@ -3458,23 +3606,44 @@
               </NuxtLink>
             </li>
           </ul>
+            </div>
+          </div>
         </section>
 
         <!-- SECTION AUTRES - Support & Déconnexion -->
         <section
           class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700"
         >
-          <div class="flex items-center px-2 mb-2">
-            <div class="w-1 h-5 bg-gray-400 rounded-full"></div>
-            <h2
-              v-if="themeStore.isSidebarOpen"
-              class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400"
+          <div
+            v-if="themeStore.isSidebarOpen"
+            @click="toggleSection('parametres')"
+            class="flex items-center justify-between px-2 mb-2 cursor-pointer select-none group/sec hover:opacity-80 transition-opacity"
+          >
+            <div class="flex items-center">
+              <div class="w-1 h-5 bg-gray-400 rounded-full"></div>
+              <h2
+                class="ml-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 group-hover/sec:text-gray-700 dark:group-hover/sec:text-gray-200"
+              >
+                Support et Paramètres
+              </h2>
+            </div>
+            <svg
+              class="w-3.5 h-3.5 text-gray-400 group-hover/sec:text-gray-600 dark:group-hover/sec:text-gray-300 transition-transform duration-200 mr-1"
+              :class="{ '-rotate-90': collapsedSections['parametres'] }"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              Support et Paramètres
-            </h2>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
           </div>
 
-          <ul class="space-y-1">
+          <div
+            class="grid transition-[grid-template-rows,opacity] duration-300 ease-in-out"
+            :class="(!themeStore.isSidebarOpen || !collapsedSections['parametres']) ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
+          >
+            <div class="overflow-hidden">
+              <ul class="space-y-1">
             <!-- Support & Assistance -->
             <li>
               <NuxtLink
@@ -3606,7 +3775,7 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleMobileMenu"
-                @mouseenter="handleMouseEnter($event, 'parametre', { title: 'Paramètre' })"
+                @mouseenter="handleMouseEnter($event, 'parametre', { title: 'Paramètre', to: '/parametre/liste' })"
                 @mouseleave="handleMouseLeave"
               >
                 <div
@@ -3638,6 +3807,8 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleMobileMenu"
+                @mouseenter="handleMouseEnter($event, 'mon-activite', { title: 'Mon activité', to: '/parametre/mon-activite' })"
+                @mouseleave="handleMouseLeave"
               >
                 <div
                   :class="[
@@ -3681,7 +3852,7 @@
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
                 ]"
                 @click="toggleMobileMenu"
-                @mouseenter="handleMouseEnter($event, 'annee-scolaire', { title: 'Années scolaires' })"
+                @mouseenter="handleMouseEnter($event, 'annee-scolaire', { title: 'Années scolaires', to: '/annee-scolaire/liste' })"
                 @mouseleave="handleMouseLeave"
               >
                 <div
@@ -4128,56 +4299,67 @@
               </NuxtLink>
             </li>
 
-            <!-- Déconnexion avec séparateur -->
-            <li class="pt-2 mt-2 border-t border-gray-200 dark:border-gray-700">
-              <button
-                @click="logout"
-                class="flex items-center w-full px-3 py-2.5 rounded-xl transition-all duration-200 group hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400"
-              >
-                <div
-                  class="p-1 rounded-lg bg-gray-100 dark:bg-gray-800 group-hover:bg-red-100 dark:group-hover:bg-red-900/30"
-                >
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fill-rule="evenodd"
-                      d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm10 4a1 1 0 10-2 0v4a1 1 0 102 0V7z"
-                      clip-rule="evenodd"
-                    />
-                    <path d="M8 6h2v2H8V6z" />
-                  </svg>
-                </div>
-                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
-                  >Déconnexion</span
-                >
-              </button>
-            </li>
           </ul>
+            </div>
+          </div>
         </section>
       </nav>
     </div>
 
-    <!-- Version info en bas -->
-    <div
-      v-if="themeStore.isSidebarOpen"
-      class="absolute bottom-0 left-0 right-0 p-4 text-xs text-center text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
-    >
-      Neo EduManager v2.0 • © 2024
+    <!-- Zone Bas de Sidebar : Déconnexion et version -->
+    <div class="mt-auto border-t border-gray-100 dark:border-gray-800 p-3 bg-white dark:bg-gray-900 z-10 flex flex-col gap-1">
+      <button
+        @click="logout"
+        class="flex items-center w-full px-3 py-2.5 rounded-xl transition-all duration-200 group hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400"
+        :class="{ 'justify-center': !themeStore.isSidebarOpen }"
+        @mouseenter="handleMouseEnter($event, 'logout', { title: 'Déconnexion' })"
+        @mouseleave="handleMouseLeave"
+      >
+        <div
+          class="p-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 group-hover:bg-red-100 dark:group-hover:bg-red-900/40 transition-colors flex items-center justify-center"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+        </div>
+        <span
+          v-if="themeStore.isSidebarOpen"
+          class="ml-3 font-semibold text-red-600 dark:text-red-400 text-sm flex-1 text-left"
+        >
+          Déconnexion
+        </span>
+      </button>
+
+      <div
+        v-if="themeStore.isSidebarOpen"
+        class="text-[11px] text-center text-gray-400 dark:text-gray-500 pt-1"
+      >
+        Neo EduManager v2.0 • © 2024
+      </div>
     </div>
     <!-- Flyout Menu (Mini Mode) -->
     <Teleport to="body">
       <div
         v-if="hoveredMenu && !themeStore.isSidebarOpen"
-        class="fixed z-[100] ml-2 bg-white dark:bg-gray-800 shadow-2xl rounded-xl py-2 border border-gray-100 dark:border-gray-700 animate-in fade-in slide-in-from-left-2 duration-200"
+        class="fixed z-[100] bg-white dark:bg-gray-800 shadow-2xl rounded-xl py-2 border border-gray-100 dark:border-gray-700 animate-in fade-in slide-in-from-left-2 duration-200 before:content-[''] before:absolute before:-left-6 before:top-0 before:bottom-0 before:w-6"
         :style="{
           top: flyoutTop + 'px',
-          left: '80px',
+          left: '84px',
           minWidth: '200px',
         }"
-        @mouseenter="hoveredMenu = hoveredMenu" 
-        @mouseleave="handleMouseLeave"
+        @mouseenter="handleFlyoutMouseEnter"
+        @mouseleave="handleFlyoutMouseLeave"
       >
         <div class="px-4 py-1.5 border-b border-gray-50 dark:border-gray-700 mb-1">
-          <p class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+          <NuxtLink
+            v-if="flyoutData?.to"
+            :to="flyoutData.to"
+            class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider hover:underline block"
+            @click="hoveredMenu = null"
+          >
+            {{ flyoutData?.title }}
+          </NuxtLink>
+          <p v-else class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
             {{ flyoutData?.title }}
           </p>
         </div>
@@ -4193,6 +4375,14 @@
               {{ link.label }}
             </NuxtLink>
           </template>
+          <NuxtLink
+            v-else-if="flyoutData?.to"
+            :to="flyoutData.to"
+            class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+            @click="hoveredMenu = null"
+          >
+            {{ flyoutData.title }}
+          </NuxtLink>
           <div v-else class="px-4 py-1 text-sm text-gray-500">
             {{ flyoutData?.title }}
           </div>
@@ -4227,9 +4417,14 @@ const loginStore = useLoginStore();
 const hoveredMenu = ref<string | null>(null);
 const flyoutTop = ref(0);
 const flyoutData = ref<any>(null);
+let flyoutTimer: any = null;
 
 const handleMouseEnter = (event: MouseEvent, menuId: string, data: any = null) => {
   if (!themeStore.isSidebarOpen) {
+    if (flyoutTimer) {
+      clearTimeout(flyoutTimer);
+      flyoutTimer = null;
+    }
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     flyoutTop.value = rect.top;
     hoveredMenu.value = menuId;
@@ -4238,7 +4433,21 @@ const handleMouseEnter = (event: MouseEvent, menuId: string, data: any = null) =
 };
 
 const handleMouseLeave = () => {
-  hoveredMenu.value = null;
+  if (flyoutTimer) clearTimeout(flyoutTimer);
+  flyoutTimer = setTimeout(() => {
+    hoveredMenu.value = null;
+  }, 250);
+};
+
+const handleFlyoutMouseEnter = () => {
+  if (flyoutTimer) {
+    clearTimeout(flyoutTimer);
+    flyoutTimer = null;
+  }
+};
+
+const handleFlyoutMouseLeave = () => {
+  handleMouseLeave();
 };
 
 const parametreStore = useParametreStore();
@@ -4248,8 +4457,20 @@ const candidatureStore = useCandidatureStore();
 const diagnosticStore = useDiagnosticFinancierStore();
 const route = useRoute();
 
-// État des dropdowns
+// État des dropdowns et des sections repliables
 const activeDropdown = ref<string | null>(null);
+const collapsedSections = ref<Record<string, boolean>>({});
+
+const toggleSection = (sectionKey: string) => {
+  collapsedSections.value[sectionKey] = !collapsedSections.value[sectionKey];
+};
+
+watch(() => themeStore.isSidebarOpen, (isOpen) => {
+  if (!isOpen) {
+    activeDropdown.value = null;
+    hoveredMenu.value = null;
+  }
+});
 
 // États des rôles
 const isAdmin = ref(false);
@@ -4598,10 +4819,29 @@ const toggleDropdown = (dropdownName: string) => {
   }
 };
 
-// Déconnexion
+// Déconnexion avec confirmation SweetAlert2
 const logout = () => {
-  loginStore.logout();
-  showMessage("Déconnexion réussie", "success");
+  Swal.fire({
+    title: "Déconnexion",
+    text: "Êtes-vous sûr de vouloir vous déconnecter ?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#dc2626",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Oui, se déconnecter",
+    cancelButtonText: "Annuler",
+    reverseButtons: true,
+    customClass: {
+      popup: "rounded-2xl dark:bg-gray-800 dark:text-white",
+      confirmButton: "px-4 py-2 rounded-xl text-white font-medium shadow-sm bg-red-600 hover:bg-red-700 transition-colors",
+      cancelButton: "px-4 py-2 rounded-xl font-medium shadow-sm bg-gray-500 hover:bg-gray-600 text-white transition-colors",
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
+      loginStore.logout();
+      showMessage("Déconnexion réussie", "success");
+    }
+  });
 };
 
 // Message toast
@@ -4674,31 +4914,23 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-/* Scroll personnalisé pour la sidebar */
+<style>
+/* Masquer totalement la barre de défilement (scrollbar) de la sidebar tout en conservant le défilement */
+.sidebar-scroll {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE / Edge */
+}
+
 .sidebar-scroll::-webkit-scrollbar {
-  width: 4px;
+  display: none !important; /* Chrome, Safari, Opera, Edge */
+  width: 0 !important;
+  height: 0 !important;
 }
 
-.sidebar-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.sidebar-scroll::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
-  border-radius: 4px;
-}
-
-.dark .sidebar-scroll::-webkit-scrollbar-thumb {
-  background: #4a5568;
-}
-
-.sidebar-scroll::-webkit-scrollbar-thumb:hover {
-  background: #cbd5e0;
-}
-
-.dark .sidebar-scroll::-webkit-scrollbar-thumb:hover {
-  background: #718096;
+.sidebar-scroll::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 /* Transitions douces */

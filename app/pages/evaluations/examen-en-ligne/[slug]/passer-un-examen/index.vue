@@ -719,42 +719,9 @@
 
                       <!-- Texte long avec TinyMCE -->
                       <div v-else-if="question.type === 'texte_long'">
-                        <Editor
-                          api-key="2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl"
+                        <CustomQuillEditor
                           v-model="responses[question.id]"
-                          :init="{
-                            height: 300,
-                            menubar: false,
-                            paste_as_text: false,
-                            paste_block_drop: true,
-                            paste_data_images: false,
-                            setup: function(editor) {
-                              editor.on('paste', function(e) {
-                                e.preventDefault();
-                                showToastMessage('Collage interdit dans l\'éditeur', 'error');
-                              });
-                              editor.on('copy', function(e) {
-                                e.preventDefault();
-                                showToastMessage('Copie interdite dans l\'éditeur', 'error');
-                              });
-                              editor.on('cut', function(e) {
-                                e.preventDefault();
-                                showToastMessage('Coupage interdit dans l\'éditeur', 'error');
-                              });
-                            },
-                            plugins: [
-                              'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                              'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                              'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
-                            ],
-                            toolbar: 'undo redo | blocks | ' +
-                              'bold italic backcolor | alignleft aligncenter ' +
-                              'alignright alignjustify | bullist numlist outdent indent | ' +
-                              'removeformat | help',
-                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-                          }"
-                          :disabled="examStatus !== 'en_cours' || hasSubmitted || examStore.isSubmitting || isSubmitting"
-                          @input="debouncedSave(question)"
+                          @update:modelValue="debouncedSave(question)"
                         />
                         <div class="flex justify-end mt-1">
                           <span class="text-xs text-gray-500 dark:text-gray-400">
@@ -988,42 +955,9 @@
                               <span>max {{ question.guided_writing.max_words || 500 }}</span>
                             </div>
                             
-                            <Editor
-                            api-key="2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl"
+                            <CustomQuillEditor
                               v-model="responses[question.id]"
-                              :init="{
-                                height: 300,
-                                menubar: false,
-                                paste_as_text: false,
-                                paste_block_drop: true,
-                                paste_data_images: false,
-                                setup: function(editor) {
-                                  editor.on('paste', function(e) {
-                                    e.preventDefault();
-                                    showToastMessage('Collage interdit dans l\'éditeur', 'error');
-                                  });
-                                  editor.on('copy', function(e) {
-                                    e.preventDefault();
-                                    showToastMessage('Copie interdite dans l\'éditeur', 'error');
-                                  });
-                                  editor.on('cut', function(e) {
-                                    e.preventDefault();
-                                    showToastMessage('Coupage interdit dans l\'éditeur', 'error');
-                                  });
-                                },
-                                plugins: [
-                                  'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                                  'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                                  'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
-                                ],
-                                toolbar: 'undo redo | blocks | ' +
-                                  'bold italic backcolor | alignleft aligncenter ' +
-                                  'alignright alignjustify | bullist numlist outdent indent | ' +
-                                  'removeformat | help',
-                                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-                              }"
-                              :disabled="examStatus !== 'en_cours' || hasSubmitted || examStore.isSubmitting || isSubmitting"
-                              @input="debouncedSave(question)"
+                              @update:modelValue="debouncedSave(question)"
                             />
                             
                             <div class="flex justify-end">
@@ -1095,7 +1029,7 @@
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useExamStore } from '~~/stores/exam'
-import Editor from '@tinymce/tinymce-vue'
+import CustomQuillEditor from '~/components/CustomQuillEditor.vue'
 import Swal from 'sweetalert2'
 
 const route = useRoute()

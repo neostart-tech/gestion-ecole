@@ -219,5 +219,29 @@ body {
 	color: #9ca3af;
 }
 
+/* Masquer totalement la barre de défilement (scrollbar) de la sidebar dans tous les navigateurs */
+.sidebar-scroll,
+aside.sidebar-scroll,
+aside {
+	scrollbar-width: none !important; /* Firefox */
+	-ms-overflow-style: none !important; /* IE et Edge */
+}
+
+.sidebar-scroll::-webkit-scrollbar,
+aside::-webkit-scrollbar,
+aside.sidebar-scroll::-webkit-scrollbar {
+	display: none !important; /* Chrome, Safari, Opera, Edge */
+	width: 0 !important;
+	height: 0 !important;
+}
+
+.sidebar-scroll::-webkit-scrollbar-button,
+aside::-webkit-scrollbar-button,
+aside.sidebar-scroll::-webkit-scrollbar-button {
+	display: none !important;
+	width: 0 !important;
+	height: 0 !important;
+}
+
 
 

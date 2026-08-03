@@ -1,1 +1,0 @@
-import{au as u}from"./M5QoNx17.js";const c=()=>{const e=u("user"),o=u("userLoaded");return{can:s=>!o.value||!e.value?!1:(e.value.permissions||[]).includes(s),hasRole:s=>e.value?(e.value?.role?.slug||e.value?.role)===s:!1,hasAnyRole:(s=[])=>{if(!e.value)return!1;const r=e.value?.role?.slug||e.value?.role;return s.includes(r)}}};export{c as u};
