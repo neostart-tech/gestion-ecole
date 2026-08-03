@@ -29,7 +29,8 @@ export const useFraisStore = defineStore("frais de scolarité", {
           this.authHeaders()
         );
 
-        this.frais = response.data.data;
+        const resData = response.data?.data ?? response.data;
+        this.frais = Array.isArray(resData) ? resData : [];
       } catch (error) {
         console.error("Erreur chargement frais de scolarité:", error);
         throw error;

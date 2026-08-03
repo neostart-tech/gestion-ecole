@@ -25,7 +25,8 @@ export const useFraisInscriptionStore = defineStore("fraisInscription", {
           "/frais-inscription/index",
           this.authHeaders()
         );
-        this.frais = response.data.data;
+        const resData = response.data?.data ?? response.data;
+        this.frais = Array.isArray(resData) ? resData : [];
       } catch (error) {
         console.error("Erreur chargement frais d'inscription:", error);
         throw error;

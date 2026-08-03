@@ -362,8 +362,11 @@ const columns = ref([
 
 const visibleColumns = computed(() => columns.value.filter((c) => c.visible));
 
-// Utiliser les données du store
-const rows = computed(() => evaluationStore.evaluations || []);
+// Utiliser les données du store (triées du plus récent au plus ancien)
+const rows = computed(() => {
+  const list = evaluationStore.evaluations || [];
+  return [...list].sort((a, b) => (b.id || 0) - (a.id || 0));
+});
 
 // Filtre de recherche personnalisé
 const filteredRows = computed(() => {

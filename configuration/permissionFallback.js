@@ -15,7 +15,7 @@
 // aux détenteurs de permissions dynamiques sur des pages qui ne les listaient pas.
 export const routePermissionFallback = [
   { prefix: "/roles", anySlugOf: ["assign-role-permissions", "create-role", "update-role", "delete-role"] },
-  { prefix: "/journal-activite", anySlugOf: ["view-logs"] },
+  { prefix: "/journal-activite", anySlugOf: ["view-logs", "delete-log", "clear-activity-log"] },
   { prefix: "/sauvegardes", anySlugOf: ["view-logs", "manage-backups"] },
   { prefix: "/filieres", anySlugOf: ["view-filiere", "create-filiere", "update-filiere", "delete-filiere"] },
   { prefix: "/salles", anySlugOf: ["view-salle", "create-salle", "update-salle", "delete-salle"] },

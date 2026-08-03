@@ -195,27 +195,29 @@
                 </svg>
               </NuxtLink>
 
-              <!-- Questions (si en ligne) - uniquement pour les étudiants -->
-              <NuxtLink
-                v-if="value.is_online === 1 && isEtudiant"
-                :to="`/evaluations/examen-en-ligne/${value.slug}/questions`"
-                class="p-2 rounded-lg text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors duration-200"
-                title="Composer l'examen"
-              >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+              <!-- Éditer le sujet / questions (si en ligne) pour enseignants/staff autorisés -->
+              <Can action="update-question-examen">
+                <NuxtLink
+                  v-if="value.is_online === 1"
+                  :to="`/evaluations/examen-en-ligne/${value.slug}/questions`"
+                  class="p-2 rounded-lg text-indigo-600 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors duration-200"
+                  title="Éditer le sujet & questions"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </NuxtLink>
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </NuxtLink>
+              </Can>
 
                 <NuxtLink
                 v-if="value.is_online === 1"
@@ -388,8 +390,11 @@ const columns = ref([
 
 const visibleColumns = computed(() => columns.value.filter((c) => c.visible));
 
-// Utiliser les données du store
-const rows = computed(() => evaluationStore.evaluations || []);
+// Utiliser les données du store (triées du plus récent au plus ancien)
+const rows = computed(() => {
+  const list = evaluationStore.evaluations || [];
+  return [...list].sort((a, b) => (b.id || 0) - (a.id || 0));
+});
 
 // Filtre de recherche personnalisé
 const filteredRows = computed(() => {

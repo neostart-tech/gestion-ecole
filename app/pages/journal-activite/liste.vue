@@ -28,12 +28,25 @@
       <div class="mt-6 bg-white dark:bg-[#11111e] border border-[#e8e8f0] dark:border-[#1a1a2a] rounded-2xl shadow-[0_8px_30px_rgba(127,69,253,0.04)] overflow-hidden">
 
         <!-- En-tête -->
-        <div class="flex items-center gap-3 p-5 lg:p-6 border-b border-[#e8e8f0] dark:border-[#1a1a2a]">
-          <div class="w-1.5 h-8 bg-[#7F45FD] rounded-full shrink-0"></div>
-          <div>
-            <h1 class="text-2xl font-black text-[#1a1a2a] dark:text-[#fafafe] tracking-tight">Journal d'activité</h1>
-            <p class="text-sm text-[#8a8a9a] font-medium">Historique des actions effectuées sur la plateforme</p>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 lg:p-6 border-b border-[#e8e8f0] dark:border-[#1a1a2a]">
+          <div class="flex items-center gap-3">
+            <div class="w-1.5 h-8 bg-[#7F45FD] rounded-full shrink-0"></div>
+            <div>
+              <h1 class="text-2xl font-black text-[#1a1a2a] dark:text-[#fafafe] tracking-tight">Journal d'activité</h1>
+              <p class="text-sm text-[#8a8a9a] font-medium">Historique des actions effectuées sur la plateforme</p>
+            </div>
           </div>
+
+          <button
+            v-if="can('clear-activity-log') || can('delete-log')"
+            @click="confirmClearAll"
+            class="px-4 py-2.5 bg-red-600/10 hover:bg-red-600 text-red-600 hover:text-white dark:bg-red-500/20 dark:hover:bg-red-600 dark:text-red-400 dark:hover:text-white border border-red-500/20 rounded-xl transition-all text-sm font-bold flex items-center gap-2 self-start sm:self-auto shrink-0 shadow-sm"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Vider tous les logs
+          </button>
         </div>
 
         <!-- Barre d'outils -->
@@ -305,6 +318,33 @@ const confirmBulkDelete = async () => {
       await logStore.fetchLogs(filters.value, logStore.meta.current_page);
     } catch (error) {
       $toastr.error("Erreur lors de la suppression des logs");
+    }
+  }
+};
+
+const confirmClearAll = async () => {
+  const result = await $swal.fire({
+    title: "Vider entièrement le journal ?",
+    text: "Attention : cette action va supprimer DÉFINITIVEMENT TOUS LES LOGS de la plateforme. Cette opération est irréversible !",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Oui, tout vider",
+    cancelButtonText: "Annuler",
+    customClass: {
+      confirmButton: "bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg ml-2",
+      cancelButton: "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-bold px-4 py-2 rounded-lg",
+    },
+    buttonsStyling: false,
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await logStore.clearAllLogs();
+      $toastr.success("Le journal d'activités a été entièrement vidé");
+      selectedRows.value = [];
+      await logStore.fetchLogs(filters.value, 1);
+    } catch (error) {
+      $toastr.error("Erreur lors de la réinitialisation du journal d'activités");
     }
   }
 };

@@ -235,18 +235,7 @@
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Contexte de l'étude de cas <span class="text-red-500">*</span>
                   </label>
-                  <Editor
-                    api-key="2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl"
-                    v-model="newPart.contexte"
-                    :init="{
-                      height: 150,
-                      menubar: false,
-                      plugins: 'lists link image',
-                      toolbar: 'undo redo | bold italic | bullist numlist | link',
-                      content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px; }',
-                      branding: false,
-                    }"
-                  />
+                  <CustomQuillEditor v-model="newPart.contexte" />
                   <p class="text-xs text-gray-500 dark:text-gray-400">
                     Ce contexte sera visible pour toutes les questions de cette partie
                   </p>
@@ -544,18 +533,7 @@
                   </button>
                 </Can>
               </div>
-              <Editor
-                api-key="2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl"
-                v-model="questionForm.content"
-                :init="{
-                  height: 200,
-                  menubar: false,
-                  plugins: 'lists link image table',
-                  toolbar: 'undo redo | bold italic underline | bullist numlist | link | table',
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px; }',
-                  branding: false,
-                }"
-              />
+              <CustomQuillEditor v-model="questionForm.content" />
             </div>
 
             <!-- Points -->
@@ -2255,7 +2233,7 @@ import { useRoute } from "vue-router";
 import { Dialog, DialogPanel, DialogTitle, TransitionRoot, TransitionChild } from "@headlessui/vue";
 import Breadcrumb from "~/components/Breadcrumb.vue";
 import { useNuxtApp } from '#app'
-import Editor from "@tinymce/tinymce-vue";
+import CustomQuillEditor from "~/components/CustomQuillEditor.vue";
 import { useExamStore } from "~~/stores/exam";
 
 const route = useRoute();

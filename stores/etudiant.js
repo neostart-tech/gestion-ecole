@@ -35,7 +35,8 @@ export const useEtudiantStore = defineStore("etudiant", {
           "/etudiants/liste",
           this.authHeaders(),
         );
-        this.etudiants = response.data.data;
+        const resData = response.data?.data ?? response.data;
+        this.etudiants = Array.isArray(resData) ? resData : [];
       } catch (error) {
         console.error("Erreur lors du chargement des étudiants:", error);
       } finally {
@@ -65,7 +66,8 @@ export const useEtudiantStore = defineStore("etudiant", {
           this.authHeaders(),
         );
 
-        this.etudiants = response.data.data;
+        const resData = response.data?.data ?? response.data;
+        this.etudiants = Array.isArray(resData) ? resData : [];
       } catch (error) {
         console.error("Erreur chargement des étudiants du groupe:", error);
         throw error;

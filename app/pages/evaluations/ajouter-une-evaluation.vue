@@ -1,270 +1,279 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-4 md:p-6">
-    <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
-      <NuxtLink
-        to="/"
-        class="cursor-pointer hover:text-indigo-600 transition-colors"
-        >Accueil</NuxtLink
-      >
-      <span>/</span>
-      <NuxtLink
-        to="/evaluations"
-        class="cursor-pointer hover:text-indigo-600 transition-colors"
-        >Évaluations</NuxtLink
-      >
-      <span>/</span>
-      <span class="text-gray-900 font-medium cursor-default"
-        >Ajouter une évaluation</span
-      >
+  <div class="min-h-screen bg-[#f3f3f8] dark:bg-[#08080f] font-sans transition-colors duration-500 relative">
+    <!-- Fond d'ambiance violet -->
+    <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+      <div class="absolute top-0 right-0 w-[50vw] h-[50vw] bg-[#7F45FD]/15 dark:bg-[#7F45FD]/25 blur-[120px] rounded-full translate-x-1/3 -translate-y-1/3"></div>
+      <div class="absolute bottom-0 left-0 w-[40vw] h-[40vw] bg-[#7F45FD]/15 dark:bg-[#7F45FD]/25 blur-[100px] rounded-full -translate-x-1/3 translate-y-1/3"></div>
+      <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48ZyBmaWxsPSIjN0Y0NUZEIiBmaWxsLW9wYWNpdHk9IjAuMDgiPjxwYXRoIGQ9Ik0zNiAzNHYtNGgxdjRoLTF6bTAgM3YtMWgxdjFoLTF6bTAgNHYtMWgxdjFoLTF6Ii8+PC9nPjwvZz48L3N2Zz4=')]"></div>
     </div>
 
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl md:text-3xl font-semibold text-gray-900">
-        Ajouter une évaluation
-      </h1>
-      <NuxtLink
-        to="/evaluations/liste"
-        class="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-      >
-        Retour à la liste
-      </NuxtLink>
-    </div>
+    <div class="relative z-10 w-full p-4 sm:p-6 lg:p-8">
+      <Breadcrumb
+        :items="[
+          { label: 'Administration', to: '/' },
+          { label: 'Évaluations', to: '/evaluations/liste' },
+          { label: 'Ajouter une évaluation', to: null },
+        ]"
+        title="Ajouter une évaluation"
+        :title-class="'text-xl md:text-2xl text-gray-800 dark:text-gray-100'"
+        :spacing="'mb-2'"
+        :link-color="'text-[#7F45FD] dark:text-[#a882ff] hover:text-[#6a35e8] dark:hover:text-[#c4a9ff]'"
+        :active-color="'text-gray-900 dark:text-gray-100 font-medium'"
+        :text-size="'text-base'"
+        align="left"
+      />
 
-    <!-- loading overlay or skeleton -->
-    <div v-if="loading" class="max-w-4xl mx-auto bg-white rounded-xl shadow-sm p-6 md:p-8">
-      <div class="animate-pulse space-y-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div v-for="i in 8" :key="i" class="space-y-2">
-            <div class="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            <div class="h-10 w-full bg-gray-100 dark:bg-gray-800 rounded-lg"></div>
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl md:text-3xl font-black text-[#1a1a2a] dark:text-[#fafafe] tracking-tight">
+          Ajouter une évaluation
+        </h1>
+        <NuxtLink
+          to="/evaluations/liste"
+          class="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-[#11111e] border border-gray-200 dark:border-[#1a1a2a] rounded-xl hover:bg-gray-50 dark:hover:bg-[#1a1a2a] transition-all shadow-sm"
+        >
+          Retour à la liste
+        </NuxtLink>
+      </div>
+
+      <!-- loading overlay or skeleton -->
+      <div v-if="loading" class="w-full bg-white dark:bg-[#11111e] border border-gray-200 dark:border-[#1a1a2a] rounded-2xl shadow-[0_8px_30px_rgba(127,69,253,0.04)] p-6 md:p-8">
+        <div class="animate-pulse space-y-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div v-for="i in 8" :key="i" class="space-y-2">
+              <div class="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div class="h-10 w-full bg-gray-100 dark:bg-gray-800 rounded-lg"></div>
+            </div>
           </div>
-        </div>
-        <div class="space-y-4">
-          <div v-for="i in 2" :key="i" class="h-16 w-full bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700"></div>
-        </div>
-        <div class="flex justify-end gap-3 pt-6 border-t border-gray-100 dark:border-gray-700">
-          <div class="h-10 w-24 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-          <div class="h-10 w-32 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+          <div class="space-y-4">
+            <div v-for="i in 2" :key="i" class="h-16 w-full bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700"></div>
+          </div>
+          <div class="flex justify-end gap-3 pt-6 border-t border-gray-100 dark:border-gray-700">
+            <div class="h-10 w-24 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+            <div class="h-10 w-32 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div v-else class="max-w-4xl mx-auto bg-white rounded-xl shadow-sm p-6 md:p-8">
-      <form @submit.prevent="saveEvaluation" class="space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Groupes -->
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Groupes *</label
-            >
-            <Dropdown
-              v-model="form.group_id"
-              :options="groupesOptions"
-              optionLabel="label"
-              optionValue="value"
-              filter
-              showClear
-              placeholder="Sélectionner un groupe"
-              class="w-full"
-            />
-          </div>
-
-          <!-- Type d'évaluation -->
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Catégorie</label
-            >
-            <Dropdown
-              v-model="form.type"
-              :options="typeExamenOptions"
-              optionLabel="label"
-              optionValue="value"
-              filter
-              showClear
-              placeholder="Sélectionner une catégorie"
-              class="w-full"
-            />
-          </div>
-
-          <!-- Unité de Valeur -->
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Unité de Valeur *</label
-            >
-            <Dropdown
-              v-model="form.unite_valeur_id"
-              :options="matieresOptions"
-              optionLabel="label"
-              optionValue="value"
-              :loading="loadingMatieres"
-              filter
-              showClear
-              placeholder="Sélectionner une UE"
-              class="w-full"
-            />
-          </div>
-
-          <!-- Salle -->
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Salle</label
-            >
-            <Dropdown
-              v-model="form.salle_id"
-              :options="salleOptions"
-              optionLabel="label"
-              optionValue="value"
-              filter
-              showClear
-              placeholder="Sélectionner une salle"
-              class="w-full"
-            />
-          </div>
-
-          <!-- Date de l'évaluation -->
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Date de l'évaluation *</label
-            >
-            <FloatLabel variant="on">
-              <DatePicker
-                v-model="form.date"
-                dateFormat="dd/mm/yy"
-                showIcon
-                fluid
-                iconDisplay="input"
+      <div v-else class="w-full bg-white dark:bg-[#11111e] border border-gray-200 dark:border-[#1a1a2a] rounded-2xl shadow-[0_8px_30px_rgba(127,69,253,0.04)] p-6 md:p-8">
+        <form @submit.prevent="saveEvaluation" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Groupes -->
+            <div>
+              <label
+                class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5"
+                >Groupes *</label
+              >
+              <Dropdown
+                v-model="form.group_id"
+                :options="groupesOptions"
+                optionLabel="label"
+                optionValue="value"
+                filter
+                showClear
+                placeholder="Sélectionner un groupe"
+                class="w-full"
               />
-              <label>Date de l'évaluation *</label>
-            </FloatLabel>
+            </div>
+
+            <!-- Type d'évaluation -->
+            <div>
+              <label
+                class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5"
+                >Catégorie</label
+              >
+              <Dropdown
+                v-model="form.type"
+                :options="typeExamenOptions"
+                optionLabel="label"
+                optionValue="value"
+                filter
+                showClear
+                placeholder="Sélectionner une catégorie"
+                class="w-full"
+              />
+            </div>
+
+            <!-- Unité de Valeur -->
+            <div>
+              <label
+                class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5"
+                >Unité de Valeur *</label
+              >
+              <Dropdown
+                v-model="form.unite_valeur_id"
+                :options="matieresOptions"
+                optionLabel="label"
+                optionValue="value"
+                :loading="loadingMatieres"
+                filter
+                showClear
+                placeholder="Sélectionner une UE"
+                class="w-full"
+              />
+            </div>
+
+            <!-- Salle -->
+            <div>
+              <label
+                class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5"
+                >Salle</label
+              >
+              <Dropdown
+                v-model="form.salle_id"
+                :options="salleOptions"
+                optionLabel="label"
+                optionValue="value"
+                filter
+                showClear
+                placeholder="Sélectionner une salle"
+                class="w-full"
+              />
+            </div>
+
+            <!-- Date de l'évaluation -->
+            <div>
+              <label
+                class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5"
+                >Date de l'évaluation *</label
+              >
+              <FloatLabel variant="on">
+                <DatePicker
+                  v-model="form.date"
+                  dateFormat="dd/mm/yy"
+                  showIcon
+                  fluid
+                  iconDisplay="input"
+                />
+                <label class="dark:text-gray-400">Date de l'évaluation *</label>
+              </FloatLabel>
+            </div>
+
+            <!-- Heure début -->
+            <div>
+              <label
+                class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5"
+                >Heure de début *</label
+              >
+              <FloatLabel variant="on">
+                <input
+                  type="time"
+                  v-model="form.debut"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-[#0a0a12] border-gray-300 dark:border-[#1a1a2a] text-[#1a1a2a] dark:text-white focus:ring-2 focus:ring-[#7F45FD]/20 focus:border-[#7F45FD] outline-none transition-all"
+                />
+              </FloatLabel>
+            </div>
+
+            <!-- Heure fin -->
+            <div>
+              <label
+                class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5"
+                >Heure de fin *</label
+              >
+              <FloatLabel variant="on">
+                <input
+                  type="time"
+                  v-model="form.fin"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-[#0a0a12] border-gray-300 dark:border-[#1a1a2a] text-[#1a1a2a] dark:text-white focus:ring-2 focus:ring-[#7F45FD]/20 focus:border-[#7F45FD] outline-none transition-all"
+                />
+              </FloatLabel>
+            </div>
+
+            <!-- Date de fin de correction -->
+            <div>
+              <label
+                class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5"
+                >Date de fin de correction *</label
+              >
+              <FloatLabel variant="on">
+                <DatePicker
+                  v-model="form.correction_end_date"
+                  dateFormat="dd/mm/yy"
+                  showIcon
+                  fluid
+                  iconDisplay="input"
+                />
+                <label class="dark:text-gray-400">Date de fin de correction</label>
+              </FloatLabel>
+            </div>
+
+            <!-- Durée -->
+            <div>
+              <label
+                class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5"
+                >Durée (minutes)</label
+              >
+              <FloatLabel variant="on">
+                <InputNumber
+                  v-model="form.duration_minutes"
+                  :disabled="true"
+                  fluid
+                />
+                <label class="dark:text-gray-400">Durée (minutes)</label>
+              </FloatLabel>
+            </div>
           </div>
 
-          <!-- Heure début -->
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Heure de début *</label
+          <div class="space-y-3 mt-4">
+            <div
+              class="flex items-center gap-3 p-4 bg-blue-50/70 dark:bg-blue-950/30 rounded-xl border border-blue-200 dark:border-blue-900/50"
             >
-            <FloatLabel variant="on">
               <input
-                type="time"
-                v-model="form.debut"
-                class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
+                type="checkbox"
+                id="is_online"
+                v-model="form.is_online"
+                @change="confirmIsOnline"
+                class="w-5 h-5 text-[#7F45FD] border-gray-300 rounded focus:ring-2 focus:ring-[#7F45FD] cursor-pointer"
               />
-            </FloatLabel>
-          </div>
+              <label
+                for="is_online"
+                class="text-sm font-medium text-gray-800 dark:text-gray-200 cursor-pointer flex-1"
+                >Évaluation en ligne</label
+              >
+            </div>
 
-          <!-- Heure fin -->
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Heure de fin *</label
+            <div
+              class="flex items-center gap-3 p-4 bg-green-50/70 dark:bg-green-950/30 rounded-xl border border-green-200 dark:border-green-900/50"
             >
-            <FloatLabel variant="on">
               <input
-                type="time"
-                v-model="form.fin"
-                class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
+                type="checkbox"
+                id="published"
+                v-model="form.published"
+                @change="confirmPublish"
+                class="w-5 h-5 text-[#7F45FD] border-gray-300 rounded focus:ring-2 focus:ring-[#7F45FD] cursor-pointer"
               />
-            </FloatLabel>
-          </div>
-
-          <!-- Date de fin de correction -->
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Date de fin de correction*</label
-            >
-
-            <FloatLabel variant="on">
-              <DatePicker
-                v-model="form.correction_end_date"
-                dateFormat="dd/mm/yy"
-                showIcon
-                fluid
-                iconDisplay="input"
-              />
-              <label>Date de fin de correction</label>
-            </FloatLabel>
-          </div>
-
-          <!-- Durée -->
-          <div>
-            <FloatLabel variant="on">
-              <InputNumber
-                v-model="form.duration_minutes"
-                :disabled="true"
-                fluid
-              />
-              <label>Durée (minutes)</label>
-            </FloatLabel>
-          </div>
-        </div>
-
-        <div class="space-y-3 mt-4">
-          <div
-            class="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800"
-          >
-            <input
-              type="checkbox"
-              id="is_online"
-              v-model="form.is_online"
-              @change="confirmIsOnline"
-              class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-            />
-            <label
-              for="is_online"
-              class="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer flex-1"
-              >Évaluation en ligne</label
-            >
+              <label
+                for="published"
+                class="text-sm font-medium text-gray-800 dark:text-gray-200 cursor-pointer flex-1"
+                >Publier la programmation auprès des étudiants concernés</label
+              >
+            </div>
           </div>
 
           <div
-            class="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800"
+            class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-[#1a1a2a]"
           >
-            <input
-              type="checkbox"
-              id="published"
-              v-model="form.published"
-              @change="confirmPublish"
-              class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-            />
-            <label
-              for="published"
-              class="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer flex-1"
-              >Publier la programmation auprès des étudiants concernés</label
+            <button
+              type="button"
+              @click="router.push('/evaluations/liste')"
+              class="px-5 py-2.5 rounded-xl border border-gray-300 dark:border-[#1a1a2a] text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#1a1a2a] transition-all font-semibold text-sm"
+              :disabled="isSaving"
             >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              class="px-6 py-2.5 rounded-xl bg-[#7F45FD] hover:bg-[#6a35e8] text-white font-semibold text-sm transition-all shadow-md flex items-center gap-2"
+              :disabled="isSaving"
+            >
+              <svg v-if="isSaving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ isSaving ? 'Enregistrement...' : 'Enregistrer' }}
+            </button>
           </div>
-        </div>
-
-        <div
-          class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700"
-        >
-          <button
-            type="button"
-            @click="router.push('/evaluations')"
-            class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            :disabled="isSaving"
-          >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            class="px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-all flex items-center gap-2"
-            :disabled="isSaving"
-          >
-            <svg v-if="isSaving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            {{ isSaving ? 'Enregistrement...' : 'Enregistrer' }}
-          </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -589,5 +598,47 @@ select:disabled {
   .grid-cols-3 {
     grid-template-columns: 1fr;
   }
+}
+
+/* Custom styles pour le mode sombre PrimeVue & Form inputs */
+:deep(.p-dropdown),
+:deep(.p-datepicker),
+:deep(.p-inputnumber-input) {
+  border-radius: 0.75rem !important;
+}
+
+.dark :deep(.p-dropdown) {
+  background-color: #0a0a12 !important;
+  border-color: #1a1a2a !important;
+  color: #fafafe !important;
+}
+
+.dark :deep(.p-dropdown .p-dropdown-label) {
+  color: #fafafe !important;
+}
+
+.dark :deep(.p-dropdown-panel) {
+  background-color: #11111e !important;
+  border-color: #1a1a2a !important;
+  color: #fafafe !important;
+}
+
+.dark :deep(.p-dropdown-items .p-dropdown-item) {
+  color: #fafafe !important;
+}
+
+.dark :deep(.p-dropdown-items .p-dropdown-item:hover) {
+  background-color: rgba(127, 69, 253, 0.15) !important;
+}
+
+.dark :deep(.p-datepicker-input),
+.dark :deep(.p-inputnumber-input) {
+  background-color: #0a0a12 !important;
+  border-color: #1a1a2a !important;
+  color: #fafafe !important;
+}
+
+.dark :deep(.p-float-label label) {
+  color: #8a8a9a !important;
 }
 </style>

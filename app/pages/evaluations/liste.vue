@@ -242,21 +242,41 @@
                 </svg>
               </NuxtLink>
 
-              <!-- Validation des copies / Corrections -->
-              <NuxtLink
-                class="p-2 rounded-lg text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors duration-200"
-                title="Corrections & Validation"
-                :to="`/evaluations/examen-en-ligne/${value.slug}/soumission-des-etudiants`"
-              >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+              <!-- Sujet & Questions de l'examen en ligne -->
+              <Can action="update-question-examen">
+                <NuxtLink
+                  class="p-2 rounded-lg text-indigo-600 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors duration-200"
+                  title="Éditer le sujet & questions d'examen"
+                  :to="`/evaluations/examen-en-ligne/${value.slug}/questions`"
                 >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </NuxtLink>
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </NuxtLink>
+              </Can>
+
+              <!-- Validation des copies / Corrections -->
+              <Can action="grade-examen">
+                <NuxtLink
+                  class="p-2 rounded-lg text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors duration-200"
+                  title="Corrections & Validation"
+                  :to="`/evaluations/examen-en-ligne/${value.slug}/soumission-des-etudiants`"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </NuxtLink>
+              </Can>
 
               <Can action="update-evaluation">
                 <button
@@ -999,7 +1019,10 @@ const existingSurveillants = computed(() => {
   return selectedEvaluation.value.fiche.surveillants;
 });
 
-const rows = computed(() => evaluationStore.evaluations);
+const rows = computed(() => {
+  const list = evaluationStore.evaluations || [];
+  return [...list].sort((a, b) => (b.id || 0) - (a.id || 0));
+});
 
 const openConfigModal = (evaluation) => {
   selectedEvaluation.value = evaluation;

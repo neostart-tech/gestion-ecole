@@ -326,8 +326,11 @@ const columns = ref([
 
 const visibleColumns = computed(() => columns.value.filter((c) => c.visible));
 
-// Données du store
-const rows = computed(() => evaluationStore.evaluations || []);
+// Données du store (triées du plus récent au plus ancien)
+const rows = computed(() => {
+  const list = evaluationStore.evaluations || [];
+  return [...list].sort((a, b) => (b.id || 0) - (a.id || 0));
+});
 
 // Statistiques
 const stats = computed(() => {
