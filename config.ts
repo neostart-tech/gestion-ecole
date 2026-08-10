@@ -1,4 +1,4 @@
-const isLocal = false; 
+const isLocal = true; 
 export default {
   app_local: isLocal,
   app_dev_url: "http://localhost:8000/api",

@@ -188,6 +188,17 @@ export const useRecouvrementStore = defineStore("recouvrement", {
         console.error("Erreur declarerAbandon:", error);
         throw error;
       }
+    },
+
+    async annulerAbandon(slug) {
+      if (!slug) return;
+      try {
+        const response = await axios.post(`/finance/recouvrement/${slug}/annuler-abandon`, {}, this.authHeaders);
+        return response.data;
+      } catch (error) {
+        console.error("Erreur annulerAbandon:", error);
+        throw error;
+      }
     }
   }
 });

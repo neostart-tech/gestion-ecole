@@ -517,178 +517,206 @@
           </div>
         </template>
 
-          <!--
-
-                  :class="data.value.statut === 'actif' ? 'text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30' : 'text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30'"
-                  :title="data.value.statut === 'actif' ? 'Désactiver l\'étudiant' : 'Réactiver l\'étudiant'"
-                >
-                  <svg
-                    v-if="data.value.statut === 'actif'"
-                    class="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="1.5"
-                      d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-                    />
-                  </svg>
-                  <svg
-                    v-else
-                    class="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="1.5"
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </button>
-              </Can>
-            </div>
-          </template>
-
-          <!-- Template personnalisé pour le genre -->
-          <template #genre="data">
+        <!-- Template pour Nom & Prénom avec badge bloqué -->
+        <template #nom_complet="data">
+          <div class="flex items-center gap-2">
+            <span class="font-medium text-gray-900 dark:text-white">{{ data.value.nom_complet }}</span>
             <span
-              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+              v-if="data.value.statut === 'bloque' || data.value.est_bloque"
+              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100/80 text-red-700 dark:bg-red-900/40 dark:text-red-300 border border-red-200 dark:border-red-800/60 shadow-2xs"
+              title="Accès bloqué aux devoirs et examens"
+            >
+              <svg class="w-3 h-3 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span>Bloqué</span>
+            </span>
+            <span
+              v-else-if="data.value.statut === 'abandon' || data.value.est_en_abandon"
+              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100/80 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 shadow-2xs"
+              title="En abandon d'études"
+            >
+              <svg class="w-3 h-3 text-purple-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+              </svg>
+              <span>Abandon</span>
+            </span>
+          </div>
+        </template>
+
+        <!-- Template personnalisé pour le genre -->
+        <template #genre="data">
+          <span
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+            :class="{
+              'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300':
+                data.value.genre === 'Masculin',
+              'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300':
+                data.value.genre === 'Féminin',
+            }"
+          >
+            {{ data.value.genre }}
+          </span>
+        </template>
+
+        <!-- Template pour le groupe -->
+        <template #groupe="data">
+          <span
+            v-if="data.value.groupe"
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
+          >
+            {{ data.value.groupe }}
+          </span>
+          <span v-else class="text-gray-400">-</span>
+        </template>
+
+        <!-- Template pour le statut -->
+        <template #statut="data">
+          <span
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+            :class="{
+              'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300 border border-red-200 dark:border-red-800':
+                data.value.statut === 'bloque' || (data.value.est_bloque && !data.value.est_en_abandon),
+              'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300 border border-purple-200 dark:border-purple-800':
+                data.value.statut === 'abandon' || data.value.est_en_abandon,
+              'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300':
+                data.value.statut === 'actif' && !data.value.est_bloque && !data.value.est_en_abandon,
+              'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300':
+                data.value.statut === 'inactif' && !data.value.est_bloque && !data.value.est_en_abandon,
+            }"
+          >
+            <span
+              class="w-1.5 h-1.5 rounded-full"
               :class="{
-                'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300':
-                  data.value.genre === 'Masculin',
-                'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300':
-                  data.value.genre === 'Féminin',
+                'bg-red-600': data.value.statut === 'bloque' || (data.value.est_bloque && !data.value.est_en_abandon),
+                'bg-purple-600': data.value.statut === 'abandon' || data.value.est_en_abandon,
+                'bg-emerald-500': data.value.statut === 'actif' && !data.value.est_bloque && !data.value.est_en_abandon,
+                'bg-gray-500': data.value.statut === 'inactif' && !data.value.est_bloque && !data.value.est_en_abandon,
               }"
-            >
-              {{ data.value.genre }}
-            </span>
-          </template>
-
-          <!-- Template pour le groupe -->
-          <template #groupe="data">
-            <span
-              v-if="data.value.groupe"
-              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
-            >
-              {{ data.value.groupe }}
-            </span>
-            <span v-else class="text-gray-400">-</span>
-          </template>
-
-          <!-- Template pour le statut -->
-          <template #statut="data">
-            <span
-              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-              :class="{
-                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300':
-                  data.value.statut === 'actif',
-                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300':
-                  data.value.statut === 'inactif',
-              }"
-            >
-              {{ data.value.statut === 'actif' ? 'Actif' : 'Inactif' }}
-            </span>
-          </template>
-        </Vue3Datatable>
-      </div>
+            ></span>
+            {{
+              (data.value.statut === 'abandon' || data.value.est_en_abandon)
+                ? 'Abandon (Bloqué)'
+                : ((data.value.statut === 'bloque' || data.value.est_bloque)
+                  ? 'Bloqué'
+                  : (data.value.statut === 'actif' ? 'Actif' : 'Inactif'))
+            }}
+          </span>
+        </template>
+      </Vue3Datatable>
     </div>
+  </div>
 
-    <!-- Modal de détail étudiant (design inchangé) -->
-    <TransitionRoot appear :show="showDetailModal" as="template">
-      <Dialog as="div" class="relative z-50" @close="closeDetailModal">
-        <TransitionChild
-          as="template"
-          enter="ease-out duration-300"
-          enter-from="opacity-0"
-          enter-to="opacity-100"
-          leave="ease-in duration-200"
-          leave-from="opacity-100"
-          leave-to="opacity-0"
-        >
-          <div class="fixed inset-0 bg-black/60" />
-        </TransitionChild>
+  <!-- Modal de détail étudiant -->
+  <TransitionRoot appear :show="showDetailModal" as="template">
+    <Dialog as="div" class="relative z-50" @close="closeDetailModal">
+      <TransitionChild
+        as="template"
+        enter="ease-out duration-300"
+        enter-from="opacity-0"
+        enter-to="opacity-100"
+        leave="ease-in duration-200"
+        leave-from="opacity-100"
+        leave-to="opacity-0"
+      >
+        <div class="fixed inset-0 bg-black/60" />
+      </TransitionChild>
 
-        <div class="fixed inset-0 overflow-y-auto">
-          <div class="flex min-h-full items-center justify-center p-4">
-            <TransitionChild
-              as="template"
-              enter="ease-out duration-300"
-              enter-from="opacity-0 scale-95"
-              enter-to="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leave-from="opacity-100 scale-100"
-              leave-to="opacity-0 scale-95"
+      <div class="fixed inset-0 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4">
+          <TransitionChild
+            as="template"
+            enter="ease-out duration-300"
+            enter-from="opacity-0 scale-95"
+            enter-to="opacity-100 scale-100"
+            leave="ease-in duration-200"
+            leave-from="opacity-100 scale-100"
+            leave-to="opacity-0 scale-95"
+          >
+            <DialogPanel
+              class="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all"
             >
-              <DialogPanel
-                class="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all"
-              >
-                <!-- En-tête de la modale -->
-                <div class="flex items-start justify-between mb-6">
-                  <div class="flex-1">
-                    <div class="flex items-center gap-3 mb-3">
-                      <div
-                        class="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-md"
+              <!-- En-tête de la modale -->
+              <div class="flex items-start justify-between mb-6">
+                <div class="flex-1">
+                  <div class="flex items-center gap-3 mb-3">
+                    <div
+                      class="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-md"
+                    >
+                      <svg
+                        class="w-6 h-6 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                       >
-                        <svg
-                          class="w-6 h-6 text-white"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                          />
-                        </svg>
-                      </div>
-                      <div>
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-2">
                         <DialogTitle
                           class="text-2xl font-bold text-gray-900 dark:text-white"
                         >
                           {{ selectedEtudiant?.prenom }}
                           {{ selectedEtudiant?.nom }}
                         </DialogTitle>
-                        <p
-                          class="text-gray-600 dark:text-gray-400 text-sm mt-1"
+                        <span
+                          v-if="selectedEtudiant?.est_bloque || selectedEtudiant?.statut === 'bloque'"
+                          class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100/80 text-red-700 dark:bg-red-900/40 dark:text-red-300 border border-red-200 dark:border-red-800/60 shadow-2xs"
                         >
-                          {{ selectedEtudiant?.matricule }}
-                        </p>
+                          <svg class="w-3.5 h-3.5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          </svg>
+                          <span>Bloqué</span>
+                        </span>
+                        <span
+                          v-else-if="selectedEtudiant?.est_en_abandon || selectedEtudiant?.statut === 'abandon'"
+                          class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100/80 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 shadow-2xs"
+                        >
+                          <svg class="w-3.5 h-3.5 text-purple-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                          </svg>
+                          <span>Abandon</span>
+                        </span>
                       </div>
+                      <p
+                        class="text-gray-600 dark:text-gray-400 text-sm mt-1"
+                      >
+                        {{ selectedEtudiant?.matricule }}
+                      </p>
                     </div>
                   </div>
-                  <button
-                    @click="closeDetailModal"
-                    class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    title="Fermer"
-                  >
-                    <svg
-                      class="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
                 </div>
+                <button
+                  @click="closeDetailModal"
+                  class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  title="Fermer"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
 
-                <!-- Contenu principal -->
-                <div class="space-y-6">
-                  <!-- Informations personnelles -->
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Contenu principal -->
+              <div class="space-y-6">
+                <!-- Informations personnelles -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
                       <div class="flex items-center gap-3 mb-2">
                         <div
@@ -1561,7 +1589,10 @@ const filteredRows = computed(() => {
       groupe: (levelName || groupName) ? `${levelName} ${groupName}`.trim() : "--",
       groupe_id: grpId,
       filiere_nom: e?.dernier_groupe?.filiere?.nom || e?.dernier_groupe?.filiere?.libelle || "--",
-      statut: e.statut || "actif",
+      statut: e.est_en_abandon ? "abandon" : (e.statut || "actif"),
+      est_bloque: Boolean(e.est_bloque || e.statut === "bloque" || e.est_en_abandon),
+      est_en_abandon: Boolean(e.est_en_abandon),
+      peut_composer: Boolean(e.peut_composer !== undefined ? e.peut_composer : (e.statut !== "bloque" && !e.est_en_abandon)),
       raw: e,
     };
   });

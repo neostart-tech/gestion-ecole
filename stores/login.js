@@ -25,6 +25,7 @@ export const useLoginStore = defineStore("login", {
         const response = await axios.post(url, credentials);
         this.isLoading = false;
         localStorage.setItem("gest-ecole-token", response.data.token);
+        localStorage.setItem("gest-ecole-token-time", Date.now().toString());
         localStorage.setItem("user", JSON.stringify(response.data.user));
         const userState = useState("user");
         userState.value = response.data.user;
@@ -44,6 +45,7 @@ export const useLoginStore = defineStore("login", {
         const response = await axios.post("/logout");
 
         localStorage.removeItem("gest-ecole-token");
+        localStorage.removeItem("gest-ecole-token-time");
         localStorage.removeItem("user");
         return response.data;
       } catch (error) {
@@ -97,7 +99,19 @@ export const useLoginStore = defineStore("login", {
 
     isAuthenticated() {
       if (!process.client) return true;
-      return !!localStorage.getItem("gest-ecole-token");
+      const token = localStorage.getItem("gest-ecole-token");
+      const tokenTime = localStorage.getItem("gest-ecole-token-time");
+      if (!token) return false;
+      if (tokenTime) {
+        const elapsedHours = (Date.now() - parseInt(tokenTime, 10)) / (1000 * 60 * 60);
+        if (elapsedHours >= 24) {
+          localStorage.removeItem("gest-ecole-token");
+          localStorage.removeItem("gest-ecole-token-time");
+          localStorage.removeItem("user");
+          return false;
+        }
+      }
+      return true;
     },
 
     async fetchUser() {

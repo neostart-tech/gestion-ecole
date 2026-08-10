@@ -103,24 +103,24 @@
       <!-- Carte principale avec tableau -->
       <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700">
         <!-- Barre de filtres et recherche -->
-        <div class="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+        <div class="p-4 sm:p-5 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 space-y-4">
           <!-- Ligne 1: Recherche et actions -->
-          <div class="flex flex-col md:flex-row gap-4 mb-4">
+          <div class="flex flex-col md:flex-row gap-3">
             <!-- Recherche -->
             <div class="relative flex-1">
               <input
                 v-model="searchQuery"
                 type="search"
                 placeholder="Rechercher par nom, prénom, matricule, email..."
-                class="w-full px-4 py-2.5 pl-10 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
+                class="w-full px-4 py-2 pl-10 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-sm"
               />
-              <svg class="w-4 h-4 text-gray-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 text-gray-400 absolute left-3.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <button
                 v-if="searchQuery"
                 @click="searchQuery = ''"
-                class="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -129,9 +129,9 @@
             </div>
 
             <!-- Actions groupées -->
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 shrink-0">
               <!-- Compteur de résultats -->
-              <div class="px-3 py-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-sm whitespace-nowrap">
+              <div class="px-3.5 py-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/40 rounded-xl text-sm whitespace-nowrap">
                 <span class="font-bold text-indigo-600 dark:text-indigo-400">{{ filteredData.length }}</span>
                 <span class="text-gray-600 dark:text-gray-400 ml-1">étudiant(s)</span>
               </div>
@@ -140,24 +140,24 @@
               <client-only>
                 <VDropdown placement="bottom-end">
                   <button
-                    class="flex items-center gap-2 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    class="flex items-center gap-2 px-4 py-2 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition-all"
                   >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
-                    <span class="hidden sm:inline">Colonnes</span>
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <span>Colonnes</span>
+                    <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                       <path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" />
                     </svg>
                   </button>
 
                   <template #popper>
-                    <div class="w-56 p-3 rounded-lg shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                      <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-1">Colonnes affichées</p>
+                    <div class="w-56 p-3 rounded-xl shadow-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                      <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 px-1 uppercase tracking-wider">Colonnes affichées</p>
                       <div
                         v-for="col in columns"
                         :key="col.field"
-                        class="flex items-center gap-2 py-1.5 px-1 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg"
+                        class="flex items-center gap-2 py-1.5 px-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg cursor-pointer select-none"
                       >
                         <input
                           type="checkbox"
@@ -176,78 +176,81 @@
             </div>
           </div>
 
-          <!-- Ligne 2: Filtres groupés -->
-          <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-            <div class="flex flex-wrap gap-3 flex-1">
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Filtrer par:</span>
-                
-                <!-- Filtre Filière -->
-                <select
-                  v-model="store.filtres.filiere_id"
-                  @change="appliquerFiltres"
-                  class="px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 min-w-[180px]"
-                >
-                  <option v-for="opt in store.filtreOptions.filieres" :key="opt.value" :value="opt.value">
-                    {{ opt.label }}
-                  </option>
-                </select>
-
-                <!-- Filtre Niveau -->
-                <select
-                  v-model="store.filtres.niveau_id"
-                  @change="appliquerFiltres"
-                  class="px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 min-w-[180px]"
-                >
-                  <option v-for="opt in store.filtreOptions.niveaux" :key="opt.value" :value="opt.value">
-                    {{ opt.label }}
-                  </option>
-                </select>
-
-                <!-- Filtre Statut de Paiement -->
-                <select
-                  v-model="store.filtres.statut"
-                  @change="appliquerFiltres"
-                  class="px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 min-w-[150px]"
-                >
-                  <option v-for="opt in store.filtreOptions.statuts" :key="opt.value" :value="opt.value">
-                    {{ opt.label }}
-                  </option>
-                </select>
-
-                <!-- Filtre Statut d'Accès -->
-                <select
-                  v-model="store.filtres.statut_acces"
-                  @change="appliquerFiltres"
-                  class="px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 min-w-[150px]"
-                >
-                  <option :value="null">Tous les accès</option>
-                  <option value="actif">Accès actifs</option>
-                  <option value="bloque">Accès bloqués</option>
-                </select>
-              </div>
+          <!-- Ligne 2: Grille de 5 filtres déroulants -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            <!-- Filtre Filière -->
+            <div class="w-full">
+              <select
+                v-model="store.filtres.filiere_id"
+                @change="appliquerFiltres"
+                class="w-full px-3.5 py-2 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all truncate"
+              >
+                <option v-for="opt in store.filtreOptions.filieres" :key="opt.value" :value="opt.value">
+                  {{ opt.label }}
+                </option>
+              </select>
             </div>
 
-            <!-- Bouton réinitialiser -->
-            <button
-              v-if="hasActiveFilters || searchQuery"
-              @click="reinitialiserFiltres"
-              class="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all inline-flex items-center gap-2 whitespace-nowrap"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              <span class="hidden sm:inline">Réinitialiser tous les filtres</span>
-              <span class="sm:hidden">Réinitialiser</span>
-            </button>
+            <!-- Filtre Niveau -->
+            <div class="w-full">
+              <select
+                v-model="store.filtres.niveau_id"
+                @change="appliquerFiltres"
+                class="w-full px-3.5 py-2 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all truncate"
+              >
+                <option v-for="opt in store.filtreOptions.niveaux" :key="opt.value" :value="opt.value">
+                  {{ opt.label }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Filtre Mode de Formation -->
+            <div class="w-full">
+              <select
+                v-model="store.filtres.mode_formation"
+                @change="appliquerFiltres"
+                class="w-full px-3.5 py-2 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all truncate"
+              >
+                <option v-for="opt in store.filtreOptions.modes" :key="opt.value" :value="opt.value">
+                  {{ opt.label }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Filtre Statut de Paiement -->
+            <div class="w-full">
+              <select
+                v-model="store.filtres.statut"
+                @change="appliquerFiltres"
+                class="w-full px-3.5 py-2 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all truncate"
+              >
+                <option v-for="opt in store.filtreOptions.statuts" :key="opt.value" :value="opt.value">
+                  {{ opt.label }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Filtre Statut d'Accès -->
+            <div class="w-full">
+              <select
+                v-model="store.filtres.statut_acces"
+                @change="appliquerFiltres"
+                class="w-full px-3.5 py-2 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all truncate"
+              >
+                <option :value="null">Tous les accès</option>
+                <option value="actif">Accès actifs</option>
+                <option value="bloque">Accès bloqués</option>
+                <option value="abandon">Abandons</option>
+              </select>
+            </div>
           </div>
 
-          <!-- Filtres actifs (tags) -->
-          <div v-if="hasActiveFilters || searchQuery" class="flex flex-wrap items-center gap-2 mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
-            <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Filtres actifs:</span>
-            
-            <div class="flex flex-wrap gap-2">
-              <span v-if="searchQuery" class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-medium">
+          <!-- Ligne 3: Filtres actifs (tags) et Bouton de réinitialiser sur sa propre ligne séparée -->
+          <div v-if="hasActiveFilters || searchQuery" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Filtres actifs:</span>
+              
+              <span v-if="searchQuery" class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-medium">
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -259,7 +262,7 @@
                 </button>
               </span>
               
-              <span v-if="store.filtres.filiere_id" class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-medium">
+              <span v-if="store.filtres.filiere_id" class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-medium">
                 <span>Filière: {{ getFiliereLabel(store.filtres.filiere_id) }}</span>
                 <button @click="store.filtres.filiere_id = null; appliquerFiltres()" class="hover:text-indigo-900 dark:hover:text-indigo-100">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -268,7 +271,7 @@
                 </button>
               </span>
 
-              <span v-if="store.filtres.niveau_id" class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-medium">
+              <span v-if="store.filtres.niveau_id" class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-medium">
                 <span>Niveau: {{ getNiveauLabel(store.filtres.niveau_id) }}</span>
                 <button @click="store.filtres.niveau_id = null; appliquerFiltres()" class="hover:text-indigo-900 dark:hover:text-indigo-100">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -277,7 +280,16 @@
                 </button>
               </span>
 
-              <span v-if="store.filtres.statut" class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-medium">
+              <span v-if="store.filtres.mode_formation" class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-medium">
+                <span>Mode: {{ store.filtres.mode_formation === 'en_ligne' ? 'En ligne' : 'Présentiel' }}</span>
+                <button @click="store.filtres.mode_formation = null; appliquerFiltres()" class="hover:text-indigo-900 dark:hover:text-indigo-100">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </span>
+
+              <span v-if="store.filtres.statut" class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-medium">
                 <span>Statut: {{ getStatutLabel(store.filtres.statut) }}</span>
                 <button @click="store.filtres.statut = null; appliquerFiltres()" class="hover:text-indigo-900 dark:hover:text-indigo-100">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -285,7 +297,27 @@
                   </svg>
                 </button>
               </span>
+
+              <span v-if="store.filtres.statut_acces" class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-medium">
+                <span>Accès: {{ store.filtres.statut_acces === 'bloque' ? 'Accès bloqués' : (store.filtres.statut_acces === 'abandon' ? 'Abandons' : 'Accès actifs') }}</span>
+                <button @click="store.filtres.statut_acces = null; appliquerFiltres()" class="hover:text-indigo-900 dark:hover:text-indigo-100">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </span>
             </div>
+
+            <!-- Bouton réinitialiser -->
+            <button
+              @click="reinitialiserFiltres"
+              class="px-3.5 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 text-xs font-medium transition-all inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 shadow-2xs"
+            >
+              <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span>Réinitialiser les filtres</span>
+            </button>
           </div>
         </div>
 
@@ -415,9 +447,20 @@
                   {{ getInitials(data.value) }}
                 </div>
                 <div class="min-w-0">
-                  <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
-                    {{ data.value.nom }} {{ data.value.prenom }}
-                    <span v-if="data.value.statut_global === 'bloque'" class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-600 text-white uppercase tracking-wider">Bloqué</span>
+                  <p class="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-1.5 flex-wrap">
+                    <span>{{ data.value.nom }} {{ data.value.prenom }}</span>
+                    <span v-if="data.value.est_bloque || data.value.statut_global === 'bloque'" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100/80 text-red-700 dark:bg-red-900/40 dark:text-red-300 border border-red-200 dark:border-red-800/60 shadow-2xs">
+                      <svg class="w-3 h-3 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      <span>Bloqué</span>
+                    </span>
+                    <span v-else-if="data.value.est_en_abandon || data.value.statut_global === 'abandon'" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100/80 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 shadow-2xs">
+                      <svg class="w-3 h-3 text-purple-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                      </svg>
+                      <span>Abandon</span>
+                    </span>
                   </p>
                   <p class="text-xs text-gray-500 dark:text-gray-400">
                     {{ data.value.matricule }}
@@ -428,9 +471,21 @@
 
             <!-- Template pour la colonne filière/niveau -->
             <template #filiere_nom="data">
-              <div>
+              <div class="flex flex-col gap-0.5">
                 <p class="text-sm font-medium text-gray-900 dark:text-white">{{ data.value.filiere }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">{{ data.value.niveau }}</p>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">{{ data.value.niveau }}</span>
+                  <span
+                    :class="[
+                      'px-1.5 py-0.5 text-[10px] font-medium rounded-full border',
+                      String(data.value.mode_formation).toLowerCase().includes('ligne')
+                        ? 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800'
+                        : 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-900/20 dark:text-sky-300 dark:border-sky-800'
+                    ]"
+                  >
+                    {{ String(data.value.mode_formation).toLowerCase().includes('ligne') ? 'En ligne' : 'Présentiel' }}
+                  </span>
+                </div>
               </div>
             </template>
 
@@ -685,9 +740,21 @@
 
               <!-- Statut -->
              <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-  <div class="flex items-center gap-4">
+  <div class="flex items-center gap-4 flex-wrap">
     <span class="px-3 py-1.5 text-sm font-medium rounded-full" :class="getStatutClass(selectedEtudiant.statut)">
       {{ selectedEtudiant.statut_libelle }}
+    </span>
+    <span v-if="selectedEtudiant.est_bloque || selectedEtudiant.statut_global === 'bloque'" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100/80 text-red-700 dark:bg-red-900/40 dark:text-red-300 border border-red-200 dark:border-red-800/60 shadow-2xs">
+      <svg class="w-3.5 h-3.5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+      </svg>
+      <span>Bloqué</span>
+    </span>
+    <span v-else-if="selectedEtudiant.est_en_abandon || selectedEtudiant.statut_global === 'abandon'" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-100/80 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 shadow-2xs">
+      <svg class="w-3.5 h-3.5 text-purple-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+      </svg>
+      <span>Abandon</span>
     </span>
     <span v-if="selectedEtudiant.en_retard" class="flex items-center gap-1.5 text-sm text-red-600 dark:text-red-400">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1155,7 +1222,7 @@ const kpis = computed(() => {
 })
 
 const hasActiveFilters = computed(() => {
-  return store.filtres.filiere_id || store.filtres.niveau_id || store.filtres.statut
+  return store.filtres.filiere_id || store.filtres.niveau_id || store.filtres.statut || store.filtres.mode_formation || store.filtres.statut_acces
 })
 
 const appName = computed(() => parametreStore.getAppName || 'Établissement')

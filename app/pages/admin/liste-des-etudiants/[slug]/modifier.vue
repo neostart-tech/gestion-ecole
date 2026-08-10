@@ -116,7 +116,33 @@
                     <input v-model="form.annee_admission" type="text" maxlength="4" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
                   </div>
                   <div class="space-y-1">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Groupe Académique</label>
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Niveau <span class="text-red-500">*</span></label>
+                    <Dropdown
+                      v-model="form.niveau_id"
+                      :options="niveauOptions"
+                      optionLabel="label"
+                      optionValue="value"
+                      filter
+                      placeholder="Sélectionner un niveau"
+                      class="w-full rounded-xl"
+                      @change="handleNiveauChange"
+                    />
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Filière <span class="text-red-500">*</span></label>
+                    <Dropdown
+                      v-model="form.filiere_id"
+                      :options="filiereOptions"
+                      optionLabel="label"
+                      optionValue="value"
+                      filter
+                      placeholder="Sélectionner une filière"
+                      class="w-full rounded-xl"
+                      @change="handleFiliereChange"
+                    />
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Groupe Académique <span class="text-red-500">*</span></label>
                     <Dropdown
                       v-model="form.group_id"
                       :options="groupOptions"
@@ -406,6 +432,8 @@ import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
 import { useEtudiantStore } from "~~/stores/etudiant";
 import { useGroupeStore } from "~~/stores/group";
+import { useFiliereStore } from "~~/stores/filiere";
+import { useNiveauStore } from "~~/stores/niveau";
 import { getStorageBaseUrl } from "~/utils/storageUrl";
 
 const route = useRoute();
@@ -413,6 +441,8 @@ const router = useRouter();
 const toast = useToast();
 const etudiantStore = useEtudiantStore();
 const groupeStore = useGroupeStore();
+const filiereStore = useFiliereStore();
+const niveauStore = useNiveauStore();
 
 const loading = ref(true);
 const saving = ref(false);
@@ -429,6 +459,8 @@ const form = ref({
   date_naissance: "",
   lieu_naissance: "",
   adresse: "",
+  filiere_id: null,
+  niveau_id: null,
   group_id: null,
   matricule: "",
   promotion: "",
@@ -489,28 +521,113 @@ const getExistingMultipleFiles = (documentKey) => {
   }
 };
 
+const filiereOptions = computed(() => {
+  const allFilieres = filiereStore.filieres || [];
+  if (!form.value.niveau_id) {
+    return allFilieres.map((f) => ({ label: f.nom, value: f.id }));
+  }
+
+  // Find groups associated with this niveau
+  const groupsInNiveau = (groupeStore.groupes || []).filter(
+    (g) => String(g.niveau?.id || g.niveau_id) === String(form.value.niveau_id)
+  );
+
+  // Extract filiere IDs from these groups
+  const filiereIdsInNiveau = new Set();
+  groupsInNiveau.forEach((g) => {
+    if (g.filiere_id) filiereIdsInNiveau.add(String(g.filiere_id));
+    if (Array.isArray(g.filieres)) {
+      g.filieres.forEach((f) => filiereIdsInNiveau.add(String(f.id || f)));
+    }
+  });
+
+  if (filiereIdsInNiveau.size > 0) {
+    const filtered = allFilieres.filter((f) => filiereIdsInNiveau.has(String(f.id)));
+    if (filtered.length > 0) {
+      return filtered.map((f) => ({ label: f.nom, value: f.id }));
+    }
+  }
+
+  return allFilieres.map((f) => ({ label: f.nom, value: f.id }));
+});
+
+const niveauOptions = computed(() =>
+  niveauStore.niveaux.map((n) => ({ label: n.libelle, value: n.id }))
+);
+
 const groupOptions = computed(() => {
-  if (!etudiant.value || !etudiant.value.dernier_groupe) return [];
-  const levelId = etudiant.value.dernier_groupe.niveau.id;
-  
-  return groupeStore.groupes
-    .filter((g) => g.niveau.id === levelId)
+  let groups = groupeStore.groupes || [];
+
+  if (form.value.niveau_id) {
+    groups = groups.filter((g) => {
+      const nid = g.niveau?.id || g.niveau_id;
+      return String(nid) === String(form.value.niveau_id);
+    });
+  }
+
+  if (form.value.filiere_id) {
+    groups = groups.filter((g) => {
+      if (g.filiere_id) return String(g.filiere_id) === String(form.value.filiere_id);
+      if (Array.isArray(g.filieres) && g.filieres.length > 0) {
+        return g.filieres.some(f => String(f.id || f) === String(form.value.filiere_id));
+      }
+      return true;
+    });
+  }
+
+  return groups
     .map((g) => ({
-      label: `${g.niveau.libelle} - ${g.nom}`,
-      level: g.niveau.libelle,
-      groupName: g.nom,
+      label: `${g.niveau?.libelle ? g.niveau.libelle + ' - ' : ''}${g.nom}`,
       value: g.id,
     }))
     .sort((a, b) => a.label.localeCompare(b.label));
 });
 
+const handleFiliereChange = () => {
+  const isStillValid = groupOptions.value.some((g) => g.value === form.value.group_id);
+  if (!isStillValid) {
+    form.value.group_id = groupOptions.value[0]?.value || null;
+  }
+};
+
+const handleNiveauChange = async () => {
+  // Check if current filiere is valid for new niveau
+  const filiereValid = filiereOptions.value.some((f) => f.value === form.value.filiere_id);
+  if (!filiereValid) {
+    form.value.filiere_id = filiereOptions.value[0]?.value || null;
+  }
+
+  // Check if current group is valid for new niveau & filiere
+  const groupValid = groupOptions.value.some((g) => g.value === form.value.group_id);
+  if (!groupValid) {
+    form.value.group_id = groupOptions.value[0]?.value || null;
+  }
+
+  if (form.value.niveau_id) {
+    loadingDocs.value = true;
+    try {
+      const { data } = await axios.get(`/niveau/${form.value.niveau_id}/documents`, etudiantStore.authHeaders ? etudiantStore.authHeaders() : {});
+      documentRequirements.value = data || [];
+    } catch (e) {
+      console.error("Erreur lors du chargement des documents requis", e);
+    } finally {
+      loadingDocs.value = false;
+    }
+  }
+};
+
 const loadData = async () => {
   try {
     loading.value = true;
-    await etudiantStore.fetchEtudiant(route.params.slug);
-    await groupeStore.fetchGroupes();
+    await Promise.all([
+      etudiantStore.fetchEtudiant(route.params.slug),
+      filiereStore.fetchFilieres(),
+      niveauStore.fetchNiveaux(),
+      groupeStore.fetchGroupes(),
+    ]);
     etudiant.value = etudiantStore.etudiant;
     if (etudiant.value) {
+      const dg = etudiant.value.dernier_groupe;
       form.value = {
         nom: etudiant.value.nom,
         prenom: etudiant.value.prenom,
@@ -521,13 +638,15 @@ const loadData = async () => {
         date_naissance: etudiant.value.date_naissance ? etudiant.value.date_naissance.split("T")[0] : "",
         lieu_naissance: etudiant.value.lieu_naissance || "",
         adresse: etudiant.value.adresse || "",
-        group_id: etudiant.value.dernier_groupe?.group?.id,
+        filiere_id: dg?.filiere?.id || dg?.filiere_id || null,
+        niveau_id: dg?.niveau?.id || dg?.niveau_id || null,
+        group_id: dg?.group?.id || dg?.group_id || null,
         matricule: etudiant.value.matricule,
         promotion: etudiant.value.promotion || "",
         annee_admission: etudiant.value.annee_admission,
         nom_jeune_fille: etudiant.value.nom_jeune_fille || "",
         biographie: etudiant.value.biographie || "",
-        mode_formation: etudiant.value.dernier_groupe?.mode_formation || "Présentiel",
+        mode_formation: dg?.mode_formation || "Présentiel",
         tuteurs: etudiant.value.tuteurs?.length > 0 
           ? etudiant.value.tuteurs.map(t => ({
               nom: t.nom || "", prenom: t.prenom || "", tel: t.tel || "", 
@@ -542,12 +661,11 @@ const loadData = async () => {
           : [{ nom: "", prenom: "", tel: "", email: "", profession: "", adresse: "" }]
       };
 
-      // Load documents
-      const niveauId = etudiant.value.dernier_groupe?.niveau?.id;
-      if (niveauId) {
+      // Load documents for current level
+      if (form.value.niveau_id) {
         loadingDocs.value = true;
         try {
-          const { data } = await axios.get(`/niveau/${niveauId}/documents`, etudiantStore.authHeaders ? etudiantStore.authHeaders() : {});
+          const { data } = await axios.get(`/niveau/${form.value.niveau_id}/documents`, etudiantStore.authHeaders ? etudiantStore.authHeaders() : {});
           documentRequirements.value = data || [];
         } catch (e) {
           console.error("Erreur lors du chargement des documents requis", e);
