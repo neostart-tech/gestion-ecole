@@ -4,6 +4,7 @@ import axios from "axios";
 export const useUvStore = defineStore("uv", {
   state: () => ({
     uvs: [],
+    teacherMatieres: [],
     uv:{},
     isLoading: false,
   }),
@@ -27,9 +28,73 @@ export const useUvStore = defineStore("uv", {
         );
 
         this.uvs = response.data.data;
+        return this.uvs;
       } catch (error) {
         console.error("Erreur chargement des unités des matieres:", error);
         throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async fetchTeacherMatieres() {
+      this.isLoading = true;
+      try {
+        // Premier essai : Endpoint presence/get-my-course (contient filiere et periode)
+        const resPresence = await axios.get("/presence/get-my-course", this.authHeaders()).catch(() => null);
+        const coursList = Array.isArray(resPresence?.data) 
+          ? resPresence.data 
+          : (Array.isArray(resPresence?.data?.data) ? resPresence.data.data : []);
+
+        const uniqueUvs = [];
+        const uvIds = new Set();
+
+        coursList.forEach(cours => {
+          const uvObj = cours.uv || cours;
+          if (uvObj && (uvObj.id || uvObj.nom)) {
+            const idKey = uvObj.id || uvObj.nom;
+            if (!uvIds.has(idKey)) {
+              uvIds.add(idKey);
+              const uv = { 
+                ...uvObj,
+                filiere: cours.filiere || uvObj.filiere || cours.filiere_nom,
+                niveau: cours.niveau || uvObj.niveau || cours.niveau_nom,
+                periode: cours.periode || uvObj.periode || cours.semestre || cours.periode_nom
+              };
+              uniqueUvs.push(uv);
+            }
+          }
+        });
+
+        if (uniqueUvs.length > 0) {
+          this.teacherMatieres = uniqueUvs;
+          return this.teacherMatieres;
+        }
+
+        // Deuxième essai : /livekit/teacher-matieres
+        const response = await axios.get(
+          "/livekit/teacher-matieres",
+          this.authHeaders()
+        );
+
+        const data = response.data?.data ?? response.data;
+        this.teacherMatieres = Array.isArray(data) ? data : [];
+        
+        if (this.teacherMatieres.length === 0) {
+          await this.fetchUv();
+          this.teacherMatieres = this.uvs;
+        }
+
+        return this.teacherMatieres;
+      } catch (error) {
+        console.error("Erreur lors de la récupération des matières enseignant:", error);
+        try {
+          await this.fetchUv();
+          this.teacherMatieres = this.uvs;
+        } catch (e) {
+          this.teacherMatieres = [];
+        }
+        return this.teacherMatieres;
       } finally {
         this.isLoading = false;
       }

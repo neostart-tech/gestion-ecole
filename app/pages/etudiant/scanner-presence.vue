@@ -1,4 +1,5 @@
 <template>
+  <FraisInscriptionLockOverlay :is-locked="isFraisInscriptionImpaye">
   <div class="scanner-page">
 
     <!-- ===== ÉTAT : SUCCÈS ===== -->
@@ -104,10 +105,15 @@
     </template>
 
   </div>
+  </FraisInscriptionLockOverlay>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useFraisInscriptionStore } from '~~/stores/frais-inscription'
+
+const store = useFraisInscriptionStore()
+const isFraisInscriptionImpaye = computed(() => store.isFraisInscriptionImpaye)
 import { QrcodeStream } from 'vue-qrcode-reader'
 import config from '../../../config'
 

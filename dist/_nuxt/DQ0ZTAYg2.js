@@ -1,0 +1,1 @@
+import{r as e}from"./K1chz9KQ.js";var t=e(`/bg/loginvector.png`);export{t};

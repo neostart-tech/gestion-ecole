@@ -16,13 +16,13 @@
       </div>
 
       <!-- Message d'info -->
-      <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+      <div class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 dark:border-blue-400 p-4 mb-6 rounded-r-lg">
         <div class="flex">
           <div class="flex-shrink-0">
             <i class="pi pi-info-circle text-blue-400 text-xl"></i>
           </div>
           <div class="ml-3">
-            <p class="text-sm text-blue-700">
+            <p class="text-sm text-blue-700 dark:text-blue-300">
               Sélectionnez un étudiant dans la liste pour commencer
             </p>
           </div>
@@ -30,17 +30,17 @@
       </div>
 
       <!-- Étape 1 : Sélection étudiant -->
-      <div class="bg-white rounded-lg shadow mb-6">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/50 mb-6 border border-gray-100 dark:border-gray-700">
         <div class="p-6">
           <div class="flex items-center mb-4">
-            <span class="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm mr-2">1</span>
-            <h2 class="text-lg font-semibold">Sélectionner un étudiant</h2>
+            <span class="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm mr-2 shadow-sm">1</span>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Sélectionner un étudiant</h2>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Dropdown étudiants PrimeVue -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Étudiant <span class="text-red-500">*</span>
               </label>
               <Dropdown
@@ -61,23 +61,23 @@
                       {{ getInitialsFromValue(slotProps.value) }}
                     </div>
                     <div>
-                      <div>{{ slotProps.value.nom }} {{ slotProps.value.prenom }}</div>
-                      <div class="text-xs text-gray-500">{{ slotProps.value.matricule }}</div>
+                      <div class="text-gray-900 dark:text-white font-medium">{{ slotProps.value.nom }} {{ slotProps.value.prenom }}</div>
+                      <div class="text-xs text-gray-500 dark:text-gray-400">{{ slotProps.value.matricule }}</div>
                     </div>
                   </div>
                   <span v-else>{{ slotProps.placeholder }}</span>
                 </template>
               </Dropdown>
               
-              <div v-if="loadingEtudiants" class="flex items-center mt-2 text-gray-500">
+              <div v-if="loadingEtudiants" class="flex items-center mt-2 text-gray-500 dark:text-gray-400">
                 <i class="pi pi-spin pi-spinner mr-2"></i>
                 <span>Chargement des étudiants...</span>
               </div>
             </div>
 
             <!-- Infos étudiant sélectionné avec bourse -->
-            <div v-if="selectedStudent" class="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
-              <h3 class="text-sm font-medium text-blue-800 mb-3 flex items-center">
+            <div v-if="selectedStudent" class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-indigo-950/60 p-4 rounded-lg border border-blue-200 dark:border-indigo-800">
+              <h3 class="text-sm font-medium text-blue-800 dark:text-blue-300 mb-3 flex items-center">
                 <i class="pi pi-graduation-cap mr-2"></i>
                 Étudiant sélectionné
               </h3>
@@ -86,22 +86,22 @@
                   {{ getInitialsFromValue(selectedStudent) }}
                 </div>
                 <div class="flex-1">
-                  <div class="font-semibold text-gray-900">{{ selectedStudent.nom }} {{ selectedStudent.prenom }}</div>
-                  <div class="text-sm text-gray-600">{{ selectedStudent.matricule }}</div>
+                  <div class="font-semibold text-gray-900 dark:text-white">{{ selectedStudent.nom }} {{ selectedStudent.prenom }}</div>
+                  <div class="text-sm text-gray-600 dark:text-gray-300">{{ selectedStudent.matricule }}</div>
                   <div class="flex mt-2 space-x-2">
                     <Tag :value="selectedStudent.niveau || 'Niveau'" severity="info" />
                     <Tag :value="selectedStudent.filiere || 'Filière'" severity="warning" />
                   </div>
                   
                   <!-- Aperçu de la bourse si existante -->
-                  <div v-if="boursesEtudiant.length > 0 && !bourseLoading" class="mt-3 pt-3 border-t border-blue-200">
-                    <p class="text-xs font-medium text-blue-600 mb-2 flex items-center">
+                  <div v-if="boursesEtudiant.length > 0 && !bourseLoading" class="mt-3 pt-3 border-t border-blue-200 dark:border-indigo-800">
+                    <p class="text-xs font-medium text-blue-600 dark:text-blue-400 mb-2 flex items-center">
                       <i class="pi pi-star-fill text-yellow-500 mr-1 text-xs"></i>
                       Bourse active
                     </p>
-                    <div class="bg-white/80 rounded-lg p-2 text-sm">
-                      <div class="font-medium text-gray-800">{{ boursesEtudiant[0].nom }}</div>
-                      <div class="text-xs text-gray-600 mt-1">
+                    <div class="bg-white/80 dark:bg-gray-800/90 rounded-lg p-2 text-sm">
+                      <div class="font-medium text-gray-800 dark:text-gray-200">{{ boursesEtudiant[0].nom }}</div>
+                      <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">
                         {{ boursesEtudiant[0].type === 'pourcentage' 
                           ? `${boursesEtudiant[0].valeur}% de réduction` 
                           : formatMontant(boursesEtudiant[0].valeur) }}
@@ -112,7 +112,7 @@
               </div>
             </div>
 
-            <div v-else class="bg-gray-50 p-4 rounded-lg flex items-center justify-center text-gray-400">
+            <div v-else class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg flex items-center justify-center text-gray-400 dark:text-gray-300">
               <i class="pi pi-user mr-2 text-xl"></i>
               <span>Aucun étudiant sélectionné</span>
             </div>
@@ -121,29 +121,29 @@
       </div>
 
       <!-- Étape 2 : Bourses -->
-      <div v-if="selectedStudent" class="bg-white rounded-lg shadow mb-6">
+      <div v-if="selectedStudent" class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/50 mb-6 border border-gray-100 dark:border-gray-700">
         <div class="p-6">
           <div class="flex items-center mb-4">
-            <span class="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm mr-2">2</span>
-            <h2 class="text-lg font-semibold">Bourse de l'étudiant</h2>
+            <span class="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm mr-2 shadow-sm">2</span>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Bourse de l'étudiant</h2>
           </div>
 
           <!-- Loading -->
           <div v-if="bourseLoading" class="flex justify-center py-8">
             <ProgressSpinner style="width: 40px; height: 40px" strokeWidth="4" />
-            <span class="ml-3 text-gray-600">Vérification des bourses...</span>
+            <span class="ml-3 text-gray-600 dark:text-gray-300">Vérification des bourses...</span>
           </div>
 
           <!-- Liste bourses -->
           <div v-else-if="allBourses.length" class="space-y-4">
-            <Message severity="success" :closable="false" class="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+            <Message severity="success" :closable="false" class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/40 dark:to-emerald-950/40 border-green-200 dark:border-green-800">
               <div class="flex items-center">
                 <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3">
                   <i class="pi pi-check text-white text-sm"></i>
                 </div>
                 <div>
-                  <span class="font-medium">Bourses disponibles</span>
-                  <p class="text-sm mt-1">Sélectionnez une bourse à affecter à l'étudiant ({{ allBourses.length }} disponible(s))</p>
+                  <span class="font-medium text-gray-900 dark:text-green-200">Bourses disponibles</span>
+                  <p class="text-sm mt-1 text-gray-600 dark:text-green-300/80">Sélectionnez une bourse à affecter à l'étudiant ({{ allBourses.length }} disponible(s))</p>
                 </div>
               </div>
             </Message>
@@ -155,8 +155,8 @@
                 @click="selectBourse(bourse)"
                 class="relative overflow-hidden rounded-xl border-2 transition-all duration-300 cursor-pointer group"
                 :class="selectedBourse?.id === bourse.id 
-                  ? 'border-indigo-500 shadow-lg shadow-indigo-100' 
-                  : 'border-gray-200 hover:border-indigo-300 hover:shadow-md'"
+                  ? 'border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/50 shadow-lg shadow-indigo-100 dark:shadow-none' 
+                  : 'border-gray-200 dark:border-gray-700 dark:bg-gray-800 hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-md'"
               >
                 <!-- Badge décoratif -->
                 <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-yellow-400 to-amber-500 transform rotate-45 translate-x-8 -translate-y-8"></div>
@@ -173,13 +173,13 @@
                     />
                   </div>
                   
-                  <h3 class="font-semibold text-gray-900 text-lg mb-1">{{ bourse.nom }}</h3>
-                  <p class="text-sm text-gray-500 mb-3">{{ bourse.description || 'Bourse étudiante' }}</p>
+                  <h3 class="font-semibold text-gray-900 dark:text-white text-lg mb-1">{{ bourse.nom }}</h3>
+                  <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{ bourse.description || 'Bourse étudiante' }}</p>
                   
                   <div class="flex items-center justify-between">
                     <div>
-                      <span class="text-xs text-gray-400">Valeur</span>
-                      <p class="text-xl font-bold text-green-600">
+                      <span class="text-xs text-gray-400 dark:text-gray-400">Valeur</span>
+                      <p class="text-xl font-bold text-green-600 dark:text-green-400">
                         {{ bourse.type === 'pourcentage' 
                           ? bourse.valeur + '%' 
                           : formatMontant(bourse.valeur) }}
@@ -190,7 +190,7 @@
                     <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors"
                       :class="selectedBourse?.id === bourse.id 
                         ? 'bg-indigo-500 border-indigo-500 text-white' 
-                        : 'border-gray-300 group-hover:border-indigo-300'">
+                        : 'border-gray-300 dark:border-gray-600 group-hover:border-indigo-300'">
                       <i v-if="selectedBourse?.id === bourse.id" class="pi pi-check text-xs"></i>
                     </div>
                   </div>
@@ -200,14 +200,14 @@
           </div>
 
           <!-- Pas de bourse -->
-          <div v-else-if="allBourses.length === 0" class="relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 p-8 text-center rounded-xl">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gray-200 rounded-full blur-3xl opacity-30"></div>
+          <div v-else-if="allBourses.length === 0" class="relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-800/80 p-8 text-center rounded-xl border border-gray-100 dark:border-gray-700">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gray-200 dark:bg-gray-700 rounded-full blur-3xl opacity-30"></div>
             <div class="relative">
-              <div class="w-20 h-20 mx-auto bg-gray-200 rounded-full flex items-center justify-center mb-4">
-                <i class="pi pi-money-bill text-4xl text-gray-400"></i>
+              <div class="w-20 h-20 mx-auto bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                <i class="pi pi-money-bill text-4xl text-gray-400 dark:text-gray-400"></i>
               </div>
-              <h3 class="text-lg font-medium text-gray-700 mb-2">Aucune bourse</h3>
-              <p class="text-gray-500 max-w-md mx-auto">
+              <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">Aucune bourse</h3>
+              <p class="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
                 Aucune bourse n'est paramétrée dans le système. 
                 Vous pouvez continuer la création de l'échéancier.
               </p>
@@ -223,32 +223,32 @@
       </div>
 
       <!-- Étape 3 : Sélection des frais -->
-      <div v-if="selectedStudent" class="bg-white rounded-lg shadow mb-6">
+      <div v-if="selectedStudent" class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/50 mb-6 border border-gray-100 dark:border-gray-700">
         <div class="p-6">
           <div class="flex items-center mb-4">
-            <span class="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm mr-2">3</span>
-            <h2 class="text-lg font-semibold">Frais de scolarité</h2>
+            <span class="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm mr-2 shadow-sm">3</span>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Frais de scolarité</h2>
           </div>
 
           <!-- Loading -->
           <div v-if="fraisLoading" class="flex justify-center py-8">
             <ProgressSpinner style="width: 40px; height: 40px" strokeWidth="4" />
-            <span class="ml-3 text-gray-600">Chargement des frais...</span>
+            <span class="ml-3 text-gray-600 dark:text-gray-300">Chargement des frais...</span>
           </div>
 
           <!-- Message si aucun frais -->
-          <div v-else-if="fraisDisponibles.length === 0" class="text-center py-8 bg-orange-50 rounded-xl">
+          <div v-else-if="fraisDisponibles.length === 0" class="text-center py-8 bg-orange-50 dark:bg-orange-950/40 rounded-xl border border-orange-200 dark:border-orange-800">
             <i class="pi pi-exclamation-triangle text-4xl text-orange-400 mb-3"></i>
-            <p class="text-orange-600">Aucun frais disponible pour cet étudiant</p>
-            <p class="text-sm text-orange-500 mt-1">Vérifiez les paramètres de frais pour son niveau/filière</p>
+            <p class="text-orange-600 dark:text-orange-300">Aucun frais disponible pour cet étudiant</p>
+            <p class="text-sm text-orange-500 dark:text-orange-400 mt-1">Vérifiez les paramètres de frais pour son niveau/filière</p>
           </div>
 
           <!-- Liste des frais -->
           <div v-else class="space-y-4">
-            <Message severity="info" :closable="false" class="bg-blue-50 border-blue-200">
+            <Message severity="info" :closable="false" class="bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800">
               <div class="flex items-center">
                 <i class="pi pi-info-circle text-blue-500 mr-2"></i>
-                <span>Sélectionnez les frais à appliquer pour <strong>{{ selectedStudent.prenom }} {{ selectedStudent.nom }}</strong></span>
+                <span class="text-blue-700 dark:text-blue-200">Sélectionnez les frais à appliquer pour <strong class="text-gray-900 dark:text-white">{{ selectedStudent.prenom }} {{ selectedStudent.nom }}</strong></span>
               </div>
             </Message>
 
@@ -259,8 +259,8 @@
                 @click="selectFrais(frais)"
                 class="relative overflow-hidden rounded-xl border-2 transition-all duration-300 cursor-pointer"
                 :class="selectedFrais?.id === frais.id 
-                  ? 'border-indigo-500 bg-indigo-50/50 shadow-lg shadow-indigo-100' 
-                  : 'border-gray-200 hover:border-indigo-300 hover:shadow-md'"
+                  ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/50 shadow-lg shadow-indigo-100 dark:shadow-none' 
+                  : 'border-gray-200 dark:border-gray-700 dark:bg-gray-800 hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-md'"
               >
                 <div class="p-5">
                   <div class="flex justify-between items-start mb-3">
@@ -269,8 +269,8 @@
                         <i class="pi pi-dollar text-sm"></i>
                       </div>
                       <div>
-                        <h3 class="font-semibold text-gray-900">{{ frais.niveau?.libelle || 'Frais' }}</h3>
-                        <p class="text-xs text-gray-500">
+                        <h3 class="font-semibold text-gray-900 dark:text-white">{{ frais.niveau?.libelle || 'Frais' }}</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
                           {{ frais.filiere?.nom || 'Toutes filières' }} 
                           <span v-if="frais.genre" class="ml-2">({{ frais.genre }})</span>
                         </p>
@@ -281,26 +281,26 @@
                   
                   <div class="flex items-center justify-between mt-4">
                     <div>
-                      <span class="text-xs text-gray-400">Montant initial</span>
-                      <p class="text-2xl font-bold text-gray-900">{{ formatMontant(frais.montant) }}</p>
+                      <span class="text-xs text-gray-400 dark:text-gray-400">Montant initial</span>
+                      <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatMontant(frais.montant) }}</p>
                     </div>
                     
                     <div v-if="frais.tranches?.length > 0" class="text-right">
-                      <span class="text-xs text-gray-400">Tranches disponibles</span>
-                      <p class="text-sm font-medium text-indigo-600">{{ frais.tranches.length }} tranche(s)</p>
+                      <span class="text-xs text-gray-400 dark:text-gray-400">Tranches disponibles</span>
+                      <p class="text-sm font-medium text-indigo-600 dark:text-indigo-400">{{ frais.tranches.length }} tranche(s)</p>
                     </div>
 
                     <!-- Radio de sélection -->
                     <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors"
                       :class="selectedFrais?.id === frais.id 
                         ? 'bg-indigo-500 border-indigo-500 text-white' 
-                        : 'border-gray-300'">
+                        : 'border-gray-300 dark:border-gray-600'">
                       <i v-if="selectedFrais?.id === frais.id" class="pi pi-check text-xs"></i>
                     </div>
                   </div>
 
                   <!-- Description si existante -->
-                  <p v-if="frais.description" class="text-xs text-gray-500 mt-3 italic">
+                  <p v-if="frais.description" class="text-xs text-gray-500 dark:text-gray-400 mt-3 italic">
                     "{{ frais.description }}"
                   </p>
                 </div>
@@ -311,44 +311,44 @@
       </div>
 
       <!-- Étape 4 : Configuration de l'échéancier -->
-      <div v-if="selectedStudent && selectedFrais" class="bg-white rounded-lg shadow">
+      <div v-if="selectedStudent && selectedFrais" class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/50 border border-gray-100 dark:border-gray-700">
         <div class="p-6">
           <div class="flex items-center mb-4">
-            <span class="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm mr-2">4</span>
-            <h2 class="text-lg font-semibold">Configuration de l'échéancier</h2>
+            <span class="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm mr-2 shadow-sm">4</span>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Configuration de l'échéancier</h2>
           </div>
 
           <!-- Résumé frais et bourse -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div class="p-4 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl border border-indigo-200">
+            <div class="p-4 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/40 dark:to-blue-950/40 rounded-xl border border-indigo-200 dark:border-indigo-800">
               <div class="flex items-start">
                 <div class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center text-white mr-3">
                   <i class="pi pi-dollar text-sm"></i>
                 </div>
                 <div>
-                  <p class="text-xs text-indigo-600">Frais sélectionnés</p>
-                  <p class="font-semibold text-gray-900">{{ selectedFrais.niveau?.libelle || 'Frais' }}</p>
-                  <p class="text-sm text-gray-600 mt-1">Montant: {{ formatMontant(selectedFrais.montant) }}</p>
+                  <p class="text-xs text-indigo-600 dark:text-indigo-400">Frais sélectionnés</p>
+                  <p class="font-semibold text-gray-900 dark:text-white">{{ selectedFrais.niveau?.libelle || 'Frais' }}</p>
+                  <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Montant: {{ formatMontant(selectedFrais.montant) }}</p>
                 </div>
               </div>
             </div>
 
-            <div v-if="selectedBourse" class="p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200">
+            <div v-if="selectedBourse" class="p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/40 dark:to-emerald-950/40 rounded-xl border border-green-200 dark:border-green-800">
               <div class="flex items-start">
                 <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white mr-3">
                   <i class="pi pi-tag text-sm"></i>
                 </div>
                   <div class="flex flex-col">
-                    <p class="text-xs text-green-600">Bourse appliquée</p>
-                    <p class="font-semibold text-gray-900">{{ selectedBourse.nom }}</p>
+                    <p class="text-xs text-green-600 dark:text-green-400">Bourse appliquée</p>
+                    <p class="font-semibold text-gray-900 dark:text-white">{{ selectedBourse.nom }}</p>
                     <div class="mt-2 flex flex-col gap-1">
-                      <p class="text-xs text-green-700 bg-green-100 px-2 py-1 rounded w-fit">
+                      <p class="text-xs text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/60 px-2 py-1 rounded w-fit">
                         Réduction : {{ selectedBourse.type === 'pourcentage' 
                           ? selectedBourse.valeur + '%' 
                           : formatMontant(selectedBourse.valeur) }}
                       </p>
-                      <p class="text-sm font-bold text-gray-900 mt-1 border-t border-green-200 pt-1">
-                        Nouveau total à payer : <span class="text-indigo-600">{{ formatMontant(montantApresBourse) }}</span>
+                      <p class="text-sm font-bold text-gray-900 dark:text-white mt-1 border-t border-green-200 dark:border-green-800 pt-1">
+                        Nouveau total à payer : <span class="text-indigo-600 dark:text-indigo-400">{{ formatMontant(montantApresBourse) }}</span>
                       </p>
                     </div>
                   </div>
@@ -360,7 +360,7 @@
             <!-- Année scolaire et type -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Année scolaire <span class="text-red-500">*</span>
                 </label>
                 <Dropdown
@@ -380,14 +380,14 @@
                     </div>
                   </template>
                 </Dropdown>
-                <small v-if="anneesScolaires.length === 0" class="text-yellow-600 block mt-1">
+                <small v-if="anneesScolaires.length === 0" class="text-yellow-600 dark:text-yellow-400 block mt-1">
                   <i class="pi pi-exclamation-triangle mr-1"></i>
                   Aucune année scolaire disponible
                 </small>
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Type de paiement <span class="text-red-500">*</span>
                 </label>
                 <div class="grid grid-cols-2 gap-3">
@@ -398,30 +398,28 @@
                     @click="form.type_paiement = option.value"
                     class="relative flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all duration-200 h-[75px]"
                     :class="form.type_paiement === option.value
-                      ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm'
-                      : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'"
+                      ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 shadow-sm'
+                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600'"
                   >
                     <!-- Badge indicateur -->
                     <span 
                       class="absolute -top-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider transition-colors"
-                      :class="form.type_paiement === option.value ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-400'"
+                      :class="form.type_paiement === option.value ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-400'"
                     >
                       {{ option.value === 'negociation' ? 'Libre' : 'Standard' }}
                     </span>
                     
                     <span class="text-sm font-bold leading-tight">{{ option.label }}</span>
-                    <i v-if="form.type_paiement === option.value" class="pi pi-check-circle absolute top-2 right-2 text-indigo-600 text-xs"></i>
+                    <i v-if="form.type_paiement === option.value" class="pi pi-check-circle absolute top-2 right-2 text-indigo-600 dark:text-indigo-400 text-xs"></i>
                   </button>
                 </div>
               </div>
             </div>
 
-            <!-- Fréquence pour tranches globales masquée selon la demande -->
-
-            <!-- Section Échéances (Négociation ou Aperçu Global) -->
+            <!-- Section Échéances -->
             <div v-if="form.type_paiement === 'negociation' || (form.type_paiement === 'tranches_globales' && form.echeances.length > 0)">
               <div class="flex justify-between items-center mb-4">
-                <h3 class="font-medium text-gray-900">
+                <h3 class="font-medium text-gray-900 dark:text-white">
                   {{ form.type_paiement === 'negociation' ? 'Échéances personnalisées' : 'Aperçu des tranches' }}
                 </h3>
                 <div v-if="form.type_paiement === 'negociation'" class="space-x-2">
@@ -438,7 +436,7 @@
                     class="p-button-primary p-button-sm"
                   />
                 </div>
-                <div v-else class="text-xs text-gray-500 italic">
+                <div v-else class="text-xs text-gray-500 dark:text-gray-400 italic">
                   Les tranches par défaut ne sont pas modifiables individuellement
                 </div>
               </div>
@@ -448,7 +446,7 @@
                    v-for="(echeance, index) in form.echeances"
                    :key="echeance.id || index"
                    class="border-none shadow-sm relative group"
-                   :class="isLocked(echeance) ? 'bg-gray-200 opacity-80' : 'bg-gray-50'"
+                   :class="isLocked(echeance) ? 'bg-gray-200 dark:bg-gray-700/80 opacity-80' : 'bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700'"
                  >
                   <template #content>
                     <div class="flex items-start space-x-4 w-full">
@@ -458,7 +456,7 @@
                       
                         <div class="flex-1 grid grid-cols-1 xl:grid-cols-12 gap-5 items-end">
                           <div class="field xl:col-span-3">
-                            <span class="text-[10px] text-gray-500 uppercase font-bold ml-1 mb-1 block">Désignation / Libellé</span>
+                            <span class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold ml-1 mb-1 block">Désignation / Libellé</span>
                             <InputText
                               v-model="echeance.libelle"
                               placeholder="ex: Tranche 1"
@@ -468,7 +466,7 @@
                           </div>
                           
                           <div class="field xl:col-span-3">
-                            <span class="text-[10px] text-gray-500 uppercase font-bold ml-1 mb-1 block">Montant attendu</span>
+                            <span class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold ml-1 mb-1 block">Montant attendu</span>
                             <InputNumber
                               v-model="echeance.montant"
                               placeholder="0"
@@ -481,18 +479,18 @@
                           </div>
 
                           <div v-if="existingNegociation && echeance.montant_paye > 0" class="field xl:col-span-3">
-                            <span class="text-[10px] text-green-600 uppercase font-bold ml-1 mb-1 block">Règlement reçu</span>
-                            <div class="h-[42px] flex items-center justify-between px-3 bg-white rounded-xl border border-green-200 text-green-700 shadow-sm relative overflow-hidden group/pay">
+                            <span class="text-[10px] text-green-600 dark:text-green-400 uppercase font-bold ml-1 mb-1 block">Règlement reçu</span>
+                            <div class="h-[42px] flex items-center justify-between px-3 bg-white dark:bg-gray-800 rounded-xl border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 shadow-sm relative overflow-hidden group/pay">
                                 <div class="absolute left-0 top-0 w-1 h-full bg-green-500"></div>
                                 <span class="font-bold text-sm whitespace-nowrap mr-1">{{ formatMontant(echeance.montant_paye) }}</span>
-                                <div class="flex-shrink-0 px-1.5 py-0.5 bg-green-100 text-green-700 border border-green-200 rounded text-[9px] font-black uppercase tracking-tighter">
+                                <div class="flex-shrink-0 px-1.5 py-0.5 bg-green-100 dark:bg-green-900/60 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800 rounded text-[9px] font-black uppercase tracking-tighter">
                                     {{ echeance.montant_paye >= echeance.montant ? 'Soldé' : 'Partiel' }}
                                 </div>
                             </div>
                           </div>
 
                           <div class="field" :class="(existingNegociation && echeance.montant_paye > 0) ? 'xl:col-span-3' : 'xl:col-span-12 xl:col-span-6'">
-                            <span class="text-[10px] text-gray-500 uppercase font-bold ml-1 mb-1 block">Date limite de paiement</span>
+                            <span class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold ml-1 mb-1 block">Date limite de paiement</span>
                             <Calendar
                               v-model="echeance.date_limite"
                               placeholder="JJ/MM/AAAA"
@@ -519,30 +517,30 @@
                   </template>
                 </Card>
 
-                <div v-if="!form.echeances.length" class="text-center py-8 text-gray-500">
-                  <i class="pi pi-calendar-times text-4xl text-gray-300 mb-3"></i>
+                <div v-if="!form.echeances.length" class="text-center py-8 text-gray-500 dark:text-gray-400">
+                  <i class="pi pi-calendar-times text-4xl text-gray-300 dark:text-gray-600 mb-3"></i>
                   <p>Aucune échéance ajoutée</p>
-                  <p class="text-sm text-gray-400 mt-1">Cliquez sur "Ajouter" pour commencer</p>
+                  <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">Cliquez sur "Ajouter" pour commencer</p>
                 </div>
               </div>
             </div>
             
             <!-- Ventilation du montant total -->
-            <div v-if="form.type_paiement === 'negociation' && form.echeances.length > 0" class="mt-4 p-4 rounded-xl border border-blue-100 bg-blue-50/50 mb-4 transition-all">
+            <div v-if="form.type_paiement === 'negociation' && form.echeances.length > 0" class="mt-4 p-4 rounded-xl border border-blue-100 dark:border-blue-900/60 bg-blue-50/50 dark:bg-blue-950/40 mb-4 transition-all">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div>
-                        <span class="text-xs font-semibold text-blue-600 uppercase tracking-wider">État de la répartition</span>
+                        <span class="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">État de la répartition</span>
                         <div class="flex items-center gap-2 mt-1">
-                            <i :class="resteARepartir === 0 ? 'pi pi-check-circle text-green-500' : 'pi pi-info-circle text-blue-500'"></i>
-                            <span class="text-sm font-medium text-gray-700">
+                            <i :class="resteARepartir === 0 ? 'pi pi-check-circle text-green-500 dark:text-green-400' : 'pi pi-info-circle text-blue-500 dark:text-blue-400'"></i>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-200">
                                 {{ resteARepartir === 0 ? 'Répartition complète' : 'Montant restant à répartir' }}
                             </span>
                         </div>
                     </div>
                     
                     <div class="flex flex-col items-end">
-                        <span class="text-xs text-gray-500 mb-1">{{ resteARepartir < 0 ? 'Surplus' : 'Reste' }}</span>
-                        <span :class="resteARepartir === 0 ? 'text-green-600' : (resteARepartir > 0 ? 'text-blue-600' : 'text-red-600')" class="text-2xl font-black tabular-nums">
+                        <span class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ resteARepartir < 0 ? 'Surplus' : 'Reste' }}</span>
+                        <span :class="resteARepartir === 0 ? 'text-green-600 dark:text-green-400' : (resteARepartir > 0 ? 'text-blue-600 dark:text-blue-400' : 'text-red-600 dark:text-red-400')" class="text-2xl font-black tabular-nums">
                             {{ formatMontant(resteARepartir) }}
                         </span>
                     </div>
@@ -550,41 +548,41 @@
             </div>
 
             <!-- Résumé -->
-            <div class="border-t pt-4">
+            <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Card class="bg-gradient-to-br from-green-50 to-emerald-50">
+                <Card class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/40 dark:to-emerald-950/40 border border-green-100 dark:border-green-900/50">
                   <template #content>
-                    <span class="text-sm text-gray-600">Montant total</span>
-                    <p class="text-xl font-bold text-green-600">{{ formatMontant(totalMontant) }}</p>
+                    <span class="text-sm text-gray-600 dark:text-gray-300">Montant total</span>
+                    <p class="text-xl font-bold text-green-600 dark:text-green-400">{{ formatMontant(totalMontant) }}</p>
                   </template>
                 </Card>
                 
-                <Card class="bg-gradient-to-br from-blue-50 to-indigo-50">
+                <Card class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 border border-blue-100 dark:border-blue-900/50">
                   <template #content>
-                    <span class="text-sm text-gray-600">Nombre d'échéances</span>
-                    <p class="text-xl font-bold text-blue-600">{{ form.echeances.length }}</p>
+                    <span class="text-sm text-gray-600 dark:text-gray-300">Nombre d'échéances</span>
+                    <p class="text-xl font-bold text-blue-600 dark:text-blue-400">{{ form.echeances.length }}</p>
                   </template>
                 </Card>
                 
-                <Card class="bg-gradient-to-br from-purple-50 to-pink-50">
+                <Card class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/40 dark:to-pink-950/40 border border-purple-100 dark:border-purple-900/50">
                   <template #content>
-                    <span class="text-sm text-gray-600">Moyenne</span>
-                    <p class="text-xl font-bold text-purple-600">{{ formatMontant(moyenneParEcheance) }}</p>
+                    <span class="text-sm text-gray-600 dark:text-gray-300">Moyenne</span>
+                    <p class="text-xl font-bold text-purple-600 dark:text-purple-400">{{ formatMontant(moyenneParEcheance) }}</p>
                   </template>
                 </Card>
               </div>
 
               <!-- Aperçu avec bourse -->
-              <div v-if="selectedBourse && selectedBourse.type === 'pourcentage'" class="mt-4 p-3 bg-gray-50 rounded-lg text-sm">
+              <div v-if="selectedBourse && selectedBourse.type === 'pourcentage'" class="mt-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg text-sm">
                 <div class="flex justify-between items-center">
-                  <span class="text-gray-600">Montant après réduction ({{ selectedBourse.valeur }}%) :</span>
-                  <span class="font-bold text-green-600">{{ formatMontant(montantApresBourse) }}</span>
+                  <span class="text-gray-600 dark:text-gray-300">Montant après réduction ({{ selectedBourse.valeur }}%) :</span>
+                  <span class="font-bold text-green-600 dark:text-green-400">{{ formatMontant(montantApresBourse) }}</span>
                 </div>
               </div>
             </div>
 
             <!-- Boutons -->
-            <div class="flex justify-end space-x-3 pt-4 border-t">
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-100 dark:border-gray-700">
               <Button
                 @click="resetForm"
                 label="Annuler"
@@ -1734,6 +1732,71 @@ async function submitForm() {
 
 :deep(.p-message) {
   border-radius: 0.75rem;
+}
+
+/* Overrides dark mode pour les composants PrimeVue */
+:deep(.dark .p-dropdown),
+.dark :deep(.p-dropdown) {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+  color: #ffffff !important;
+}
+
+:deep(.dark .p-dropdown .p-dropdown-label),
+.dark :deep(.p-dropdown .p-dropdown-label) {
+  color: #ffffff !important;
+}
+
+:deep(.dark .p-dropdown-panel),
+.dark :deep(.p-dropdown-panel) {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+  color: #ffffff !important;
+}
+
+:deep(.dark .p-dropdown-item),
+.dark :deep(.p-dropdown-item) {
+  color: #e5e7eb !important;
+}
+
+:deep(.dark .p-dropdown-item:hover),
+.dark :deep(.p-dropdown-item:hover) {
+  background-color: #374151 !important;
+}
+
+:deep(.dark .p-inputtext),
+.dark :deep(.p-inputtext),
+:deep(.dark .p-inputnumber-input),
+.dark :deep(.p-inputnumber-input),
+:deep(.dark .p-calendar input),
+.dark :deep(.p-calendar input) {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+  color: #ffffff !important;
+}
+
+:deep(.dark .p-card),
+.dark :deep(.p-card) {
+  background-color: #1f2937 !important;
+  color: #ffffff !important;
+  border-color: #374151 !important;
+}
+
+:deep(.dark .p-dialog),
+.dark :deep(.p-dialog) {
+  background-color: #1f2937 !important;
+  color: #ffffff !important;
+  border-color: #374151 !important;
+}
+
+:deep(.dark .p-dialog-header),
+.dark :deep(.p-dialog-header),
+:deep(.dark .p-dialog-content),
+.dark :deep(.p-dialog-content),
+:deep(.dark .p-dialog-footer),
+.dark :deep(.p-dialog-footer) {
+  background-color: #1f2937 !important;
+  color: #ffffff !important;
 }
 
 /* Animation pour les cartes */

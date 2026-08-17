@@ -39,33 +39,63 @@ export const useSyllabusStore = defineStore("syllabus", {
     async fetchEnseignantSyllabuses() {
       this.isLoading = true;
       try {
-        const response = await axios.get("/presence/get-my-course", this.authHeaders());
+        const response = await axios.get("/presence/get-my-course", this.authHeaders()).catch(() => null);
         
-        // Transformer les cours en UVs uniques (matières) pour le syllabus
         const uniqueUvs = [];
         const uvIds = new Set();
         
-        response.data.forEach(cours => {
-          if (cours.uv && !uvIds.has(cours.uv.id)) {
-            uvIds.add(cours.uv.id);
-            
-            // On enrichit l'UV avec les données du cours (filière, niveau, semestre)
+        const coursList = Array.isArray(response?.data) 
+          ? response.data 
+          : (Array.isArray(response?.data?.data) ? response.data.data : []);
+
+        coursList.forEach(cours => {
+          const uvObj = cours.uv || cours;
+          if (uvObj && uvObj.id && !uvIds.has(uvObj.id)) {
+            uvIds.add(uvObj.id);
             const uv = { 
-              ...cours.uv,
-              filiere: cours.filiere || cours.uv.filiere,
-              niveau: cours.niveau || cours.uv.niveau,
-              periode: cours.periode || cours.uv.periode
+              ...uvObj,
+              filiere: cours.filiere || uvObj.filiere,
+              niveau: cours.niveau || uvObj.niveau,
+              periode: cours.periode || uvObj.periode
             };
-            
             uniqueUvs.push(uv);
           }
         });
+
+        // Secours si /presence/get-my-course ne retourne aucune matière attribuée
+        if (uniqueUvs.length === 0) {
+          const resMatieres = await axios.get("/livekit/teacher-matieres", this.authHeaders()).catch(() => null);
+          const matieresData = resMatieres?.data?.data || resMatieres?.data || [];
+          if (Array.isArray(matieresData) && matieresData.length > 0) {
+            matieresData.forEach(uvObj => {
+              if (uvObj && uvObj.id && !uvIds.has(uvObj.id)) {
+                uvIds.add(uvObj.id);
+                uniqueUvs.push(uvObj);
+              }
+            });
+          }
+        }
+
+        // Secours ultime : /unites-de-valeur/liste
+        if (uniqueUvs.length === 0) {
+          const resAll = await axios.get("/unites-de-valeur/liste", this.authHeaders()).catch(() => null);
+          const allData = resAll?.data?.data || resAll?.data || [];
+          if (Array.isArray(allData)) {
+            allData.forEach(uvObj => {
+              if (uvObj && uvObj.id && !uvIds.has(uvObj.id)) {
+                uvIds.add(uvObj.id);
+                uniqueUvs.push(uvObj);
+              }
+            });
+          }
+        }
         
         this.enseignantSyllabuses = uniqueUvs;
         return uniqueUvs;
       } catch (error) {
         console.error("Erreur lors du chargement des syllabuses enseignant:", error);
-        throw error;
+        this.enseignantSyllabuses = [];
+        return [];
       } finally {
         this.isLoading = false;
       }

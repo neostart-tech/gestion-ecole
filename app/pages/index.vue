@@ -123,6 +123,33 @@
 
 			<!-- Données réelles avec animation d'apparition -->
 			<template v-else>
+				<!-- Bannière de rappel Frais d'Inscription pour l'étudiant -->
+				<div v-if="userRole === 'etudiant' && showFraisInscriptionBanner"
+					class="col-span-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 rounded-xl p-4 md:p-5 mb-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm animate-fade-in"
+				>
+					<div class="flex items-start gap-3">
+						<div class="p-2 bg-amber-100 dark:bg-amber-900/60 rounded-lg text-amber-700 dark:text-amber-300 shrink-0 mt-0.5 md:mt-0">
+							<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+							</svg>
+						</div>
+						<div>
+							<h4 class="text-sm font-bold text-amber-900 dark:text-amber-200">
+								Régularisation des frais d'inscription
+							</h4>
+							<p class="text-xs md:text-sm text-amber-700 dark:text-amber-300/90 mt-0.5">
+								Vos frais d'inscription sont actuellement en attente. Pensez à finaliser votre paiement pour accéder à l'ensemble de vos ressources académiques.
+							</p>
+						</div>
+					</div>
+					<NuxtLink 
+						to="/etudiant/mes-paiements"
+						class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs md:text-sm font-semibold transition-all shadow-sm shrink-0 whitespace-nowrap"
+					>
+						Régulariser mon paiement
+					</NuxtLink>
+				</div>
+
 				<!-- Carte Situation Financière pour l'étudiant -->
 				<div v-if="userRole === 'etudiant' && financialRecap"
 					class="col-span-full bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border-l-4 border-blue-600 mb-6 animate-fade-in"
@@ -165,11 +192,12 @@
 					</div>
 				</div>
 
-				<div
+				<NuxtLink
 					v-for="(stat, index) in statsCards"
 					:key="stat.title"
+					:to="stat.to"
 					:class="[
-						'group bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border',
+						'group bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border block cursor-pointer',
 						stat.borderColor,
 						'animate-fade-in-up',
 					]"
@@ -214,7 +242,7 @@
 						></span>
 						<span>{{ stat.subtitle }}</span>
 					</div>
-				</div>
+				</NuxtLink>
 			</template>
 		</div>
 
@@ -427,6 +455,28 @@
 	const loginStore = useLoginStore();
 	const { $api } = useNuxtApp();
 
+	const showFraisInscriptionBanner = computed(() => {
+		if (userRole.value !== 'etudiant') return false;
+		const user = userData.value;
+
+		// 1. Vérifier si financialRecap est disponible
+		if (financialRecap.value && typeof financialRecap.value.frais_inscription_paye !== 'undefined') {
+			return !financialRecap.value.frais_inscription_paye;
+		}
+
+		// 2. Fallback sur l'objet utilisateur / etudiant stocké en session
+		if (user) {
+			if (typeof user.frais_inscription_paye !== 'undefined') {
+				return !user.frais_inscription_paye;
+			}
+			if (user.etudiant && typeof user.etudiant.frais_inscription_paye !== 'undefined') {
+				return !user.etudiant.frais_inscription_paye;
+			}
+		}
+
+		return false;
+	});
+
 	const userData = computed(() => {
 		try {
 			if (process.client) {
@@ -500,6 +550,7 @@
 		{
 			title: "Étudiants",
 			value: stats.value.students,
+			to: "/admin/liste-des-etudiants",
 			borderColor: "border-gray-100 dark:border-gray-700 hover:border-indigo-200 dark:hover:border-indigo-700",
 			hoverColor: "group-hover:text-indigo-600 dark:group-hover:text-indigo-400",
 			bgColor: "bg-indigo-50 dark:bg-indigo-900/30",
@@ -512,6 +563,7 @@
 		{
 			title: "Enseignants",
 			value: statistiqueStore.stats.enseignants,
+			to: "/personnel/enseignants",
 			borderColor: "border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-700",
 			hoverColor: "group-hover:text-blue-600 dark:group-hover:text-blue-400",
 			bgColor: "bg-blue-50 dark:bg-blue-900/30",
@@ -524,6 +576,7 @@
 		{
 			title: "Filières",
 			value: filiereStore.nombreFiliere,
+			to: "/filieres/liste",
 			borderColor: "border-gray-100 dark:border-gray-700 hover:border-emerald-200 dark:hover:border-emerald-700",
 			hoverColor: "group-hover:text-emerald-600 dark:group-hover:text-emerald-400",
 			bgColor: "bg-emerald-50 dark:bg-emerald-900/30",
@@ -536,6 +589,7 @@
 		{
 			title: "Taux Présence",
 			value: statistiqueStore.stats.presenceTaux + "%",
+			to: "/presences/liste-des-presences",
 			borderColor: "border-gray-100 dark:border-gray-700 hover:border-green-200 dark:hover:border-green-700",
 			hoverColor: "group-hover:text-green-600 dark:group-hover:text-green-400",
 			bgColor: "bg-green-50 dark:bg-green-900/30",
@@ -548,6 +602,7 @@
 		{
 			title: "Évaluations",
 			value: statistiqueStore.stats.evaluations,
+			to: "/evaluations/liste",
 			borderColor: "border-gray-100 dark:border-gray-700 hover:border-purple-200 dark:hover:border-purple-700",
 			hoverColor: "group-hover:text-purple-600 dark:group-hover:text-purple-400",
 			bgColor: "bg-purple-50 dark:bg-purple-900/30",
@@ -560,6 +615,7 @@
 		{
 			title: "Candidatures",
 			value: statistiqueStore.stats.candidaturesEnAttente,
+			to: "/candidatures/etude-dossier",
 			borderColor: "border-gray-100 dark:border-gray-700 hover:border-orange-200 dark:hover:border-orange-700",
 			hoverColor: "group-hover:text-orange-600 dark:group-hover:text-orange-400",
 			bgColor: "bg-orange-50 dark:bg-orange-900/30",
@@ -567,11 +623,12 @@
 			iconColor: "text-orange-600 dark:text-orange-400",
 			dotColor: "bg-orange-400 dark:bg-orange-500",
 			subtitle: "À valider",
-			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />',
+			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 01-2-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />',
 		},
 		{
 			title: "Salles occupées",
 			value: stats.value.sallesUtilisees,
+			to: "/salles",
 			borderColor: "border-gray-100 dark:border-gray-700 hover:border-amber-200 dark:hover:border-amber-700",
 			hoverColor: "group-hover:text-amber-600 dark:group-hover:text-amber-400",
 			bgColor: "bg-amber-50 dark:bg-amber-900/30",
@@ -584,6 +641,7 @@
 		{
 			title: "Salles disponibles",
 			value: stats.value.sallesDispos,
+			to: "/salles",
 			borderColor: "border-gray-100 dark:border-gray-700 hover:border-cyan-200 dark:hover:border-cyan-700",
 			hoverColor: "group-hover:text-cyan-600 dark:group-hover:text-cyan-400",
 			bgColor: "bg-cyan-50 dark:bg-cyan-900/30",

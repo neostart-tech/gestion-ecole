@@ -282,16 +282,16 @@
                   </span>
                 </div>
 
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="flex flex-wrap items-start gap-x-8 gap-y-3">
                   <div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
                       Matricule
                     </p>
-                    <p
-                      class="font-medium text-gray-900 dark:text-white flex items-center gap-1"
+                    <div
+                      class="font-medium text-gray-900 dark:text-white flex items-start gap-1.5 text-sm"
                     >
                       <svg
-                        class="w-4 h-4 text-gray-400"
+                        class="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -303,18 +303,18 @@
                           d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"
                         ></path>
                       </svg>
-                      {{ paiementStore.infosEtudiant.etudiant.matricule }}
-                    </p>
+                      <span>{{ paiementStore.infosEtudiant.etudiant.matricule }}</span>
+                    </div>
                   </div>
                   <div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
                       Niveau
                     </p>
-                    <p
-                      class="font-medium text-gray-900 dark:text-white flex items-center gap-1"
+                    <div
+                      class="font-medium text-gray-900 dark:text-white flex items-start gap-1.5 text-sm"
                     >
                       <svg
-                        class="w-4 h-4 text-gray-400"
+                        class="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -326,18 +326,18 @@
                           d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
                         ></path>
                       </svg>
-                      {{ paiementStore.infosEtudiant.etudiant.niveau || "N/A" }}
-                    </p>
+                      <span>{{ paiementStore.infosEtudiant.etudiant.niveau || "N/A" }}</span>
+                    </div>
                   </div>
-                  <div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                  <div class="flex-1 min-w-[200px] max-w-md">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
                       Filière
                     </p>
-                    <p
-                      class="font-medium text-gray-900 dark:text-white flex items-center gap-1"
+                    <div
+                      class="font-medium text-gray-900 dark:text-white flex items-start gap-1.5 text-sm leading-snug"
                     >
                       <svg
-                        class="w-4 h-4 text-gray-400"
+                        class="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -349,21 +349,21 @@
                           d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z"
                         ></path>
                       </svg>
-                      {{
+                      <span>{{
                         paiementStore.infosEtudiant.etudiant.filiere ||
                         "Non spécifiée"
-                      }}
-                    </p>
+                      }}</span>
+                    </div>
                   </div>
                   <div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
                       Contact
                     </p>
-                    <p
-                      class="font-medium text-gray-900 dark:text-white flex items-center gap-1"
+                    <div
+                      class="font-medium text-gray-900 dark:text-white flex items-start gap-1.5 text-sm"
                     >
                       <svg
-                        class="w-4 h-4 text-gray-400"
+                        class="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -375,21 +375,21 @@
                           d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
                         ></path>
                       </svg>
-                      {{
+                      <span>{{
                         paiementStore.infosEtudiant.etudiant.telephone || "N/A"
-                      }}
-                    </p>
+                      }}</span>
+                    </div>
                   </div>
                   <!-- Mode de formation -->
                   <div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
                       Mode de formation
                     </p>
-                    <p
-                      class="font-medium text-gray-900 dark:text-white flex items-center gap-1"
+                    <div
+                      class="font-medium text-gray-900 dark:text-white flex items-center gap-1.5"
                     >
                       <svg
-                        class="w-4 h-4 text-gray-400"
+                        class="w-4 h-4 text-indigo-500 flex-shrink-0"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -397,10 +397,15 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
                       </svg>
-                      {{
-                        paiementStore.infosEtudiant.etudiant.mode_formation || "Non défini"
-                      }}
-                    </p>
+                      <span
+                        class="px-2 py-0.5 rounded text-xs font-semibold"
+                        :class="paiementStore.infosEtudiant.etudiant.mode_formation === 'En ligne' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'"
+                      >
+                        {{
+                          paiementStore.infosEtudiant.etudiant.mode_formation || "Présentiel"
+                        }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -485,20 +490,35 @@
             </div>
             <div class="ml-4">
               <h3 class="text-lg font-bold text-red-800 dark:text-red-200">
-                Paiement bloqué : Incohérence financière détectée !
+                <template v-if="paiementStore.infosEtudiant.anomalie.type_anomalie === 'tarif_manquant'">
+                  Paiement bloqué : Aucun tarif officiel paramétré !
+                </template>
+                <template v-else>
+                  Paiement bloqué : Incohérence financière détectée !
+                </template>
               </h3>
               <div class="mt-2 text-sm text-red-700 dark:text-red-300 max-w-2xl">
-                <p>
-                  Une différence a été trouvée entre la scolarité académique attendue et le contrat financier actuel de l'étudiant.
-                </p>
-                <ul class="list-disc pl-5 mt-2 font-medium space-y-1">
-                  <li>Montant du contrat actuel : {{ formatMontant(paiementStore.infosEtudiant.anomalie.dash) }}</li>
-                  <li>Tarif académique théorique : {{ formatMontant(paiementStore.infosEtudiant.anomalie.sit) }}</li>
-                  <li>Écart à régulariser : {{ formatMontant(paiementStore.infosEtudiant.anomalie.diff) }}</li>
-                </ul>
-                <p class="mt-3">
-                  Tant que cette situation n'est pas corrigée, aucun encaissement ne peut être enregistré.
-                </p>
+                <template v-if="paiementStore.infosEtudiant.anomalie.type_anomalie === 'tarif_manquant'">
+                  <p>
+                    {{ paiementStore.infosEtudiant.anomalie.message || "Aucun tarif officiel n'est paramétré dans la grille tarifaire pour le niveau, la filière et le mode de formation de cet étudiant." }}
+                  </p>
+                  <p class="mt-2 font-medium">
+                    Veuillez définir les tarifs de scolarité dans la grille officielle ou négocier un contrat spécifique pour débloquer l'encaissement.
+                  </p>
+                </template>
+                <template v-else>
+                  <p>
+                    Une différence a été trouvée entre la scolarité académique attendue et le contrat financier actuel de l'étudiant.
+                  </p>
+                  <ul class="list-disc pl-5 mt-2 font-medium space-y-1">
+                    <li>Montant du contrat actuel : {{ formatMontant(paiementStore.infosEtudiant.anomalie.dash) }}</li>
+                    <li>Tarif académique théorique : {{ formatMontant(paiementStore.infosEtudiant.anomalie.sit) }}</li>
+                    <li>Écart à régulariser : {{ formatMontant(paiementStore.infosEtudiant.anomalie.diff) }}</li>
+                  </ul>
+                  <p class="mt-3">
+                    Tant que cette situation n'est pas corrigée, aucun encaissement ne peut être enregistré.
+                  </p>
+                </template>
               </div>
               <div class="mt-4">
                 <NuxtLink :to="`/finance/recouvrement/${paiementStore.infosEtudiant.etudiant.slug}`" class="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm">

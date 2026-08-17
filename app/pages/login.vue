@@ -427,12 +427,12 @@ const handleLogin = async () => {
     let errorMsg = "Une erreur est survenue. Veuillez réessayer plus tard.";
 
     if (error.response) {
-      if (error.response.status === 401) {
+      if (error.response.data?.message) {
+        errorMsg = error.response.data.message;
+      } else if (error.response.status === 401) {
         errorMsg = "Email ou mot de passe incorrect.";
       } else if (error.response.status === 403) {
         errorMsg = "Accès non autorisé. Veuillez vérifier vos identifiants.";
-      } else if (error.response.data?.message) {
-        errorMsg = error.response.data.message;
       }
     } else if (error.request) {
       errorMsg =

@@ -692,4 +692,140 @@ definePageMeta({ layout: 'default' })
   .hero-title { font-size: 26px; }
   .content-area { padding: 0 20px 60px; }
 }
+
+/* ─── Mode Sombre / Dark Mode ────────────────────────── */
+:global(.dark) .syllabus-detail {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+:global(.dark) .topbar {
+  background: #1e293b;
+  border-bottom-color: #334155;
+}
+
+:global(.dark) .back-link {
+  color: #94a3b8;
+}
+:global(.dark) .back-link:hover {
+  color: #f8fafc;
+}
+
+:global(.dark) .topbar-brand {
+  color: #94a3b8;
+}
+
+:global(.dark) .btn-pdf {
+  background: #1e293b;
+  color: #cbd5e1;
+  border-color: #334155;
+}
+:global(.dark) .btn-pdf:hover {
+  background: #334155;
+  color: #ffffff;
+  border-color: #475569;
+}
+
+:global(.dark) .course-hero {
+  background: #1e293b;
+}
+
+:global(.dark) .hero-title {
+  color: #f8fafc;
+}
+
+:global(.dark) .hero-code {
+  color: #94a3b8;
+}
+
+:global(.dark) .persistent-tabs {
+  background: #1e293b;
+  border-bottom-color: #334155;
+}
+
+:global(.dark) .htab {
+  color: #94a3b8;
+}
+:global(.dark) .htab:hover {
+  color: #cbd5e1;
+}
+:global(.dark) .htab.active {
+  color: #a78bfa;
+  border-bottom-color: #a78bfa;
+}
+
+:global(.dark) .section-wrap {
+  border-bottom-color: #334155;
+}
+
+:global(.dark) .section-index {
+  color: #a78bfa;
+}
+
+:global(.dark) .section-name {
+  color: #f8fafc;
+}
+
+:global(.dark) .section-hint {
+  color: #94a3b8;
+}
+
+:global(.dark) .rich-content {
+  color: #cbd5e1;
+}
+
+:global(.dark) .rich-content :deep(h1),
+:global(.dark) .rich-content :deep(h2),
+:global(.dark) .rich-content :deep(h3),
+:global(.dark) .rich-content :deep(strong) {
+  color: #f8fafc;
+}
+
+:global(.dark) .rich-content :deep(.empty-field) {
+  color: #a78bfa;
+}
+
+:global(.dark) .plan-content {
+  background: #1e1b4b;
+  border-color: #3730a3;
+  border-left-color: #818cf8;
+}
+
+:global(.dark) .explorer {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+:global(.dark) .explorer-toolbar {
+  background: #0f172a;
+  border-bottom-color: #334155;
+}
+
+:global(.dark) .expl-breadcrumb {
+  color: #94a3b8;
+}
+:global(.dark) .crumb:hover {
+  color: #a78bfa;
+}
+
+:global(.dark) .file-card:hover {
+  background: #312e81;
+}
+
+:global(.dark) .file-name {
+  color: #f8fafc;
+}
+
+:global(.dark) .empty-state {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+:global(.dark) .empty-title {
+  color: #f8fafc;
+}
+
+:global(.dark) .empty-sub {
+  color: #94a3b8;
+}
 </style>

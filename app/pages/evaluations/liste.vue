@@ -95,6 +95,46 @@
       </div>
     </div>
 
+    <!-- Onglets Évaluations Actives / Corbeille -->
+    <div class="flex items-center border-b border-gray-200 dark:border-gray-700 mb-5 gap-2">
+      <button
+        @click="switchTab('active')"
+        class="flex items-center gap-2 py-3 px-4 border-b-2 font-medium text-sm transition-colors duration-200"
+        :class="activeTab === 'active'
+          ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 font-semibold'
+          : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <span>Évaluations actives</span>
+        <span
+          class="ml-1.5 px-2.5 py-0.5 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300"
+        >
+          {{ activeEvaluationsCount }}
+        </span>
+      </button>
+
+      <button
+        @click="switchTab('corbeille')"
+        class="flex items-center gap-2 py-3 px-4 border-b-2 font-medium text-sm transition-colors duration-200"
+        :class="activeTab === 'corbeille'
+          ? 'border-red-600 text-red-600 dark:text-red-400 font-semibold'
+          : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+        <span>Corbeille</span>
+        <span
+          class="ml-1.5 px-2.5 py-0.5 text-xs font-semibold rounded-full"
+          :class="trashedEvaluationsCount > 0 ? 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'"
+        >
+          {{ trashedEvaluationsCount }}
+        </span>
+      </button>
+    </div>
+
     <!-- Table -->
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-3 sm:p-4">
       <div v-if="loading" class="flex justify-center py-10">
@@ -136,7 +176,7 @@
                       ? null
                       : togglePublish(value)
                   "
-                  :disabled="value.published === 1 || value.published === true"
+                  :disabled="value.published === 1 || value.published === true || activeTab === 'corbeille'"
                   class="relative inline-flex items-center h-7 rounded-full w-14 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
                   :class="{
                     'bg-green-100 dark:bg-green-900/30 focus:ring-green-300 cursor-default':
@@ -170,7 +210,8 @@
             </div>
           </template>
           <template #action="{ value }">
-            <div class="flex justify-center gap-3">
+            <!-- Mode Liste Active -->
+            <div v-if="activeTab === 'active'" class="flex justify-center gap-3">
               <button
                 @click="openDetailModal(value)"
                 class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
@@ -220,7 +261,7 @@
               </Can>
               <NuxtLink
                 class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
-                title="Fiche d'anpnymat"
+                title="Fiche d'anonymat"
                 :to="`/evaluations/fiche-de-note/${value.slug}`"
               >
                 <svg
@@ -306,14 +347,69 @@
                 </button>
               </Can>
 
-              <!-- Delete -->
+              <!-- Mettre en corbeille -->
               <Can action="delete-evaluation">
                 <button
                   @click="deleteItem(value)"
-                  class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
-                  title="Supprimer"
+                  class="p-2 rounded-lg text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors duration-200"
+                  title="Mettre en corbeille"
                 >
                   <ButtonDelete />
+                </button>
+              </Can>
+            </div>
+
+            <!-- Mode Corbeille -->
+            <div v-else class="flex justify-center gap-3">
+              <button
+                @click="openDetailModal(value)"
+                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
+                title="Voir les détails"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+              </button>
+
+              <!-- Restaurer -->
+              <Can action="restore-evaluation">
+                <button
+                  @click="restoreItem(value)"
+                  class="p-2 rounded-lg text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors duration-200"
+                  title="Restaurer l'évaluation"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
+              </Can>
+
+              <!-- Supprimer définitivement -->
+              <Can action="force-delete-evaluation">
+                <button
+                  @click="forceDeleteItem(value)"
+                  class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
+                  title="Supprimer définitivement"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
                 </button>
               </Can>
             </div>
@@ -979,8 +1075,25 @@ const showDetailModal = ref(false);
 const selectedEvent = ref(null);
 const showConfigModal = ref(false);
 const evaluation_id = ref("");
+const activeTab = ref("active");
 const selectedEvaluation = ref(null);
 const isUpdating = ref(false);
+
+const activeEvaluationsCount = computed(
+  () => (evaluationStore.evaluations || []).length
+);
+const trashedEvaluationsCount = computed(
+  () => (evaluationStore.trashedEvaluations || []).length
+);
+
+const switchTab = async (tab) => {
+  activeTab.value = tab;
+  if (tab === "corbeille") {
+    await evaluationStore.fetchTrashedEvaluations();
+  } else {
+    await evaluationStore.fetchEvaluations();
+  }
+};
 
 const configForm = ref({
   surveillant_1_id: "",
@@ -1020,7 +1133,10 @@ const existingSurveillants = computed(() => {
 });
 
 const rows = computed(() => {
-  const list = evaluationStore.evaluations || [];
+  const list =
+    activeTab.value === "active"
+      ? evaluationStore.evaluations || []
+      : evaluationStore.trashedEvaluations || [];
   return [...list].sort((a, b) => (b.id || 0) - (a.id || 0));
 });
 
@@ -1162,22 +1278,84 @@ const formatTime = (timeString) => {
 
 const deleteItem = async (evaluation) => {
   const res = await $swal.fire({
-    title: "Supprimer cet évaluation ?",
-    text: "Cette action est irréversible",
+    title: "Mettre en corbeille ?",
+    text: "Cette évaluation sera déplacée dans la corbeille. Vous pourrez la restaurer ultérieurement.",
     icon: "warning",
     showCancelButton: true,
-    confirmButtonText: "Supprimer",
+    confirmButtonText: "Mettre en corbeille",
     cancelButtonText: "Annuler",
+    confirmButtonColor: "#f59e0b",
   });
 
   if (res.isConfirmed) {
     try {
-      await evaluationStore.deleteEvaluation(evaluation.slug);
-      await evaluationStore.fetchEvaluations();
-      $toastr.success("Évaluation supprimée avec succès");
+      await evaluationStore.deleteEvaluation(evaluation.slug || evaluation.id);
+      await Promise.all([
+        evaluationStore.fetchEvaluations(),
+        evaluationStore.fetchTrashedEvaluations(),
+      ]);
+      $toastr.success("Évaluation déplacée dans la corbeille");
     } catch (error) {
       console.log(error);
       $toastr.error(error.response?.data?.message || "Une erreur est survenue");
+    }
+  }
+};
+
+const restoreItem = async (evaluation) => {
+  const res = await $swal.fire({
+    title: "Restaurer cette évaluation ?",
+    text: "L'évaluation sera réintégrée dans la liste des évaluations actives.",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Restaurer",
+    cancelButtonText: "Annuler",
+    confirmButtonColor: "#10b981",
+  });
+
+  if (res.isConfirmed) {
+    try {
+      await evaluationStore.restoreEvaluation(evaluation.slug || evaluation.id);
+      await Promise.all([
+        evaluationStore.fetchEvaluations(),
+        evaluationStore.fetchTrashedEvaluations(),
+      ]);
+      $toastr.success("Évaluation restaurée avec succès");
+    } catch (error) {
+      console.log(error);
+      $toastr.error(
+        error.response?.data?.message ||
+          "Une erreur est survenue lors de la restauration"
+      );
+    }
+  }
+};
+
+const forceDeleteItem = async (evaluation) => {
+  const res = await $swal.fire({
+    title: "Supprimer définitivement ?",
+    text: "Attention, cette action est irréversible et supprimera l'évaluation définitivement de la base de données.",
+    icon: "error",
+    showCancelButton: true,
+    confirmButtonText: "Supprimer définitivement",
+    cancelButtonText: "Annuler",
+    confirmButtonColor: "#ef4444",
+  });
+
+  if (res.isConfirmed) {
+    try {
+      await evaluationStore.forceDeleteEvaluation(evaluation.slug || evaluation.id);
+      await Promise.all([
+        evaluationStore.fetchEvaluations(),
+        evaluationStore.fetchTrashedEvaluations(),
+      ]);
+      $toastr.success("Évaluation supprimée définitivement");
+    } catch (error) {
+      console.log(error);
+      $toastr.error(
+        error.response?.data?.message ||
+          "Une erreur est survenue lors de la suppression définitive"
+      );
     }
   }
 };
@@ -1190,6 +1368,7 @@ onMounted(async () => {
   try {
     await Promise.all([
       evaluationStore.fetchEvaluations(),
+      evaluationStore.fetchTrashedEvaluations(),
       userStore.fetchUsersSurveillant(),
     ]);
   } catch (error) {

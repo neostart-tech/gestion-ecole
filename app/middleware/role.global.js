@@ -38,8 +38,9 @@ export default defineNuxtRouteMiddleware((to) => {
 	// l'authentification reste requise).
 	const selfServiceRoutes = [
 		"/parametre/mon-activite",
+		"/cours-en-ligne",
 	];
-	if (selfServiceRoutes.includes(to.path)) {
+	if (selfServiceRoutes.includes(to.path) || to.path.startsWith("/cours-en-ligne/")) {
 		return;
 	}
 

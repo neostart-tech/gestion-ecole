@@ -168,12 +168,12 @@
                   <Dropdown v-model="form.annee_scolaire_id" :options="anneeOptions" optionLabel="label" optionValue="value" placeholder="Sélectionner" filter class="w-full" />
                 </div>
                 <div class="space-y-1.5">
-                  <label class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Filière <span class="text-red-500">*</span></label>
-                  <Dropdown v-model="form.filiere_id" :options="filiereOptions" optionLabel="label" optionValue="value" required placeholder="Sélectionner" filter class="w-full" @change="form.niveau_id = null; form.group_id = null" />
+                  <label class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Niveau <span class="text-red-500">*</span></label>
+                  <Dropdown v-model="form.niveau_id" :options="niveauOptions" optionLabel="label" optionValue="value" required placeholder="Sélectionner" filter class="w-full" />
                 </div>
                 <div class="space-y-1.5">
-                  <label class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Niveau <span class="text-red-500">*</span></label>
-                  <Dropdown v-model="form.niveau_id" :options="niveauOptions" optionLabel="label" optionValue="value" required placeholder="Sélectionner" filter class="w-full" @change="form.group_id = null" />
+                  <label class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Filière <span class="text-red-500">*</span></label>
+                  <Dropdown v-model="form.filiere_id" :options="filiereOptions" optionLabel="label" optionValue="value" required placeholder="Sélectionner" filter class="w-full" />
                 </div>
                 <div class="space-y-1.5 sm:col-span-2">
                   <label class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Groupe <span class="text-red-500">*</span></label>
@@ -461,9 +461,33 @@ const copyTuteurToResp = () => {
     }
 };
 
-const filiereOptions = computed(() =>
-  filiereStore.filieres.map(f => ({ label: f.nom, value: f.id }))
-);
+const filiereOptions = computed(() => {
+  const allFilieres = filiereStore.filieres || [];
+  if (!form.value.niveau_id) {
+    return allFilieres.map((f) => ({ label: f.nom, value: f.id }));
+  }
+
+  const groupsInNiveau = (groupeStore.groupes || []).filter(
+    (g) => String(g.niveau?.id || g.niveau_id) === String(form.value.niveau_id)
+  );
+
+  const filiereIdsInNiveau = new Set();
+  groupsInNiveau.forEach((g) => {
+    if (g.filiere_id) filiereIdsInNiveau.add(String(g.filiere_id));
+    if (Array.isArray(g.filieres)) {
+      g.filieres.forEach((f) => filiereIdsInNiveau.add(String(f.id || f)));
+    }
+  });
+
+  if (filiereIdsInNiveau.size > 0) {
+    const filtered = allFilieres.filter((f) => filiereIdsInNiveau.has(String(f.id)));
+    if (filtered.length > 0) {
+      return filtered.map((f) => ({ label: f.nom, value: f.id }));
+    }
+  }
+
+  return allFilieres.map((f) => ({ label: f.nom, value: f.id }));
+});
 
 const documentRequirements = ref([]);
 const requiredDocumentsFiles = ref({});
@@ -494,6 +518,11 @@ watch(() => form.value.niveau_id, async (newNiveauId) => {
     documentRequirements.value = [];
   }
   requiredDocumentsFiles.value = {};
+
+  // Auto validate or reset filiere_id & group_id on niveau change
+  const filiereValid = filiereOptions.value.some(f => f.value === form.value.filiere_id);
+  if (!filiereValid) form.value.filiere_id = null;
+  form.value.group_id = null;
 });
 
 const niveauOptions = computed(() =>
@@ -506,10 +535,20 @@ const anneeOptions = computed(() =>
 
 const groupeOptions = computed(() => {
   if (!form.value.niveau_id) return [];
-  let groups = groupeStore.groupes;
+  let groups = groupeStore.groupes || [];
   
-  groups = groups.filter((g) => g.niveau.id === form.value.niveau_id);
+  groups = groups.filter((g) => String(g.niveau?.id || g.niveau_id) === String(form.value.niveau_id));
   
+  if (form.value.filiere_id) {
+    groups = groups.filter((g) => {
+      if (g.filiere_id) return String(g.filiere_id) === String(form.value.filiere_id);
+      if (Array.isArray(g.filieres) && g.filieres.length > 0) {
+        return g.filieres.some(f => String(f.id || f) === String(form.value.filiere_id));
+      }
+      return true;
+    });
+  }
+
   return groups
     .map((g) => ({
       label: g.nom,

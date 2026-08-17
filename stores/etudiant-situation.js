@@ -25,6 +25,7 @@ export const useEtudiantSituationStore = defineStore("etudiantSituation", {
       statut: null,
       annee_id: null,
       statut_acces: null, // 'actif' ou 'bloque'
+      mode_formation: null, // 'presentiel' ou 'en_ligne'
     },
 
     // Statistiques calculées
@@ -59,6 +60,7 @@ export const useEtudiantSituationStore = defineStore("etudiantSituation", {
         nom_complet: `${e.nom} ${e.prenom}`,
         filiere_nom: e.filiere || "Non assigné",
         niveau_libelle: e.niveau || "Non assigné",
+        mode_formation: e.mode_formation || e.mode || "Présentiel",
         statut_classe: e.statut,
         statut_libelle: e.statut === 'en_cours' ? 'À jour' : e.statut_libelle,
         en_retard: e.en_retard,
@@ -66,10 +68,12 @@ export const useEtudiantSituationStore = defineStore("etudiantSituation", {
         montant_restant_formatted: e.montant_restant_formatted,
         montant_paye_formatted: e.montant_paye_formatted,
         montant_total_formatted: e.montant_total_a_payer_formatted,
+        est_bloque: e.est_bloque ?? (e.statut_global === 'bloque'),
+        est_en_abandon: e.est_en_abandon ?? (e.statut_global === 'abandon'),
       }));
     },
 
-    // Données filtrées par les selects (filière, niveau, statut)
+    // Données filtrées par les selects (filière, niveau, statut, mode)
     etudiantsFiltres: (state) => {
       let result = [...state.etudiantsData];
 
@@ -88,9 +92,35 @@ export const useEtudiantSituationStore = defineStore("etudiantSituation", {
         result = result.filter((e) => e.statut === state.filtres.statut);
       }
 
+      // Filtre par mode de formation (En ligne / Présentiel)
+      if (state.filtres.mode_formation) {
+        result = result.filter((e) => {
+          const modeStr = String(e.mode_formation || e.mode || '').toLowerCase();
+          const filtreStr = String(state.filtres.mode_formation).toLowerCase();
+          if (filtreStr === 'en_ligne') {
+            return modeStr.includes('ligne') || modeStr.includes('online');
+          }
+          if (filtreStr === 'presentiel') {
+            return modeStr.includes('présentiel') || modeStr.includes('presentiel');
+          }
+          return modeStr.includes(filtreStr);
+        });
+      }
+
       // Filtre par statut d'accès
       if (state.filtres.statut_acces) {
-        result = result.filter((e) => e.statut_global === state.filtres.statut_acces);
+        result = result.filter((e) => {
+          if (state.filtres.statut_acces === 'bloque') {
+            return e.est_bloque || e.statut_global === 'bloque';
+          }
+          if (state.filtres.statut_acces === 'abandon') {
+            return e.est_en_abandon || e.statut_global === 'abandon';
+          }
+          if (state.filtres.statut_acces === 'actif') {
+            return !e.est_bloque && !e.est_en_abandon && e.statut_global !== 'bloque' && e.statut_global !== 'abandon';
+          }
+          return e.statut_global === state.filtres.statut_acces;
+        });
       }
 
       return result;
@@ -281,6 +311,11 @@ export const useEtudiantSituationStore = defineStore("etudiantSituation", {
         { value: "solde", label: "Soldé", color: "emerald" },
         { value: "en_cours", label: "À jour", color: "amber" },
         { value: "en_retard", label: "En retard", color: "red" },
+      ],
+      modes: [
+        { value: null, label: "Tous les modes" },
+        { value: "presentiel", label: "Présentiel" },
+        { value: "en_ligne", label: "En ligne" },
       ],
     }),
   },

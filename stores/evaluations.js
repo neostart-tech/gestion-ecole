@@ -4,7 +4,8 @@ import axios from "axios";
 export const useEvaluationStore = defineStore("evaluation", {
   state: () => ({
     evaluations: [],
-    evaluation:null,
+    trashedEvaluations: [],
+    evaluation: null,
     isLoading: false,
   }),
 
@@ -30,6 +31,52 @@ export const useEvaluationStore = defineStore("evaluation", {
       } catch (error) {
         console.error("Erreur chargement evaluations:", error);
         throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async fetchTrashedEvaluations() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          "/evaluations/corbeille",
+          this.authHeaders(),
+        );
+
+        this.trashedEvaluations = response.data.data;
+      } catch (error) {
+        console.error("Erreur chargement corbeille evaluations:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async restoreEvaluation(evaluation) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          `/evaluations/${evaluation}/restaurer`,
+          {},
+          this.authHeaders(),
+        );
+        this.trashedEvaluations = this.trashedEvaluations.filter((e) => e.slug !== evaluation && e.id !== evaluation);
+        return response.data;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async forceDeleteEvaluation(evaluation) {
+      this.isLoading = true;
+      try {
+        const response = await axios.delete(
+          `/evaluations/${evaluation}/force-delete`,
+          this.authHeaders(),
+        );
+        this.trashedEvaluations = this.trashedEvaluations.filter((e) => e.slug !== evaluation && e.id !== evaluation);
+        return response.data;
       } finally {
         this.isLoading = false;
       }

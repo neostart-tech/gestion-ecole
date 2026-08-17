@@ -55,6 +55,25 @@ export const useDiagnosticFinancierStore = defineStore('diagnosticFinancier', {
       } finally {
         this.loading = false;
       }
+    },
+
+    async changerModeFormationMasse(etudiantIds, modeFormation) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const response = await axios.post('/finance/diagnostic/changer-mode-formation-masse', {
+          etudiant_ids: etudiantIds,
+          mode_formation: modeFormation
+        }, this.authHeaders);
+        await this.fetchDiagnostic();
+        return response.data;
+      } catch (error) {
+        this.error = error.response?.data?.message || 'Erreur lors du changement de mode en masse';
+        console.error('Error changerModeFormationMasse:', error);
+        throw error;
+      } finally {
+        this.loading = false;
+      }
     }
   }
 });

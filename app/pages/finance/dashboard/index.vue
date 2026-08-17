@@ -196,11 +196,11 @@
           v-for="(kpi, index) in kpis"
           :key="index"
           @click="navigateTo('/admin/etudiants/situation')"
-          class="group bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-700 animate-fade-in-up cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-800"
+          class="group bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-700 animate-fade-in-up cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-800 min-w-0 overflow-hidden"
           :style="{ animationDelay: index * 100 + 'ms' }"
         >
           <div class="flex items-start justify-between mb-4">
-            <div :class="['p-3 rounded-lg', kpi.bgColor]">
+            <div :class="['p-3 rounded-lg flex-shrink-0', kpi.bgColor]">
               <svg
                 class="w-6 h-6"
                 :class="kpi.iconColor"
@@ -217,15 +217,15 @@
               </svg>
             </div>
             <span
-              class="text-xs font-medium px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+              class="text-xs font-medium px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 whitespace-nowrap"
             >
               {{ kpi.periode }}
             </span>
           </div>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
+          <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-1 leading-snug">
             {{ kpi.label }}
           </p>
-          <p class="text-2xl font-bold" :class="kpi.valueClass">
+          <p class="text-xs sm:text-sm md:text-base lg:text-sm xl:text-lg font-black tracking-tight whitespace-nowrap" :class="kpi.valueClass">
             {{ kpi.value }}
           </p>
           <!-- Indicateur visuel discret -->
@@ -276,7 +276,7 @@
                        <span class="text-[9px] text-emerald-500 font-medium">Flux de trésorerie effectif</span>
                     </div>
                     <div class="flex flex-col items-end">
-                       <span class="text-2xl font-black text-emerald-600 tabular-nums leading-none">{{ formatMontant(dashboardStore.caActive.total) }}</span>
+                        <span class="text-base sm:text-lg md:text-xl font-black text-emerald-600 tabular-nums leading-none whitespace-nowrap">{{ formatMontant(dashboardStore.caActive.total) }}</span>
                        <div class="flex items-center gap-1 mt-1">
                           <svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                           <span class="text-[10px] font-bold text-emerald-500 uppercase">Encaissé</span>
@@ -341,7 +341,7 @@
                        <span class="text-[9px] text-emerald-500 font-medium">Sommes définitivement acquises</span>
                     </div>
                     <div class="flex flex-col items-end">
-                       <span class="text-2xl font-black text-emerald-600 tabular-nums leading-none">{{ formatMontant(dashboardStore.caAbandons.total) }}</span>
+                       <span class="text-lg sm:text-xl md:text-2xl font-black text-emerald-600 tabular-nums leading-none" :title="formatMontant(dashboardStore.caAbandons.total)">{{ formatMontant(dashboardStore.caAbandons.total) }}</span>
                        <div class="flex items-center gap-1 mt-1">
                           <svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                           <span class="text-[10px] font-bold text-emerald-500 uppercase">Encaissé</span>

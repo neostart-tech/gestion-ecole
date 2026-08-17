@@ -91,7 +91,7 @@
                     </div>
                     <div class="flex items-center gap-1">
                       <Tag value="Mode" severity="secondary" />
-                      <span class="text-sm font-medium">{{ paiementStore.infosEtudiant.etudiant.mode_formation || 'Non défini' }}</span>
+                      <span class="text-sm font-medium">{{ paiementStore.infosEtudiant.etudiant.mode_formation || 'Présentiel' }}</span>
                     </div>
                   </div>
                 </div>

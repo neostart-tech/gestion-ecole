@@ -1,4 +1,5 @@
 <template>
+  <FraisInscriptionLockOverlay :is-locked="isFraisInscriptionImpaye">
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-6">
     <!-- Loader -->
     <div v-if="loading" class="fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-gray-900">
@@ -188,10 +189,14 @@
       </div>
     </div>
   </div>
+  </FraisInscriptionLockOverlay>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { useFraisInscriptionStore } from '~~/stores/frais-inscription'
+
+const store = useFraisInscriptionStore()
+const isFraisInscriptionImpaye = computed(() => store.isFraisInscriptionImpaye)
 
 // États
 const loading = ref(true)

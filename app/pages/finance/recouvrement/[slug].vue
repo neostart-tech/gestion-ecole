@@ -55,7 +55,10 @@
               <span class="font-mono text-xs bg-slate-100 dark:bg-gray-700 text-slate-500 dark:text-gray-300 px-2 py-1 rounded-lg border border-slate-200 dark:border-gray-600">
                 {{ etudiant?.matricule }}
               </span>
-              <span class="text-xs font-bold px-2.5 py-1 rounded-lg border" :class="getStatusClass(etudiant?.statut)">
+              <span v-if="!etudiant?.frais_id" class="text-xs font-bold px-2.5 py-1 rounded-lg border bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/30">
+                Aucun contrat financier
+              </span>
+              <span v-else class="text-xs font-bold px-2.5 py-1 rounded-lg border" :class="getStatusClass(etudiant?.statut)">
                 {{ getStatusLabel(etudiant?.statut) }}
               </span>
               <span v-if="etudiant?.inscription_statut" class="text-xs font-bold px-2.5 py-1 rounded-lg border ml-1"
@@ -72,70 +75,104 @@
         </div>
       </div>
 
-        <!-- Alerte Anomalie Financière (Design Premium) -->
-        <div v-if="etudiant?.anomalie?.has_anomalie" class="relative overflow-hidden rounded-3xl p-1 mb-6 shadow-2xl group animate-in fade-in slide-in-from-top-4 duration-700">
-          <!-- Background Glow/Gradient -->
-          <div class="absolute inset-0 bg-gradient-to-br from-rose-500 via-red-600 to-red-900 opacity-90 transition-opacity group-hover:opacity-100"></div>
-          <!-- Animated Background shapes -->
-          <div class="absolute top-[-50%] left-[-10%] w-[50%] h-[150%] bg-white/10 rotate-12 blur-3xl pointer-events-none mix-blend-overlay"></div>
+        <!-- Alerte Anomalie Financière / Contrat manquant (Design Premium) -->
+        <div v-if="!etudiant?.frais_id || etudiant?.anomalie?.has_anomalie" class="relative overflow-hidden rounded-3xl p-1 mb-6 shadow-2xl group animate-in fade-in slide-in-from-top-4 duration-700">
           
-          <div class="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-[22px] p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-8">
-            <!-- Icon -->
-            <div class="relative flex-shrink-0">
-              <div class="absolute inset-0 bg-red-400 rounded-full blur-lg opacity-50 animate-pulse"></div>
-              <div class="relative w-16 h-16 rounded-2xl bg-gradient-to-b from-white/20 to-white/5 border border-white/20 flex items-center justify-center shadow-inner">
-                <svg class="w-8 h-8 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
+          <!-- Cas 1 : Aucun contrat financier ou grille tarifaire manquante -->
+          <template v-if="!etudiant?.frais_id || etudiant?.anomalie?.tarif_existant === false">
+            <div class="absolute inset-0 bg-gradient-to-br from-amber-500 via-orange-600 to-amber-900 opacity-90 transition-opacity"></div>
+            <div class="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-[22px] p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-8">
+              <div class="relative flex-shrink-0">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-b from-white/20 to-white/5 border border-white/20 flex items-center justify-center shadow-inner text-white font-black">
+                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
               </div>
-            </div>
-
-            <!-- Content -->
-            <div class="flex-1 space-y-1">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-black uppercase tracking-widest border border-white/10 shadow-sm">Action Requise</span>
-                <span class="w-2 h-2 rounded-full bg-red-400 animate-ping"></span>
-              </div>
-              <h3 class="text-2xl font-black text-white tracking-tight drop-shadow-sm">Contrat financier invalide</h3>
-              <p class="text-rose-100 font-medium text-sm md:text-base max-w-xl leading-relaxed">
-                Le système a détecté une incohérence majeure entre le tarif académique officiel et le montant actuellement facturé à cet étudiant. Le recouvrement est bloqué.
-              </p>
-            </div>
-
-            <!-- Stats Box (Glassmorphism) -->
-            <div class="w-full md:w-auto bg-black/20 border border-white/10 rounded-2xl p-4 sm:px-6 flex items-center gap-4 sm:gap-6 shadow-inner backdrop-blur-md">
-              <div class="text-center">
-                <p class="text-[10px] font-bold text-rose-200 uppercase tracking-widest mb-1 opacity-80">Attendu</p>
-                <p class="text-lg font-black text-white tabular-nums">{{ formatMontantShort(etudiant.anomalie.sit) }}</p>
-              </div>
-              <div class="w-px h-10 bg-white/10"></div>
-              <div class="text-center">
-                <p class="text-[10px] font-bold text-rose-200 uppercase tracking-widest mb-1 opacity-80">Facturé</p>
-                <p class="text-lg font-black text-white tabular-nums">{{ formatMontantShort(etudiant.anomalie.dash) }}</p>
-              </div>
-              <div class="w-px h-10 bg-rose-500/50"></div>
-              <div class="text-center relative">
-                <div class="absolute -top-2 -right-3">
-                  <span class="flex h-3 w-3">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500 border border-white/50"></span>
+              <div class="flex-1 space-y-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-black uppercase tracking-widest border border-white/10 shadow-sm">
+                    {{ !etudiant?.frais_id ? 'Aucun Contrat Financier' : 'Grille Tarifaire Manquante' }}
                   </span>
                 </div>
-                <p class="text-[10px] font-bold text-rose-200 uppercase tracking-widest mb-1 opacity-80">Écart</p>
-                <p class="text-xl font-black text-rose-300 tabular-nums drop-shadow-md">{{ formatMontantShort(Math.abs(etudiant.anomalie.diff)) }}</p>
+                <h3 class="text-2xl font-black text-white tracking-tight drop-shadow-sm">
+                  {{ !etudiant?.frais_id ? 'Aucun contrat financier attribué' : 'Tarif académique non paramétré' }}
+                </h3>
+                <p class="text-amber-100 font-medium text-sm md:text-base max-w-xl leading-relaxed">
+                  {{ !etudiant?.frais_id ? "Cet étudiant ne dispose actuellement d'aucun contrat financier pour cette année scolaire. Veuillez configurer la grille tarifaire correspondant à sa classe ou lui créer un tarif spécifique." : `Aucun tarif général n'est configuré dans la grille pour le profil de cet étudiant (mode ${etudiant?.anomalie?.mode_formation || 'En ligne'}).` }}
+                </p>
               </div>
             </div>
-          </div>
-          
-          <!-- Actions de résolution -->
-          <div class="relative bg-black/40 backdrop-blur-md rounded-b-[22px] border-t border-white/10 p-5 md:px-8 mt-[-10px] pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p class="text-rose-100/80 text-sm font-medium">Sélectionnez une action pour régulariser ce dossier :</p>
-            <div class="flex items-center gap-3 w-full sm:w-auto">
-              <NuxtLink :to="`/admin/negociations/creer-une-negociation?etudiants=${etudiant.slug}`" class="flex-1 sm:flex-none text-center px-6 py-2.5 bg-white text-red-700 hover:bg-rose-50 rounded-xl text-sm font-black transition-colors shadow-lg shadow-black/20">
-                Ajuster le contrat
-              </NuxtLink>
+            <div class="relative bg-black/40 backdrop-blur-md rounded-b-[22px] border-t border-white/10 p-5 md:px-8 mt-[-10px] pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <p class="text-amber-100/80 text-sm font-medium">Actions recommandées :</p>
+              <div class="flex items-center gap-3 w-full sm:w-auto">
+                <NuxtLink to="/finance/configuration-tranche-de-paiement" class="flex-1 sm:flex-none text-center px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-black transition-colors shadow-lg">
+                  Paramétrer la grille
+                </NuxtLink>
+                <NuxtLink :to="`/admin/negociations/creer-une-negociation?etudiants=${etudiant?.slug}`" class="flex-1 sm:flex-none text-center px-6 py-2.5 bg-white text-amber-800 hover:bg-amber-50 rounded-xl text-sm font-black transition-colors shadow-lg">
+                  Négocier un tarif
+                </NuxtLink>
+              </div>
             </div>
-          </div>
+          </template>
+
+          <!-- Cas 2 : Incohérence de tarif (Contrat vs Grille officielle) -->
+          <template v-else>
+            <div class="absolute inset-0 bg-gradient-to-br from-rose-500 via-red-600 to-red-900 opacity-90 transition-opacity group-hover:opacity-100"></div>
+            <div class="absolute top-[-50%] left-[-10%] w-[50%] h-[150%] bg-white/10 rotate-12 blur-3xl pointer-events-none mix-blend-overlay"></div>
+            
+            <div class="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-[22px] p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-8">
+              <div class="relative flex-shrink-0">
+                <div class="absolute inset-0 bg-red-400 rounded-full blur-lg opacity-50 animate-pulse"></div>
+                <div class="relative w-16 h-16 rounded-2xl bg-gradient-to-b from-white/20 to-white/5 border border-white/20 flex items-center justify-center shadow-inner">
+                  <svg class="w-8 h-8 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="flex-1 space-y-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-black uppercase tracking-widest border border-white/10 shadow-sm">Action Requise</span>
+                  <span class="w-2 h-2 rounded-full bg-red-400 animate-ping"></span>
+                </div>
+                <h3 class="text-2xl font-black text-white tracking-tight drop-shadow-sm">Contrat financier invalide</h3>
+                <p class="text-rose-100 font-medium text-sm md:text-base max-w-xl leading-relaxed">
+                  Le système a détecté une incohérence entre le tarif académique officiel et le montant actuellement facturé à cet étudiant.
+                </p>
+              </div>
+
+              <div class="w-full md:w-auto bg-black/20 border border-white/10 rounded-2xl p-4 sm:px-6 flex items-center gap-4 sm:gap-6 shadow-inner backdrop-blur-md">
+                <div class="text-center">
+                  <p class="text-[10px] font-bold text-rose-200 uppercase tracking-widest mb-1 opacity-80">Attendu</p>
+                  <p class="text-lg font-black text-white tabular-nums">{{ formatMontantShort(etudiant.anomalie.sit) }}</p>
+                </div>
+                <div class="w-px h-10 bg-white/10"></div>
+                <div class="text-center">
+                  <p class="text-[10px] font-bold text-rose-200 uppercase tracking-widest mb-1 opacity-80">Facturé</p>
+                  <p class="text-lg font-black text-white tabular-nums">{{ formatMontantShort(etudiant.anomalie.dash) }}</p>
+                </div>
+                <div class="w-px h-10 bg-rose-500/50"></div>
+                <div class="text-center relative">
+                  <div class="absolute -top-2 -right-3">
+                    <span class="flex h-3 w-3">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500 border border-white/50"></span>
+                    </span>
+                  </div>
+                  <p class="text-[10px] font-bold text-rose-200 uppercase tracking-widest mb-1 opacity-80">Écart</p>
+                  <p class="text-xl font-black text-rose-300 tabular-nums drop-shadow-md">{{ formatMontantShort(Math.abs(etudiant.anomalie.diff)) }}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="relative bg-black/40 backdrop-blur-md rounded-b-[22px] border-t border-white/10 p-5 md:px-8 mt-[-10px] pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <p class="text-rose-100/80 text-sm font-medium">Sélectionnez une action pour régulariser ce dossier :</p>
+              <div class="flex items-center gap-3 w-full sm:w-auto">
+                <NuxtLink :to="`/admin/negociations/creer-une-negociation?etudiants=${etudiant.slug}`" class="flex-1 sm:flex-none text-center px-6 py-2.5 bg-white text-red-700 hover:bg-rose-50 rounded-xl text-sm font-black transition-colors shadow-lg shadow-black/20">
+                  Ajuster le contrat
+                </NuxtLink>
+              </div>
+            </div>
+          </template>
         </div>
 
         <!-- Alerte Abandon -->
@@ -318,7 +355,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRoute, navigateTo, useNuxtApp } from '#imports';
 import { useRecouvrementStore } from '~~/stores/recouvrement';
 import { useParametreStore } from '~~/stores/parametre';
@@ -392,7 +429,7 @@ const closeRecuModal = () => {
 const envoyerRappel = async () => {
   try {
     const response = await recouvrementStore.envoyerRappel(route.params.slug);
-    $toastr.success(response.message || "Le rappel a été envoyé avec succès par email !");
+    if ($toastr) $toastr.success(response.message || "Le rappel a été envoyé avec succès par email !");
   } catch (e) {
     if ($toastr) {
       $toastr.error(e.response?.data?.message || "Erreur lors de l'envoi du rappel.");
@@ -405,7 +442,6 @@ const declarerAbandon = async () => {
   
   if (!$swal) {
       if (confirm("Êtes-vous sûr de vouloir déclarer cet étudiant en abandon ?")) {
-          // Fallback if swal not available
           traiterAbandon();
       }
       return;
@@ -432,8 +468,8 @@ const traiterAbandon = async () => {
   const { $toastr } = useNuxtApp();
   try {
     const response = await recouvrementStore.declarerAbandon(route.params.slug);
-    $toastr.success(response.message || "La déclaration d'abandon a été traitée avec succès.");
-    await recouvrementStore.fetchEtudiantDetail(route.params.slug); // Refresh the UI state
+    if ($toastr) $toastr.success(response.message || "La déclaration d'abandon a été traitée avec succès.");
+    await recouvrementStore.fetchEtudiantDetail(route.params.slug);
   } catch (e) {
     if ($toastr) {
       $toastr.error(e.response?.data?.message || "Erreur lors de la déclaration d'abandon.");
@@ -441,12 +477,27 @@ const traiterAbandon = async () => {
   }
 };
 
-onMounted(async () => {
+const loadData = async (slug) => {
+  if (!slug) return;
   isLoading.value = true;
-  await Promise.all([
-    recouvrementStore.fetchEtudiantDetail(route.params.slug),
-    parametreStore.fetchParametres()
-  ]);
-  isLoading.value = false;
-});
+  recouvrementStore.etudiantCourant = null;
+  recouvrementStore.echeances = [];
+  recouvrementStore.historique = [];
+  try {
+    await Promise.all([
+      recouvrementStore.fetchEtudiantDetail(slug),
+      parametreStore.fetchParametres()
+    ]);
+  } catch (error) {
+    console.error("Erreur lors du chargement des détails de l'étudiant :", error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+watch(() => route.params.slug, (newSlug) => {
+  if (newSlug) {
+    loadData(newSlug);
+  }
+}, { immediate: true });
 </script>

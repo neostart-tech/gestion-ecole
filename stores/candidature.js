@@ -14,6 +14,7 @@ export const useCandidatureStore = defineStore("candidature", {
     error: null,
     exportEnCours: false,
     totalATraiter: 0,
+    dashboardStats: null,
   }),
 
   actions: {
@@ -796,6 +797,28 @@ export const useCandidatureStore = defineStore("candidature", {
     },
 
     // ============ RESET STATE ============
+
+    // GET api/candidature/dashboard-stats
+    async fetchDashboardStats(filtres = {}) {
+      this.isLoading = true;
+      this.error = null;
+      try {
+        const response = await axios.get("/candidature/dashboard-stats", {
+          ...this.authHeaders(),
+          params: filtres,
+        });
+        this.dashboardStats = response.data.data || response.data;
+        return this.dashboardStats;
+      } catch (error) {
+        console.error("Erreur lors du chargement des statistiques dashboard:", error);
+        this.error =
+          error.response?.data?.message ||
+          "Erreur lors du chargement des statistiques";
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
 
     // Reset state
     resetState() {
