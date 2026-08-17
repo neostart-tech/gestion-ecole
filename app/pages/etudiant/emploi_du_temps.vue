@@ -1,4 +1,5 @@
 <template>
+  <FraisInscriptionLockOverlay :is-locked="isFraisInscriptionImpaye">
 	<div
 		class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 md:p-8"
 	>
@@ -95,6 +96,7 @@
 			</div>
 		</div>
 	</div>
+  </FraisInscriptionLockOverlay>
 </template>
 
 <script setup lang="ts">
@@ -103,6 +105,11 @@
 
 	// Import du composant Breadcrumb
 	import Breadcrumb from "~/components/Breadcrumb.vue";
+
+	import { useFraisInscriptionStore } from "~~/stores/frais-inscription";
+
+	const store = useFraisInscriptionStore();
+	const isFraisInscriptionImpaye = computed(() => store.isFraisInscriptionImpaye);
 
 	// Déclarer les types pour les imports dynamiques
 	let FullCalendar: any = null;

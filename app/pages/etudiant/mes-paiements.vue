@@ -1,11 +1,11 @@
 <template>
-  <div class="paiement-page">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 transition-colors duration-300 font-sans text-gray-900 dark:text-gray-100">
 
     <!-- NAV BREADCRUMB -->
-    <nav class="paiement-nav">
-      <NuxtLink to="/frais-scolarite" class="nav-link">Frais de scolarité</NuxtLink>
-      <span class="nav-sep">›</span>
-      <span class="nav-cur">Mes paiements</span>
+    <nav class="flex items-center gap-2 text-xs font-semibold mb-6 text-gray-500 dark:text-gray-400">
+      <NuxtLink to="/frais-scolarite" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Frais de scolarité</NuxtLink>
+      <span>›</span>
+      <span class="text-gray-900 dark:text-white font-bold">Mes paiements</span>
     </nav>
 
     <!-- LOADING STATE PREMIUM -->
@@ -19,7 +19,7 @@
     >
       <div
         v-if="isPageLoading"
-        class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/50 backdrop-blur-sm"
+        class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/75 dark:bg-gray-900/80 backdrop-blur-md"
       >
         <div class="relative flex items-center justify-center">
           <div class="absolute w-32 h-32 bg-indigo-500/20 rounded-full animate-ping"></div>
@@ -34,235 +34,245 @@
           <h2 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500 animate-pulse">
             Chargement de vos finances...
           </h2>
-          <p class="text-sm text-gray-500 mt-2 font-medium tracking-widest uppercase">
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 font-medium tracking-widest uppercase">
             Mise à jour de vos paiements
           </p>
         </div>
       </div>
     </Transition>
 
-    <div class="page-inner" v-if="!errorState">
+    <div class="max-w-7xl mx-auto space-y-8" v-if="!errorState">
 
       <!-- PAGE HEADER -->
-      <div class="page-header">
-        <div class="flex justify-between items-end">
-          <div>
-            <p class="page-eyebrow">Finances</p>
-            <h1 class="page-title">Paiement des <em>frais de scolarité</em></h1>
-          </div>
-          <button @click="loadData(true)" class="refresh-btn" :disabled="isPageLoading">
-            <svg :class="{ 'spin': isPageLoading }" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            <span>Actualiser</span>
-          </button>
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200/80 dark:border-gray-700/80 shadow-sm">
+        <div>
+          <p class="text-xs font-extrabold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Finances</p>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mt-1">Paiement des <span class="text-indigo-600 dark:text-indigo-400 italic">frais de scolarité</span></h1>
         </div>
+        <button @click="loadData(true)" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer" :disabled="isPageLoading">
+          <svg :class="{ 'animate-spin': isPageLoading }" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span>Actualiser</span>
+        </button>
       </div>
 
       <!-- STATS CARDS -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon due">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200/80 dark:border-gray-700/80 shadow-sm flex items-center gap-5">
+          <div class="w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-950/40 text-red-500 dark:text-red-400 flex items-center justify-center shrink-0 border border-red-100 dark:border-red-900/30">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           </div>
-          <div class="stat-info">
-            <p class="stat-label">Total Scolarité</p>
-            <h3 class="stat-value">{{ formatAmount(paiementStore.recap?.montant_total) }} <small>FCFA</small></h3>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon paid">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          </div>
-          <div class="stat-info">
-            <p class="stat-label">Total Payé</p>
-            <h3 class="stat-value text-emerald">{{ formatAmount(paiementStore.recap?.total_paye) }} <small>FCFA</small></h3>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Scolarité</p>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-0.5">{{ formatAmount(paiementStore.recap?.montant_total) }} <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">FCFA</span></h3>
           </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon rest">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200/80 dark:border-gray-700/80 shadow-sm flex items-center gap-5">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-500 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-900/30">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           </div>
-          <div class="stat-info">
-            <p class="stat-label">Reste à payer</p>
-            <h3 class="stat-value text-violet">{{ formatAmount(paiementStore.recap?.reste_a_payer) }} <small>FCFA</small></h3>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Payé</p>
+            <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">{{ formatAmount(paiementStore.recap?.total_paye) }} <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">FCFA</span></h3>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200/80 dark:border-gray-700/80 shadow-sm flex items-center gap-5">
+          <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-500 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-900/30">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Reste à payer</p>
+            <h3 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-0.5">{{ formatAmount(paiementStore.recap?.reste_a_payer) }} <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">FCFA</span></h3>
           </div>
         </div>
       </div>
 
-      <!-- COLONNE GAUCHE -->
-      <div class="left-col">
+      <!-- MAIN CONTENT GRID -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-        <!-- FORMULAIRE -->
-        <div class="card form-card">
-          <div class="card-hd">
-            <div class="card-hd-icon">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-              </svg>
-            </div>
-            <div>
-              <p class="card-hd-title">Effectuer un paiement</p>
-              <p class="card-hd-sub">Complétez les informations ci-dessous</p>
-            </div>
-          </div>
+        <!-- COLONNE GAUCHE (8 COLS) -->
+        <div class="lg:col-span-8 space-y-8">
 
-          <div class="form-body">
-            <form @submit.prevent="submitPayment">
-              <div class="frow">
-                <div>
-                  <label class="fl">Nom</label>
-                  <input v-model="form.lastname" type="text" class="fi" placeholder="Nom" required />
-                </div>
-                <div>
-                  <label class="fl">Prénom</label>
-                  <input v-model="form.firstname" type="text" class="fi" placeholder="Prénom" required />
-                </div>
+          <!-- FORMULAIRE -->
+          <div class="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200/80 dark:border-gray-700/80 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-gray-100 dark:border-gray-700/80 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-indigo-600/20">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
               </div>
+              <div>
+                <h2 class="text-base font-bold text-gray-900 dark:text-white">Effectuer un paiement</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Complétez les informations ci-dessous</p>
+              </div>
+            </div>
 
-              <div class="fg">
-                <label class="fl">Téléphone</label>
-                <div class="phone-wrap">
-                  <div class="phone-prefix">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 004.516 4.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                    </svg>
-                    <span>+228</span>
+            <div class="p-6">
+              <form @submit.prevent="submitPayment" class="space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-1.5">Nom</label>
+                    <input v-model="form.lastname" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm outline-none transition-all" placeholder="Nom" required />
                   </div>
-                  <input v-model="form.phone" type="tel" class="fi" placeholder="90000000" maxlength="8" @input="form.phone = form.phone.replace(/\D/g, '').slice(0, 8)" required />
-                </div>
-              </div>
-
-              <!-- NATURE DU PAIEMENT (Masqué si inscription déjà payée) -->
-              <div class="fg" v-if="paiementStore.recap && !paiementStore.recap.inscription_payee">
-                <label class="fl">Nature du paiement</label>
-                <select v-model="form.nature_paiement" class="fi select-fi" required>
-                  <option value="inscription">Frais d'inscription</option>
-                  <option value="scolarite">Frais de scolarité</option>
-                </select>
-              </div>
-
-              <div class="fg">
-                <label class="fl">Montant</label>
-                <div class="amount-wrap">
-                  <input 
-                    v-model.number="form.montant" 
-                    type="number" 
-                    min="100" 
-                    :max="maxAmount"
-                    @input="handleAmountInput"
-                    class="fi" 
-                    :class="{ 'fi-disabled': form.nature_paiement === 'inscription', 'fi-error': isAmountTooHigh }"
-                    placeholder="0" 
-                    :disabled="form.nature_paiement === 'inscription'"
-                    required 
-                  />
-                  <span class="amount-suffix">FCFA</span>
-                </div>
-                <p v-if="isAmountTooHigh" class="error-tip">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="12" height="12"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                  Le montant dépasse le reste à payer ({{ formatAmount(maxAmount) }} FCFA).
-                </p>
-                <p v-if="form.nature_paiement === 'inscription'" class="info-tip">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="12" height="12"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                  Le montant des frais d'inscription est fixe.
-                </p>
-              </div>
-
-              <!-- MODE DE PAIEMENT (Commenté pour utiliser un mode par défaut) -->
-              <!-- 
-              <div class="fg">
-                <span class="fl">Mode de paiement</span>
-                <div class="method-grid">
-                  <div v-for="method in paymentMethods" :key="method.value" class="method-card" :class="{ active: form.payment_method === method.value }" @click="form.payment_method = method.value">
-                    <div class="method-card-icon">
-                      <img v-if="method.logo" :src="method.logo" :alt="method.label" class="method-logo" />
-                      <svg v-else fill="none" stroke="currentColor" viewBox="0 0 24 24" v-html="method.iconPath" class="method-svg" width="14" height="14" />
-                    </div>
-                    <div class="method-card-info">
-                      <div class="method-card-name">{{ method.label }}</div>
-                      <div class="method-card-sub">{{ method.sub }}</div>
-                    </div>
+                  <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-1.5">Prénom</label>
+                    <input v-model="form.firstname" type="text" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm outline-none transition-all" placeholder="Prénom" required />
                   </div>
                 </div>
-              </div>
-              -->
 
-              <div class="submit-wrap">
-                <button type="submit" class="submit-btn" :disabled="paiementStore.isLoading || isAmountTooHigh">
-                  <svg v-if="!paiementStore.isLoading" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                  <svg v-else class="spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                  <span v-if="paiementStore.isLoading">Traitement...</span>
-                  <span v-else>Payer · {{ formatAmount(form.montant) }} FCFA</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <!-- HISTORIQUE -->
-        <div class="card history-card" style="margin-top: 20px;">
-          <div class="history-hd">
-            <div class="history-hd-title"><span class="hd-dot"></span> Historique</div>
-            <span class="history-count">{{ historiqueList.length }} paiements</span>
-          </div>
-          <div v-if="historiqueList.length > 0">
-            <div v-for="pay in historiqueList" :key="pay.id" class="hrow">
-              <div class="hrow-icon">
-                <img v-if="getModeLogo(pay.mode_label)" :src="getModeLogo(pay.mode_label)" :alt="pay.mode_label" class="hrow-logo" />
-                <svg v-else fill="none" stroke="currentColor" viewBox="0 0 24 24" v-html="getModeIcon(pay.mode_label)" class="hrow-icon-svg" width="14" height="14" />
-              </div>
-              <div class="hrow-info">
-                <div class="hrow-libelle">{{ pay.libelle }}</div>
-                <div class="hrow-meta">{{ pay.date_formatted }} · {{ pay.mode_label }}</div>
-              </div>
-              <div class="hrow-right">
-                <div class="hrow-right-top">
-                  <span class="hrow-amount">{{ formatAmount(pay.montant) }} FCFA</span>
-                  <a v-if="pay.status === 'valide' && pay.recu" :href="pay.recu" target="_blank" class="receipt-link">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                  </a>
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-1.5">Téléphone</label>
+                  <div class="relative">
+                    <div class="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 004.516 4.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                      </svg>
+                      <span>+228</span>
+                    </div>
+                    <input v-model="form.phone" type="tel" class="w-full pl-20 pr-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm outline-none transition-all" placeholder="90000000" maxlength="8" @input="form.phone = form.phone.replace(/\D/g, '').slice(0, 8)" required />
+                  </div>
                 </div>
-                <span class="spill" :class="getStatusClass(pay.status)">{{ pay.status_label }}</span>
-              </div>
+
+                <!-- NATURE DU PAIEMENT (Masqué si inscription déjà payée) -->
+                <div v-if="paiementStore.recap && !paiementStore.recap.inscription_payee">
+                  <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-1.5">Nature du paiement</label>
+                  <select v-model="form.nature_paiement" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm outline-none transition-all" required>
+                    <option value="inscription">Frais d'inscription</option>
+                    <option value="scolarite">Frais de scolarité</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-1.5">Montant</label>
+                  <div class="relative">
+                    <input 
+                      v-model.number="form.montant" 
+                      type="number" 
+                      min="100" 
+                      :max="maxAmount"
+                      @input="handleAmountInput"
+                      class="w-full pr-16 pl-4 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm outline-none transition-all"
+                      :class="[
+                        form.nature_paiement === 'inscription' ? 'bg-gray-100 dark:bg-gray-800 text-gray-500 cursor-not-allowed border-gray-300 dark:border-gray-700' : 'border-gray-300 dark:border-gray-600',
+                        isAmountTooHigh ? 'border-red-500 focus:ring-red-500' : ''
+                      ]"
+                      placeholder="0" 
+                      :disabled="form.nature_paiement === 'inscription'"
+                      required 
+                    />
+                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">FCFA</span>
+                  </div>
+                  <p v-if="isAmountTooHigh" class="flex items-center gap-1.5 text-xs text-red-500 dark:text-red-400 mt-1.5 font-medium">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Le montant dépasse le reste à payer ({{ formatAmount(maxAmount) }} FCFA).
+                  </p>
+                  <p v-if="form.nature_paiement === 'inscription'" class="flex items-center gap-1.5 text-xs text-indigo-600 dark:text-indigo-400 mt-1.5 font-medium">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Le montant des frais d'inscription est fixe.
+                  </p>
+                </div>
+
+                <div class="pt-2">
+                  <button type="submit" class="w-full py-3.5 px-6 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" :disabled="paiementStore.isLoading || isAmountTooHigh">
+                    <svg v-if="!paiementStore.isLoading" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    <svg v-else class="animate-spin w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    <span v-if="paiementStore.isLoading">Traitement...</span>
+                    <span v-else>Payer · {{ formatAmount(form.montant) }} FCFA</span>
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
-          <div v-else class="empty">
-            <p>Aucun paiement trouvé.</p>
+
+          <!-- HISTORIQUE -->
+          <div class="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200/80 dark:border-gray-700/80 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-gray-100 dark:border-gray-700/80 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-white">Historique des paiements</h3>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">{{ historiqueList.length }} paiements</span>
+            </div>
+
+            <div v-if="historiqueList.length > 0" class="divide-y divide-gray-100 dark:divide-gray-700/60">
+              <div v-for="pay in historiqueList" :key="pay.id" class="p-4 sm:p-5 flex items-center justify-between gap-4 hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors">
+                <div class="flex items-center gap-4">
+                  <div class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center shrink-0 overflow-hidden">
+                    <img v-if="getModeLogo(pay.mode_label)" :src="getModeLogo(pay.mode_label)" :alt="pay.mode_label" class="w-full h-full object-cover" />
+                    <svg v-else fill="none" stroke="currentColor" viewBox="0 0 24 24" v-html="getModeIcon(pay.mode_label)" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                  </div>
+                  <div>
+                    <div class="text-sm font-semibold text-gray-900 dark:text-white">{{ pay.libelle }}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ pay.date_formatted }} · {{ pay.mode_label }}</div>
+                  </div>
+                </div>
+
+                <div class="text-right shrink-0">
+                  <div class="flex items-center justify-end gap-2">
+                    <span class="text-sm font-bold text-gray-900 dark:text-white">{{ formatAmount(pay.montant) }} FCFA</span>
+                    <a v-if="pay.status === 'valide' && pay.recu" :href="pay.recu" target="_blank" class="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-600 hover:text-white transition-colors" title="Télécharger le reçu">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 00-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </a>
+                  </div>
+                  <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider" :class="getStatusClass(pay.status)">{{ pay.status_label }}</span>
+                </div>
+              </div>
+            </div>
+            <div v-else class="p-8 text-center text-sm text-gray-500 dark:text-gray-400">
+              Aucun paiement enregistré pour le moment.
+            </div>
+          </div>
+
+        </div>
+
+        <!-- COLONNE DROITE / RÉCAPITULATIF (4 COLS) -->
+        <div class="lg:col-span-4 space-y-6">
+          <div class="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200/80 dark:border-gray-700/80 shadow-sm overflow-hidden">
+            <div class="p-6 bg-gradient-to-br from-indigo-600 to-blue-600 text-white">
+              <p class="text-xs font-bold uppercase tracking-wider opacity-80">Montant à régler</p>
+              <div class="text-3xl font-extrabold mt-1">{{ formatAmount(form.montant) }} <span class="text-sm font-semibold opacity-90">FCFA</span></div>
+            </div>
+            <div class="p-6 space-y-3 divide-y divide-gray-100 dark:divide-gray-700/60 text-xs">
+              <div class="flex justify-between items-center pt-2">
+                <span class="text-gray-500 dark:text-gray-400">Étudiant</span>
+                <span class="font-bold text-gray-900 dark:text-white">{{ form.lastname }} {{ form.firstname }}</span>
+              </div>
+              <div class="flex justify-between items-center pt-3">
+                <span class="text-gray-500 dark:text-gray-400">Nature</span>
+                <span class="font-bold text-indigo-600 dark:text-indigo-400">{{ form.nature_paiement === 'inscription' ? "Inscription" : "Scolarité" }}</span>
+              </div>
+              <div class="flex justify-between items-center pt-3">
+                <span class="text-gray-500 dark:text-gray-400">Mode</span>
+                <span class="font-bold text-gray-900 dark:text-white">{{ selectedMethodLabel }}</span>
+              </div>
+              <div class="flex justify-between items-center pt-4 text-sm font-extrabold text-gray-900 dark:text-white border-t border-gray-200 dark:border-gray-700">
+                <span>Total TTC</span>
+                <span>{{ formatAmount(form.montant) }} FCFA</span>
+              </div>
+            </div>
+            <div class="p-4 bg-emerald-50 dark:bg-emerald-950/30 border-t border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-4 h-4 shrink-0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              <span>Paiement sécurisé via SEMOA</span>
+            </div>
           </div>
         </div>
+
       </div>
 
-      <!-- SIDEBAR -->
-      <div class="right-col">
-        <div class="card summary-card">
-          <div class="summary-strip">
-            <p class="summary-eyebrow">Montant à régler</p>
-            <div class="summary-amount">{{ formatAmount(form.montant) }} <span class="summary-currency">FCFA</span></div>
-          </div>
-          <div class="summary-rows">
-            <div class="srow"><span>Étudiant</span><span>{{ form.lastname }} {{ form.firstname }}</span></div>
-            <div class="srow"><span>Nature</span><span class="hi">{{ form.nature_paiement === 'inscription' ? "Inscription" : "Scolarité" }}</span></div>
-            <div class="srow"><span>Mode</span><span>{{ selectedMethodLabel }}</span></div>
-          </div>
-          <div class="total-row"><span>Total TTC</span><span>{{ formatAmount(form.montant) }} FCFA</span></div>
-          <div class="secure-row">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-            <span>Paiement sécurisé via SEMOA</span>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- ERROR STATE -->
-    <div v-else class="error-container">
-      <div class="error-card">
-        <div class="error-icon">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="48" height="48"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+    <div v-else class="flex items-center justify-center min-h-[70vh] p-4">
+      <div class="bg-white dark:bg-gray-800 p-8 rounded-3xl text-center max-w-md shadow-xl border border-gray-200 dark:border-gray-700 space-y-4">
+        <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
         </div>
-        <h2>Oups ! Problème de profil</h2>
-        <p>{{ errorMessage }}</p>
-        <button @click="retryLoad" class="retry-btn">Réessayer</button>
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Oups ! Problème de profil</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400">{{ errorMessage }}</p>
+        <button @click="retryLoad" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-indigo-600/20 transition-all">Réessayer</button>
       </div>
     </div>
 
@@ -352,7 +362,7 @@ const handleAmountInput = (e) => {
 }
 
 const formatAmount = (val) => (parseInt(val) || 0).toLocaleString('fr-FR')
-const getStatusClass = (s) => (s === 'valide' ? 'sp-ok' : s === 'en_attente' ? 'sp-wait' : 'sp-err')
+const getStatusClass = (s) => (s === 'valide' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300' : s === 'en_attente' ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300' : 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300')
 
 const getModeLogo = (l) => {
   const m = paymentMethods.find(m => (l || '').toLowerCase().includes(m.label.toLowerCase()))

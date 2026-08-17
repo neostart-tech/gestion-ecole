@@ -1,14 +1,14 @@
 <template>
   <div class="relative flex flex-col gap-2">
 
-    <div class="relative border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden bg-white dark:bg-gray-800 w-full min-h-[250px]" ref="editorWrapper">
+    <div class="relative border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 w-full min-h-[250px]" ref="editorWrapper">
       <ClientOnly>
         <QuillEditor
           v-model:content="localContent"
           contentType="html"
           :toolbar="toolbarOptions"
           theme="snow"
-          class="w-full text-gray-900 dark:text-white quill-custom-editor"
+          class="w-full text-slate-900 dark:text-slate-100 quill-custom-editor"
           style="min-height: 250px;"
           @ready="onEditorReady"
         />
@@ -16,31 +16,31 @@
 
     <!-- Overlay de redimensionnement fait maison -->
     <div v-if="selectedImage" 
-         class="absolute border-2 border-indigo-500 z-50 pointer-events-none"
+         class="absolute border-2 border-purple-500 z-50 pointer-events-none"
          :style="overlayStyle">
          
          <!-- Poignée Droite -->
-         <div class="absolute w-4 h-4 bg-indigo-600 border-2 border-white rounded-full cursor-e-resize pointer-events-auto"
+         <div class="absolute w-4 h-4 bg-purple-600 border-2 border-white rounded-full cursor-e-resize pointer-events-auto"
               style="top: 50%; right: -8px; transform: translateY(-50%)"
               @mousedown.stop.prevent="startResize($event, 'right')"></div>
               
          <!-- Poignée Gauche -->
-         <div class="absolute w-4 h-4 bg-indigo-600 border-2 border-white rounded-full cursor-w-resize pointer-events-auto"
+         <div class="absolute w-4 h-4 bg-purple-600 border-2 border-white rounded-full cursor-w-resize pointer-events-auto"
               style="top: 50%; left: -8px; transform: translateY(-50%)"
               @mousedown.stop.prevent="startResize($event, 'left')"></div>
               
          <!-- Poignée Bas -->
-         <div class="absolute w-4 h-4 bg-indigo-600 border-2 border-white rounded-full cursor-s-resize pointer-events-auto"
+         <div class="absolute w-4 h-4 bg-purple-600 border-2 border-white rounded-full cursor-s-resize pointer-events-auto"
               style="left: 50%; bottom: -8px; transform: translateX(-50%)"
               @mousedown.stop.prevent="startResize($event, 'bottom')"></div>
               
          <!-- Poignée Haut -->
-         <div class="absolute w-4 h-4 bg-indigo-600 border-2 border-white rounded-full cursor-n-resize pointer-events-auto"
+         <div class="absolute w-4 h-4 bg-purple-600 border-2 border-white rounded-full cursor-n-resize pointer-events-auto"
               style="left: 50%; top: -8px; transform: translateX(-50%)"
               @mousedown.stop.prevent="startResize($event, 'top')"></div>
               
          <!-- Coin Bas-Droite -->
-         <div class="absolute w-4 h-4 bg-indigo-600 border-2 border-white rounded-full cursor-se-resize pointer-events-auto"
+         <div class="absolute w-4 h-4 bg-purple-600 border-2 border-white rounded-full cursor-se-resize pointer-events-auto"
               style="right: -8px; bottom: -8px;"
               @mousedown.stop.prevent="startResize($event, 'bottom-right')"></div>
     </div>
@@ -63,7 +63,6 @@ const emit = defineEmits(['update:modelValue']);
 const localContent = ref(props.modelValue);
 
 onMounted(() => {
-  console.log("CustomQuillEditor MOUNTED!");
   document.addEventListener('click', handleEditorClick);
   window.addEventListener('resize', updateOverlayPosition);
 });
@@ -101,12 +100,10 @@ let resizeDirection = '';
 
 const onEditorReady = async (quill) => {
   try {
-    // Enregistrement des tailles personnalisées
     const Size = quill.constructor.import('attributors/style/size');
     Size.whitelist = ['10px', '12px', '14px', '16px', '18px', '20px', '24px', '32px', '48px'];
     quill.constructor.register(Size, true);
 
-    // Enregistrement des polices personnalisées en style inline
     const FontStyle = quill.constructor.import('attributors/style/font');
     FontStyle.whitelist = ['sans-serif', 'serif', 'monospace', 'arial', 'times', 'courier', 'georgia', 'verdana', 'trebuchet'];
     quill.constructor.register(FontStyle, true);
@@ -116,12 +113,10 @@ const onEditorReady = async (quill) => {
 };
 
 const handleEditorClick = (e) => {
-  // On vérifie si l'utilisateur a cliqué sur une image dans l'éditeur
   if (e.target.tagName === 'IMG' && e.target.closest('.ql-editor')) {
     selectedImage.value = e.target;
     updateOverlayPosition();
   } else if (!e.target.closest('.pointer-events-auto')) {
-    // Si on clique ailleurs (et pas sur une de nos poignées), on désélectionne
     selectedImage.value = null;
   }
 };
@@ -176,12 +171,10 @@ const onResize = (e) => {
 const stopResize = () => {
   document.removeEventListener('mousemove', onResize);
   document.removeEventListener('mouseup', stopResize);
-  // Simuler un input event pour forcer la mise à jour de Quill
   if (selectedImage.value) {
     const event = new Event('input', { bubbles: true });
     selectedImage.value.dispatchEvent(event);
     
-    // Forcer la mise à jour du v-model avec la nouvelle taille d'image
     const editor = editorWrapper.value.querySelector('.ql-editor');
     if (editor) {
       localContent.value = editor.innerHTML;
@@ -196,46 +189,168 @@ onUnmounted(() => {
 </script>
 
 <style>
-/* Style des sélecteurs Font & Size façon "Moderne" (bg gris, coins arrondis) */
-.ql-toolbar .ql-picker.ql-font,
-.ql-toolbar .ql-picker.ql-size {
-  background-color: #f3f4f6;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-  padding: 0 4px;
-  height: 28px !important;
-  display: inline-flex;
-  align-items: center;
-  margin-right: 6px !important;
-  width: 130px !important;
+/* ==========================================================================
+   QUILL EDITOR - ESPACEMENT ET SUPPRESSION DES EFFETS HOVER
+   ========================================================================== */
+
+/* Alignement flex et espacement vertical/horizontal entre lignes de la toolbar */
+.ql-toolbar.ql-snow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 12px 14px !important;
+  padding: 12px 16px !important;
+  border-top-left-radius: 0.75rem !important;
+  border-top-right-radius: 0.75rem !important;
+  border-color: #e2e8f0 !important;
+  background-color: #f8fafc !important;
 }
 
-.dark .ql-toolbar .ql-picker.ql-font,
-.dark .ql-toolbar .ql-picker.ql-size {
-  background-color: #374151;
-  border-color: #4b5563;
-  color: #f9fafb;
+.dark .ql-toolbar.ql-snow {
+  border-color: #1e293b !important;
+  background-color: #0f172a !important;
+}
+
+/* Espacement interne des groupes d'outils (.ql-formats) */
+.ql-toolbar.ql-snow .ql-formats {
+  margin-right: 0 !important;
+  margin-bottom: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+/* Container & Zone de saisie */
+.ql-container.ql-snow {
+  border-bottom-left-radius: 0.75rem !important;
+  border-bottom-right-radius: 0.75rem !important;
+  border-color: #e2e8f0 !important;
+  background-color: #ffffff !important;
+}
+
+.dark .ql-container.ql-snow {
+  border-color: #1e293b !important;
+  background-color: #0b0f19 !important;
+  color: #f8fafc !important;
+}
+
+.dark .ql-editor {
+  color: #f8fafc !important;
+}
+
+.dark .ql-editor.ql-blank::before {
+  color: #64748b !important;
+}
+
+/* Couleurs statiques des icônes SVG Quill */
+.dark .ql-snow .ql-stroke {
+  stroke: #cbd5e1 !important;
+}
+
+.dark .ql-snow .ql-fill {
+  fill: #cbd5e1 !important;
+}
+
+.dark .ql-snow .ql-picker {
+  color: #cbd5e1 !important;
+}
+
+/* SUPPRESSION TOTALE DES EFFETS AU SURVOL (HOVER) SUR BOUTONS ET SELECTEURS */
+.ql-toolbar button:hover,
+.ql-toolbar button:focus,
+.ql-toolbar .ql-picker-label:hover,
+.ql-toolbar .ql-picker-item:hover,
+.dark .ql-toolbar button:hover,
+.dark .ql-toolbar button:focus,
+.dark .ql-toolbar .ql-picker-label:hover,
+.dark .ql-toolbar .ql-picker-item:hover {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.dark .ql-snow .ql-picker-label:hover .ql-stroke,
+.dark .ql-snow .ql-toolbar button:hover .ql-stroke,
+.dark .ql-snow .ql-toolbar button:focus .ql-stroke {
+  stroke: #cbd5e1 !important;
+}
+
+.dark .ql-snow .ql-picker-label:hover .ql-fill,
+.dark .ql-snow .ql-toolbar button:hover .ql-fill,
+.dark .ql-snow .ql-toolbar button:focus .ql-fill {
+  fill: #cbd5e1 !important;
+}
+
+/* Sélecteurs (Dropdowns Header, Font, Size) */
+.ql-toolbar .ql-picker {
+  height: 34px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  border-radius: 8px !important;
+  border: 1px solid #cbd5e1 !important;
+  background-color: #ffffff !important;
+  margin-right: 0 !important;
+  padding: 0 8px !important;
+}
+
+.ql-toolbar .ql-picker.ql-header {
+  width: 110px !important;
+}
+
+.ql-toolbar .ql-picker.ql-font {
+  width: 135px !important;
+}
+
+.ql-toolbar .ql-picker.ql-size {
+  width: 100px !important;
+}
+
+.dark .ql-toolbar .ql-picker {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
 }
 
 .ql-toolbar .ql-picker-label {
   border: none !important;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  padding: 0 !important;
+  color: #334155 !important;
 }
 
+.dark .ql-toolbar .ql-picker-label {
+  color: #f8fafc !important;
+}
+
+/* Menus déroulants d'options */
 .ql-toolbar .ql-picker-options {
-  border-radius: 6px !important;
-  border: 1px solid #e5e7eb !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
-  padding: 4px 0 !important;
+  border-radius: 8px !important;
+  border: 1px solid #e2e8f0 !important;
+  padding: 4px !important;
+  background-color: #ffffff !important;
+  z-index: 100 !important;
+  margin-top: 4px !important;
 }
 
 .dark .ql-toolbar .ql-picker-options {
-  background-color: #1f2937 !important;
-  border-color: #374151 !important;
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.ql-toolbar .ql-picker-item {
+  border-radius: 4px !important;
+  padding: 4px 8px !important;
+  font-size: 12px !important;
+}
+
+.dark .ql-toolbar .ql-picker-item {
+  color: #cbd5e1 !important;
 }
 
 /* Noms d'affichage des Polices */
@@ -266,11 +381,10 @@ onUnmounted(() => {
 .ql-picker.ql-font .ql-picker-label[data-value="trebuchet"]::before,
 .ql-picker.ql-font .ql-picker-item[data-value="trebuchet"]::before { content: 'Trebuchet MS' !important; font-family: 'Trebuchet MS', sans-serif; }
 
-/* Noms d'affichage par défaut si aucun data-value (fallback) */
 .ql-picker.ql-font .ql-picker-label:not([data-value])::before,
 .ql-picker.ql-font .ql-picker-item:not([data-value])::before { content: 'System Font' !important; }
 
-/* Noms d'affichage des Tailles (Size) */
+/* Noms d'affichage des Tailles */
 .ql-picker.ql-size .ql-picker-label[data-value="10px"]::before,
 .ql-picker.ql-size .ql-picker-item[data-value="10px"]::before { content: '10px' !important; font-size: 10px; }
 
@@ -299,5 +413,6 @@ onUnmounted(() => {
 .ql-picker.ql-size .ql-picker-item[data-value="48px"]::before { content: '48px' !important; font-size: 48px; }
 
 .ql-picker.ql-size .ql-picker-label:not([data-value])::before,
+.ql-picker.ql-size .ql-picker-item[data-value="16px"]::before,
 .ql-picker.ql-size .ql-picker-item:not([data-value])::before { content: 'Normal' !important; }
 </style>

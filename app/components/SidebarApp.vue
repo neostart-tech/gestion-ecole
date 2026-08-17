@@ -373,15 +373,80 @@
                   class="ml-3 font-medium flex-1"
                   >Emploi du temps</span
                 >
+                <span
+                  v-if="themeStore.isSidebarOpen && hasAnyRole(['etudiant']) && isFraisInscriptionImpaye"
+                  class="text-amber-500 dark:text-amber-400 flex items-center ml-auto"
+                  title="Accès restreint - Frais d'inscription non réglés"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </span>
                 <div
                   v-if="
                     themeStore.isSidebarOpen &&
-                    $route.path === '/emploi-du-temps'
+                    $route.path === '/emploi-du-temps' &&
+                    !isFraisInscriptionImpaye
                   "
                   class="w-1.5 h-1.5 bg-amber-600 rounded-full"
                 ></div>
               </NuxtLink>
             </li>
+
+            <!-- Cours en direct (LiveKit Visioconférence) -->
+            <!-- <li
+              v-if="
+                hasAnyRole([
+                  'etudiant',
+                  'enseignant',
+                  'professeur',
+                  'surveillant',
+                  'titulaire-dune-classe',
+                  'directeur-academique',
+                  'logiticien-academique',
+                  'directeur-general-adjoint',
+                  'directeur-general',
+                  'responsable-du-site',
+                  'admin',
+                  'informaticien',
+                  'charge-de-la-clientele'
+                ])
+              "
+            >
+              <NuxtLink
+                to="/cours-en-ligne"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path.startsWith('/cours-en-ligne')
+                    ? 'bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 text-red-700 dark:text-red-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg relative',
+                    $route.path.startsWith('/cours-en-ligne')
+                      ? 'bg-red-100 dark:bg-red-900/30'
+                      : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  <span class="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                  </span>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium flex-1"
+                  >Cours en direct</span
+                >
+                <span v-if="themeStore.isSidebarOpen" class="bg-red-500 text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                  Live
+                </span>
+              </NuxtLink>
+            </li> -->
 
             <!-- Info personnelle -->
             <li>
@@ -515,9 +580,18 @@
                     />
                   </svg>
                 </div>
-                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium flex-1"
                   >Mes examens</span
                 >
+                <span
+                  v-if="themeStore.isSidebarOpen && isFraisInscriptionImpaye"
+                  class="text-amber-500 dark:text-amber-400 flex items-center ml-auto"
+                  title="Accès restreint - Frais d'inscription non réglés"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </span>
               </NuxtLink>
             </li>
             <li v-if="hasAnyRole(['etudiant'])">
@@ -553,9 +627,18 @@
                     />
                   </svg>
                 </div>
-                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium flex-1"
                   >Syllabus des cours</span
                 >
+                <span
+                  v-if="themeStore.isSidebarOpen && isFraisInscriptionImpaye"
+                  class="text-amber-500 dark:text-amber-400 flex items-center ml-auto"
+                  title="Accès restreint - Frais d'inscription non réglés"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </span>
               </NuxtLink>
             </li>
             
@@ -594,9 +677,18 @@
                     />
                   </svg>
                 </div>
-                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium flex-1"
                   >Scanner ma présence</span
                 >
+                <span
+                  v-if="themeStore.isSidebarOpen && isFraisInscriptionImpaye"
+                  class="text-amber-500 dark:text-amber-400 flex items-center ml-auto"
+                  title="Accès restreint - Frais d'inscription non réglés"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </span>
               </NuxtLink>
             </li>
             <li
@@ -950,9 +1042,18 @@
                     />
                   </svg>
                 </div>
-                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium flex-1"
                   >Mes notes</span
                 >
+                <span
+                  v-if="themeStore.isSidebarOpen && isFraisInscriptionImpaye"
+                  class="text-amber-500 dark:text-amber-400 flex items-center"
+                  title="Accès restreint - Frais d'inscription non réglés"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </span>
               </NuxtLink>
             </li>
           </ul>
@@ -2472,25 +2573,51 @@
                     >Gestion des candidatures</span
                   >
                 </div>
-                <svg
-                  v-if="themeStore.isSidebarOpen"
-                  class="w-4 h-4 transition-transform duration-200"
-                  :class="{ 'rotate-180': activeDropdown === 'candidatures' }"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
+                <div v-if="themeStore.isSidebarOpen" class="flex items-center gap-2">
+                  <span
+                    v-if="candidatureStore.totalATraiter > 0"
+                    class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full animate-pulse font-bold shadow-sm"
+                  >
+                    {{ candidatureStore.totalATraiter }}
+                  </span>
+                  <svg
+                    class="w-4 h-4 transition-transform duration-200"
+                    :class="{ 'rotate-180': activeDropdown === 'candidatures' }"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </div>
               </button>
 
               <vue-collapsible :isOpen="themeStore.isSidebarOpen && activeDropdown === 'candidatures'">
                 <ul class="pl-11 space-y-1 mt-1">
+                  <li
+                    v-if="
+                      hasAnyPermission(['view-candidature-dashboard', 'afficher-dashboard-candidatures']) ||
+                      hasAnyRole(['admin', 'informaticien', 'directeur-general', 'directeur-general-adjoint', 'charge-de-la-clientele', 'responsable-marketing', 'directeur-academique', 'logiticien-academique'])
+                    "
+                  >
+                    <NuxtLink
+                      to="/candidatures/dashboard"
+                      class="block px-3 py-2 text-sm rounded-lg transition-colors"
+                      :class="[
+                        $route.path === '/candidatures/dashboard'
+                          ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 font-bold'
+                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
+                      ]"
+                      @click="toggleMobileMenu"
+                    >
+                      <span>Tableau de bord</span>
+                    </NuxtLink>
+                  </li>
                   <li
                     v-if="
                       !hasAnyRole(['directeur-academique', 'logiticien-academique'])
@@ -2941,6 +3068,15 @@
                   class="ml-3 font-medium flex items-center justify-between flex-1"
                 >
                   Mon parcours
+                </span>
+                <span
+                  v-if="themeStore.isSidebarOpen && isFraisInscriptionImpaye"
+                  class="text-amber-500 dark:text-amber-400 flex items-center ml-auto"
+                  title="Accès restreint - Frais d'inscription non réglés"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
                 </span>
               </NuxtLink>
             </li>
@@ -4200,7 +4336,7 @@
             <li
               v-if="
                 parametreStore.isConcoursMode &&
-                hasAnyRole([
+                (hasAnyRole([
                   'directeur-academique',
                   'directeur-general-adjoint',
                   'directeur-general',
@@ -4208,7 +4344,7 @@
                   'informaticien',
                   'charge-de-la-clientele',
                   'logiticien-academique',
-                ]) || hasAnyPermission(['create-concours-session', 'update-concours-session', 'publish-concours-session'])
+                ]) || hasAnyPermission(['create-concours-session', 'update-concours-session', 'publish-concours-session']))
               "
             >
               <NuxtLink
@@ -4251,7 +4387,7 @@
             <li
               v-if="
                 parametreStore.isConcoursMode &&
-                hasAnyRole([
+                (hasAnyRole([
                   'directeur-academique',
                   'directeur-general-adjoint',
                   'directeur-general',
@@ -4259,7 +4395,7 @@
                   'informaticien',
                   'charge-de-la-clientele',
                   'logiticien-academique',
-                ]) || hasAnyPermission(['create-concours-matiere', 'update-concours-matiere', 'delete-concours-matiere'])
+                ]) || hasAnyPermission(['create-concours-matiere', 'update-concours-matiere', 'delete-concours-matiere']))
               "
             >
               <NuxtLink
@@ -4407,8 +4543,10 @@ import config from "~~/config";
 import Swal from "sweetalert2";
 import { useRoute } from "vue-router";
 import { useAccess } from "~/composables/useAccess";
+import { useFraisInscriptionStore } from "~~/stores/frais-inscription";
 
 const { can } = useAccess();
+const fraisInscriptionStore = useFraisInscriptionStore();
 
 const themeStore = useThemeStore();
 const loginStore = useLoginStore();
@@ -4875,6 +5013,7 @@ const toggleMobileMenu = () => {
 onMounted(() => {
   fetchRoles();
   fetchCount();
+  fraisInscriptionStore.fetchRecapPaiement(true);
   candidatureStore.fetchCountATraiter();
   diagnosticStore.fetchDiagnostic().catch(() => {});
 

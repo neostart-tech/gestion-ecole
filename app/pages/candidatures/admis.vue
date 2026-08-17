@@ -37,12 +37,11 @@
           <span v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
           <span class="hidden sm:inline">{{ candidatureStore.exportEnCours ? 'Export en cours...' : 'Exporter en Excel' }}</span>
         </button>
-
       </div>
     </div>
 
     <!-- Contenu Principal -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+    <div class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm w-full">
       <!-- Barre de filtres et recherche -->
       <div class="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
         <div class="flex flex-col md:flex-row gap-4 mb-4">
@@ -54,25 +53,25 @@
               placeholder="Rechercher par nom, prénom, email..."
               class="w-full px-4 py-2.5 pl-10 rounded-xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all font-medium"
             />
-            <svg class="w-4 h-4 text-gray-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <svg class="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
           </div>
 
           <div class="flex items-center gap-3">
              <!-- Compteur -->
-             <div class="px-3 py-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-sm whitespace-nowrap">
-                <span class="font-medium text-indigo-600 dark:text-indigo-400">{{ filteredAdmis.length }}</span>
-                <span class="text-gray-600 dark:text-gray-400 ml-1">admis</span>
+             <div class="px-3.5 py-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl text-sm whitespace-nowrap">
+                <span class="font-bold text-indigo-600 dark:text-indigo-400">{{ filteredAdmis.length }}</span>
+                <span class="text-gray-600 dark:text-gray-400 ml-1 font-medium">admis</span>
              </div>
 
              <!-- Sélecteur de colonnes -->
              <Menu as="div" class="relative">
-               <MenuButton class="flex items-center gap-2 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                 <span class="hidden sm:inline font-medium">Colonnes</span>
+               <MenuButton class="flex items-center gap-2 px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                 <span class="hidden sm:inline font-medium text-sm">Colonnes</span>
                </MenuButton>
                <transition enter-active-class="transition duration-100 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100" leave-active-class="transition duration-75 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
-                 <MenuItems class="absolute right-0 mt-2 w-56 p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 z-30 focus:outline-none">
-                   <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-1">Colonnes affichées</p>
+                 <MenuItems class="absolute right-0 mt-2 w-56 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg z-30 focus:outline-none">
+                   <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 px-1 uppercase tracking-wider">Colonnes affichées</p>
                    <div v-for="col in cols" :key="col.field" class="flex items-center gap-2 py-1.5 px-1 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg">
                      <input type="checkbox" :id="col.field" v-model="col.hide" :true-value="false" :false-value="true" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer" />
                      <label :for="col.field" class="text-sm text-gray-700 dark:text-gray-300 font-medium cursor-pointer select-none">{{ col.title }}</label>
@@ -129,10 +128,7 @@
       </div>
 
       <!-- Datatable Area -->
-      <div class="p-4 sm:p-6 text-gray-900 dark:text-white">
-        <!-- Collection Dock -->
-
-
+      <div class="p-4 sm:p-6 text-gray-900 dark:text-white w-full">
         <!-- SKELETON LOADER -->
         <div v-if="isLoading" class="space-y-4">
           <div v-for="i in 5" :key="i" class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 animate-pulse shadow-sm">
@@ -162,18 +158,18 @@
               :loading="isLoading"
               :hasCheckbox="false"
               skin="bh-table-hover"
-              class="elite-table-v2"
+              class="elite-table-v2 w-full"
               :pageSize="10"
            >
               <!-- Slot Candidat -->
               <template #candidat="data">
-                 <div class="flex items-center gap-3.5 py-1">
-                    <div class="w-9 h-9 shrink-0 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center relative overflow-hidden text-white font-medium text-xs uppercase">
+                 <div class="flex items-center gap-3 py-1">
+                    <div class="w-9 h-9 shrink-0 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center relative overflow-hidden text-white font-bold text-xs uppercase shadow-sm">
                        {{ data.value.nom?.charAt(0) }}{{ data.value.prenom?.charAt(0) }}
                        <img v-if="data.value.album?.photo" :src="getFullUrl(data.value.album.photo)" class="absolute inset-0 w-full h-full object-cover" />
                     </div>
                     <div class="flex flex-col min-w-0">
-                       <span class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ data.value.nom }} {{ data.value.prenom }}</span>
+                       <span class="text-sm font-bold text-gray-900 dark:text-white truncate uppercase">{{ data.value.nom }} <span class="text-indigo-600 dark:text-indigo-400">{{ data.value.prenom }}</span></span>
                        <span class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ data.value.email }}</span>
                     </div>
                  </div>
@@ -181,16 +177,16 @@
 
               <!-- Slot Numéro de dossier -->
               <template #numero_dossier_affiche="data">
-                 <span class="text-xs font-mono text-gray-700 dark:text-gray-300">{{ data.value.numero_dossier_affiche || '—' }}</span>
+                 <span class="text-xs font-mono font-semibold text-gray-700 dark:text-gray-300">{{ data.value.numero_dossier_affiche || '—' }}</span>
               </template>
 
               <!-- Slot Programme (Filière & Niveau) -->
                <template #programme="data">
                   <div class="flex flex-col gap-1.5 items-start">
-                     <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-[9px] font-medium uppercase tracking-wider">
-                        {{ data.value.filiere?.nom }}
+                     <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-[9px] font-bold uppercase tracking-wider">
+                        {{ data.value.filiere?.nom || 'Non spécifiée' }}
                      </span>
-                     <span class="px-3 py-1 bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-100 dark:border-violet-900/50 rounded-lg text-[9px] font-medium uppercase tracking-wider whitespace-nowrap">
+                     <span class="px-3 py-1 bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-100 dark:border-violet-900/50 rounded-lg text-[9px] font-bold uppercase tracking-wider whitespace-nowrap">
                         {{ data.value.niveau?.libelle || data.value.niveau_nom || 'N/A' }}
                      </span>
                   </div>
@@ -205,9 +201,25 @@
 
               <!-- Slot Actions -->
               <template #actions="data">
-                 <div class="flex items-center justify-center gap-2">
-                    <button @click="navigateToEnroll(data.value)" class="w-9 h-9 bg-violet-600 text-white rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all" title="Inscrire le candidat">
-                       <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                 <div class="flex items-center justify-end gap-2 whitespace-nowrap">
+                    <button
+                      v-if="data.value.etudiant || data.value.etudiant_id"
+                      @click="navigateToStudentDetail(data.value)"
+                      class="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 active:scale-95 rounded-xl text-xs font-semibold whitespace-nowrap transition-all shadow-xs shrink-0"
+                      title="Voir le profil de l'étudiant"
+                    >
+                       <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                       <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                       <span class="whitespace-nowrap font-semibold">Déjà inscrit</span>
+                    </button>
+                    <button
+                      v-else
+                      @click="navigateToEnroll(data.value)"
+                      class="inline-flex items-center gap-2 px-3 py-1.5 bg-violet-600 hover:bg-violet-700 active:scale-95 text-white rounded-xl text-xs font-semibold whitespace-nowrap transition-all shadow-sm shrink-0"
+                      title="Inscrire le candidat"
+                    >
+                       <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                       <span class="whitespace-nowrap font-semibold">Inscrire</span>
                     </button>
                  </div>
               </template>
@@ -222,7 +234,7 @@
             <h3 class="text-lg font-medium text-gray-600 dark:text-gray-400 uppercase tracking-tighter">File d'attente vide</h3>
             <p class="text-[11px] font-medium text-gray-500 dark:text-gray-500 uppercase tracking-widest mt-2">Aucun candidat prêt pour l'admission finale.</p>
          </div>
-    </div>
+      </div>
     </div>
 
     <!-- Modale de Rejet (Headless UI) -->
@@ -281,6 +293,7 @@
 
 <script setup>
 import Vue3Datatable from '@bhplugin/vue3-datatable'
+import '@bhplugin/vue3-datatable/dist/style.css'
 import { ref, computed, onMounted } from 'vue'
 import { useCandidatureStore } from '~~/stores/candidature'
 import { useFiliereStore } from '~~/stores/filiere'
@@ -310,11 +323,11 @@ const rejectionTarget = ref({ isBulk: false, candidate: null })
 
 // Datatable Columns Configuration
 const cols = ref([
-  { field: 'candidat', title: 'Candidat', isUnique: true, hide: false },
+  { field: 'candidat', title: 'Candidat', isUnique: true, hide: false, minWidth: '220px' },
   { field: 'numero_dossier_affiche', title: 'Numéro de dossier', hide: false },
-  { field: 'programme', title: 'Filière & Niveau', hide: false },
+  { field: 'programme', title: 'Filière & Niveau', hide: false, minWidth: '220px' },
   { field: 'admission_date', title: 'Admis le', hide: false },
-  { field: 'actions', title: 'Actions', hide: false, sort: false, headerClass: 'justify-end', cellClass: 'justify-end' },
+  { field: 'actions', title: 'Actions', hide: false, sort: false, minWidth: '160px', headerClass: 'justify-end text-right', cellClass: 'justify-end text-right' },
 ])
 
 const visibleColumns = computed(() => cols.value.filter(col => !col.hide))
@@ -324,7 +337,7 @@ const filieres = computed(() => filiereStore.filieres || [])
 const niveaux = computed(() => niveauStore.niveaux || [])
 
 const filteredAdmis = computed(() => {
-  let list = candidatureStore.candidatures.filter(c => (c.admission || c.dossier_valide) && !c.etudiant_id)
+  let list = candidatureStore.candidatures.filter(c => c.admission || c.dossier_valide)
   
   if (filterFiliere.value) {
     list = list.filter(c => c.filiere?.id == filterFiliere.value)
@@ -339,7 +352,8 @@ const filteredAdmis = computed(() => {
     list = list.filter(c => 
       c.nom?.toLowerCase().includes(q) || 
       c.prenom?.toLowerCase().includes(q) || 
-      c.email?.toLowerCase().includes(q)
+      c.email?.toLowerCase().includes(q) ||
+      c.numero_dossier_affiche?.toLowerCase().includes(q)
     )
   }
   
@@ -408,6 +422,13 @@ const navigateToEnroll = (candidate) => {
   navigateTo(`/candidatures/inscription/${candidate.slug}`)
 }
 
+const navigateToStudentDetail = (candidate) => {
+  const targetSlug = candidate.etudiant?.slug || candidate.etudiant_id
+  if (targetSlug) {
+    navigateTo(`/admin/liste-des-etudiants/${targetSlug}/detail`)
+  }
+}
+
 const rejectCandidate = (candidate) => {
   rejectionTarget.value = { isBulk: false, candidate }
   rejectionMotif.value = ''
@@ -432,43 +453,89 @@ const formatDate = (dateString) => {
 onMounted(() => { refreshData() })
 </script>
 
-<style>
-.elite-table-v2 {
-   background: transparent !important;
-}
-.elite-table-v2 thead tr th {
-   font-size: 10px;
-   font-weight: 600;
-   color: #94a3b8;
-   text-transform: uppercase;
-   letter-spacing: 0.1em;
-   padding: 1.5rem 1rem;
-   border-bottom: 1px solid #f1f5f9;
-}
-.dark .elite-table-v2 thead tr th {
-   border-bottom-color: #334155;
-   color: #94a3b8;
-}
-.elite-table-v2 tbody tr {
-   border: none;
-   background: transparent !important;
-   transition: all 0.3s;
-}
-.elite-table-v2 tbody tr:hover {
-   background-color: #f8fafc !important;
-}
-.dark .elite-table-v2 tbody tr:hover {
-   background-color: #1e293b !important;
-}
-.elite-table-v2 tbody tr td {
-   padding: 1rem 1rem;
-   border-bottom: 1px solid #f1f5f9;
-}
-.dark .elite-table-v2 tbody tr td {
-   border-bottom-color: #334155;
+<style scoped>
+:deep(.elite-table-v2) {
+  background: transparent !important;
+  width: 100% !important;
 }
 
-.prime-select-dashboard {
+:deep(.bh-table-responsive) {
+  width: 100% !important;
+  min-width: 100% !important;
+  overflow-x: auto !important;
+}
+
+:deep(.bh-table-responsive table) {
+  width: 100% !important;
+  min-width: 100% !important;
+}
+
+:deep(.elite-table-v2 thead tr th) {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dark :deep(.elite-table-v2 thead tr th) {
+  border-bottom-color: #334155;
+  color: #94a3b8;
+}
+
+:deep(.elite-table-v2 tbody tr) {
+  border: none;
+  transition: all 0.2s;
+}
+
+:deep(.elite-table-v2 tbody tr:hover) {
+  background-color: #f8fafc !important;
+}
+
+.dark :deep(.elite-table-v2 tbody tr:hover) {
+  background-color: #1e293b !important;
+}
+
+:deep(.elite-table-v2 tbody tr td) {
+  padding: 1rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.dark :deep(.elite-table-v2 tbody tr td) {
+  border-bottom-color: #334155;
+}
+
+/* Pagination Styling */
+:deep(.bh-pagination) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+  padding: 1.25rem 1rem !important;
+  border-top: 1px solid #e2e8f0 !important;
+  font-size: 0.85rem !important;
+  color: #64748b !important;
+}
+
+.dark :deep(.bh-pagination) {
+  border-top-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+:deep(.bh-pagination .bh-page-item) {
+  border-radius: 0.5rem !important;
+  font-weight: 600 !important;
+}
+
+:deep(.bh-pagination .bh-page-item.active) {
+  background-color: #4f46e5 !important;
+  color: white !important;
+}
+
+:deep(.prime-select-dashboard) {
   border-radius: 0.75rem !important;
   border: 1px solid #e2e8f0 !important;
   background: white !important;
@@ -477,23 +544,9 @@ onMounted(() => { refreshData() })
   font-size: 0.875rem !important;
   color: #1e293b !important;
 }
-.dark .prime-select-dashboard {
+.dark :deep(.prime-select-dashboard) {
   background: #1f2937 !important;
   border-color: #374151 !important;
   color: #f3f4f6 !important;
-}
-.prime-select-dashboard .p-select-label {
-  padding: 0.625rem 0.5rem !important;
-}
-.p-select-panel {
-  border-radius: 0.75rem !important;
-}
-
-@keyframes pulse-slow {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-.animate-pulse-slow {
-  animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 </style>

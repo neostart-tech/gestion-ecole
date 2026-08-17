@@ -1,7 +1,8 @@
 <template>
-  <div
-    class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 transition-colors"
-  >
+  <FraisInscriptionLockOverlay>
+    <div
+      class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 transition-colors"
+    >
     <!-- Breadcrumb -->
     <Breadcrumb
       :items="[
@@ -286,6 +287,7 @@
 
     </template>
   </div>
+</FraisInscriptionLockOverlay>
 </template>
 
 <script setup>

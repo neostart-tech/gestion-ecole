@@ -442,13 +442,9 @@
           >
             <!-- Template pour la colonne étudiant -->
             <template #nom_complet="data">
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-medium">
-                  {{ getInitials(data.value) }}
-                </div>
-                <div class="min-w-0">
-                  <p class="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-1.5 flex-wrap">
-                    <span>{{ data.value.nom }} {{ data.value.prenom }}</span>
+              <div class="min-w-0">
+                <p class="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-1.5 flex-wrap">
+                  <span>{{ data.value.nom }} {{ data.value.prenom }}</span>
                     <span v-if="data.value.est_bloque || data.value.statut_global === 'bloque'" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100/80 text-red-700 dark:bg-red-900/40 dark:text-red-300 border border-red-200 dark:border-red-800/60 shadow-2xs">
                       <svg class="w-3 h-3 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -466,7 +462,6 @@
                     {{ data.value.matricule }}
                   </p>
                 </div>
-              </div>
             </template>
 
             <!-- Template pour la colonne filière/niveau -->

@@ -547,18 +547,20 @@ const formatDate = (date, withTime = true) => {
 }
 
 const getStatutLabel = (c) => {
-  if (c.dossier_valide) return 'Validé'
-  if (c.rectification_expected) return 'En Correction'
-  if (c.motif) return 'Refusé'
-  if (c.transmis_academie) return "À l'Académie"
+  if (c?.etudiant_id) return 'Déjà inscrit'
+  if (c?.dossier_valide) return 'Validé'
+  if (c?.rectification_expected) return 'En Correction'
+  if (c?.motif) return 'Refusé'
+  if (c?.transmis_academie) return "À l'Académie"
   return 'En Étude'
 }
 
 const getStatutStyle = (c) => {
-  if (c.dossier_valide) return 'border-emerald-600/30 text-emerald-600 bg-emerald-600/5'
-  if (c.rectification_expected) return 'border-amber-600/30 text-amber-600 bg-amber-600/5'
-  if (c.motif) return 'border-rose-600/30 text-rose-600 bg-rose-600/5'
-  if (c.transmis_academie) return 'border-blue-600/30 text-blue-600 bg-blue-600/5'
+  if (c?.etudiant_id) return 'border-emerald-600/30 text-emerald-600 bg-emerald-600/15 font-bold'
+  if (c?.dossier_valide) return 'border-emerald-600/30 text-emerald-600 bg-emerald-600/5'
+  if (c?.rectification_expected) return 'border-amber-600/30 text-amber-600 bg-amber-600/5'
+  if (c?.motif) return 'border-rose-600/30 text-rose-600 bg-rose-600/5'
+  if (c?.transmis_academie) return 'border-blue-600/30 text-blue-600 bg-blue-600/5'
   return 'border-[#7F45FD]/30 text-[#7F45FD] bg-[#7F45FD]/10'
 }
 

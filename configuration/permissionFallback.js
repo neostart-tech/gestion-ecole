@@ -150,4 +150,15 @@ export const routePermissionFallback = [
   { prefix: "/admin/releves-globaux", anySlugOf: ["create-releve", "delete-releve"] },
   { prefix: "/Enseignant/syllabuses", anySlugOf: ["update-syllabus"] },
   { prefix: "/parametre/modification", anySlugOf: ["update-configuration-site"] },
+  {
+    prefix: "/cours-en-ligne",
+    anySlugOf: [
+      "view-cours-en-ligne",
+      "create-cours-en-ligne",
+      "manage-livekit-access",
+      "view-cours",
+      "create-cours",
+      "view-uv",
+    ],
+  },
 ];

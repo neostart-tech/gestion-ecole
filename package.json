@@ -40,6 +40,7 @@
 		"intl-tel-input": "^29.1.0",
 		"jspdf": "^4.2.1",
 		"laravel-echo": "^2.3.0",
+		"livekit-client": "^2.21.0",
 		"lodash": "^4.17.23",
 		"lucide-vue-next": "^0.562.0",
 		"nuxi": "^3.31.1",

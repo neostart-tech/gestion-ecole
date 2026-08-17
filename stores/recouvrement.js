@@ -160,6 +160,16 @@ export const useRecouvrementStore = defineStore("recouvrement", {
         this.etudiantCourant = response.data.data?.etudiant || response.data.data;
         this.echeances = response.data.data?.echeances || [];
         this.historique = response.data.data?.historique || [];
+        
+        // Actualiser le store de diagnostic et le badge de la sidebar
+        try {
+          const { useDiagnosticFinancierStore } = await import('./diagnosticFinancier');
+          const diagStore = useDiagnosticFinancierStore();
+          diagStore.fetchDiagnostic().catch(() => {});
+        } catch (e) {
+          console.warn("Could not refresh diagnostic store", e);
+        }
+
         return response.data;
       } catch (error) {
         console.error("Erreur fetchEtudiantDetail:", error);

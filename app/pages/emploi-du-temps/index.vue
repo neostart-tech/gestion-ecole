@@ -1,4 +1,5 @@
 <template>
+  <FraisInscriptionLockOverlay :is-locked="isFraisInscriptionImpaye">
   <Transition
     enter-active-class="transition duration-500 ease-out"
     enter-from-class="opacity-0"
@@ -519,10 +520,15 @@
       </Dialog>
     </TransitionRoot>
   </div>
+  </FraisInscriptionLockOverlay>
 </template>
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
 import type { CalendarOptions } from "@fullcalendar/core";
+
+import { useFraisInscriptionStore } from "~~/stores/frais-inscription";
+const fraisInscriptionStore = useFraisInscriptionStore();
+const isFraisInscriptionImpaye = computed(() => fraisInscriptionStore.isFraisInscriptionImpaye);
 import FullCalendar from "@fullcalendar/vue3";
 import { RRule, Weekday } from "rrule";
 import { format, parse } from "date-fns";

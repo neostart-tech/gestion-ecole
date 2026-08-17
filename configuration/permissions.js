@@ -86,6 +86,8 @@ export const rolePermissions = {
     "/evaluations/professeur/detail-examen/*",
     "/enseignant/syllabuses/*",
     "/evaluations/examen-en-ligne/*",
+    "/cours-en-ligne",
+    "/cours-en-ligne/*",
   ],
 
   // Rôles financiers
@@ -249,6 +251,8 @@ export const rolePermissions = {
     '/actualites/*',
     "/annonces",
     "/etudiant/syllabuses/*",
+    "/cours-en-ligne",
+    "/cours-en-ligne/*",
   ],
 
   delegue: [
@@ -264,6 +268,8 @@ export const rolePermissions = {
     '/actualites/*',
     "/annonces",
     "/etudiant/syllabuses/*",
+    "/cours-en-ligne",
+    "/cours-en-ligne/*",
   ],
 
   // Utilisateur simple

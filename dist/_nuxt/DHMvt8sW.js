@@ -1,0 +1,1 @@
+import{I as e,J as t,T as n}from"./B75DpUry.js";import{t as r}from"#entry";e();var i={};function a(e,r){return t(),n(`div`)}var o=r(i,[[`render`,a]]);export{o as default};

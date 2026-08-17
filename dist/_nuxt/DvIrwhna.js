@@ -1,0 +1,1 @@
+import{I as e,J as t,T as n}from"./B75DpUry.js";import{u as r}from"./C1xU4f2C.js";e();var i={__name:`index`,setup(e){return r(`/admin/etudiants/situation`),(e,r)=>(t(),n(`div`,null,`Redirection...`))}};export{i as default};

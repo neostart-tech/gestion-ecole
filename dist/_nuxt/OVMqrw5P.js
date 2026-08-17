@@ -1,0 +1,1 @@
+import{i as e}from"#entry";function t(){return e.app_local?e.app_dev_storage_url:e.app_prod_storage_url}function n(){return e.app_local?e.app_dev_url:e.app_prod_url}export{t as n,n as t};
