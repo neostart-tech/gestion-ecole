@@ -712,7 +712,7 @@ const submitAddForm = async () => {
       });
     }
 
-    const response = await $api.post('/admin/etudiants/store', formData, {
+    const response = await $api.post('/etudiants/store', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

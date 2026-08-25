@@ -274,9 +274,9 @@
               </Can>
 
               <!-- Reset Password -->
-              <Can action="update-user">
+              <Can action="reset-user-password">
                 <button
-                  class="p-2 rounded-lg text-yellow-600 hover:bg-yellow-100 dark:text-yellow-400 dark:hover:bg-yellow-900/30 transition-colors duration-200"
+                  class="p-2 rounded-lg text-indigo-600 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors duration-200"
                   @click="confirmResetPassword(data.value)"
                   title="Réinitialiser le mot de passe"
                 >
@@ -289,8 +289,8 @@
                     <path
                       stroke-linecap="round"
                       stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4v-3.286l5.72-5.72A6 6 0 1115 9zm-3 2h.01"
+                      stroke-width="1.5"
+                      d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
                     />
                   </svg>
                 </button>
