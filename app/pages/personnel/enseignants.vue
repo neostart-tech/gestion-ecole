@@ -264,6 +264,29 @@
                   <ButtonDelete />
                 </button>
               </Can>
+
+              <!-- Reset Password -->
+              <Can :action="['update-enseignant']">
+                <button
+                  class="p-2 rounded-lg text-yellow-600 hover:bg-yellow-100 dark:text-yellow-400 dark:hover:bg-yellow-900/30 transition-colors duration-200"
+                  @click="confirmResetPassword(data.value)"
+                  title="Réinitialiser le mot de passe"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4v-3.286l5.72-5.72A6 6 0 1115 9zm-3 2h.01"
+                    />
+                  </svg>
+                </button>
+              </Can>
             </div>
           </template>
         </Vue3Datatable>
@@ -1351,6 +1374,47 @@ const confirmDelete = async (user) => {
       //   title: "Erreur",
       //   text: "Impossible de supprimer l'utilisateur",
       // });
+    }
+  }
+};
+
+const confirmResetPassword = async (user) => {
+  const { $swal, $toastr } = useNuxtApp();
+  const result = await $swal.fire({
+    title: "Réinitialiser ?",
+    text: `Voulez-vous réinitialiser le mot de passe de ${user.nom} ${user.prenom} ?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#eab308",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Oui, réinitialiser",
+    cancelButtonText: "Annuler",
+  });
+
+  if (result.isConfirmed) {
+    try {
+      $swal.fire({
+        title: "Réinitialisation en cours...",
+        text: "Veuillez patienter pendant que nous générons et envoyons le nouveau mot de passe.",
+        allowOutsideClick: false,
+        didOpen: () => {
+          $swal.showLoading();
+        },
+      });
+
+      const { $api } = useNuxtApp();
+      await $api(`/users/${user.slug}/reset-password`, {
+        method: "PUT",
+      });
+      
+      $swal.close();
+      $toastr.success("Mot de passe réinitialisé avec succès");
+    } catch (error) {
+      console.error("Erreur réinitialisation:", error);
+      $swal.close();
+      $toastr.error(
+        error?.response?.data?.message || "Impossible de réinitialiser le mot de passe"
+      );
     }
   }
 };

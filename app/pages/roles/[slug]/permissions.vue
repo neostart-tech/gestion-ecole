@@ -1,57 +1,46 @@
 <template>
-  <div class="console">
-    <!-- Hero -->
-    <header class="hero">
-      <div class="hero-grid" aria-hidden="true"></div>
-      <div class="hero-inner">
-        <nav class="crumb">
-          <NuxtLink to="/roles/liste">Rôles</NuxtLink>
-          <span>/</span>
-          <span class="crumb-current">{{ role ? role.nom : "…" }}</span>
-        </nav>
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors pb-24">
+    <!-- Header avec Breadcrumb et Stats -->
+    <div class="p-3 sm:p-4 md:p-6 pb-0 max-w-7xl mx-auto">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <Breadcrumb
+          :items="[
+            { label: 'Administration', to: '/' },
+            { label: 'Accès', to: '/roles/liste' },
+            { label: role ? role.nom : 'Chargement…', to: null },
+          ]"
+          title="Permissions"
+          title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
+          spacing="mb-0"
+        />
+        <NuxtLink to="/roles/liste" class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors self-start sm:self-auto shadow-sm whitespace-nowrap flex-shrink-0">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Retour aux rôles
+        </NuxtLink>
+      </div>
 
-        <div class="hero-row">
-          <div class="hero-identity">
-            <div class="role-glyph">{{ initials }}</div>
-            <div>
-              <h1 class="hero-title">{{ role ? role.nom : "Chargement…" }}</h1>
-              <p class="hero-subtitle">Console d'accès &middot; permissions rattachées à ce rôle</p>
-            </div>
+      <!-- Stats -->
+      <div v-if="role" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6 shadow-sm">
+        <div class="flex items-center justify-between sm:justify-around w-full gap-4 sm:gap-8">
+          <div class="flex flex-col items-center text-center flex-1">
+            <span class="text-3xl font-bold text-gray-900 dark:text-white leading-none">{{ grantedCount }}</span>
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-2">Accordées</span>
           </div>
-
-          <NuxtLink to="/roles/liste" class="btn-ghost">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Retour
-          </NuxtLink>
-        </div>
-
-        <div v-if="role" class="hero-stats">
-          <div class="stat">
-            <span class="stat-value">{{ grantedCount }}</span>
-            <span class="stat-label">Accordées</span>
+          <div class="w-px h-12 bg-gray-200 dark:bg-gray-700 hidden sm:block"></div>
+          <div class="flex flex-col items-center text-center flex-1">
+            <span class="text-3xl font-bold text-gray-900 dark:text-white leading-none">{{ allPermissions.length }}</span>
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-2">Disponibles</span>
           </div>
-          <div class="stat-divider"></div>
-          <div class="stat">
-            <span class="stat-value">{{ allPermissions.length }}</span>
-            <span class="stat-label">Disponibles</span>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat">
-            <span class="stat-value">{{ permissionGroups.length }}</span>
-            <span class="stat-label">Domaines</span>
-          </div>
-          <div class="stat-divider stat-divider-fill"></div>
-          <div class="coverage">
-            <div class="coverage-track">
-              <div class="coverage-fill" :style="{ width: `${coveragePercent}%` }"></div>
-            </div>
-            <span class="coverage-label">{{ coveragePercent }}% de couverture</span>
+          <div class="w-px h-12 bg-gray-200 dark:bg-gray-700 hidden sm:block"></div>
+          <div class="flex flex-col items-center text-center flex-1">
+            <span class="text-3xl font-bold text-gray-900 dark:text-white leading-none">{{ permissionGroups.length }}</span>
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-2">Domaines</span>
           </div>
         </div>
       </div>
-    </header>
+    </div>
 
     <!-- Chargement -->
     <div v-if="isLoading" class="loading-block">
@@ -138,7 +127,7 @@
                   <span class="switch-knob"></span>
                 </span>
                 <span class="permission-nom">{{ permission.nom }}</span>
-                <code v-if="permission.slug" class="permission-slug">{{ permission.slug }}</code>
+
               </label>
             </div>
           </details>
@@ -172,6 +161,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useState } from "#app";
 import { useRoleStore } from "~~/stores/role";
 import { useAccess } from "~/composables/useAccess";
+import Breadcrumb from "~/components/Breadcrumb.vue";
 
 const route = useRoute();
 const router = useRouter();

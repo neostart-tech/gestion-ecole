@@ -108,8 +108,13 @@
               </svg>
             </div>
           </div>
-          <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-            <span class="font-medium text-amber-600 dark:text-amber-400">{{ examStore.totalPoints.toFixed(1) }}</span> points distribués
+          <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 flex flex-col">
+            <div>
+              <span class="font-medium text-amber-600 dark:text-amber-400">{{ examStore.totalPoints.toFixed(1) }}</span> points distribués
+            </div>
+            <div v-if="totalPointsWarning" class="text-red-500 font-bold mt-1">
+              Dépassement de {{ (examStore.totalPoints - 20).toFixed(1) }} pts
+            </div>
           </div>
         </div>
       </div>
@@ -143,17 +148,57 @@
 
     <!-- ========== GRILLE PRINCIPALE ========== -->
     <!-- Alerte Examen Verrouillé (Lecture Seule) -->
-    <div v-if="isExamLocked" class="bg-amber-50 border-l-4 border-amber-400 p-4 mb-6 rounded-r-2xl shadow-sm animate-pulse-subtle">
-      <div class="flex items-center">
-        <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+    <div v-if="isExamLocked" class="bg-amber-50 border border-amber-200 p-4 mb-6 rounded-xl shadow-sm relative overflow-hidden">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div class="flex-shrink-0 bg-amber-100 p-2 rounded-full">
+          <svg class="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
         </div>
-        <div class="ml-3">
-          <p class="text-sm text-amber-700 font-medium">
-            L'évaluation a démarré ou est terminée. L'interface est en mode <span class="uppercase font-bold">Lecture Seule</span> pour garantir l'intégrité des réponses. Toute modification est désactivée.
+        <div class="flex-1">
+          <h3 class="text-sm font-bold text-amber-800 uppercase tracking-wider mb-1">Mode Lecture Seule</h3>
+          <p class="text-sm text-amber-700">
+            L'évaluation a démarré ou est terminée. Toute modification est désactivée par défaut pour garantir l'intégrité des réponses.
           </p>
+        </div>
+        <Can action="force-edit-examen">
+          <div class="flex-shrink-0 w-full sm:w-auto">
+            <button 
+              @click="isLockOverridden = !isLockOverridden" 
+              class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-white border-2 border-amber-300 hover:border-amber-400 hover:bg-amber-50 text-amber-700 text-sm font-bold rounded-lg transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1 whitespace-nowrap"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg>
+              Forcer la modification
+            </button>
+          </div>
+        </Can>
+      </div>
+    </div>
+    
+    <!-- Alerte Modification Forcée -->
+    <div v-if="isLockOverridden" class="bg-red-50 border border-red-200 p-4 mb-6 rounded-xl shadow-sm relative overflow-hidden ring-1 ring-red-500/20">
+      <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-red-500/10 rounded-full blur-xl"></div>
+      
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 relative z-10">
+        <div class="flex-shrink-0 bg-red-100 p-2 rounded-full animate-pulse">
+          <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-sm font-bold text-red-800 uppercase tracking-wider mb-1">Modification Forcée Active</h3>
+          <p class="text-sm text-red-700">
+            Faites attention, modifier un examen en cours ou terminé peut causer des incohérences graves dans les notes.
+          </p>
+        </div>
+        <div class="flex-shrink-0 w-full sm:w-auto">
+          <button 
+            @click="isLockOverridden = false" 
+            class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg transition-all shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 whitespace-nowrap"
+          >
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            Re-verrouiller
+          </button>
         </div>
       </div>
     </div>
@@ -2248,8 +2293,10 @@ const selectedPart = ref(null);
 const editingQuestion = ref(null);
 const editingPart = ref(null);
 const selectedType = ref("qcm_unique");
+const isLockOverridden = ref(false);
 
 const isExamLocked = computed(() => {
+  if (isLockOverridden.value) return false;
   if (!examStore.currentEvaluation?.debut) return false;
   return new Date(examStore.currentEvaluation.debut) <= new Date();
 });
@@ -2449,9 +2496,7 @@ const openRefineModal = async () => {
 watch(() => examStore.totalPoints, (newTotal) => {
   if (newTotal > 20) {
     totalPointsWarning.value = true;
-    $toastr.warning(`⚠️ Total des points: ${newTotal}/20 (dépassement de ${(newTotal - 20).toFixed(1)} pts)`);
   } else if (newTotal === 20) {
-    $toastr.success(`✅ Maximum de points atteint (20/20)`);
     totalPointsWarning.value = false;
   } else {
     totalPointsWarning.value = false;
@@ -2489,7 +2534,8 @@ const validateQuestionPoints = (value) => {
 
 const formatPoints = (value) => {
   const num = parseFloat(value) || 0;
-  return Math.round(num * 2) / 2;
+  // Arrondir au quart près (0.25, 0.5, 0.75, etc.) au lieu du demi près
+  return Math.round(num * 4) / 4;
 };
 
 const validateMultiPartsPoints = () => {
@@ -2558,10 +2604,8 @@ const checkTotalPoints = () => {
   const total = examStore.totalPoints;
   if (total > 20) {
     totalPointsWarning.value = true;
-    $toastr.warning(`Total des points: ${total.toFixed(1)}/20 (dépassement de ${(total - 20).toFixed(1)} pts)`);
     return false;
   } else if (total === 20) {
-    $toastr.success(`Maximum de points atteint (20/20)`);
     totalPointsWarning.value = false;
     return true;
   } else {
@@ -2582,9 +2626,12 @@ const checkTotalPointsBeforeSave = () => {
   // Ajouter les nouveaux points
   const newTotal = currentTotal + questionForm.points;
   
-  if (newTotal > 20) {
+  // On bloque seulement si on dépasse 20 ET qu'on essaie d'augmenter les points
+  const oldPoints = editingQuestion.value ? (editingQuestion.value.points || 0) : 0;
+  
+  if (newTotal > 20 && questionForm.points > oldPoints) {
     $toastr.error(
-      `Impossible d'ajouter cette question. Le total dépasserait 20 pts (${newTotal.toFixed(1)}/20)`,
+      `Impossible de sauvegarder : le total de l'examen dépasserait 20 pts (${newTotal.toFixed(1)}/20)`,
       { position: 'top-center', timeout: 5000 }
     );
     return false;
