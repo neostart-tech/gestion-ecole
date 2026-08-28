@@ -1152,6 +1152,8 @@ const submitPasswordChange = async () => {
       new_password_confirmation: passwordForm.new_password_confirmation,
     });
     $toastr.success("Mot de passe modifié avec succès");
+    // Mettre à jour l'utilisateur localement pour retirer l'état must_change_password
+    await loginStore.fetchUser();
     closePasswordModal();
   } catch (error: any) {
     console.error("Erreur:", error);
@@ -1211,6 +1213,11 @@ onMounted(async () => {
     const freshUser = await loginStore.fetchUser();
     if (freshUser) {
       user.value = freshUser;
+      
+      // Forcer l'ouverture du modal si le mot de passe doit être changé
+      if (freshUser.must_change_password) {
+        showPasswordModal.value = true;
+      }
       
       // Si c'est un enseignant, on peut aussi récupérer les données fiscalité spécifiquement
       if (isEnseignant.value) {

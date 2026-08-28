@@ -43,7 +43,7 @@
           </svg>
         </div>
 
-        <div class="flex flex-col sm:flex-row gap-3">
+        <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
           <!-- Colonnes -->
           <client-only>
             <VDropdown placement="bottom-end">
@@ -103,7 +103,7 @@
           </client-only>
 
           <!-- Boutons d'action -->
-          <div class="flex gap-2">
+          <div class="flex flex-wrap gap-2">
             <!-- Export -->
             <button
               @click="processExport"
@@ -511,6 +511,18 @@
                 </svg>
                 <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+            </Can>
+            
+            <Can action="reset-user-password">
+              <button
+                @click="resetUserPassword(data.value)"
+                class="p-2 rounded-lg text-indigo-600 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors duration-200"
+                title="Réinitialiser le mot de passe"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                 </svg>
               </button>
             </Can>
@@ -1876,11 +1888,61 @@ const toggleEtudiantStatus = async (item) => {
   }
 };
 
+const resetUserPassword = async (item) => {
+  try {
+    const result = await $swal.fire({
+      title: 'Réinitialiser le mot de passe ?',
+      text: "Un nouveau mot de passe sera généré et envoyé à l'étudiant.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui, réinitialiser',
+      cancelButtonText: 'Annuler'
+    });
+
+    if (result.isConfirmed) {
+      $swal.showLoading();
+      const { $api } = useNuxtApp();
+      const response = await $api.put(`/etudiants/${item.raw.slug}/reset-password`);
+      
+      if (response?.data?.new_password) {
+        const swalRes = await $swal.fire({
+          title: "Mot de passe réinitialisé",
+          html: `Le nouveau mot de passe est : <strong>${response.data.new_password}</strong><br><br>Veuillez le communiquer à l'étudiant.`,
+          icon: "success",
+          showDenyButton: true,
+          confirmButtonText: "Fermer",
+          denyButtonText: "Copier le mot de passe",
+          denyButtonColor: "#3085d6"
+        });
+        if (swalRes.isDenied) {
+          navigator.clipboard.writeText(response.data.new_password);
+          useNuxtApp().$toastr.success("Mot de passe copié !");
+        }
+      } else {
+        $swal.fire(
+          'Réinitialisé !',
+          'Le mot de passe a été réinitialisé et envoyé par email.',
+          'success'
+        );
+      }
+    }
+  } catch (error) {
+    console.error(error);
+    $swal.fire(
+      'Erreur',
+      'Une erreur est survenue lors de la réinitialisation.',
+      'error'
+    );
+  }
+};
+
 const submitAddForm = async () => {
   try {
     addLoading.value = true;
     const { $api } = useNuxtApp();
-    const response = await $api.post('/admin/etudiants/store', addForm.value);
+    const response = await $api.post('/etudiants/store', addForm.value);
     $toastr.success(response.message || "Étudiant enregistré avec succès.");
     addForm.value = {
       nom: "",

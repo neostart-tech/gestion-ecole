@@ -856,6 +856,31 @@ export const useExamStore = defineStore("exam", {
       }
     },
 
+    async gradeMultipleSubmissions(corrections) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          `/exam-submissions/grade-multiple`,
+          { corrections },
+          this.authHeaders()
+        );
+
+        const updatedSubmissions = response.data.data;
+        updatedSubmissions.forEach(submission => {
+          const index = this.submissions.findIndex(s => s.id === submission.id);
+          if (index !== -1) {
+            this.submissions[index] = submission;
+          }
+        });
+
+        return updatedSubmissions;
+      } catch (error) {
+        this.handleError(error, "Erreur notation multiple");
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
     async suggestGrade(submissionId) {
       try {
         const response = await axios.post(

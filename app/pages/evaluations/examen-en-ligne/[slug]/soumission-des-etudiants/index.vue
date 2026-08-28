@@ -1070,25 +1070,54 @@ const openCorrectionModal = async (etudiant) => {
   examStore.questions.forEach(q => {
     if (q && q.id) {
       correctionForm.value[q.id] = {
-        points: 0,
+        points: null,
         commentaire: ''
       }
     }
   })
   
   try {
-    // Charger les soumissions spécifiques de l'étudiant
-    await examStore.fetchSubmissions(evaluationId, etudiant.id)
-    
-    // Recharger les soumissions depuis le store
-    const submissions = Array.isArray(examStore.submissions) ? examStore.submissions : []
+    // Les soumissions sont déjà chargées avec la liste des étudiants (sans faire de requête API)
+    const submissions = Array.isArray(etudiant.submissions) ? etudiant.submissions : []
+    examStore.submissions = submissions // Met à jour le store pour la sauvegarde plus tard
     
     submissions
-      .filter(s => s && s.etudiant_id === etudiant.id)
       .forEach(sub => {
         if (sub && sub.question_id && correctionForm.value[sub.question_id]) {
+          let prefilledPoints = null;
+          
+          if (sub.points_obtenus !== null && sub.points_obtenus !== undefined) {
+            prefilledPoints = parseFloat(sub.points_obtenus);
+          }
+          
+          // Auto-calculate for QCM: fill max points if correct, 0 if incorrect and not yet graded
+          const question = examStore.questions?.find(q => q && q.id === sub.question_id);
+          if (question && ['qcm_unique', 'qcm_multiple', 'vrai_faux'].includes(question.type) && question.options) {
+            const correctOptionsIds = question.options.filter(o => o.is_correct).map(o => o.id);
+            const reponse = sub.reponse;
+            
+            let isCorrect = false;
+            if (reponse) {
+              if (reponse.option_id) {
+                isCorrect = correctOptionsIds.length === 1 && correctOptionsIds[0] === reponse.option_id;
+              } else if (reponse.option_ids && Array.isArray(reponse.option_ids)) {
+                const studentIds = [...reponse.option_ids].sort();
+                const correctIds = [...correctOptionsIds].sort();
+                if (studentIds.length === correctIds.length && studentIds.length > 0) {
+                  isCorrect = studentIds.every((id, index) => id === correctIds[index]);
+                }
+              }
+            }
+            
+            if (isCorrect) {
+              prefilledPoints = parseFloat(question.points) || 0;
+            } else if (prefilledPoints === null) {
+              prefilledPoints = 0;
+            }
+          }
+
           correctionForm.value[sub.question_id] = {
-            points: parseFloat(sub.points_obtenus || 0),
+            points: prefilledPoints,
             commentaire: sub.reponse?.commentaire_correction || ''
           }
         }
@@ -1145,7 +1174,7 @@ const saveAllCorrections = async () => {
   isSavingAll.value = true
   
   try {
-    const promises = []
+    const corrections = []
     const submissions = Array.isArray(examStore.submissions) ? examStore.submissions : []
     
     for (const [questionId, data] of Object.entries(correctionForm.value)) {
@@ -1153,19 +1182,63 @@ const saveAllCorrections = async () => {
         s => s && s.etudiant_id === selectedEtudiant.value.id && s.question_id === parseInt(questionId)
       )
       
-      if (submission && submission.id && data.points !== undefined) {
-        promises.push(
-          examStore.gradeSubmission(submission.id, data.points || 0, data.commentaire || '')
-        )
+      if (submission && submission.id && data.points !== undefined && data.points !== null && data.points !== '') {
+        corrections.push({
+          id: submission.id,
+          points_obtenus: data.points || 0,
+          commentaire: data.commentaire || ''
+        })
       }
     }
     
-    if (promises.length > 0) {
-      await Promise.all(promises)
-      // Finaliser la note globale de l'étudiant
-      // await examStore.finalizeGrade(evaluationId, selectedEtudiant.value.id)
+    if (corrections.length > 0) {
+      const updatedSubmissions = await examStore.gradeMultipleSubmissions(corrections)
       
-      await handleRefreshData()
+      // Update local student submissions and stats to avoid full API refresh
+      if (selectedEtudiant.value) {
+        const localSubmissions = selectedEtudiant.value.submissions || []
+        if (updatedSubmissions && updatedSubmissions.length > 0) {
+          updatedSubmissions.forEach(updSub => {
+            const idx = localSubmissions.findIndex(s => s.id === updSub.id)
+            if (idx !== -1) {
+              localSubmissions[idx] = updSub
+            } else {
+              localSubmissions.push(updSub)
+            }
+          })
+        }
+        
+        // Recalculate stats for the table
+        let questionsCorrigees = 0
+        let totalPoints = 0
+        let questionsRepondues = 0
+
+        examStore.questions.forEach(q => {
+          const s = localSubmissions.find(sub => sub.question_id === q.id)
+          if (s) {
+            questionsRepondues++
+            if (s.points_obtenus !== null && s.points_obtenus !== undefined) {
+              questionsCorrigees++
+              totalPoints += parseFloat(s.points_obtenus) || 0
+            }
+          }
+        })
+
+        selectedEtudiant.value.note = totalPoints
+        
+        let statut = 'Non corrigé'
+        if (questionsCorrigees > 0) {
+          statut = questionsCorrigees === questionsRepondues ? 'Corrigé' : 'Partiellement corrigé'
+        }
+        selectedEtudiant.value.statutCorrection = statut
+
+        // Ensure Vue reactivity triggers update in the table
+        const etudiantIdx = etudiants.value.findIndex(e => e.id === selectedEtudiant.value.id)
+        if (etudiantIdx !== -1) {
+          etudiants.value[etudiantIdx] = { ...selectedEtudiant.value }
+        }
+      }
+      
       showToastMessage('Toutes les corrections ont été enregistrées')
       closeCorrectionModal()
     } else {

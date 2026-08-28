@@ -1,116 +1,146 @@
 <template>
-  <div class="console">
-    <header class="hero">
-      <div class="hero-grid" aria-hidden="true"></div>
-      <div class="hero-inner">
-        <span class="eyebrow">Administration &middot; accès</span>
-        <div class="hero-row">
-          <div>
-            <h1 class="hero-title">Rôles</h1>
-            <p class="hero-subtitle">{{ roleStore.roles.length }} rôle(s) définis dans l'organisation</p>
-          </div>
-          <Can action="create-role">
-            <button class="btn-ghost" @click="openAddModal">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-              </svg>
-              Ajouter un rôle
-            </button>
-          </Can>
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6 transition-colors">
+    <!-- Breadcrumb -->
+    <Breadcrumb
+      :items="[
+        { label: 'Administration', to: '/' },
+        { label: 'Accès', to: null },
+      ]"
+      title="Rôles"
+      title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
+      spacing="mb-4"
+    />
+
+    <!-- Toolbar -->
+    <div class="flex flex-col sm:flex-row gap-3 items-center justify-between mb-5">
+      <!-- Recherche -->
+      <div class="relative w-full sm:w-80">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
         </div>
-      </div>
-    </header>
-
-    <div class="console-body">
-      <div class="search-field">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
-        <input v-model="searchQuery" type="search" placeholder="Rechercher un rôle…" />
+        <input
+          v-model="searchQuery"
+          type="search"
+          placeholder="Rechercher un rôle..."
+          class="w-full pl-10 pr-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
       </div>
 
-      <div v-if="roleStore.isLoading" class="loading-block">
-        <div class="spinner"></div>
-        <p>Chargement des rôles…</p>
-      </div>
+      <!-- Bouton ajouter -->
+      <Can action="create-role">
+        <button
+          @click="openAddModal"
+          class="w-full sm:w-auto flex justify-center items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors whitespace-nowrap"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Ajouter un rôle
+        </button>
+      </Can>
+    </div>
 
-      <div v-else-if="filteredRoles.length > 0" class="roles-grid">
-        <div v-for="role in filteredRoles" :key="role.id" class="role-card">
-          <div class="role-card-top">
-            <div class="role-glyph" :class="roleColorClass(role.nom)">
-              {{ initialsOf(role.nom) }}
+    <!-- Tableau -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6 overflow-hidden">
+      <Vue3Datatable
+        :columns="availableColumns"
+        :rows="filteredRoles"
+        :per-page="10"
+        :search="searchQuery"
+        :pagination-options="{ 
+          dropdown: true, 
+          edge: true,
+          nav: 'scroll',
+          position: 'bottom'
+        }"
+        :searchable="true"
+        :sortable="true"
+        :filterable="true"
+        :loading="roleStore.isLoading"
+        :totalRows="filteredRoles.length"
+        skin="bh-table-striped bh-table-hover"
+      >
+        <!-- Colonne Nom -->
+        <template #nom="data">
+          <div class="flex items-center gap-3">
+            <div :class="['flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs', roleColorClass(data.value.nom)]">
+              {{ initialsOf(data.value.nom) }}
             </div>
-            <div class="role-info">
-              <h3 class="role-name">{{ role.nom }}</h3>
-              <span class="role-slug mono">{{ role.slug }}</span>
-            </div>
+            <span class="font-medium text-gray-900 dark:text-white">{{ data.value.nom }}</span>
           </div>
+        </template>
 
-          <div class="role-card-meta">
-            <div class="perm-badge">
-              <span class="perm-count mono">{{ role.permissions?.length || 0 }}</span>
-              <span class="perm-label">permission{{ (role.permissions?.length || 0) > 1 ? "s" : "" }}</span>
-            </div>
+
+        <!-- Colonne Permissions -->
+        <template #permissions="data">
+          <div class="inline-flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full text-xs">
+            <span class="font-bold">{{ data.value.permissions?.length || 0 }}</span>
+            <span class="font-medium uppercase tracking-wider">perm.</span>
           </div>
+        </template>
 
-          <div class="role-card-actions">
+        <!-- Colonne Actions -->
+        <template #action="data">
+          <div class="flex items-center gap-2">
             <Can action="assign-role-permissions">
-              <NuxtLink :to="`/roles/${role.slug}/permissions`" class="card-action" title="Gérer les permissions">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <NuxtLink :to="`/roles/${data.value.slug}/permissions`" class="p-1.5 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:text-indigo-300 dark:hover:bg-indigo-900/30 rounded-lg transition-colors" title="Gérer les permissions">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
-                Permissions
               </NuxtLink>
             </Can>
-            <span class="action-spacer"></span>
             <Can action="update-role">
-              <button @click="openEditModal(role)" class="icon-action" title="Modifier le rôle">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button @click="openEditModal(data.value)" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors" title="Modifier le rôle">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a4 4 0 01-1.414.94l-3.05 1.144 1.144-3.05a4 4 0 01.94-1.414z"/>
                 </svg>
               </button>
             </Can>
             <Can action="delete-role">
-              <button @click="confirmDeleteRole(role)" class="icon-action is-danger" title="Supprimer le rôle">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button @click="confirmDeleteRole(data.value)" class="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="Supprimer le rôle">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                 </svg>
               </button>
             </Can>
           </div>
-        </div>
-      </div>
-
-      <p v-else class="empty-note">Aucun rôle trouvé.</p>
+        </template>
+      </Vue3Datatable>
     </div>
 
     <!-- Modal d'ajout / modification de rôle -->
-    <div v-if="showFormModal" class="modal-overlay" @click.self="closeFormModal">
-      <div class="modal">
-        <div class="modal-header">
-          <h3>{{ editingRole ? "Modifier le rôle" : "Ajouter un nouveau rôle" }}</h3>
-          <button @click="closeFormModal" class="modal-close">
+    <div v-if="showFormModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" @click.self="closeFormModal">
+      <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-xl shadow-xl overflow-hidden">
+        <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            {{ editingRole ? "Modifier le rôle" : "Ajouter un rôle" }}
+          </h3>
+          <button @click="closeFormModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>
         </div>
-        <div class="modal-body">
-          <form @submit.prevent="submitRoleForm">
-            <div class="form-group">
-              <label for="role-nom-input" class="form-label">Nom du rôle *</label>
+        <div class="p-6">
+          <form @submit.prevent="submitRoleForm" class="space-y-4">
+            <div>
+              <label for="role-nom-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nom du rôle *</label>
               <input
                 type="text"
                 id="role-nom-input"
                 v-model="roleForm.nom"
-                class="form-input"
+                class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder="Ex: Administrateur"
                 required
               />
             </div>
-            <div class="form-actions">
-              <button type="button" class="btn-secondary" @click="closeFormModal">Annuler</button>
-              <button type="submit" class="btn-primary" :disabled="savingForm">
+            <div class="flex justify-end gap-3 pt-4">
+              <button type="button" @click="closeFormModal" class="px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                Annuler
+              </button>
+              <button type="submit" :disabled="savingForm" class="px-5 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors">
                 {{ savingForm ? "Enregistrement..." : (editingRole ? "Mettre à jour" : "Créer le rôle") }}
               </button>
             </div>
@@ -123,7 +153,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import Breadcrumb from "~/components/Breadcrumb.vue";
 import { useRoleStore } from "~~/stores/role";
+import { useNuxtApp } from "#app";
+import Vue3Datatable from "@bhplugin/vue3-datatable";
+import "@bhplugin/vue3-datatable/dist/style.css";
 
 const roleStore = useRoleStore();
 
@@ -134,6 +168,12 @@ const savingForm = ref(false);
 
 const roleForm = ref({ nom: "" });
 
+const availableColumns = ref([
+  { field: "nom", title: "Nom du rôle", isUnique: true },
+  { field: "permissions", title: "Permissions" },
+  { field: "action", title: "Actions", sort: false, width: "150px" }
+]);
+
 onMounted(async () => {
   await roleStore.fetchRoles();
 });
@@ -143,7 +183,7 @@ const filteredRoles = computed(() => {
 
   const query = searchQuery.value.toLowerCase();
   return roleStore.roles.filter((role) =>
-    role.nom.toLowerCase().includes(query)
+    role.nom.toLowerCase().includes(query) || role.slug.toLowerCase().includes(query)
   );
 });
 
@@ -157,14 +197,24 @@ const initialsOf = (nom) => {
     .join("");
 };
 
-// Classes CSS avec variantes clair/sombre définies dans <style> — pas de couleur
-// calculée en inline, donc le mode sombre s'applique automatiquement.
 const ROLE_COLOR_COUNT = 8;
 const roleColorClass = (nom) => {
   let hash = 0;
   const str = nom || "";
   for (let i = 0; i < str.length; i++) hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
-  return `domain-color-${hash % ROLE_COLOR_COUNT}`;
+  
+  const colors = [
+    'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
+    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+    'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400',
+    'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400',
+    'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+    'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+    'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
+  ];
+  
+  return colors[hash % ROLE_COLOR_COUNT];
 };
 
 const openAddModal = () => {
@@ -186,8 +236,10 @@ const closeFormModal = () => {
 };
 
 const submitRoleForm = async () => {
+  const { $toastr } = useNuxtApp();
+  
   if (!roleForm.value.nom.trim()) {
-    alert("Veuillez saisir un nom de rôle");
+    $toastr.error("Veuillez saisir un nom de rôle");
     return;
   }
 
@@ -195,538 +247,51 @@ const submitRoleForm = async () => {
   try {
     if (editingRole.value) {
       await roleStore.updateRole(editingRole.value.slug, { nom: roleForm.value.nom });
+      $toastr.success("Rôle mis à jour avec succès");
     } else {
       await roleStore.addRole({ nom: roleForm.value.nom, permissions: [] });
+      $toastr.success("Rôle créé avec succès");
     }
     closeFormModal();
   } catch (error) {
-    alert(error.response?.data?.message || "Erreur lors de l'enregistrement du rôle.");
+    $toastr.error(error.response?.data?.message || "Erreur lors de l'enregistrement du rôle.");
   } finally {
     savingForm.value = false;
   }
 };
 
 const confirmDeleteRole = async (role) => {
-  if (!confirm(`Supprimer le rôle "${role.nom}" ? Cette action est irréversible.`)) {
+  const { $swal, $toastr } = useNuxtApp();
+  
+  if (role.permissions && role.permissions.length > 0) {
+    await $swal.fire({
+      title: "Action impossible",
+      text: `Le rôle "${role.nom}" possède ${role.permissions.length} permission(s) assignée(s). Vous devez d'abord lui retirer toutes ses permissions avant de pouvoir le supprimer.`,
+      icon: "error",
+      confirmButtonColor: "#4f46e5",
+      confirmButtonText: "Compris",
+    });
     return;
   }
-  try {
-    await roleStore.deleteRole(role.slug);
-  } catch (error) {
-    alert(error.response?.data?.message || "Erreur lors de la suppression du rôle.");
+  
+  const result = await $swal.fire({
+    title: "Supprimer ?",
+    text: `Voulez-vous supprimer le rôle "${role.nom}" ? Cette action est irréversible.`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#dc2626",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Oui, supprimer",
+    cancelButtonText: "Annuler",
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await roleStore.deleteRole(role.slug);
+      $toastr.success("Rôle supprimé avec succès");
+    } catch (error) {
+      $toastr.error(error.response?.data?.message || "Erreur lors de la suppression du rôle.");
+    }
   }
 };
 </script>
-
-<style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap");
-
-.console {
-  min-height: 100vh;
-  background: #f8fafc;
-  font-family: "Sora", ui-sans-serif, system-ui, sans-serif;
-}
-:global(.dark) .console {
-  background: #0b1120;
-}
-.mono {
-  font-family: "JetBrains Mono", ui-monospace, monospace;
-}
-
-.hero {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(135deg, #0f172a 0%, #172554 60%, #1d4ed8 130%);
-  padding: 36px 24px;
-}
-:global(.dark) .hero {
-  background: linear-gradient(135deg, #05070d 0%, #0b1a3a 60%, #1e3a8a 130%);
-}
-.hero-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
-  background-size: 32px 32px;
-  mask-image: radial-gradient(ellipse at top, black 40%, transparent 85%);
-}
-.hero-inner {
-  position: relative;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-.eyebrow {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.55);
-}
-.hero-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-top: 10px;
-}
-.hero-title {
-  font-size: 28px;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: -0.01em;
-  margin: 0;
-}
-.hero-subtitle {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
-  margin: 4px 0 0;
-}
-.btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  font-size: 13.5px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-.btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.16);
-}
-
-.console-body {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 28px 24px 60px;
-}
-
-.search-field {
-  position: relative;
-  max-width: 380px;
-  display: flex;
-  align-items: center;
-  color: #64748b;
-  margin-bottom: 24px;
-}
-:global(.dark) .search-field {
-  color: #94a3b8;
-}
-.search-field svg {
-  position: absolute;
-  left: 14px;
-  pointer-events: none;
-}
-.search-field input {
-  width: 100%;
-  padding: 10px 14px 10px 40px;
-  border-radius: 999px;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  color: #0f172a;
-  font-size: 13.5px;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-:global(.dark) .search-field input {
-  border-color: #223047;
-  background: #131b2e;
-  color: #e2e8f0;
-}
-.search-field input::placeholder {
-  color: #64748b;
-}
-:global(.dark) .search-field input::placeholder {
-  color: #94a3b8;
-}
-.search-field input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
-}
-:global(.dark) .search-field input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
-}
-
-.loading-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  padding: 80px 20px;
-  color: #64748b;
-  font-size: 14px;
-}
-:global(.dark) .loading-block {
-  color: #94a3b8;
-}
-.spinner {
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  border: 3px solid #e2e8f0;
-  border-top-color: #2563eb;
-  animation: spin 0.7s linear infinite;
-}
-:global(.dark) .spinner {
-  border-color: #223047;
-  border-top-color: #3b82f6;
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.roles-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-  gap: 16px;
-}
-
-.role-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
-}
-:global(.dark) .role-card {
-  background: #131b2e;
-  border-color: #223047;
-}
-.role-card:hover {
-  border-color: rgba(37, 99, 235, 0.4);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-}
-:global(.dark) .role-card:hover {
-  border-color: rgba(59, 130, 246, 0.4);
-}
-
-.role-card-top {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.role-glyph {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 15px;
-  flex-shrink: 0;
-}
-
-.domain-color-0 { background: #eef2ff; color: #4f46e5; }
-.domain-color-1 { background: #ecfdf5; color: #059669; }
-.domain-color-2 { background: #fff7ed; color: #c2410c; }
-.domain-color-3 { background: #fdf2f8; color: #be185d; }
-.domain-color-4 { background: #f0f9ff; color: #0369a1; }
-.domain-color-5 { background: #fefce8; color: #a16207; }
-.domain-color-6 { background: #f5f3ff; color: #7c3aed; }
-.domain-color-7 { background: #f0fdfa; color: #0f766e; }
-
-:global(.dark) .domain-color-0 { background: rgba(99, 102, 241, 0.18); color: #a5b4fc; }
-:global(.dark) .domain-color-1 { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; }
-:global(.dark) .domain-color-2 { background: rgba(249, 115, 22, 0.18); color: #fdba74; }
-:global(.dark) .domain-color-3 { background: rgba(236, 72, 153, 0.18); color: #f9a8d4; }
-:global(.dark) .domain-color-4 { background: rgba(14, 165, 233, 0.18); color: #7dd3fc; }
-:global(.dark) .domain-color-5 { background: rgba(217, 119, 6, 0.18); color: #fcd34d; }
-:global(.dark) .domain-color-6 { background: rgba(139, 92, 246, 0.18); color: #c4b5fd; }
-:global(.dark) .domain-color-7 { background: rgba(20, 184, 166, 0.18); color: #5eead4; }
-.role-info {
-  min-width: 0;
-}
-.role-name {
-  font-size: 15px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-:global(.dark) .role-name {
-  color: #e2e8f0;
-}
-.role-slug {
-  font-size: 11px;
-  color: #64748b;
-}
-:global(.dark) .role-slug {
-  color: #94a3b8;
-}
-
-.role-card-meta {
-  display: flex;
-}
-.perm-badge {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
-  background: rgba(37, 99, 235, 0.1);
-  padding: 4px 12px;
-  border-radius: 999px;
-}
-:global(.dark) .perm-badge {
-  background: rgba(59, 130, 246, 0.15);
-}
-.perm-count {
-  font-size: 14px;
-  font-weight: 700;
-  color: #2563eb;
-}
-:global(.dark) .perm-count {
-  color: #3b82f6;
-}
-.perm-label {
-  font-size: 11.5px;
-  color: #64748b;
-}
-:global(.dark) .perm-label {
-  color: #94a3b8;
-}
-
-.role-card-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border-top: 1px solid #e2e8f0;
-  padding-top: 14px;
-  margin-top: auto;
-}
-:global(.dark) .role-card-actions {
-  border-top-color: #223047;
-}
-.action-spacer {
-  flex: 1;
-}
-.card-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: #2563eb;
-  text-decoration: none;
-}
-:global(.dark) .card-action {
-  color: #3b82f6;
-}
-.card-action:hover {
-  text-decoration: underline;
-}
-.icon-action {
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  color: #64748b;
-  cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
-}
-:global(.dark) .icon-action {
-  color: #94a3b8;
-}
-.icon-action:hover {
-  background: rgba(37, 99, 235, 0.1);
-  color: #2563eb;
-}
-:global(.dark) .icon-action:hover {
-  background: rgba(59, 130, 246, 0.15);
-  color: #3b82f6;
-}
-.icon-action.is-danger:hover {
-  background: rgba(239, 68, 68, 0.12);
-  color: #ef4444;
-}
-
-.empty-note {
-  text-align: center;
-  color: #64748b;
-  font-size: 13.5px;
-  padding: 60px 20px;
-}
-:global(.dark) .empty-note {
-  color: #94a3b8;
-}
-
-/* Modal */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(8, 10, 20, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 20px;
-  backdrop-filter: blur(4px);
-}
-.modal {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 440px;
-  overflow: hidden;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
-  font-family: "Sora", ui-sans-serif, sans-serif;
-}
-:global(.dark) .modal {
-  background: #131b2e;
-  border-color: #223047;
-}
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 22px;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  color: white;
-}
-:global(.dark) .modal-header {
-  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-}
-.modal-header h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 700;
-}
-.modal-close {
-  background: rgba(255, 255, 255, 0.15);
-  border: none;
-  color: white;
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 999px;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s;
-}
-.modal-close:hover {
-  background: rgba(255, 255, 255, 0.28);
-}
-.modal-body {
-  padding: 22px;
-}
-.form-group {
-  margin-bottom: 20px;
-}
-.form-label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #0f172a;
-}
-:global(.dark) .form-label {
-  color: #e2e8f0;
-}
-.form-input {
-  width: 100%;
-  padding: 11px 14px;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 13.5px;
-  color: #0f172a;
-  background: #f8fafc;
-  transition: all 0.2s;
-}
-:global(.dark) .form-input {
-  border-color: #223047;
-  color: #e2e8f0;
-  background: #0b1120;
-}
-.form-input:focus {
-  outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
-}
-:global(.dark) .form-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
-}
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
-}
-.btn-secondary {
-  background: none;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
-  padding: 10px 20px;
-  border-radius: 10px;
-  font-size: 13.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-:global(.dark) .btn-secondary {
-  color: #94a3b8;
-  border-color: #223047;
-}
-.btn-secondary:hover {
-  background: rgba(15, 23, 42, 0.06);
-}
-:global(.dark) .btn-secondary:hover {
-  background: rgba(226, 232, 240, 0.08);
-}
-.btn-primary {
-  padding: 10px 22px;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 13.5px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-:global(.dark) .btn-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-}
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
-}
-:global(.dark) .btn-primary:hover:not(:disabled) {
-  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.35);
-}
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-@media (max-width: 640px) {
-  .console-body {
-    padding: 20px 16px 40px;
-  }
-  .roles-grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>
