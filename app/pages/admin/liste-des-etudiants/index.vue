@@ -1904,12 +1904,29 @@ const resetUserPassword = async (item) => {
     if (result.isConfirmed) {
       $swal.showLoading();
       const { $api } = useNuxtApp();
-      await $api.put(`/etudiants/${item.raw.slug}/reset-password`);
-      $swal.fire(
-        'Réinitialisé !',
-        'Le mot de passe a été réinitialisé et envoyé par email.',
-        'success'
-      );
+      const response = await $api.put(`/etudiants/${item.raw.slug}/reset-password`);
+      
+      if (response?.data?.new_password) {
+        const swalRes = await $swal.fire({
+          title: "Mot de passe réinitialisé",
+          html: `Le nouveau mot de passe est : <strong>${response.data.new_password}</strong><br><br>Veuillez le communiquer à l'étudiant.`,
+          icon: "success",
+          showDenyButton: true,
+          confirmButtonText: "Fermer",
+          denyButtonText: "Copier le mot de passe",
+          denyButtonColor: "#3085d6"
+        });
+        if (swalRes.isDenied) {
+          navigator.clipboard.writeText(response.data.new_password);
+          useNuxtApp().$toastr.success("Mot de passe copié !");
+        }
+      } else {
+        $swal.fire(
+          'Réinitialisé !',
+          'Le mot de passe a été réinitialisé et envoyé par email.',
+          'success'
+        );
+      }
     }
   } catch (error) {
     console.error(error);

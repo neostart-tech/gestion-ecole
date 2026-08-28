@@ -1403,12 +1403,28 @@ const confirmResetPassword = async (user) => {
       });
 
       const { $api } = useNuxtApp();
-      await $api(`/users/${user.slug}/reset-password`, {
+      const response = await $api(`/users/${user.slug}/reset-password`, {
         method: "PUT",
       });
       
       $swal.close();
-      $toastr.success("Mot de passe réinitialisé avec succès");
+      if (response?.data?.new_password) {
+        const swalRes = await $swal.fire({
+          title: "Mot de passe réinitialisé",
+          html: `Le nouveau mot de passe est : <strong>${response.data.new_password}</strong><br><br>Veuillez le communiquer à l'utilisateur.`,
+          icon: "success",
+          showDenyButton: true,
+          confirmButtonText: "Fermer",
+          denyButtonText: "Copier le mot de passe",
+          denyButtonColor: "#3085d6"
+        });
+        if (swalRes.isDenied) {
+          navigator.clipboard.writeText(response.data.new_password);
+          $toastr.success("Mot de passe copié !");
+        }
+      } else {
+        $toastr.success("Mot de passe réinitialisé avec succès");
+      }
     } catch (error) {
       console.error("Erreur réinitialisation:", error);
       $swal.close();

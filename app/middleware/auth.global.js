@@ -26,4 +26,22 @@ export default defineNuxtRouteMiddleware((to) => {
   if (!isAuthenticated) {
     return navigateTo('/login');
   }
+
+  // Vérifier si le mot de passe doit être changé
+  if (to.path !== '/profile/info') {
+    if (process.client) {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          if (user && user.must_change_password) {
+            // Empêcher la navigation et forcer la page de changement de mot de passe
+            return navigateTo('/profile/info');
+          }
+        } catch (e) {
+          console.error("Error parsing user from localStorage", e);
+        }
+      }
+    }
+  }
 });
