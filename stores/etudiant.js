@@ -28,11 +28,14 @@ export const useEtudiantStore = defineStore("etudiant", {
       };
     },
 
-    async fetchEtudiants() {
+    async fetchEtudiants(annee_scolaire_id = null) {
       this.isLoading = true;
       try {
+        const url = annee_scolaire_id 
+          ? `/etudiants/liste?annee_scolaire_id=${annee_scolaire_id}` 
+          : `/etudiants/liste`;
         const response = await axios.get(
-          "/etudiants/liste",
+          url,
           this.authHeaders(),
         );
         const resData = response.data?.data ?? response.data;
@@ -58,11 +61,14 @@ export const useEtudiantStore = defineStore("etudiant", {
       }
     },
 
-    async fetchGroupEtudiants(id) {
+    async fetchGroupEtudiants(id, annee_scolaire_id = null) {
       this.isLoading = true;
       try {
+        const url = annee_scolaire_id 
+          ? `/groups/${id}/liste-des-etudiants?annee_scolaire_id=${annee_scolaire_id}` 
+          : `/groups/${id}/liste-des-etudiants`;
         const response = await axios.get(
-          `/groups/${id}/liste-des-etudiants`,
+          url,
           this.authHeaders(),
         );
 

@@ -166,11 +166,17 @@
               class="ml-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800"
             >
               <DynamicParamField
-                v-if="parametres.afficher_unites"
+                v-if="parametres && parametres.afficher_unites"
                 :param="parametres.afficher_unites"
                 v-model="formData.afficher_unites"
               />
             </div>
+
+            <DynamicParamField
+              v-if="parametres && parametres.examens_uniquement"
+              :param="parametres.examens_uniquement"
+              v-model="formData.examens_uniquement"
+            />
           </div>
         </div>
 

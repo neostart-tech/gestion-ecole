@@ -461,9 +461,10 @@ const toggleWeight = (type) => {
   if (!evaluations.value[type].enabled) {
     evaluations.value[type].pourcentage = "0";
   } else {
+    // Valeurs par défaut si cochées
     const defaults = {
       devoir: "40",
-      interrogation: "10", // You could put 0, but if they toggle it on, let's leave as 10? Actually if they toggle it on, maybe they want it empty or 0. Wait, the user said default 40/60 if nothing is checked. I'll leave the defaults when toggling on as 0 for interrogation, or they have to type. Let's make it 0.
+      interrogation: "10",
       examen: "60",
       tp: "0",
       expose: "0"
@@ -494,26 +495,29 @@ onMounted(() => {
 // Charger les données de l'UV pour l'édition
 const loadUvData = async (id) => {
   try {
-    // Simuler un chargement depuis l'API
-    const mockUvData = {
-      id: id,
-      ue_id: 1,
-      nom: "Algorithmique Avancée",
-      code: "ALG_AV",
-      coefficient: "3",
-      cm: "30",
-      td: "15",
-      tp: "15",
-      ec: "2",
-      enseignant_id: [1, 3]
+    const { useApi } = await import('~/composables/useApi');
+    const api = useApi();
+    const response = await api.get(`/unites-de-valeur/${id}/modifier`);
+    const uv = response.data?.uv;
+    if (!uv) throw new Error('UV non trouvée');
+    
+    // Assign fields
+    formData.value = {
+      ue_id: uv.ue_id,
+      nom: uv.nom,
+      code: uv.code,
+      coefficient: uv.coefficient,
+      cm: uv.cm,
+      td: uv.td,
+      tp: uv.tp,
+      ec: uv.ec,
+      enseignant_id: response.data?.enseignantsSelected || []
     };
     
-    formData.value = { ...mockUvData };
-    
-    // Simuler des évaluations existantes
+    // Default or fetched weightings (mocked since weightings aren't strictly returned in `uv` relation here unless configured)
     evaluations.value = {
-      devoir: { enabled: true, pourcentage: "30" },
-      interrogation: { enabled: true, pourcentage: "10" },
+      devoir: { enabled: true, pourcentage: "40" },
+      interrogation: { enabled: false, pourcentage: "0" },
       examen: { enabled: true, pourcentage: "60" },
       tp: { enabled: false, pourcentage: "0" },
       expose: { enabled: false, pourcentage: "0" }

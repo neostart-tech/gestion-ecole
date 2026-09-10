@@ -5,7 +5,19 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Paramètre url manquant' })
   }
 
-  const response = await fetch(url)
+  let fetchUrl = url
+  try {
+    const parsed = new URL(url)
+    // Correction uniquement pour l'environnement de développement local (Node.js IPv6 bug)
+    if (parsed.hostname === 'localhost') {
+      parsed.hostname = '127.0.0.1'
+      fetchUrl = parsed.toString()
+    }
+  } catch (e) {
+    // Si l'URL est mal formatée, on garde la valeur d'origine
+  }
+
+  const response = await fetch(fetchUrl)
 
   if (!response.ok) {
     throw createError({ statusCode: response.status, message: 'Image introuvable' })

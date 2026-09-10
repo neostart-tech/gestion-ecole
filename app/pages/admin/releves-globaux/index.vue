@@ -18,36 +18,47 @@
     <div v-else class="space-y-6">
       <!-- Filtres et Sélection de Période (Refonte Sobre) -->
       <div class="bg-white dark:bg-gray-800 rounded-[5px] shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-        <div class="flex flex-wrap items-end gap-4">
-          <div class="flex-1 min-w-[200px] space-y-1.5">
-            <label class="block text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-tight">Période (Semestre)</label>
+        <div class="flex flex-col lg:flex-row gap-4 lg:items-end">
+          <div class="space-y-1.5 flex-1">
+            <label class="block text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-tight">Année Scolaire</label>
             <Dropdown
-              v-model="selectedPeriodeId"
-              :options="periodes"
+              v-model="selectedAnneeId"
+              :options="annees"
               optionLabel="nom"
               optionValue="id"
-              placeholder="Sélectionner un semestre"
+              placeholder="Sélectionner l'année"
               class="w-full custom-dropdown-sober"
+              @change="fetchEtudiants"
             />
           </div>
-          <div class="flex-1 min-w-[200px] space-y-1.5">
+          <div class="space-y-1.5 flex-1">
             <label class="block text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-tight">Groupe (Promotion)</label>
             <Dropdown
               v-model="selectedGroupId"
               :options="formattedGroupes"
               optionLabel="displayName"
               optionValue="slug"
-              placeholder="Tous les groupes"
+              placeholder="Sélectionner un groupe"
               class="w-full custom-dropdown-sober"
-              :showClear="true"
               @change="fetchEtudiants"
             />
           </div>
-          <div class="flex gap-2 w-full lg:w-auto">
+          <div class="space-y-1.5 flex-1">
+            <label class="block text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-tight">Période (Semestre)</label>
+            <Dropdown
+              v-model="selectedPeriodeId"
+              :options="filteredPeriodes"
+              optionLabel="nom"
+              optionValue="id"
+              placeholder="Sélectionner un semestre"
+              class="w-full custom-dropdown-sober"
+            />
+          </div>
+          <div class="flex gap-2 w-full lg:w-auto mt-4 lg:mt-0">
             <button
               @click="fetchEtudiants"
               class="flex-1 lg:flex-none px-6 py-2 bg-blue-600 text-white rounded-[5px] font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              :disabled="loading || !selectedGroupId"
+              :disabled="loading"
             >
               <svg v-if="loading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
               Afficher les étudiants
@@ -56,14 +67,14 @@
               <button
                 @click="bulkGenerate"
                 class="flex-1 lg:flex-none px-6 py-2 bg-green-600 text-white rounded-[5px] font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                :disabled="selectedStudentIds.length === 0 || bulkLoading || !selectedPeriodeId"
+                :disabled="selectedStudents.length === 0 || bulkLoading || !selectedPeriodeId"
               >
-                Générer ({{ selectedStudentIds.length }})
+                Générer ({{ selectedStudents.length }})
               </button>
             </Can>
             <button
               @click="checkAllStatuses"
-              class="px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-[5px] hover:bg-gray-200 transition-colors border border-gray-200 dark:border-gray-600"
+              class="px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-[5px] hover:bg-gray-200 transition-colors border border-gray-200 dark:border-gray-600 flex-1 lg:flex-none flex items-center justify-center"
               :disabled="loading || etudiants.length === 0"
               title="Rafraîchir"
             >
@@ -78,46 +89,41 @@
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
           <h3 class="font-bold text-gray-800 dark:text-white text-sm">Liste des étudiants</h3>
           <div class="flex gap-4 items-center">
-            <div class="flex items-center gap-2 px-3 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-[5px] cursor-pointer" @click="toggleSelectAll">
-              <input type="checkbox" id="selectAll" :checked="isAllSelected" class="rounded-[3px] border-gray-300 text-blue-600 focus:ring-blue-500">
-              <label for="selectAll" class="text-xs font-semibold text-gray-700 dark:text-gray-300 cursor-pointer select-none">Tout sélectionner</label>
-            </div>
             <span class="text-xs text-gray-500">{{ filteredEtudiants.length }} étudiant(s)</span>
           </div>
         </div>
 
         <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm">
-            <thead>
-              <tr class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
-                <th class="px-4 py-3 w-10"></th>
-                <th class="px-4 py-3 font-bold text-gray-700 dark:text-gray-300 uppercase text-[10px]">Matricule</th>
-                <th class="px-4 py-3 font-bold text-gray-700 dark:text-gray-300 uppercase text-[10px]">Nom & Prénoms</th>
-                <th class="px-4 py-3 font-bold text-gray-700 dark:text-gray-300 uppercase text-[10px]">Groupe</th>
-                <th class="px-4 py-3 font-bold text-gray-700 dark:text-gray-300 uppercase text-[10px] text-center">Status</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-              <tr v-if="filteredEtudiants.length === 0">
-                <td colspan="5" class="px-4 py-10 text-center text-gray-500">Aucun étudiant trouvé.</td>
-              </tr>
-              <tr v-for="etudiant in filteredEtudiants" :key="etudiant.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                <td class="px-4 py-3">
-                  <input type="checkbox" :value="etudiant.id" v-model="selectedStudentIds" class="rounded-[3px] border-gray-300 text-blue-600 focus:ring-blue-500">
-                </td>
-                <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">{{ etudiant.matricule }}</td>
-                <td class="px-4 py-3 text-gray-700 dark:text-gray-300 uppercase">{{ etudiant.nom }} {{ etudiant.prenom }}</td>
-                <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ etudiant.groupe_nom }}</td>
-                <td class="px-4 py-3 text-center">
-                   <div v-if="releveStatuses[etudiant.id]?.exists" class="flex items-center justify-center gap-2">
+          <DataTable
+            :value="filteredEtudiants"
+            v-model:selection="selectedStudents"
+            dataKey="id"
+            :loading="loading"
+            :paginator="true"
+            :rows="10"
+            :rowsPerPageOptions="[10, 20, 50, 100]"
+            class="w-full text-sm custom-datatable"
+            emptyMessage="Aucun étudiant trouvé."
+            responsiveLayout="scroll"
+          >
+            <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+            <Column field="matricule" header="Matricule" sortable></Column>
+            <Column header="Nom & Prénoms" sortable>
+              <template #body="{ data }">
+                <span class="uppercase">{{ data.nom }} {{ data.prenom }}</span>
+              </template>
+            </Column>
+            <Column field="groupe_nom" header="Groupe" sortable></Column>
+            <Column header="Status" alignFrozen="right">
+              <template #body="{ data }">
+                   <div v-if="releveStatuses[data.id]?.exists" class="flex items-center gap-2">
                      <span class="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-[3px] text-[10px] font-bold uppercase">Généré</span>
-                     <button @click="previewReleve(etudiant.id)" class="text-[10px] text-blue-600 hover:underline font-bold">Voir</button>
+                     <button @click="previewReleve(data.id)" class="text-[10px] text-blue-600 hover:underline font-bold">Voir</button>
                    </div>
                    <span v-else class="px-2 py-0.5 bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 rounded-[3px] text-[10px] font-bold uppercase">Attente</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+              </template>
+            </Column>
+          </DataTable>
         </div>
       </div>
     </div>
@@ -161,12 +167,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { TransitionRoot, Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import { usePeriodeStore } from '~~/stores/periode'
 import { useGroupeStore } from '~~/stores/group'
 import { useReleveNoteStore } from '~~/stores/relevenote'
+import { useEtudiantStore } from '~~/stores/etudiant'
+import { useAnneScolaireStore } from '~~/stores/annee-scolaire'
 import Dropdown from 'primevue/dropdown'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
 import Breadcrumb from '~/components/Breadcrumb.vue'
 
 const { $api, $toastr, $swal } = useNuxtApp()
@@ -174,6 +184,8 @@ const user = useState('user')
 const periodeStore = usePeriodeStore()
 const groupeStore = useGroupeStore()
 const relevenoteStore = useReleveNoteStore()
+const etudiantStore = useEtudiantStore()
+const anneeScolaireStore = useAnneScolaireStore()
 
 // Autorisation
 const authorizedRoles = ['informaticien', 'directeur-general', 'directeur-general-adjoint', 'directeur-academique', 'logiticien-academique', 'admin']
@@ -183,6 +195,7 @@ const isAuthorized = computed(() => {
 })
 
 // Données
+const annees = computed(() => anneeScolaireStore.annneescolaires)
 const periodes = computed(() => periodeStore.periodes)
 const groupes = computed(() => groupeStore.groupes)
 const formattedGroupes = computed(() => {
@@ -195,19 +208,71 @@ const etudiants = ref([])
 const releveStatuses = ref({})
 const showPreview = ref(false)
 const activeReleve = ref(null)
+const selectedAnneeId = ref(null)
 const selectedPeriodeId = ref(null)
 const selectedGroupId = ref(null)
-const selectedStudentIds = ref([])
+const selectedStudents = ref([])
 const loading = ref(false)
 const bulkLoading = ref(false)
+
+// Filtrage intelligent des semestres selon le niveau
+const filteredPeriodes = computed(() => {
+  const allPeriodes = periodes.value || [];
+  if (!selectedGroupId.value) return allPeriodes;
+
+  const selectedGroup = formattedGroupes.value.find(g => g.slug === selectedGroupId.value);
+  if (!selectedGroup || !selectedGroup.niveau) return allPeriodes;
+
+  // Utiliser la relation en base de données si elle existe
+  if (selectedGroup.niveau.periodes && selectedGroup.niveau.periodes.length > 0) {
+    const periodeIds = selectedGroup.niveau.periodes.map(p => p.id);
+    return allPeriodes.filter(p => periodeIds.includes(p.id));
+  }
+
+  return allPeriodes;
+});
+
+// Réinitialiser la période si elle n'est plus dans la liste filtrée
+watch(filteredPeriodes, (newPeriodes) => {
+  if (selectedPeriodeId.value) {
+    const stillExists = newPeriodes.some(p => p.id === selectedPeriodeId.value);
+    if (!stillExists) {
+      selectedPeriodeId.value = null;
+    }
+  }
+});
+
+// Sélectionner le premier groupe par défaut si les groupes sont chargés
+watch(formattedGroupes, (newGroupes) => {
+  if (newGroupes.length > 0 && !selectedGroupId.value) {
+    selectedGroupId.value = newGroupes[0].slug;
+  }
+});
 
 onMounted(async () => {
   if (!isAuthorized.value) return
   try {
     loading.value = true
-    await Promise.all([periodeStore.fetchPeriode(), groupeStore.fetchGroupes()])
-    const active = periodes.value.find(p => p.status === 1 || p.status === true || p.is_active)
-    if (active) selectedPeriodeId.value = active.id
+    await Promise.all([
+      periodeStore.fetchPeriode(), 
+      groupeStore.fetchGroupes(),
+      anneeScolaireStore.fetchAnneeScolaire()
+    ])
+    
+    if (formattedGroupes.value.length > 0) {
+      selectedGroupId.value = formattedGroupes.value[0].slug;
+    }
+    
+    const activePeriode = periodes.value.find(p => p.status === 1 || p.status === true || p.is_active)
+    if (activePeriode) selectedPeriodeId.value = activePeriode.id
+    
+    const activeAnnee = annees.value.find(a => a.active === 1 || a.active === true)
+    if (activeAnnee) selectedAnneeId.value = activeAnnee.id
+
+    // Fetch initial list of all students of the active year
+    if (selectedAnneeId.value) {
+      await fetchEtudiants()
+    }
   } catch (error) {
     $toastr.error('Erreur de chargement')
   } finally {
@@ -216,24 +281,32 @@ onMounted(async () => {
 })
 
 const fetchEtudiants = async () => {
-  if (!selectedGroupId.value) {
-    etudiants.value = []
-    return
-  }
   loading.value = true
   try {
-    await groupeStore.fetchGroupEtudiants(selectedGroupId.value)
-    const selectedGroup = formattedGroupes.value.find(g => g.slug === selectedGroupId.value)
-    const displayGroupName = selectedGroup ? selectedGroup.displayName : 'N/A'
+    if (!selectedGroupId.value) {
+      await etudiantStore.fetchEtudiants(selectedAnneeId.value)
+      etudiants.value = etudiantStore.etudiants.map(e => ({
+        id: e.id,
+        matricule: e.matricule,
+        nom: e.nom,
+        prenom: e.prenom,
+        groupe_nom: e.dernier_groupe?.group?.nom || 'N/A' // Adjusted to use the correct resource key
+      }))
+    } else {
+      await groupeStore.fetchGroupEtudiants(selectedGroupId.value, selectedAnneeId.value)
+      const selectedGroup = formattedGroupes.value.find(g => g.slug === selectedGroupId.value)
+      const displayGroupName = selectedGroup ? selectedGroup.displayName : 'N/A'
 
-    etudiants.value = groupeStore.etudiants.map(e => ({
-      id: e.id,
-      matricule: e.matricule,
-      nom: e.nom,
-      prenom: e.prenom,
-      groupe_nom: displayGroupName
-    }))
-    selectedStudentIds.value = []
+      etudiants.value = groupeStore.etudiants.map(e => ({
+        id: e.id,
+        matricule: e.matricule,
+        nom: e.nom,
+        prenom: e.prenom,
+        groupe_nom: displayGroupName
+      }))
+    }
+    
+    selectedStudents.value = []
     await checkAllStatuses() 
   } catch (error) {
     $toastr.error('Erreur chargement étudiants')
@@ -262,16 +335,12 @@ const previewReleve = (studentId) => {
 }
 
 const filteredEtudiants = computed(() => etudiants.value)
-const isAllSelected = computed(() => filteredEtudiants.value.length > 0 && selectedStudentIds.value.length === filteredEtudiants.value.length)
-const toggleSelectAll = () => {
-  selectedStudentIds.value = isAllSelected.value ? [] : filteredEtudiants.value.map(e => e.id)
-}
 
 const bulkGenerate = async () => {
-  if (!selectedPeriodeId.value || selectedStudentIds.value.length === 0) return
+  if (!selectedPeriodeId.value || selectedStudents.value.length === 0) return
   const confirm = await $swal.fire({
     title: 'Générer ?',
-    text: `${selectedStudentIds.value.length} relevés seront générés.`,
+    text: `${selectedStudents.value.length} relevés seront générés.`,
     icon: 'question',
     showCancelButton: true,
     confirmButtonColor: '#2563eb'
@@ -280,13 +349,13 @@ const bulkGenerate = async () => {
   bulkLoading.value = true
   try {
     const res = await relevenoteStore.BulkGenerateReleveNotes({
-      student_ids: selectedStudentIds.value,
+      student_ids: selectedStudents.value.map(s => s.id),
       periode_id: selectedPeriodeId.value
     })
     if (res.success) {
       $swal.fire('Succès', res.message, 'success')
       if (res.updated_statuses) releveStatuses.value = { ...releveStatuses.value, ...res.updated_statuses }
-      selectedStudentIds.value = []
+      selectedStudents.value = []
     } else {
       $toastr.error(res.message)
     }

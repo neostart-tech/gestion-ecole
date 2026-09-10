@@ -56,11 +56,14 @@ export const useGroupeStore = defineStore("groupe", {
       }
     },
 
-    async fetchGroupEtudiants(id) {
+    async fetchGroupEtudiants(id, annee_id = null) {
       this.isLoading = true;
       try {
+        const url = annee_id 
+          ? `/groups/${id}/liste-des-etudiants?annee_scolaire_id=${annee_id}` 
+          : `/groups/${id}/liste-des-etudiants`;
         const response = await axios.get(
-          `/groups/${id}/liste-des-etudiants`,
+          url,
           this.authHeaders(),
         );
 

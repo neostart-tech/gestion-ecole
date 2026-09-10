@@ -145,12 +145,18 @@
 						</span>
 					</template>
 
+					<!-- Template pour la colonne UE -->
+					<template #ue="data">
+						<span v-if="data.value">{{ data.value.nom || data.value.code }}</span>
+						<span v-else class="text-gray-400 italic">Non définie</span>
+					</template>
+
 					<!-- Template pour les actions -->
 					<template #action="data">
 						<div class="flex space-x-3">
 							<Can action="update-uv">
 								<button
-									@click="editItem(data.value)"
+									@click="$router.push(`/matieres/editer/${data.value.id}`)"
 									class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors"
 									title="Modifier"
 								>
@@ -171,7 +177,7 @@
 							</Can>
 							<Can action="delete-uv">
 								<button
-									@click="deleteItem(data.value)"
+									@click="deleteItem(data.value.id)"
 									class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 transition-colors"
 									title="Supprimer"
 								>
@@ -203,10 +209,15 @@
 	import Vue3Datatable from "@bhplugin/vue3-datatable";
 	import "@bhplugin/vue3-datatable/dist/style.css";
 	import { useAccess } from "~/composables/useAccess";
+	import { useApi } from "~/composables/useApi";
+	import { useRouter } from "vue-router";
 
 	const { can } = useAccess();
+	const api = useApi();
+	const router = useRouter();
 	const searchQuery = ref("");
 	const showSelector = ref(false);
+	const isLoading = ref(true);
 
 	// Configuration des colonnes
 	const availableColumns = computed(() => {
@@ -214,7 +225,7 @@
 			{ field: "id", title: "ID", width: "60px", isUnique: true },
 			{ field: "nom", title: "Nom" },
 			{ field: "code", title: "Code" },
-			{ field: "coef", title: "Coefficient", type: "number" },
+			{ field: "coefficient", title: "Coefficient", type: "number" },
 			{ field: "ue", title: "UE" },
 		];
 
@@ -227,182 +238,25 @@
 
 	const selectedColumns = ref([]);
 
-	// Initialiser avec toutes les colonnes sélectionnées
+	// Données
+	const rows = ref([]);
+
+	const fetchUvs = async () => {
+		isLoading.value = true;
+		try {
+			const response = await api.get('/unites-de-valeur');
+			rows.value = response.data || [];
+		} catch (error) {
+			console.error("Erreur lors de la récupération des matières", error);
+		} finally {
+			isLoading.value = false;
+		}
+	};
+
 	onMounted(() => {
 		selectedColumns.value = availableColumns.value.map((col) => col.field);
+		fetchUvs();
 	});
-
-	// Colonnes filtrées selon la sélection
-	const filteredCols = computed(() => {
-		return availableColumns.value.filter((col) =>
-			selectedColumns.value.includes(col.field),
-		);
-	});
-
-	// Données
-	const rows = ref([
-		{
-			id: 1,
-			nom: "Initiation à l'algorithme",
-			code: "IAL_1",
-			coef: 4,
-			ue: "APR_S1",
-			action: 1,
-		},
-		{
-			id: 2,
-			nom: "Électronique Numérique",
-			code: "ELN_1",
-			coef: 3,
-			ue: "ARC_S1",
-			action: 2,
-		},
-		{
-			id: 3,
-			nom: "Langage C",
-			code: "LAC_1",
-			coef: 3,
-			ue: "APR_S1",
-			action: 3,
-		},
-		{
-			id: 4,
-			nom: "Initiation à GNU / LINUX",
-			code: "ILI_1",
-			coef: 3,
-			ue: "PMO_S1",
-			action: 4,
-		},
-		{
-			id: 5,
-			nom: "Suites IC3 de Microsoft",
-			code: "LOU_1",
-			coef: 3,
-			ue: "PMO_S1",
-			action: 5,
-		},
-		{
-			id: 6,
-			nom: "Anglais Informatique",
-			code: "ANG_1",
-			coef: 2,
-			ue: "COM_S1",
-			action: 6,
-		},
-		{
-			id: 7,
-			nom: "Expressions Ecrites et Orales",
-			code: "EEO_1",
-			coef: 2,
-			ue: "COM_S1",
-			action: 7,
-		},
-		{
-			id: 8,
-			nom: "Conception et Implémentation des SD",
-			code: "CSD_2",
-			coef: 3,
-			ue: "CAP_S2",
-			action: 8,
-		},
-		{
-			id: 9,
-			nom: "Initiation à la Programmation Objet",
-			code: "IPO_2",
-			coef: 3,
-			ue: "CAP_S2",
-			action: 9,
-		},
-		{
-			id: 10,
-			nom: "Initiation à la Programmation Web",
-			code: "IPW_2",
-			coef: 3,
-			ue: "CAP_S2",
-			action: 10,
-		},
-		{
-			id: 11,
-			nom: "Réseaux et Technologie CISCO CCNA 1 a",
-			code: "RTA_2",
-			coef: 3,
-			ue: "FRE_S2",
-			action: 11,
-		},
-		{
-			id: 12,
-			nom: "Réseaux et Technologie CISCO CCNA 1 b",
-			code: "RTB_2",
-			coef: 3,
-			ue: "FRE_S2",
-			action: 12,
-		},
-		{
-			id: 13,
-			nom: "Initiation aux Bases de données",
-			code: "IBD_2",
-			coef: 4,
-			ue: "BDO_S2",
-			action: 13,
-		},
-		{
-			id: 14,
-			nom: "Pratiques de SQL",
-			code: "PSQ_2",
-			coef: 3,
-			ue: "BDO_S2",
-			action: 14,
-		},
-		{
-			id: 15,
-			nom: "Comptabilité Générale",
-			code: "CGE_2",
-			coef: 2,
-			ue: "EGO_S2",
-			action: 15,
-		},
-		{
-			id: 16,
-			nom: "Environnement Economique",
-			code: "EEC_2",
-			coef: 2,
-			ue: "EGO_S2",
-			action: 16,
-		},
-		{
-			id: 17,
-			nom: "Projet Professionnel",
-			code: "PRO_2",
-			coef: 2,
-			ue: "PPP_S2",
-			action: 17,
-		},
-		{
-			id: 18,
-			nom: "Séminaire Thématique + Discipline",
-			code: "DIS_2",
-			coef: 1,
-			ue: "PPP_S2",
-			action: 18,
-		},
-		{ id: 19, nom: "Sport", code: "SPO_2", coef: 1, ue: "PPP_S2", action: 19 },
-		{
-			id: 20,
-			nom: "Nouveau",
-			code: "Nouveau",
-			coef: 23,
-			ue: "BDO_S2",
-			action: 20,
-		},
-		{
-			id: 21,
-			nom: "Algo Fichier",
-			code: "ALFI",
-			coef: 2,
-			ue: "APR_S1",
-			action: 21,
-		},
-	]);
 
 	const toggleSelector = () => {
 		showSelector.value = !showSelector.value;
@@ -413,17 +267,16 @@
 		return " text-gray-800 dark:text-gray-300";
 	};
 
-	// Fonctions d'action
-	const editItem = (itemId) => {
-		const item = rows.value.find((item) => item.id === itemId);
-		console.log("Modifier:", item);
-		// Implémentez votre logique de modification ici
-	};
-
-	const deleteItem = (itemId) => {
+	const deleteItem = async (itemId) => {
 		const item = rows.value.find((item) => item.id === itemId);
 		if (item && confirm(`Êtes-vous sûr de vouloir supprimer "${item.nom}" ?`)) {
-			rows.value = rows.value.filter((i) => i.id !== itemId);
+			try {
+				await api.delete(`/unites-de-valeur/${itemId}/supprimer`);
+				rows.value = rows.value.filter((i) => i.id !== itemId);
+			} catch (error) {
+				console.error("Erreur lors de la suppression", error);
+				alert(error?.response?.data?.message || "Erreur lors de la suppression de la matière");
+			}
 		}
 	};
 </script>
