@@ -1,0 +1,1 @@
+import{t as e}from"./DgBq9R1T.js";import"./C2RIQKQ1.js";var t=()=>{let t=e(`user`),n=e(`userLoaded`);return{can:e=>!n.value||!t.value?!1:(t.value.permissions||[]).includes(e),hasRole:e=>t.value?(t.value?.role?.slug||t.value?.role)===e:!1,hasAnyRole:(e=[])=>{if(!t.value)return!1;let n=t.value?.role?.slug||t.value?.role;return e.includes(n)}}};export{t};

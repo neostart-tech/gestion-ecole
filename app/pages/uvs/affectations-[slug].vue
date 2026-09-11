@@ -183,26 +183,14 @@
                 <h3 class="text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300">
                   Types d'évaluations et pourcentages (somme = 100)
                 </h3>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <div class="grid grid-cols-2 md:grid-cols-2 gap-3">
                   <FloatLabel variant="on">
                     <InputNumber v-model="form.poids_devoir" inputId="poids_devoir" fluid />
                     <label for="poids_devoir">Devoir %</label>
                   </FloatLabel>
                   <FloatLabel variant="on">
-                    <InputNumber v-model="form.poids_interrogation" inputId="poids_interrogation" fluid />
-                    <label for="poids_interrogation">Interrog %</label>
-                  </FloatLabel>
-                  <FloatLabel variant="on">
                     <InputNumber v-model="form.poids_examen" inputId="poids_examen" fluid />
                     <label for="poids_examen">Examen %</label>
-                  </FloatLabel>
-                  <FloatLabel variant="on">
-                    <InputNumber v-model="form.poids_tp" inputId="poids_tp" fluid />
-                    <label for="poids_tp">TP %</label>
-                  </FloatLabel>
-                  <FloatLabel variant="on">
-                    <InputNumber v-model="form.poids_expose" inputId="poids_expose" fluid />
-                    <label for="poids_expose">Exposé %</label>
                   </FloatLabel>
                 </div>
                 <div v-if="totalPourcentage !== 100" class="mt-2 text-sm text-red-600 dark:text-red-400 font-medium">
@@ -329,10 +317,7 @@ const form = ref({
 const totalPourcentage = computed(() => {
   return (
     (form.value.poids_devoir || 0) +
-    (form.value.poids_interrogation || 0) +
-    (form.value.poids_examen || 0) +
-    (form.value.poids_tp || 0) +
-    (form.value.poids_expose || 0)
+    (form.value.poids_examen || 0)
   );
 });
 

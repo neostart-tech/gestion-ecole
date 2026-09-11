@@ -234,18 +234,6 @@
             <div class="checkbox-inline">
               <input
                 type="checkbox"
-                id="enable_interrogation"
-                v-model="evaluations.interrogation.enabled"
-                @change="toggleWeight('interrogation')"
-                class="checkbox-input"
-              />
-              <label for="enable_interrogation" class="checkbox-label">
-                Interrogation
-              </label>
-            </div>
-            <div class="checkbox-inline">
-              <input
-                type="checkbox"
                 id="enable_examen"
                 v-model="evaluations.examen.enabled"
                 @change="toggleWeight('examen')"
@@ -256,34 +244,10 @@
                 Examen
               </label>
             </div>
-            <div class="checkbox-inline">
-              <input
-                type="checkbox"
-                id="enable_tp"
-                v-model="evaluations.tp.enabled"
-                @change="toggleWeight('tp')"
-                class="checkbox-input"
-              />
-              <label for="enable_tp" class="checkbox-label">
-                TP
-              </label>
-            </div>
-            <div class="checkbox-inline">
-              <input
-                type="checkbox"
-                id="enable_expose"
-                v-model="evaluations.expose.enabled"
-                @change="toggleWeight('expose')"
-                class="checkbox-input"
-              />
-              <label for="enable_expose" class="checkbox-label">
-                Exposé
-              </label>
-            </div>
           </div>
 
           <!-- Pourcentages en grille -->
-          <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div class="grid grid-cols-2 md:grid-cols-2 gap-4">
             <!-- Devoir -->
             <div class="form-group">
               <label for="poids_devoir" class="form-label">
@@ -301,23 +265,6 @@
               />
             </div>
 
-            <!-- Interrogation -->
-            <div class="form-group">
-              <label for="poids_interrogation" class="form-label">
-                Interrogation %
-              </label>
-              <input
-                type="number"
-                id="poids_interrogation"
-                v-model="evaluations.interrogation.pourcentage"
-                :disabled="!evaluations.interrogation.enabled"
-                class="form-input"
-                min="0"
-                max="100"
-                placeholder="0"
-              />
-            </div>
-
             <!-- Examen -->
             <div class="form-group">
               <label for="poids_examen" class="form-label">
@@ -332,40 +279,6 @@
                 min="0"
                 max="100"
                 placeholder="60"
-              />
-            </div>
-
-            <!-- TP -->
-            <div class="form-group">
-              <label for="poids_tp" class="form-label">
-                TP %
-              </label>
-              <input
-                type="number"
-                id="poids_tp"
-                v-model="evaluations.tp.pourcentage"
-                :disabled="!evaluations.tp.enabled"
-                class="form-input"
-                min="0"
-                max="100"
-                placeholder="0"
-              />
-            </div>
-
-            <!-- Exposé -->
-            <div class="form-group">
-              <label for="poids_expose" class="form-label">
-                Exposé %
-              </label>
-              <input
-                type="number"
-                id="poids_expose"
-                v-model="evaluations.expose.pourcentage"
-                :disabled="!evaluations.expose.enabled"
-                class="form-input"
-                min="0"
-                max="100"
-                placeholder="0"
               />
             </div>
           </div>
