@@ -706,7 +706,8 @@ const formatEventForCalendar = (evt: any) => {
       // Forcer les IDs pour le pré-remplissage
       uv_id: evt.uv_id || evt.matiere_id || evt.uv?.id || evt.id_uv || evt.uv,
       teacher_id: evt.teacher_id || evt.enseignant_id || evt.teacher?.id || evt.id_enseignant || evt.teacher,
-      salle_id: evt.salle_id || evt.salle?.id || evt.id_salle || evt.salle
+      salle_id: evt.salle_id || evt.salle?.id || evt.id_salle || evt.salle,
+      periode_id: evt.periode_id || evt.semestre_id || evt.periode?.id
     }
   };
 };
@@ -755,6 +756,7 @@ const calendarOptions = computed<CalendarOptions>(() => ({
   plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
   locale: frLocale,
   initialView: "dayGridMonth",
+  initialDate: new Date(),
   height: 800,
   headerToolbar: {
     left: "prev,next today",
@@ -869,11 +871,9 @@ const calendarOptions = computed<CalendarOptions>(() => ({
 watch(calendarEvents, () => {
   if (calendarRef.value) {
     const calendarApi = calendarRef.value.getApi();
-    if (calendarApi) {
-      calendarApi.refetchEvents();
-    }
+    if (calendarApi) calendarApi.refetchEvents();
   }
-});
+}, { deep: true });
 
 const filteredEvents = computed(() => {
   return calendarEvents.value
@@ -1092,11 +1092,10 @@ const submitForm = async () => {
         return;
       }
     } catch (e: any) {
-      if (e.response && e.response.status === 409) {
-        $toastr.error(e.response.data.message || "Conflit d'horaire détecté.");
-        formLoading.value = false;
-        return;
-      }
+      const msg = e.response?.data?.message || "Une erreur est survenue.";
+      $toastr.error(msg);
+      formLoading.value = false;
+      return;
     }
 
     // === VÉRIFICATION FRONT-END (Anti-chevauchement strict pour le groupe et ses répétitions) ===
@@ -1190,9 +1189,6 @@ const fetchPeriodes = async () => {
   }
 };
 
-onMounted(() => {
-  fetchPeriodes();
-});
 
 const SemestresOptions = computed(() => {
   const periodes = periodesDuGroup.value?.data || periodesDuGroup.value || [];
@@ -1277,7 +1273,7 @@ watch(() => form.value.uv_id, (newUvId) => {
 });
 
 const sallesOptions = computed(() => salleStore.salles.map(s => ({ label: s.nom, value: s.id || s.slug })));
-const TypeOptions = [ { label: "Cours", value: "Cours" }, { label: "Évaluation", value: "Évaluation" } ];
+const TypeOptions = [ { label: "Cours", value: "Cours" } ];
 
 onMounted(async () => {
   isPageLoading.value = true;
@@ -1290,6 +1286,7 @@ onMounted(async () => {
       salleStore.fetchSalles(),
       calendarStore.loadHolidays()
     ]);
+    await fetchPeriodes();
     showCalendar.value = true;
   } finally { isPageLoading.value = false; }
 });

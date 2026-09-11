@@ -12,7 +12,7 @@
       <!-- Headers -->
       <div class="flex justify-between items-start text-[11px] leading-tight">
         <div class="text-center w-64">
-          <p v-html="releve.configurations?.ministere_tutelle || 'MINISTERE DE L\'ENSEIGNEMENT<br>SUPERIEUR ET DE LA RECHERCHE'"></p>
+          <p class="whitespace-pre-line">{{ releve.configurations?.ministere_tutelle || 'MINISTERE DE L\'ENSEIGNEMENT\nSUPERIEUR ET DE LA RECHERCHE' }}</p>
           <!-- Logo can be dynamic -->
           <div class="mt-4 mb-2 flex justify-center">
             <img v-if="releve.logo_url" :src="'/api/proxy-image?url=' + encodeURIComponent(releve.logo_url)" class="h-24 object-contain" />
@@ -30,7 +30,7 @@
         <div class="text-center w-72">
           <p>{{ releve.configurations?.republique || 'REPUBLIQUE TOGOLAISE' }}<br><span class="italic text-[10px]">{{ releve.configurations?.devise || 'Travail - Liberté - Patrie' }}</span></p>
           <div class="mt-6" style="color: #1e3a8a;">
-            <h1 class="text-[15px] font-bold leading-tight uppercase" style="font-family: 'Times New Roman', Times, serif;">{{ releve.configurations?.nom_de_etablissement || 'ÉCOLE SUPÉRIEURE DE COMMERCE\nET D\'ÉCONOMIE NUMÉRIQUE' }}</h1>
+            <h1 class="text-[15px] font-bold leading-tight uppercase whitespace-pre-line" style="font-family: 'Times New Roman', Times, serif;">{{ releve.configurations?.nom_de_etablissement || 'ÉCOLE SUPÉRIEURE DE COMMERCE\nET D\'ÉCONOMIE NUMÉRIQUE' }}</h1>
             <p class="text-[10px] mt-2 font-bold" style="color: #000000;">Agrément : {{ releve.configurations?.agrement || 'N° 0102/2021/MESR/SG/DES' }}</p>
           </div>
         </div>
@@ -50,17 +50,17 @@
       <!-- Info Boxes -->
       <div class="mt-4 flex gap-4 text-xs">
         <!-- Left Box -->
-        <div class="w-1/2 border border-black p-2 leading-relaxed">
-          <div class="flex"><span class="w-24 font-bold underline">Titulaire :</span> <span></span></div>
-          <div class="flex"><span class="w-28 font-bold">Nom & Prénoms</span> <span class="uppercase font-bold">: {{ releve.etudiant?.nom }} {{ releve.etudiant?.prenom }}</span></div>
-          <div class="flex"><span class="w-28 font-bold">Né le</span> <span class="font-bold">: </span></div> 
-          <div class="flex"><span class="w-28 font-bold">Matricule :</span> <span class="font-bold">{{ releve.etudiant?.matricule }}</span></div>
+        <div class="w-1/2 border border-black p-3 leading-relaxed flex flex-col justify-center">
+          <div class="flex"><span class="w-[110px] text-right font-bold underline">Titulaire</span> <span class="font-bold ml-2 mr-4">:</span> <span></span></div>
+          <div class="flex mt-1"><span class="w-[110px] text-right font-bold">Nom & Prénoms</span> <span class="font-bold ml-2 mr-4">:</span> <span class="uppercase font-bold flex-1">{{ releve.etudiant?.nom }} {{ releve.etudiant?.prenom }}</span></div>
+          <div class="flex mt-1"><span class="w-[110px] text-right font-bold">Né le</span> <span class="font-bold ml-2 mr-4">:</span> <span class="font-bold flex-1"></span></div> 
+          <div class="flex mt-1"><span class="w-[110px] text-right font-bold">Matricule</span> <span class="font-bold ml-2 mr-4">:</span> <span class="font-bold flex-1">{{ releve.etudiant?.matricule }}</span></div>
         </div>
         <!-- Right Box -->
-        <div class="w-1/2 border border-black p-2 leading-relaxed">
-          <div class="flex"><span class="w-24 font-bold underline">Niveau :</span> <span class="font-bold">{{ releve.etudiant?.dernier_groupe?.niveau?.nom || releve.etudiant?.dernier_groupe?.niveau?.libelle || '' }}</span></div>
-          <div class="flex mt-1"><span class="w-24 font-bold underline">Semestres :</span> <span class="uppercase font-bold">{{ releve.periode }}</span></div>
-          <div class="flex mt-1"><span class="w-24 font-bold underline">Filière :</span> <span class="uppercase font-bold">{{ releve.etudiant?.dernier_groupe?.filiere?.nom || releve.etudiant?.dernier_groupe?.filiere || '' }}</span></div>
+        <div class="w-1/2 border border-black p-3 leading-relaxed flex flex-col justify-center">
+          <div class="flex"><span class="w-[80px] text-right font-bold underline">Niveau</span> <span class="font-bold ml-2 mr-4">:</span> <span class="font-bold flex-1">{{ releve.etudiant?.dernier_groupe?.niveau?.nom || releve.etudiant?.dernier_groupe?.niveau?.libelle || '' }}</span></div>
+          <div class="flex mt-1"><span class="w-[80px] text-right font-bold underline">Semestres</span> <span class="font-bold ml-2 mr-4">:</span> <span class="uppercase font-bold flex-1">{{ releve.periode }}</span></div>
+          <div class="flex mt-1"><span class="w-[80px] text-right font-bold underline">Filière</span> <span class="font-bold ml-2 mr-4">:</span> <span class="uppercase font-bold flex-1">{{ releve.etudiant?.dernier_groupe?.filiere?.nom || releve.etudiant?.dernier_groupe?.filiere || '' }}</span></div>
         </div>
       </div>
 
@@ -138,7 +138,7 @@
         </div>
         
         <div class="w-1/5 flex justify-center pb-2">
-          <img :src="'/api/proxy-image?url=' + encodeURIComponent(`https://quickchart.io/qr?text=${encodeURIComponent('http://localhost:3000/verify-releve/' + releve.id)}&size=100`)" alt="QR Code" class="w-24 h-24" />
+          <img :src="'/api/proxy-image?url=' + encodeURIComponent(`https://quickchart.io/qr?text=${encodeURIComponent('http://localhost:3000/verify-releve/' + releve.slug)}&size=100`)" alt="QR Code" class="w-24 h-24" />
         </div>
 
         <div class="w-2/5 flex flex-col items-center text-[11px]">

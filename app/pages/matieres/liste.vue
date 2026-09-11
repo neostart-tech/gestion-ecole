@@ -209,11 +209,10 @@
 	import Vue3Datatable from "@bhplugin/vue3-datatable";
 	import "@bhplugin/vue3-datatable/dist/style.css";
 	import { useAccess } from "~/composables/useAccess";
-	import { useApi } from "~/composables/useApi";
+	import axios from "axios";
 	import { useRouter } from "vue-router";
 
 	const { can } = useAccess();
-	const api = useApi();
 	const router = useRouter();
 	const searchQuery = ref("");
 	const showSelector = ref(false);
@@ -240,11 +239,20 @@
 
 	// Données
 	const rows = ref([]);
+    
+    const authHeaders = () => {
+      const token = localStorage.getItem("gest-ecole-token");
+      return {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      };
+    };
 
 	const fetchUvs = async () => {
 		isLoading.value = true;
 		try {
-			const response = await api.get('/unites-de-valeur');
+			const response = await axios.get('/unites-de-valeur', authHeaders());
 			rows.value = response.data || [];
 		} catch (error) {
 			console.error("Erreur lors de la récupération des matières", error);

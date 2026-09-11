@@ -439,9 +439,9 @@ const enseignants = ref([]);
 // Fetch options data
 const loadFormOptions = async () => {
   try {
-    const { useApi } = await import('~/composables/useApi');
-    const api = useApi();
-    const response = await api.get('/unites-de-valeur/ajouter-une-matiere');
+    const { default: axios } = await import('axios');
+    const token = localStorage.getItem("gest-ecole-token");
+    const response = await axios.get('/unites-de-valeur/ajouter-une-matiere', { headers: { Authorization: token ? `Bearer ${token}` : "" }});
     ues.value = response.data?.ues || [];
     enseignants.value = response.data?.enseignants || [];
   } catch (error) {
@@ -582,16 +582,17 @@ const submitForm = async () => {
     console.log('Données soumises:', data);
     
     // Appel API réel
-    const { useApi } = await import('~/composables/useApi');
-    const api = useApi();
+    const { default: axios } = await import('axios');
+    const token = localStorage.getItem("gest-ecole-token");
+    const config = { headers: { Authorization: token ? `Bearer ${token}` : "" } };
     const url = isEditMode.value 
       ? `/unites-de-valeur/${route.params.id}/modifier`
       : '/unites-de-valeur/ajouter-une-matiere';
     
     if (isEditMode.value) {
-      await api.put(url, data);
+      await axios.put(url, data, config);
     } else {
-      await api.post(url, data);
+      await axios.post(url, data, config);
     }
     
     alert(isEditMode.value 
