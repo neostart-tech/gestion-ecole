@@ -51,16 +51,16 @@ export const useMatiereStore = defineStore("matiere", {
       }
     },
 
-    async updateMatiere(id, payload) {
+    async updateMatiere(idOrSlug, payload) {
       this.isLoading = true;
       try {
         const response = await axios.put(
-          `/matieres/${id}/modifier`,
+          `/matieres/${idOrSlug}/modifier`,
           payload,
           this.authHeaders()
         );
 
-        const index = this.matieres.findIndex((f) => f.id === id);
+        const index = this.matieres.findIndex((f) => f.id === idOrSlug || f.slug === idOrSlug);
         if (index !== -1) {
           this.matieres[index] = response.data.data ?? response.data;
         }
@@ -71,15 +71,15 @@ export const useMatiereStore = defineStore("matiere", {
       }
     },
 
-    async deleteMatiere(id) {
+    async deleteMatiere(idOrSlug) {
       this.isLoading = true;
       try {
         await axios.delete(
-          `/matieres/${id}/supprimer`,
+          `/matieres/${idOrSlug}/supprimer`,
           this.authHeaders()
         );
 
-        this.matieres = this.matieres.filter((f) => f.id !== id);
+        this.matieres = this.matieres.filter((f) => f.id !== idOrSlug && f.slug !== idOrSlug);
       } finally {
         this.isLoading = false;
       }

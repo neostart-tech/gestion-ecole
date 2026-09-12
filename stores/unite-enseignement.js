@@ -70,33 +70,35 @@ export const useUeStore = defineStore("ue", {
     },
 
    
-    async deleteUe(ue) {
+    async deleteUe(ueOrSlug) {
+      const slug = typeof ueOrSlug === "object" ? (ueOrSlug.slug || ueOrSlug.id) : ueOrSlug;
       this.isLoading = true;
       try {
         await axios.delete(
-          `/unites-d-enseignement/${ue}/supprimer`,
+          `/unites-d-enseignement/${slug}/supprimer`,
           this.authHeaders()
         );
 
         this.ues = this.ues.filter(
-          (f) => f.id !== ue
+          (f) => f.slug !== slug && f.id !== slug
         );
       } finally {
         this.isLoading = false;
       }
     },
 
-    async updateUe(id, payload) {
+    async updateUe(slugOrId, payload) {
+      const slug = typeof slugOrId === "object" ? (slugOrId.slug || slugOrId.id) : slugOrId;
       this.isLoading = true;
       try {
         const response = await axios.put(
-          `/unites-d-enseignement/${id}/modifier`,
+          `/unites-d-enseignement/${slug}/modifier`,
           payload,
           this.authHeaders()
         );
 
         const index = this.ues.findIndex(
-          (f) => f.id === id
+          (f) => f.slug === slug || f.id === slug
         );
 
         if (index !== -1) {

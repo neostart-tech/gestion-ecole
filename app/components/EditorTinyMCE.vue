@@ -63,7 +63,7 @@ const initOptions = computed(() => ({
   toolbar: 'undo redo | blocks fontfamily fontsize | ' +
     'bold italic underline strikethrough | forecolor backcolor | ' +
     'alignleft aligncenter alignright alignjustify | ' +
-    'bullist numlist outdent indent | link image | ' +
+    'bullist numlist outdent indent | link image table | ' +
     'removeformat | emoticons | help',
   content_style: `
     body {

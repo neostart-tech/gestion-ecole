@@ -390,30 +390,31 @@
 				<div class="space-y-6">
 					<div class="flex items-center justify-between">
 						<div class="space-y-1">
-							<p class="text-sm text-gray-500">Taux de réussite {{ selectedPeriodeId ? 'périodique' : 'global' }}</p>
+							<p class="text-sm font-medium text-gray-500 dark:text-gray-400">Taux de réussite {{ selectedPeriodeId ? 'périodique' : 'global' }}</p>
 							<p class="text-2xl font-bold text-gray-800 dark:text-white">{{ statistiqueStore.stats.evalStats.reussite }}%</p>
+							<p class="text-xs text-gray-400 dark:text-gray-500">Basé sur les relevés & moyennes ({{ selectedPeriodeName }})</p>
 						</div>
-						<div class="w-20 h-20 relative">
+						<div class="w-20 h-20 relative flex-shrink-0">
 							<svg class="w-full h-full transform -rotate-90">
 								<circle cx="40" cy="40" r="35" stroke="currentColor" stroke-width="6" fill="transparent" class="text-gray-100 dark:text-gray-700" />
 								<circle cx="40" cy="40" r="35" stroke="currentColor" stroke-width="6" fill="transparent" 
 									:stroke-dasharray="2 * Math.PI * 35" 
-									:stroke-dashoffset="2 * Math.PI * 35 * (1 - statistiqueStore.stats.evalStats.reussite / 100)" 
-									class="text-indigo-600 transition-all duration-1000" stroke-linecap="round" />
+									:stroke-dashoffset="2 * Math.PI * 35 * (1 - (statistiqueStore.stats.evalStats.reussite || 0) / 100)" 
+									class="text-indigo-600 dark:text-indigo-400 transition-all duration-1000" stroke-linecap="round" />
 							</svg>
-							<div class="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-indigo-600 px-1 text-center leading-tight">
-								{{ selectedPeriodeName }}
+							<div class="absolute inset-0 flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-400">
+								{{ statistiqueStore.stats.evalStats.reussite }}%
 							</div>
 						</div>
 					</div>
 					<div class="grid grid-cols-2 gap-4">
-						<div class="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-							<p class="text-xs text-gray-500 mb-1 uppercase">Programmés</p>
-							<p class="text-lg font-bold">{{ statistiqueStore.stats.evaluations }}</p>
+						<div class="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-700/60">
+							<p class="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase font-semibold">Programmés</p>
+							<p class="text-lg font-bold text-gray-900 dark:text-white">{{ statistiqueStore.stats.evaluations }}</p>
 						</div>
-						<div class="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-							<p class="text-xs text-gray-500 mb-1 uppercase">Validés</p>
-							<p class="text-lg font-bold">{{ statistiqueStore.stats.evalStats.validees }}</p>
+						<div class="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-700/60">
+							<p class="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase font-semibold">Validés</p>
+							<p class="text-lg font-bold text-gray-900 dark:text-white">{{ statistiqueStore.stats.evalStats.validees }}</p>
 						</div>
 					</div>
 				</div>

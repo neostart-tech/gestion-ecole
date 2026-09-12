@@ -349,6 +349,7 @@ const openEditModal = (f) => {
   modalTitle.value = "Modifier l'affectation";
   form.value = {
     id: f.id,
+    slug: f.slug,
     matiere_id: matiere.value?.id,
     volume_horaire: f.volume_horaire,
     coefficient: f.coefficient,
@@ -422,8 +423,8 @@ const onNiveauChangeMulti = async () => {
 const saveAffectation = async () => {
   isSaving.value = true;
   try {
-    form.value.id
-      ? await uvStore.updateUv(form.value.id, form.value)
+    form.value.id || form.value.slug
+      ? await uvStore.updateUv(form.value.slug || form.value.id, form.value)
       : await uvStore.addUv(form.value);
 
     await uvStore.fetchUv();
@@ -449,7 +450,7 @@ const deleteItem = async (uv) => {
 
   if (res.isConfirmed) {
     try {
-      await uvStore.deleteUv(uv.id);
+      await uvStore.deleteUv(uv.slug || uv.id);
       await uvStore.fetchUv();
       await matiereStore.fetchMatieres();
       $toastr.success("Affectation supprimée avec succes");

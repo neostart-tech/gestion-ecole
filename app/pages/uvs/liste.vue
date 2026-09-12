@@ -807,6 +807,7 @@ const openEditModal = (f) => {
 
   form.value = {
     id: f.id,
+    slug: f.slug,
     nom: f.nom,
     code: f.code,
   };
@@ -823,8 +824,8 @@ const closeModal = () => (showModal.value = false);
 const saveMatiere = async () => {
   isSaving.value = true;
   try {
-    form.value.id
-      ? await matiereStore.updateMatiere(form.value.id, form.value)
+    form.value.id || form.value.slug
+      ? await matiereStore.updateMatiere(form.value.slug || form.value.id, form.value)
       : await matiereStore.addMatiere(form.value);
 
     await matiereStore.fetchMatieres();
@@ -849,7 +850,7 @@ const deleteItem = async (matiere) => {
 
   if (res.isConfirmed) {
     try {
-      await matiereStore.deleteMatiere(matiere.id);
+      await matiereStore.deleteMatiere(matiere.slug || matiere.id);
       await matiereStore.fetchMatieres();
       $toastr.success("Matiere supprimée avec succes");
     } catch(error) {

@@ -135,33 +135,35 @@ export const useUvStore = defineStore("uv", {
     },
 
    
-    async deleteUv(uv) {
+    async deleteUv(uvOrSlug) {
+      const slug = typeof uvOrSlug === "object" ? (uvOrSlug.slug || uvOrSlug.id) : uvOrSlug;
       this.isLoading = true;
       try {
         await axios.delete(
-          `/unites-de-valeur/${uv}/supprimer`,
+          `/unites-de-valeur/${slug}/supprimer`,
           this.authHeaders()
         );
 
         this.uvs = this.uvs.filter(
-          (f) => f.id !== uv
+          (f) => f.slug !== slug && f.id !== slug
         );
       } finally {
         this.isLoading = false;
       }
     },
 
-    async updateUv(id, payload) {
+    async updateUv(slugOrId, payload) {
+      const slug = typeof slugOrId === "object" ? (slugOrId.slug || slugOrId.id) : slugOrId;
       this.isLoading = true;
       try {
         const response = await axios.put(
-          `/unites-de-valeur/${id}/modifier`,
+          `/unites-de-valeur/${slug}/modifier`,
           payload,
           this.authHeaders()
         );
 
         const index = this.uvs.findIndex(
-          (f) => f.id === id
+          (f) => f.slug === slug || f.id === slug
         );
 
         if (index !== -1) {

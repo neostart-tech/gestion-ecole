@@ -313,6 +313,12 @@ const scrollTo = (id) => {
 
 onMounted(async () => {
   await syllabusStore.fetchSyllabusDetail(route.params.slug)
+
+  // Redirect to slug if accessed via ID and slug exists
+  if (data.value?.uv?.slug && String(route.params.slug) !== String(data.value.uv.slug)) {
+    useRouter().replace(`/enseignant/syllabuses/view/${data.value.uv.slug}`)
+  }
+
   if (!parametreStore.parametres || parametreStore.parametres.length === 0) {
     await parametreStore.fetchParametres()
   }

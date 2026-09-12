@@ -175,6 +175,38 @@
                   </p>
                 </div>
 
+                <!-- SÉLECTION DU MOYEN DE PAIEMENT SEMOA -->
+                <div v-if="semoaGatewaysList.length > 0">
+                  <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">Moyen de paiement</label>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div 
+                      v-for="method in semoaGatewaysList" 
+                      :key="method.reference"
+                      @click="form.payment_method = method.reference"
+                      class="p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-3"
+                      :class="[
+                        form.payment_method === method.reference 
+                          ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/40 dark:border-indigo-500 shadow-sm' 
+                          : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600'
+                      ]"
+                    >
+                      <div class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0 overflow-hidden border border-gray-200 dark:border-gray-700">
+                        <img v-if="method.logo_url" :src="method.logo_url" :alt="method.libelle" class="w-full h-full object-contain p-1" />
+                        <svg v-else fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-5 h-5 text-indigo-600 dark:text-indigo-400">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <p class="text-xs font-bold text-gray-900 dark:text-white truncate">{{ method.libelle }}</p>
+                        <p class="text-[10px] text-gray-500 dark:text-gray-400 font-medium truncate">{{ method.psp_libelle || method.methode || 'Semoa' }}</p>
+                      </div>
+                      <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0" :class="[form.payment_method === method.reference ? 'border-indigo-600 bg-indigo-600' : 'border-gray-300 dark:border-gray-600']">
+                        <div v-if="form.payment_method === method.reference" class="w-1.5 h-1.5 rounded-full bg-white"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="pt-2">
                   <button type="submit" class="w-full py-3.5 px-6 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" :disabled="paiementStore.isLoading || isAmountTooHigh">
                     <svg v-if="!paiementStore.isLoading" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
@@ -339,6 +371,16 @@ const selectedMethodLabel = computed(() => {
   return m ? m.label : '—'
 })
 
+const semoaGatewaysList = computed(() => {
+  return paiementStore.semoaGateways || []
+})
+
+watch(semoaGatewaysList, (list) => {
+  if (list && list.length > 0 && (!form.value.payment_method || !list.some(g => g.reference === form.value.payment_method))) {
+    form.value.payment_method = list[0].reference
+  }
+}, { immediate: true })
+
 const historiqueList = computed(() => {
   return paiementStore.historiquePaiements || []
 })
@@ -417,7 +459,10 @@ const loadData = async (isManual = false) => {
         isPageLoading.value = false
         return
       }
-      await paiementStore.getHistorique()
+      await Promise.all([
+        paiementStore.getHistorique(),
+        paiementStore.fetchSemoaGateways()
+      ])
       errorState.value = false
     } catch (err) {
       errorState.value = true
