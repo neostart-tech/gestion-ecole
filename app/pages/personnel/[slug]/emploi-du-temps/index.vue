@@ -722,7 +722,11 @@ const formatEventForCalendar = (evt: any) => {
       displayType: type,
       displaySalle: evt.salle?.nom || evt.salle || "",
       displayGroup: evt.grade?.nom || evt.group || "",
-      displayUv: uvName
+      displayUv: uvName,
+      uv_id: evt.uv_id || evt.matiere_id || evt.uv?.id || evt.id_uv || evt.uv,
+      salle_id: evt.salle_id || evt.salle?.id || evt.id_salle || evt.salle,
+      periode_id: evt.periode_id || evt.semestre_id || evt.periode?.id,
+      group_id: evt.group_id || evt.grade?.id || evt.groupe_id || evt.group
     }
   };
 };
@@ -886,11 +890,9 @@ const calendarOptions = computed<CalendarOptions>(() => ({
 watch(calendarEvents, () => {
   if (calendarRef.value) {
     const calendarApi = calendarRef.value.getApi();
-    if (calendarApi) {
-      calendarApi.refetchEvents();
-    }
+    if (calendarApi) calendarApi.refetchEvents();
   }
-});
+}, { deep: true });
 
 const filteredEvents = computed(() => {
   return calendarEvents.value
@@ -1189,9 +1191,17 @@ const MatieresOptions = computed(() => {
   // Filter UVS by the current teacher slug first
   if (teacherObject.value) {
     const teacherId = teacherObject.value.id || teacherObject.value.slug;
-    filtered = UvStore.uvs.filter((uv: any) => uv.enseignants?.some((e: any) => e.id === teacherId || e.slug === teacherId));
+    filtered = UvStore.uvs.filter((uv: any) => {
+      const teachers = uv.enseignants || uv.user || [];
+      return teachers.some((e: any) => e.id === teacherId || e.slug === teacherId);
+    });
   } else {
     filtered = UvStore.uvs;
+  }
+
+  let currentUv = null;
+  if (form.value.uv_id) {
+    currentUv = UvStore.uvs.find((u: any) => u.id === form.value.uv_id || u.slug === form.value.uv_id);
   }
 
   if (currentGroup) {
@@ -1199,6 +1209,9 @@ const MatieresOptions = computed(() => {
     const gNiveauId = currentGroup.niveau_id || currentGroup.niveau?.id;
 
     filtered = filtered.filter((u: any) => {
+      // Toujours inclure l'UV actuellement sélectionnée
+      if (form.value.uv_id && (u.id === form.value.uv_id || u.slug === form.value.uv_id)) return true;
+
       const uFiliereId = u.filiere_id || u.filiere?.id;
       const uNiveauId = u.niveau_id || u.niveau?.id;
 
@@ -1217,6 +1230,11 @@ const MatieresOptions = computed(() => {
       return true;
     });
   }
+  
+  // S'assurer que le currentUv est dans la liste si jamais il a été filtré par le teacher
+  if (currentUv && !filtered.some((u: any) => u.id === currentUv.id || u.slug === currentUv.slug)) {
+    filtered.push(currentUv);
+  }
 
   return filtered.map((u: any) => {
     const parts = [];
@@ -1232,7 +1250,7 @@ const MatieresOptions = computed(() => {
 });
 const GroupesOptions = computed(() => groupStore.groupes.map(g => ({ label: `${g.niveau?.libelle || ''} ${g.nom}`, value: g.id || g.slug })));
 const sallesOptions = computed(() => salleStore.salles.map(s => ({ label: s.nom, value: s.id || s.slug })));
-const TypeOptions = [ { label: "Cours", value: "Cours" }, { label: "Évaluation", value: "Évaluation" } ];
+const TypeOptions = [ { label: "Cours", value: "Cours" } ];
 
 onMounted(async () => {
   isPageLoading.value = true;

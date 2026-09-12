@@ -717,12 +717,19 @@
                         </div>
                       </div>
 
-                      <!-- Texte long avec TinyMCE -->
+                      <!-- Texte long avec Quill (mode édition vs consultation) -->
                       <div v-else-if="question.type === 'texte_long'">
-                        <CustomQuillEditor
-                          v-model="responses[question.id]"
-                          @update:modelValue="debouncedSave(question)"
-                        />
+                        <div v-if="!canSeeCorrection">
+                          <CustomQuillEditor
+                            v-model="responses[question.id]"
+                            :readOnly="examStatus !== 'en_cours' || hasSubmitted || examStore.isSubmitting || isSubmitting"
+                            :disabled="examStatus !== 'en_cours' || hasSubmitted || examStore.isSubmitting || isSubmitting"
+                            @update:modelValue="debouncedSave(question)"
+                          />
+                        </div>
+                        <div v-else class="w-full px-4 py-3 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 transition-all">
+                          <div class="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-200" v-html="responses[question.id] || '(Aucune réponse)'"></div>
+                        </div>
                         <div class="flex justify-end mt-1">
                           <span class="text-xs text-gray-500 dark:text-gray-400">
                             {{ wordCount(responses[question.id]) }} mots

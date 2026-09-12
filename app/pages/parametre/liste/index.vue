@@ -77,6 +77,42 @@
             />
           </div>
         </div>
+        <!-- SECTION 1B: En-tête et Contacts (Relevés, Bulletins) -->
+        <div
+          class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
+        >
+          <div
+            class="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700"
+          >
+            <h2
+              class="text-base font-semibold text-gray-900 dark:text-white flex items-center"
+            >
+              <div class="w-1 h-5 bg-blue-600 rounded-full mr-3"></div>
+              <svg
+                class="w-5 h-5 mr-2 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              En-tête et Contacts
+            </h2>
+          </div>
+
+          <div class="p-6 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <DynamicParamField v-if="parametres.ministere_tutelle" :param="parametres.ministere_tutelle" v-model="formData.ministere_tutelle" />
+              <DynamicParamField v-if="parametres.republique" :param="parametres.republique" v-model="formData.republique" />
+              <DynamicParamField v-if="parametres.devise" :param="parametres.devise" v-model="formData.devise" />
+              <DynamicParamField v-if="parametres.agrement" :param="parametres.agrement" v-model="formData.agrement" />
+              <DynamicParamField v-if="parametres.adresse_physique" :param="parametres.adresse_physique" v-model="formData.adresse_physique" />
+              <DynamicParamField v-if="parametres.telephone" :param="parametres.telephone" v-model="formData.telephone" />
+              <DynamicParamField v-if="parametres.email_contact" :param="parametres.email_contact" v-model="formData.email_contact" />
+              <DynamicParamField v-if="parametres.email_admission" :param="parametres.email_admission" v-model="formData.email_admission" />
+            </div>
+          </div>
+        </div>
 
         <!-- SECTION 2: Direction -->
         <div
@@ -166,11 +202,17 @@
               class="ml-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800"
             >
               <DynamicParamField
-                v-if="parametres.afficher_unites"
+                v-if="parametres && parametres.afficher_unites"
                 :param="parametres.afficher_unites"
                 v-model="formData.afficher_unites"
               />
             </div>
+
+            <DynamicParamField
+              v-if="parametres && parametres.examens_uniquement"
+              :param="parametres.examens_uniquement"
+              v-model="formData.examens_uniquement"
+            />
           </div>
         </div>
 

@@ -170,7 +170,7 @@
             <div class="flex justify-center gap-2">
               <!-- Voir détails -->
               <NuxtLink
-                :to="`/evaluations/professeur/detail-examen/${value.slug}`"
+                :to="`/evaluations/professeur/detail-examen/${value.slug || value.id}`"
                 class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
                 title="Voir les détails"
               >
@@ -199,7 +199,7 @@
               <Can action="update-question-examen">
                 <NuxtLink
                   v-if="value.is_online === 1"
-                  :to="`/evaluations/examen-en-ligne/${value.slug}/questions`"
+                  :to="`/evaluations/examen-en-ligne/${value.slug || value.id}/questions`"
                   class="p-2 rounded-lg text-indigo-600 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors duration-200"
                   title="Éditer le sujet & questions"
                 >
@@ -221,7 +221,7 @@
 
                 <NuxtLink
                 v-if="value.is_online === 1"
-                :to="`/evaluations/examen-en-ligne/${value.slug}/soumission-des-etudiants`"
+                :to="`/evaluations/examen-en-ligne/${value.slug || value.id}/soumission-des-etudiants`"
                 class="p-2 rounded-lg text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors duration-200"
                 title="Voir les soummissions des étudiants"
               >

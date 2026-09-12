@@ -6,9 +6,9 @@
     <Breadcrumb
       :items="[
         { label: 'Matieres', to: '/' },
-        { label: 'Liste', to: null },
+        { label: 'Catalogue', to: null },
       ]"
-      title="Liste des matieres"
+      title="Catalogue des matières"
       title-class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 dark:text-white"
       spacing="mb-4"
     />
@@ -159,6 +159,21 @@
           <template #action="{ value }">
             <div class="flex justify-center gap-3">
               <button
+                @click="openAffectationsModal(value)"
+                class="p-2 rounded-lg text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30"
+                title="Gérer les affectations"
+              >
+                <svg
+                  class="w-5 h-5 mr-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+              </button>
+              
+              <!-- <button
                 @click="openDetailModal(value)"
                 class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30"
               >
@@ -181,7 +196,7 @@
                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                   />
                 </svg>
-              </button>
+              </button> -->
 
               <!-- Edit -->
               <Can action="update-uv">
@@ -551,129 +566,8 @@
                 <label for="on_label">Code</label>
               </FloatLabel>
 
-              <FloatLabel variant="on">
-                <InputNumber
-                  v-model="form.volume_horaire"
-                  inputId="integeronly"
-                  fluid
-                />
-                <label for="on_label">Volume Horaire</label>
-              </FloatLabel>
-              <FloatLabel variant="on">
-                <InputNumber
-                  v-model="form.coefficient"
-                  inputId="integeronly"
-                  fluid
-                />
-                <label for="on_label">Coefficient</label>
-              </FloatLabel>
+              <!-- SUPPRIMÉ LES AFFECTATIONS DE LA CRÉATION DE LA MATIERE -->
 
-              <!-- NIVEAU -->
-              <MultiSelect
-                v-if="!form.id"
-                v-model="form.niveau_ids"
-                display="chip"
-                :options="NiveauxOptions"
-                optionLabel="label"
-                optionValue="value"
-                multiple
-                filter
-                placeholder="Sélectionner des niveaux"
-                class="w-full"
-                @change="onNiveauChangeMulti"
-              />
-              <Dropdown
-                v-else
-                v-model="form.niveau_id"
-                :options="NiveauxOptions"
-                optionLabel="label"
-                optionValue="value"
-                filter
-                showClear
-                placeholder="Sélectionner un niveau"
-                class="w-full"
-                @change="onNiveauChange"
-              />
-
-              <!-- FILIERE -->
-              <MultiSelect
-                v-if="!form.id"
-                v-model="form.filiere_ids"
-                display="chip"
-                :options="FilieresOptions"
-                optionLabel="label"
-                optionValue="value"
-                multiple
-                filter
-                placeholder="Sélectionner des filières"
-                class="w-full"
-              />
-               <Dropdown
-                v-else
-                v-model="form.filiere_id"
-                :options="FilieresOptions"
-                optionLabel="label"
-                optionValue="value"
-                filter
-                showClear
-                placeholder="Sélectionner une filiere"
-                class="w-full"
-              />
-
-              <!-- PERIODE -->
-              <MultiSelect
-                v-if="!form.id"
-                v-model="form.periode_ids"
-                display="chip"
-                :options="SemestreOptions"
-                optionLabel="label"
-                optionValue="value"
-                multiple
-                filter
-                :disabled="!form.niveau_ids || form.niveau_ids.length === 0"
-                :placeholder="form.niveau_ids?.length > 0 ? 'Sélectionner des semestres' : 'Sélectionnez d\'abord un niveau'"
-                class="w-full"
-              />
-              <Dropdown
-                v-else
-                v-model="form.periode_id"
-                :options="SemestreOptions"
-                optionLabel="label"
-                optionValue="value"
-                filter
-                showClear
-                :disabled="!form.niveau_id"
-                :placeholder="form.niveau_id ? 'Sélectionner un semestre' : 'Sélectionnez d\'abord un niveau'"
-                class="w-full"
-              />
-
-              <!-- <input
-                v-model="form.volume_horaire"
-                placeholder="volume horaire"
-                required
-                class="w-full px-4 py-2 rounded-lg border uppercase bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
-              /> -->
-
-              <!-- <input
-                v-model="form.coefficient"
-                placeholder="Coefficient"
-                required
-                class="w-full px-4 py-2 rounded-lg border uppercase bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
-              /> -->
-
-             
-
-              <MultiSelect
-                v-model="form.enseignant_id"
-                display="chip"
-                :options="enseignantsOptions"
-                optionLabel="label"
-                optionValue="value"
-                multiple
-                filter
-                placeholder="Sélectionner les professeurs"
-                class="w-full"
-              />
 
               <div class="flex justify-end gap-3">
                 <button
@@ -716,6 +610,7 @@ import {
 } from "@headlessui/vue";
 import Breadcrumb from "~/components/Breadcrumb.vue";
 import { useFiliereStore } from "../../../stores/filiere";
+import { useMatiereStore } from "~~/stores/matiere";
 import { useUvStore } from "~~/stores/unite-valeur";
 import { useUserStore } from "~~/stores/user";
 import { usePeriodeStore } from "~~/stores/periode";
@@ -724,6 +619,7 @@ import ButtonDelete from "~/components/ui/buttonDelete.vue";
 
 const { $toastr, $swal } = useNuxtApp();
 const filiereStore = useFiliereStore();
+const matiereStore = useMatiereStore();
 const uvStore = useUvStore();
 const userStore = useUserStore();
 const periodeStore = usePeriodeStore();
@@ -746,15 +642,6 @@ const form = ref({
   id: null,
   nom: "",
   code: "",
-  volume_horaire: "",
-  coefficient: "",
-  enseignant_id: [],
-  filiere_id: "",
-  periode_id: "",
-  niveau_id: "",
-  filiere_ids: [],
-  periode_ids: [],
-  niveau_ids: [],
 });
 
 const generateCodeFromName = (name) => {
@@ -780,55 +667,36 @@ watch(() => form.value.nom, (newNom) => {
 const columns = ref([
   { field: "nom", title: "Nom", visible: true },
   { field: "code", title: "Code", visible: true },
-  // { field: "cm", title: "Code magistrale", visible: true },
-  // { field: "td", title: "Traveaux dirigés", visible: true },
-  // { field: "tp", title: "Traveaux pratiques", visible: true },
-  // { field: "ec", title: "Elements constitutifs", visible: true },
-  { field: "coefficient", title: "Coefficient", visible: true },
-  { field: "niveau_label", title: "Niveau", visible: true },
-  { field: "filiere", title: "Filiere", visible: false },
-  { field: "volume_horaire", title: "Volume Horaire", visible: false },
-  { field: "semestre", title: "Semestre", visible: false },
+  { field: "nb_affectations", title: "Classes Affectées", visible: true },
   { field: "action", title: "Actions", visible: true },
 ]);
 
 const visibleColumns = computed(() => columns.value.filter((c) => c.visible));
 
 const rows = computed(() =>
-  uvStore.uvs.map((f) => ({
-    id: f.id,
-    slug: f.slug,
-    nom: f.nom,
-    code: f.code,
-    cm: f.cm,
-    td: f.td ?? 0,
-    tp: f.tp ?? 0,
-    ec: f.ec ?? 0,
-    coefficient: f.coefficient ?? 0,
-    debut: f.periode ? (f.periode.debut + "-" + f.periode.fin) : "--",
-    filiere: f.filiere?.nom ?? "--",
-    volume_horaire: f.volume_horaire ?? "--",
-    user: f.user ?? null,
-    semestre: f.periode?.nom ?? null,
-    filiere_id: f.filiere?.id ?? null,
-    periode_id: f.periode?.id ?? null,
-    niveau_id: f.niveau?.id ?? null,
-    niveau_label: f.niveau?.libelle ?? "--",
-    enseignant_ids: f.user?.map((u) => u.id) ?? [],
+  matiereStore.matieres.map((m) => ({
+    id: m.id,
+    slug: m.slug,
+    nom: m.nom,
+    code: m.code,
+    nb_affectations: m.unite_valeurs ? m.unite_valeurs.length : 0,
+    unite_valeurs: m.unite_valeurs || [],
   })),
 );
 
 const filteredRows = computed(() => {
   let result = rows.value;
 
-  if (filterFiliere.value) {
-    result = result.filter((r) => r.filiere_id === filterFiliere.value);
-  }
-  if (filterNiveau.value) {
-    result = result.filter((r) => r.niveau_id === filterNiveau.value);
-  }
-  if (filterSemestre.value) {
-    result = result.filter((r) => r.periode_id === filterSemestre.value);
+  if (filterFiliere.value || filterNiveau.value || filterSemestre.value) {
+    result = result.filter((r) => {
+      // Une matière correspond au filtre si l'une de ses affectations correspond
+      return r.unite_valeurs.some((uv) => {
+        const matchFiliere = filterFiliere.value ? uv.filiere_id === filterFiliere.value : true;
+        const matchNiveau = filterNiveau.value ? uv.niveau_id === filterNiveau.value : true;
+        const matchSemestre = filterSemestre.value ? uv.periode_id === filterSemestre.value : true;
+        return matchFiliere && matchNiveau && matchSemestre;
+      });
+    });
   }
 
   return result;
@@ -841,6 +709,8 @@ const enseignantsOptions = computed(() => {
   }));
 });
 
+const showAffectationsModal = ref(false);
+
 const openDetailModal = (item) => {
   selectedEvent.value = item;
   showDetailModal.value = true;
@@ -851,20 +721,16 @@ const closeDetailModal = () => {
   selectedEvent.value = null;
 };
 
+const openAffectationsModal = (item) => {
+  // on redirige vers une nouvelle page d'affectations avec le slug
+  navigateTo(`/uvs/affectations-${item.slug}`);
+};
+
 const openAddModal = () => {
   modalTitle.value = "Créer une matiere";
   form.value = {
     nom: "",
     code: "",
-    volume_horaire: "",
-    coefficient: "",
-    enseignant_id: [],
-    filiere_id: "",
-    periode_id: "",
-    niveau_id: "",
-    filiere_ids: [],
-    periode_ids: [],
-    niveau_ids: [],
   };
   filteredPeriodes.value = [];
   showModal.value = true;
@@ -944,16 +810,6 @@ const openEditModal = (f) => {
     slug: f.slug,
     nom: f.nom,
     code: f.code,
-    volume_horaire: f.volume_horaire,
-    coefficient: f.coefficient,
-
-    filiere_id: f.filiere_id,
-    periode_id: f.periode_id,
-    niveau_id: f.niveau_id,
-    enseignant_id: [...f.enseignant_ids],
-    filiere_ids: [],
-    periode_ids: [],
-    niveau_ids: [],
   };
 
   if (f.niveau_id) {
@@ -968,12 +824,12 @@ const closeModal = () => (showModal.value = false);
 const saveMatiere = async () => {
   isSaving.value = true;
   try {
-    form.value.id
-      ? await uvStore.updateUv(form.value.slug, form.value)
-      : await uvStore.addUv(form.value);
+    form.value.id || form.value.slug
+      ? await matiereStore.updateMatiere(form.value.slug || form.value.id, form.value)
+      : await matiereStore.addMatiere(form.value);
 
-    await uvStore.fetchUv();
-    $toastr.success("Matiere enrégistré avec succes");
+    await matiereStore.fetchMatieres();
+    $toastr.success("Matiere enregistrée avec succes");
     closeModal();
   } catch (error) {
     console.log(error);
@@ -983,18 +839,23 @@ const saveMatiere = async () => {
   }
 };
 
-const deleteItem = async (uv) => {
+const deleteItem = async (matiere) => {
   const res = await $swal.fire({
     title: "Supprimer cette matiere ?",
+    text: "Toutes ses affectations doivent être retirées avant.",
     icon: "warning",
     showCancelButton: true,
     confirmButtonText: "Supprimer",
   });
 
   if (res.isConfirmed) {
-    await uvStore.deleteUv(uv.slug);
-    await uvStore.fetchUv();
-    $toastr.success("Matiere supprimée avec succes");
+    try {
+      await matiereStore.deleteMatiere(matiere.slug || matiere.id);
+      await matiereStore.fetchMatieres();
+      $toastr.success("Matiere supprimée avec succes");
+    } catch(error) {
+      $toastr.error(error.response?.data?.message || "Impossible de supprimer la matière.");
+    }
   }
 };
 
@@ -1030,6 +891,7 @@ const FilieresOptions = computed(() =>
 
 onMounted(async () => {
   await filiereStore.fetchFilieres();
+  await matiereStore.fetchMatieres();
   await uvStore.fetchUv();
   await userStore.fetchUsersEnseignant();
   await niveauStore.fetchNiveaux();

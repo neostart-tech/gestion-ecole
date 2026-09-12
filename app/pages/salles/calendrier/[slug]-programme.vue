@@ -2096,11 +2096,9 @@ const filteredEvents = computed(() => {
 watch(calendarEvents, () => {
   if (calendarRef.value) {
     const calendarApi = calendarRef.value.getApi();
-    if (calendarApi) {
-      calendarApi.refetchEvents();
-    }
+    if (calendarApi) calendarApi.refetchEvents();
   }
-});
+}, { deep: true });
 
 // Fonctions utilitaires
 const getEventColor = (type: string) => {
@@ -2664,10 +2662,6 @@ watch(() => form.value.uv_id, (newUvId) => {
 
 const TypeOptions = computed(() => {
   return [
-    {
-      label: "Évaluation",
-      value: "Évaluation",
-    },
     {
       label: "Cours",
       value: "Cours",

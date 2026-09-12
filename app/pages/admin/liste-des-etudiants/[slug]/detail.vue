@@ -315,48 +315,7 @@
                     </div>
                 </div>
                 <div class="bg-gray-50 dark:bg-gray-900 p-2 md:p-8 rounded-3xl max-h-[70vh] overflow-auto border-2 border-dashed border-gray-200 dark:border-gray-700">
-                    <div id="releve-content" class="bg-white p-4 md:p-12 mx-auto w-full md:w-[210mm] min-h-fit md:min-h-[297mm] shadow-lg origin-top scale-[0.6] sm:scale-[0.8] md:scale-100 mb-10">
-                        <div v-if="currentReleve" class="text-black font-serif">
-                            <div class="text-center mb-10">
-                                <img v-if="currentReleve.logo_url || parametreStore.getAppLogo" :src="currentReleve.logo_url || parametreStore.getAppLogo" class="h-16 md:h-20 mx-auto mb-4" />
-                                <h1 class="text-xl md:text-2xl font-bold text-indigo-700 uppercase">{{ parametreStore.getParamValue('nom_de_etablissement') || 'UNIVERSITÉ EXCELLENCE' }}</h1>
-                            </div>
-                            <div class="flex justify-between border-b-2 border-indigo-600 pb-4 mb-8 text-left">
-                                <div>
-                                    <p class="text-[10px] text-gray-500 uppercase">Étudiant</p>
-                                    <p class="text-base md:text-lg font-bold">{{ studentName }}</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-[10px] text-gray-500 uppercase">Matricule</p>
-                                    <p class="text-base md:text-lg font-bold">{{ etudiantStore.etudiant?.matricule }}</p>
-                                </div>
-                            </div>
-                            <table class="w-full border-collapse mb-8 text-left">
-                                <thead class="bg-indigo-600 text-white text-[10px] uppercase">
-                                    <tr>
-                                        <th class="p-3">Matières</th>
-                                        <th class="p-3 text-center">Devoir</th>
-                                        <th class="p-3 text-center">Examen</th>
-                                        <th class="p-3 text-center">Moy.</th>
-                                        <th class="p-3 text-center">Crédit</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="text-xs md:text-sm">
-                                    <tr v-for="uv in currentUVs" :key="uv.nom" class="border-b border-gray-100">
-                                        <td class="p-2 md:p-3">{{ uv.nom }}</td>
-                                        <td class="p-2 md:p-3 text-center">{{ uv.devoir }}</td>
-                                        <td class="p-2 md:p-3 text-center">{{ uv.examen }}</td>
-                                        <td class="p-2 md:p-3 text-center font-bold">{{ uv.note }}</td>
-                                        <td class="p-2 md:p-3 text-center">{{ uv.credits }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div class="flex justify-between items-center bg-gray-50 p-4 md:p-6 rounded-2xl">
-                                <p class="text-xs md:text-sm font-bold uppercase">Moyenne Générale</p>
-                                <p class="text-2xl md:text-3xl font-black text-indigo-600">{{ currentReleve.moyenne_generale }} / 20</p>
-                            </div>
-                        </div>
-                    </div>
+                    <ReleveNotePreview v-if="currentReleve" :releve="currentReleve" />
                 </div>
             </DialogPanel>
           </div>
@@ -392,8 +351,11 @@
                     <DialogTitle class="text-xl md:text-2xl font-black mb-6 uppercase tracking-tight">Générer un relevé</DialogTitle>
                     <Dropdown v-model="form.periode_id" :options="periodeOptions" optionLabel="label" optionValue="value" placeholder="Choisir une période" class="w-full mb-8" />
                     <div class="flex gap-3 justify-end">
-                        <button @click="showReleveModal = false" class="px-4 py-2 text-gray-500 font-bold">Annuler</button>
-                        <button @click="generateReleveDeNote" class="px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all">Confirmer</button>
+                        <button @click="showReleveModal = false" :disabled="isGenerating" class="px-4 py-2 text-gray-500 font-bold disabled:opacity-50">Annuler</button>
+                        <button @click="generateReleveDeNote" :disabled="isGenerating" class="px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed">
+                            <svg v-if="isGenerating" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            {{ isGenerating ? 'Génération...' : 'Confirmer' }}
+                        </button>
                     </div>
                 </DialogPanel>
             </div>
@@ -534,7 +496,8 @@ const currentUVs = computed(() => {
     })));
 });
 
-const periodeOptions = computed(() => periodeStore.periode.map(p => ({ label: p.nom, value: p.id })));
+const periodesEvaluees = ref([]);
+const periodeOptions = computed(() => periodesEvaluees.value.map(p => ({ label: p.nom, value: p.id })));
 
 const formatDate = (date) => date ? new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) : '—';
 const getFileUrl = (path) => `${process.dev ? config.app_dev_storage_url : config.app_prod_storage_url}/storage/${path}`;
@@ -590,7 +553,7 @@ const generateReleveDeNote = async () => {
     isGenerating.value = true;
     try {
         const res = await relevenoteStore.GenererReleveNotes(route.params.slug, {
-            annee_scolaire_id: periodeStore.periodes.find(p => p.id === form.value.periode_id).annee_scolaire_id,
+            annee_scolaire_id: periodesEvaluees.value.find(p => p.id === form.value.periode_id).annee_scolaire_id,
             periode_id: form.value.periode_id
         });
         if (res) {
@@ -617,12 +580,20 @@ const confirmDisable = async () => {
     showDisableModal.value = false;
 };
 
-const openReleveModal = () => showReleveModal.value = true;
+const openReleveModal = async () => {
+    showReleveModal.value = true;
+    try {
+        periodesEvaluees.value = await periodeStore.fetchPeriodesEvaluees(route.params.slug);
+    } catch (error) {
+        $toastr.error("Erreur de récupération des périodes");
+    }
+};
+
 const downloadCurrentPDF = async () => {
     const html2pdf = await loadHtml2Pdf();
     if (!html2pdf) return;
-    const element = document.getElementById("releve-content");
-    await html2pdf().set({ margin: 10, filename: 'releve.pdf', html2canvas: { scale: 2 } }).from(element).save();
+    const element = document.getElementById("releve-preview-content");
+    await html2pdf().set({ margin: 10, filename: `releve_${etudiantStore.etudiant?.nom || 'etudiant'}.pdf`, html2canvas: { scale: 2 } }).from(element).save();
 };
 
 onMounted(async () => {

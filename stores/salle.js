@@ -137,7 +137,7 @@ export const useSalleStore = defineStore("salle", {
       this.isLoading = true;
 
       try {
-        const req = await axios.post(
+        const res = await axios.post(
           "/emploi-du-temps/store",
           payload,
           this.authHeaders(),
@@ -145,6 +145,7 @@ export const useSalleStore = defineStore("salle", {
         this.programmes = res.data.data;
       } catch (error) {
         console.error("Erreur d'enregistrment du programme:", error);
+        throw error;
       } finally {
         this.isLoading = false;
       }

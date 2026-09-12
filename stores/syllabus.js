@@ -111,13 +111,13 @@ export const useSyllabusStore = defineStore("syllabus", {
         // Si c'est un objet avec une clé 'semestres' (cas étudiant)
         if (list.semestres) {
           for (const s in list.semestres) {
-            const found = list.semestres[s].find(uv => uv.slug === slug);
+            const found = list.semestres[s].find(uv => uv.slug === slug || String(uv.id) === String(slug));
             if (found) return found;
           }
           return null;
         }
         // Si c'est une liste simple (cas enseignant)
-        return Array.isArray(list) ? list.find(item => item.slug === slug) : null;
+        return Array.isArray(list) ? list.find(item => item.slug === slug || String(item.id) === String(slug)) : null;
       };
       
       const existingUv = findInList(this.enseignantSyllabuses) || findInList(this.etudiantSyllabuses);

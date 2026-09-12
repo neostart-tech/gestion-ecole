@@ -1,39 +1,39 @@
 <template>
   <div
-    class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-6 px-4 sm:px-6 lg:px-8"
+    class="min-h-screen bg-gray-50 dark:bg-gray-900 py-6 px-4 sm:px-6 lg:px-8 transition-colors"
   >
     <div>
-      <!-- En-tête du profil - Plus coloré -->
-      <div class="mb-8">
+      <!-- En-tête du profil -->
+      <div class="mb-8 bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-4">
             <div class="relative">
               <img
                 v-if="userPhoto"
                 :src="userPhoto"
-                class="w-16 h-16 rounded-2xl object-cover shadow-lg shadow-blue-200/50 dark:shadow-blue-900/30"
+                class="w-16 h-16 rounded-2xl object-cover border border-gray-200 dark:border-gray-700 shadow-sm"
                 alt="Profile photo"
               />
               <div
                 v-else
-                class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 dark:from-blue-400 dark:to-purple-500 flex items-center justify-center text-white shadow-lg shadow-blue-200/50 dark:shadow-blue-900/30"
+                class="w-16 h-16 rounded-2xl bg-indigo-600 dark:bg-indigo-500 flex items-center justify-center text-white shadow-sm"
               >
-                <span class="text-2xl font-light">{{ userInitials }}</span>
+                <span class="text-2xl font-semibold">{{ userInitials }}</span>
               </div>
               <div
-                class="absolute -bottom-1 -right-1 w-5 h-5 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full border-4 border-white dark:border-gray-800"
+                class="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white dark:border-gray-800"
               ></div>
             </div>
             <div>
-              <h1 class="text-2xl font-light text-gray-900 dark:text-white">
+              <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
                 {{ user.prenom }} {{ user.nom }}
               </h1>
-              <div class="flex items-center space-x-2 mt-0.5">
+              <div class="flex items-center space-x-2 mt-1">
                 <span
-                  class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800"
                 >
                   <span
-                    class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1.5"
+                    class="w-1.5 h-1.5 bg-indigo-500 rounded-full mr-1.5"
                   ></span>
                   {{ user.matricule || "Étudiant" }}
                 </span>
@@ -47,7 +47,7 @@
           <div class="flex items-center space-x-2">
             <button
               @click="openPasswordModal"
-              class="p-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 group relative"
+              class="p-2 text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-200"
               title="Changer le mot de passe"
             >
               <svg
@@ -68,7 +68,7 @@
         </div>
       </div>
 
-      <!-- Navigation avec couleurs -->
+      <!-- Navigation tabs -->
       <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
         <nav class="flex space-x-8">
           <button
@@ -76,12 +76,10 @@
             :key="tab.id"
             @click="currentTab = tab.id"
             :class="[
-              'py-3 text-sm font-medium border-b-2 transition-all duration-200',
+              'py-3 text-sm font-semibold border-b-2 transition-all duration-200',
               currentTab === tab.id
-                ? tab.id === 'info'
-                  ? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400'
-                  : 'border-purple-500 text-purple-600 dark:border-purple-400 dark:text-purple-400'
-                : 'border-transparent text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300',
+                ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
             ]"
           >
             {{ tab.label }}
@@ -89,7 +87,7 @@
         </nav>
       </div>
 
-      <!-- Contenu principal avec plus de couleurs -->
+      <!-- Contenu principal -->
       <div class="space-y-6">
         <!-- Informations personnelles -->
         <div
@@ -98,18 +96,18 @@
         >
           <!-- Colonne principale -->
           <div class="lg:col-span-2 space-y-6">
-            <!-- Carte d'identité avec dégradé -->
+            <!-- Carte d'identité -->
             <div
-              class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-blue-200/50 dark:shadow-blue-900/10 border border-blue-100 dark:border-blue-900/30 overflow-hidden"
+              class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
             >
               <div
-                class="px-6 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 border-b border-transparent"
+                class="px-6 py-4 bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700"
               >
                 <h2
-                  class="text-sm font-bold text-white flex items-center"
+                  class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2"
                 >
                   <svg
-                    class="w-4 h-4 mr-2"
+                    class="w-4 h-4 text-indigo-600 dark:text-indigo-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -126,44 +124,40 @@
               </div>
               <div class="p-6">
                 <dl class="grid grid-cols-2 gap-4">
-                  <InfoItem label="Prénom" :value="user.prenom" color="blue" />
-                  <InfoItem label="Nom" :value="user.nom" color="indigo" />
+                  <InfoItem label="Prénom" :value="user.prenom" />
+                  <InfoItem label="Nom" :value="user.nom" />
                   <InfoItem
                     label="Date de naissance"
                     :value="formatDate(user.date_naissance)"
-                    color="purple"
                   />
                   <InfoItem
                     label="Lieu de naissance"
                     :value="user.lieu_naissance || '—'"
-                    color="pink"
                   />
                   <InfoItem
                     label="Nationalité"
                     :value="user.nationalite || '—'"
-                    color="teal"
                   />
                   <InfoItem
                     label="Genre"
                     :value="user.genre || '—'"
-                    color="orange"
                   />
                 </dl>
               </div>
             </div>
 
-            <!-- Coordonnées avec dégradé -->
+            <!-- Coordonnées -->
             <div
-              class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-purple-200/50 dark:shadow-purple-900/10 border border-purple-100 dark:border-purple-900/30 overflow-hidden"
+              class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
             >
               <div
-                class="px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-600 border-b border-transparent"
+                class="px-6 py-4 bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700"
               >
                 <h2
-                  class="text-sm font-bold text-white flex items-center"
+                  class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2"
                 >
                   <svg
-                    class="w-4 h-4 mr-2"
+                    class="w-4 h-4 text-indigo-600 dark:text-indigo-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -180,47 +174,43 @@
               </div>
               <div class="p-6">
                 <dl class="grid grid-cols-2 gap-4">
-                  <InfoItem label="Email" :value="user.email" color="purple" />
+                  <InfoItem label="Email" :value="user.email" />
                   <InfoItem
                     label="Téléphone"
                     :value="user.tel || '—'"
-                    color="pink"
                   />
                   <InfoItem
                     label="Adresse"
                     :value="user.adresse || '—'"
                     class="col-span-2"
-                    color="indigo"
                   />
                   <InfoItem
                     label="Ville"
                     :value="user.ville || '—'"
-                    color="blue"
                   />
                   <InfoItem
                     label="Pays"
                     :value="user.pays || '—'"
-                    color="teal"
                   />
                 </dl>
               </div>
             </div>
           </div>
 
-          <!-- Colonne latérale avec cartes colorées -->
+          <!-- Colonne latérale -->
           <div class="space-y-6">
             <!-- Informations académiques -->
             <div
-              class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-emerald-200/50 dark:shadow-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 overflow-hidden"
+              class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
             >
               <div
-                class="px-6 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 border-b border-transparent"
+                class="px-6 py-4 bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700"
               >
                 <h2
-                  class="text-sm font-bold text-white flex items-center"
+                  class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2"
                 >
                   <svg
-                    class="w-4 h-4 mr-2"
+                    class="w-4 h-4 text-indigo-600 dark:text-indigo-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -237,21 +227,21 @@
               </div>
               <div class="p-6 space-y-4">
                 <div
-                  class="flex items-center justify-between p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 rounded-lg"
+                  class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg"
                 >
-                  <p class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                  <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Matricule
                   </p>
                   <p
-                    class="text-sm font-mono font-bold text-gray-900 dark:text-white bg-white dark:bg-gray-700 px-2 py-1 rounded-lg border border-emerald-200"
+                    class="text-sm font-mono font-bold text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-700"
                   >
                     {{ user.matricule || "—" }}
                   </p>
                 </div>
                 <div
-                  class="flex items-center justify-between p-3 bg-teal-50 dark:bg-teal-900/20 border border-teal-100 dark:border-teal-900/30 rounded-lg"
+                  class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg"
                 >
-                  <p class="text-xs font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400">
+                  <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Année d'admission
                   </p>
                   <p class="text-sm font-medium text-gray-900 dark:text-white">
@@ -259,9 +249,9 @@
                   </p>
                 </div>
                 <div
-                  class="flex items-center justify-between p-3 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-100 dark:border-cyan-900/30 rounded-lg"
+                  class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg"
                 >
-                  <p class="text-xs font-bold uppercase tracking-wider text-cyan-700 dark:text-cyan-400">
+                  <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Superviseur
                   </p>
                   <p class="text-sm font-medium text-gray-900 dark:text-white">
@@ -271,18 +261,18 @@
               </div>
             </div>
 
-            <!-- Statistiques compte avec dégradé -->
+            <!-- Statistiques compte -->
             <div
-              class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-orange-200/50 dark:shadow-orange-900/10 border border-orange-100 dark:border-orange-900/30 overflow-hidden"
+              class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
             >
               <div
-                class="px-6 py-4 bg-gradient-to-r from-orange-500 to-amber-600 border-b border-transparent"
+                class="px-6 py-4 bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700"
               >
                 <h2
-                  class="text-sm font-bold text-white flex items-center"
+                  class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2"
                 >
                   <svg
-                    class="w-4 h-4 mr-2"
+                    class="w-4 h-4 text-indigo-600 dark:text-indigo-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -299,35 +289,35 @@
               </div>
               <div class="p-6 space-y-4">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold uppercase tracking-wider text-orange-700 dark:text-orange-400"
+                  <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400"
                     >Statut</span
                   >
                   <span
-                    class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm"
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
                   >
                     <span
-                      class="w-1.5 h-1.5 bg-white rounded-full mr-1.5 animate-pulse"
+                      class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5 animate-pulse"
                     ></span>
                     Actif
                   </span>
                 </div>
                 <div
-                  class="relative p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-900/30 rounded-xl"
+                  class="relative p-4 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl"
                 >
-                  <p class="text-xs font-bold uppercase tracking-wider text-orange-700 dark:text-orange-400 mb-1">
+                  <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
                     Membre depuis
                   </p>
-                  <p class="text-lg font-medium text-gray-900 dark:text-white">
+                  <p class="text-base font-medium text-gray-900 dark:text-white">
                     {{ formatDate(user.created_at, true) }}
                   </p>
                 </div>
                 <div
-                  class="relative p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 rounded-xl"
+                  class="relative p-4 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl"
                 >
-                  <p class="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 mb-1">
+                  <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
                     Dernière modification
                   </p>
-                  <p class="text-lg font-medium text-gray-900 dark:text-white">
+                  <p class="text-base font-medium text-gray-900 dark:text-white">
                     {{ formatDate(user.updated_at, true) }}
                   </p>
                 </div>
@@ -336,19 +326,19 @@
           </div>
         </div>
 
-        <!-- Rôles avec cartes colorées -->
+        <!-- Rôles -->
         <div
           v-if="currentTab === 'roles'"
-          class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-purple-100/50 dark:shadow-purple-900/10 border border-purple-100 dark:border-purple-900/30 overflow-hidden"
+          class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
         >
           <div
-            class="px-6 py-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10 border-b border-purple-100 dark:border-purple-900/30"
+            class="px-6 py-4 bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700"
           >
             <h2
-              class="text-sm font-medium text-purple-600 dark:text-purple-400 flex items-center"
+              class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2"
             >
               <svg
-                class="w-4 h-4 mr-2"
+                class="w-4 h-4 text-indigo-600 dark:text-indigo-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -366,41 +356,31 @@
           <div class="p-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div
-                v-for="(role, index) in user.roles"
+                v-for="role in user.roles"
                 :key="role.id"
-                :class="[
-                  'group relative rounded-xl p-5 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1',
-                  getRoleColor(index),
-                ]"
+                class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm hover:border-indigo-500 dark:hover:border-indigo-400 transition-all flex items-center gap-3"
               >
                 <div
-                  class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/20 to-transparent rounded-bl-full"
-                ></div>
-                <div class="relative">
-                  <div class="flex items-start justify-between mb-3">
-                    <div
-                      class="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center"
-                    >
-                      <svg
-                        class="w-4 h-4 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                  <div>
-                    <p class="font-medium text-white text-base mb-1">
-                      {{ role.nom }}
-                    </p>
-                  </div>
+                  class="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p class="font-semibold text-gray-900 dark:text-white text-sm">
+                    {{ role.nom }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -408,10 +388,10 @@
             <!-- Message si aucun rôle -->
             <div v-if="!user.roles?.length" class="text-center py-12">
               <div
-                class="w-20 h-20 mx-auto bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl flex items-center justify-center mb-4"
+                class="w-16 h-16 mx-auto bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mb-3"
               >
                 <svg
-                  class="w-10 h-10 text-purple-400 dark:text-purple-500"
+                  class="w-8 h-8"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -431,29 +411,25 @@
           </div>
         </div>
 
-        <!-- Fiscalité avec cartes colorées -->
+        <!-- Fiscalité -->
         <div
           v-if="currentTab === 'fiscalite'"
-          class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-orange-100/50 dark:shadow-orange-900/10 border border-orange-100 dark:border-orange-900/30 overflow-hidden animate-fade-in-up"
+          class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
         >
-          <div v-if="currentTab === 'fiscalite'" class="p-8 animate-fade-in">
-            <div class="max-w-3xl">
-              <div class="mb-8">
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Documents & Fiscalité</h2>
-                <p class="mt-1 text-sm text-gray-500">Gérez vos informations fiscales et vos documents administratifs.</p>
-              </div>
-            </div>
+          <div class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Documents & Fiscalité</h2>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Gérez vos informations fiscales et vos documents administratifs.</p>
           </div>
           <div class="p-6">
             <!-- Alert -->
-            <div class="mb-6 bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-500 p-4 rounded-r-xl shadow-sm">
+            <div class="mb-6 bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-4 rounded-r-xl shadow-sm">
                 <div class="flex items-start">
-                    <svg class="h-6 w-6 text-orange-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="h-6 w-6 text-amber-600 dark:text-amber-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div class="ml-3">
-                        <h3 class="text-sm font-bold text-orange-800 dark:text-orange-300 uppercase tracking-wide">Information Importante sur l'Impôt</h3>
-                        <p class="mt-1 text-sm text-orange-700 dark:text-orange-400">
+                        <h3 class="text-sm font-semibold text-amber-800 dark:text-amber-300 uppercase tracking-wide">Information Importante sur l'Impôt</h3>
+                        <p class="mt-1 text-sm text-amber-700 dark:text-amber-400">
                           Si le NIF est renseigné, seulement <strong>5 %</strong> sont prélevés sur votre salaire ; sinon, <strong>20 %</strong> seront prélevés. Notez que le NIF est <strong>obligatoire</strong> pour les personnes de nationalité togolaise.
                         </p>
                     </div>
@@ -481,7 +457,7 @@
                     v-model="fiscaliteForm.nif"
                     type="text"
                     placeholder="Saisissez votre NIF"
-                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white transition-colors"
+                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white transition-colors"
                     required
                   />
                 </div>
@@ -493,10 +469,10 @@
                   </label>
                   <div v-if="user.nif_document_url" class="mb-3 flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
                     <div class="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                      <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <svg class="w-5 h-5 text-emerald-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                       Document NIF enregistré
                     </div>
-                    <a :href="user.nif_document_url" target="_blank" class="text-xs font-medium text-blue-600 hover:text-blue-500">Voir le document</a>
+                    <a :href="user.nif_document_url" target="_blank" class="text-xs font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Voir le document</a>
                   </div>
                   <FileUpload
                     id="nif-document"
@@ -515,10 +491,10 @@
                   </label>
                   <div v-if="user.identity_document_url" class="mb-3 flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
                     <div class="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                      <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <svg class="w-5 h-5 text-emerald-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                       Pièce d'identité enregistrée
                     </div>
-                    <a :href="user.identity_document_url" target="_blank" class="text-xs font-medium text-blue-600 hover:text-blue-500">Voir le document</a>
+                    <a :href="user.identity_document_url" target="_blank" class="text-xs font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Voir le document</a>
                   </div>
                   <FileUpload
                     id="identity-document"
@@ -537,10 +513,10 @@
                   </label>
                   <div v-if="user.diploma_document_url" class="mb-3 flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
                     <div class="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                      <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <svg class="w-5 h-5 text-emerald-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                       Diplômes enregistrés
                     </div>
-                    <a :href="user.diploma_document_url" target="_blank" class="text-xs font-medium text-blue-600 hover:text-blue-500">Voir les diplômes</a>
+                    <a :href="user.diploma_document_url" target="_blank" class="text-xs font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Voir les diplômes</a>
                   </div>
                   <FileUpload
                     id="diploma-document"
@@ -559,10 +535,10 @@
                   </label>
                   <div v-if="user.cv_document_url" class="mb-3 flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
                     <div class="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                      <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <svg class="w-5 h-5 text-emerald-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                       CV enregistré
                     </div>
-                    <a :href="user.cv_document_url" target="_blank" class="text-xs font-medium text-blue-600 hover:text-blue-500">Voir le CV</a>
+                    <a :href="user.cv_document_url" target="_blank" class="text-xs font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Voir le CV</a>
                   </div>
                   <FileUpload
                     id="cv-document"
@@ -580,7 +556,7 @@
                 <button
                   type="submit"
                   :disabled="isFiscaliteLoading"
-                  class="px-6 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2"
+                  class="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2"
                 >
                   <svg
                     v-if="isFiscaliteLoading"
@@ -1189,19 +1165,6 @@ const formatDate = (date: string, withTime: boolean = false) => {
   }
 };
 
-// Couleurs des rôles
-const getRoleColor = (index: number) => {
-  const colors = [
-    "bg-gradient-to-br from-blue-500 to-indigo-600",
-    "bg-gradient-to-br from-purple-500 to-pink-600",
-    "bg-gradient-to-br from-emerald-500 to-teal-600",
-    "bg-gradient-to-br from-orange-500 to-amber-600",
-    "bg-gradient-to-br from-rose-500 to-red-600",
-    "bg-gradient-to-br from-cyan-500 to-sky-600",
-  ];
-  return colors[index % colors.length];
-};
-
 onMounted(async () => {
   if (!user.value.id) {
     $toastr.error("Vous devez être connecté");
@@ -1252,34 +1215,20 @@ const InfoItem = defineComponent({
   props: {
     label: String,
     value: [String, Number],
-    color: {
-      type: String,
-      default: "gray",
-    },
   },
   setup(props) {
-    const colorClasses: Record<string, string> = {
-      blue: "text-blue-700 dark:text-blue-400",
-      indigo: "text-indigo-700 dark:text-indigo-400",
-      purple: "text-purple-700 dark:text-purple-400",
-      pink: "text-pink-700 dark:text-pink-400",
-      teal: "text-teal-700 dark:text-teal-400",
-      orange: "text-orange-700 dark:text-orange-400",
-      gray: "text-gray-700 dark:text-gray-400",
-    };
-
     return () =>
       h(
         "div",
         {
           class:
-            "space-y-1 p-3 rounded-xl bg-gray-50 dark:bg-gray-900/40 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all",
+            "space-y-1 p-3 rounded-lg bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700/60 transition-all",
         },
         [
           h(
             "p",
             {
-              class: `text-xs uppercase tracking-wider font-bold ${colorClasses[props.color as string] || colorClasses.gray}`,
+              class: "text-xs uppercase tracking-wider font-semibold text-gray-500 dark:text-gray-400",
             },
             props.label,
           ),

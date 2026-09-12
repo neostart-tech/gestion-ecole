@@ -4833,21 +4833,12 @@ const hasAnyPermission = (slugs) => slugs.some((slug) => can(slug));
 
 const showAdminAcademiqueSection = computed(() => {
   return (
-    hasAnyRole([
-      "directeur-academique",
-      "logiticien-academique",
-      "surveillant",
-      "directeur-general-adjoint",
-      "directeur-general",
-      "informaticien",
-      'responsable-marketing',
-    ]) ||
     isAdmin.value ||
     hasAnyPermission([
       "view-filiere", "create-filiere", "update-filiere", "delete-filiere",
       "view-ue", "create-ue", "update-ue", "delete-ue",
       "view-uv", "create-uv", "update-uv", "delete-uv",
-      "view-evaluation", "create-evaluation", "update-evaluation", "delete-evaluation",
+      "view-evaluation", "delete-evaluation",
       "view-salle", "create-salle", "update-salle", "delete-salle",
       "view-groupe", "create-groupe", "delete-groupe",
       "view-etudiant", "create-etudiant", "update-etudiant", "delete-etudiant",

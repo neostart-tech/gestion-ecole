@@ -12,7 +12,7 @@
         </div>
         <h2 class="state-title">Présence validée !</h2>
         <p class="state-desc">Vous êtes bien enregistré comme présent pour ce cours.</p>
-        <NuxtLink to="/etudiant" class="btn-white">
+        <NuxtLink to="/" class="btn-white">
           Retour au tableau de bord
         </NuxtLink>
       </div>
@@ -32,7 +32,7 @@
           <button @click="resetScan" class="btn-white">
             Réessayer
           </button>
-          <NuxtLink to="/etudiant" class="btn-outline-white">
+          <NuxtLink to="/" class="btn-outline-white">
             Tableau de bord
           </NuxtLink>
         </div>
@@ -52,7 +52,7 @@
     <template v-else>
       <!-- Header flottant -->
       <div class="scanner-header">
-        <NuxtLink to="/etudiant" class="back-btn">
+        <NuxtLink to="/" class="back-btn">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>

@@ -27,9 +27,9 @@
           <div class="flex items-center justify-between bg-white/80 dark:bg-gray-800/80 backdrop-blur-md p-4 rounded-2xl shadow-xl shadow-indigo-500/5 border border-white dark:border-gray-700">
             <div class="flex items-center gap-4">
               <NuxtLink
-                :to="`/admin/liste-des-etudiants/${route.params.slug}/detail`"
+                to="/admin/liste-des-etudiants"
                 class="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-gray-700 rounded-xl transition-all"
-                title="Retour"
+                title="Retour à la liste"
               >
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
               </NuxtLink>
@@ -726,12 +726,12 @@ const handleUpdate = async () => {
         if (result.isConfirmed) {
           router.push(`/finance/recouvrement/${route.params.slug}`);
         } else {
-          router.push(`/admin/liste-des-etudiants/${route.params.slug}/detail`);
+          router.push('/admin/liste-des-etudiants');
         }
       });
     } else {
       toast.add({ severity: 'success', summary: 'Succès', detail: 'Données enregistrées', life: 3000 });
-      setTimeout(() => { router.push(`/admin/liste-des-etudiants/${route.params.slug}/detail`); }, 1000);
+      setTimeout(() => { router.push('/admin/liste-des-etudiants'); }, 1000);
     }
   } catch (error) {
     toast.add({ severity: 'error', summary: 'Erreur', detail: error.response?.data?.message || 'Erreur serveur', life: 5000 });

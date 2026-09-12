@@ -51,6 +51,23 @@ export const usePeriodeStore = defineStore("periode", {
       }
     },
 
+    async fetchPeriodesEvaluees(etudiantSlug) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          `/releves-de-note/${etudiantSlug}/periodes-evaluees`,
+          this.authHeaders()
+        );
+
+        return response.data;
+      } catch (error) {
+        console.error("Erreur chargement des périodes évaluées:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
     async addPeriode(payload) {
       this.isLoading = true;
       try {

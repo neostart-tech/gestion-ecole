@@ -185,6 +185,7 @@ import { useLoginStore } from "~~/stores/login";
 import { useParametreStore } from "~~/stores/parametre";
 import config from "~~/config";
 
+const { $toastr } = useNuxtApp();
 const route = useRoute();
 const router = useRouter();
 const loginStore = useLoginStore();
@@ -209,13 +210,29 @@ const appLogo = computed(() => {
 
 const appName = computed(() => parametreStore.getAppName || "ESCEN University");
 
+const cleanParam = (val) => {
+  if (!val) return "";
+  let clean = String(val).trim();
+  clean = clean.replace(/^(=3D|=)+/gi, "");
+  return clean;
+};
+
 onMounted(() => {
-  token.value = route.query.token || "";
-  email.value = route.query.email || "";
+  const rawToken = route.query.token || "";
+  const rawEmail = route.query.email || route.query["ema=il"] || "";
+  
+  token.value = cleanParam(rawToken);
+  email.value = cleanParam(rawEmail);
+
   parametreStore.fetchParametres();
 });
 
 const submitReset = async () => {
+  if (password.value !== passwordConfirm.value) {
+    $toastr.error("Les mots de passe ne correspondent pas.");
+    return;
+  }
+
   isLoading.value = true;
   linkSent.value = false;
   try {
@@ -226,10 +243,14 @@ const submitReset = async () => {
       password_confirmation: passwordConfirm.value,
     });
     linkSent.value = true;
+    $toastr.success("Mot de passe réinitialisé avec succès ! Redirection vers la connexion...");
+    setTimeout(() => {
+      router.push("/login");
+    }, 1500);
   } catch (error) {
     let msg = "Erreur lors de la réinitialisation.";
     if (error.response?.data?.message) msg = error.response.data.message;
-    alert(msg);
+    $toastr.error(msg);
   } finally {
     isLoading.value = false;
   }

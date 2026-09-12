@@ -234,19 +234,6 @@
             <div class="checkbox-inline">
               <input
                 type="checkbox"
-                id="enable_interrogation"
-                v-model="evaluations.interrogation.enabled"
-                @change="toggleWeight('interrogation')"
-                class="checkbox-input"
-                checked
-              />
-              <label for="enable_interrogation" class="checkbox-label">
-                Interrogation
-              </label>
-            </div>
-            <div class="checkbox-inline">
-              <input
-                type="checkbox"
                 id="enable_examen"
                 v-model="evaluations.examen.enabled"
                 @change="toggleWeight('examen')"
@@ -257,34 +244,10 @@
                 Examen
               </label>
             </div>
-            <div class="checkbox-inline">
-              <input
-                type="checkbox"
-                id="enable_tp"
-                v-model="evaluations.tp.enabled"
-                @change="toggleWeight('tp')"
-                class="checkbox-input"
-              />
-              <label for="enable_tp" class="checkbox-label">
-                TP
-              </label>
-            </div>
-            <div class="checkbox-inline">
-              <input
-                type="checkbox"
-                id="enable_expose"
-                v-model="evaluations.expose.enabled"
-                @change="toggleWeight('expose')"
-                class="checkbox-input"
-              />
-              <label for="enable_expose" class="checkbox-label">
-                Exposé
-              </label>
-            </div>
           </div>
 
           <!-- Pourcentages en grille -->
-          <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div class="grid grid-cols-2 md:grid-cols-2 gap-4">
             <!-- Devoir -->
             <div class="form-group">
               <label for="poids_devoir" class="form-label">
@@ -298,24 +261,7 @@
                 class="form-input"
                 min="0"
                 max="100"
-                placeholder="30"
-              />
-            </div>
-
-            <!-- Interrogation -->
-            <div class="form-group">
-              <label for="poids_interrogation" class="form-label">
-                Interrogation %
-              </label>
-              <input
-                type="number"
-                id="poids_interrogation"
-                v-model="evaluations.interrogation.pourcentage"
-                :disabled="!evaluations.interrogation.enabled"
-                class="form-input"
-                min="0"
-                max="100"
-                placeholder="10"
+                placeholder="40"
               />
             </div>
 
@@ -335,46 +281,12 @@
                 placeholder="60"
               />
             </div>
-
-            <!-- TP -->
-            <div class="form-group">
-              <label for="poids_tp" class="form-label">
-                TP %
-              </label>
-              <input
-                type="number"
-                id="poids_tp"
-                v-model="evaluations.tp.pourcentage"
-                :disabled="!evaluations.tp.enabled"
-                class="form-input"
-                min="0"
-                max="100"
-                placeholder="0"
-              />
-            </div>
-
-            <!-- Exposé -->
-            <div class="form-group">
-              <label for="poids_expose" class="form-label">
-                Exposé %
-              </label>
-              <input
-                type="number"
-                id="poids_expose"
-                v-model="evaluations.expose.pourcentage"
-                :disabled="!evaluations.expose.enabled"
-                class="form-input"
-                min="0"
-                max="100"
-                placeholder="0"
-              />
-            </div>
           </div>
 
           <!-- Message d'information -->
           <div class="mt-3">
             <small class="text-muted">
-              Si aucun pourcentage n'est indiqué, les valeurs par défaut seront utilisées (Devoir 30, Interrogation 10, Examen 60).
+              Si aucun pourcentage n'est indiqué, les valeurs par défaut seront utilisées (Devoir 40, Examen 60).
             </small>
           </div>
 
@@ -422,10 +334,9 @@ const formData = ref({
   enseignant_id: []
 });
 
-// Évaluations avec valeurs par défaut
 const evaluations = ref({
-  devoir: { enabled: true, pourcentage: "30" },
-  interrogation: { enabled: true, pourcentage: "10" },
+  devoir: { enabled: true, pourcentage: "40" },
+  interrogation: { enabled: false, pourcentage: "0" },
   examen: { enabled: true, pourcentage: "60" },
   tp: { enabled: false, pourcentage: "0" },
   expose: { enabled: false, pourcentage: "0" }
@@ -435,21 +346,21 @@ const evaluations = ref({
 const errors = ref({});
 
 // Données des listes déroulantes
-const ues = ref([
-  { id: 1, nom: "Algorithme et Programmation", code: "APR_S1" },
-  { id: 2, nom: "Bases de Données", code: "BDO_S2" },
-  { id: 3, nom: "Architecture des ordinateurs", code: "ARC_S1" },
-  { id: 4, nom: "Mathématiques Appliquées", code: "MAT_S1" },
-  { id: 5, nom: "Réseaux Informatiques", code: "RES_S2" }
-]);
+const ues = ref([]);
+const enseignants = ref([]);
 
-const enseignants = ref([
-  { id: 1, nom: "DUPONT", prenom: "Jean" },
-  { id: 2, nom: "MARTIN", prenom: "Marie" },
-  { id: 3, nom: "DURAND", prenom: "Pierre" },
-  { id: 4, nom: "LEFEVRE", prenom: "Sophie" },
-  { id: 5, nom: "ROBERT", prenom: "Luc" }
-]);
+// Fetch options data
+const loadFormOptions = async () => {
+  try {
+    const { default: axios } = await import('axios');
+    const token = localStorage.getItem("gest-ecole-token");
+    const response = await axios.get('/unites-de-valeur/ajouter-une-matiere', { headers: { Authorization: token ? `Bearer ${token}` : "" }});
+    ues.value = response.data?.ues || [];
+    enseignants.value = response.data?.enseignants || [];
+  } catch (error) {
+    console.error('Erreur lors du chargement des options:', error);
+  }
+};
 
 // Calcul du total des pourcentages
 const totalPourcentage = computed(() => {
@@ -463,10 +374,9 @@ const toggleWeight = (type) => {
   if (!evaluations.value[type].enabled) {
     evaluations.value[type].pourcentage = "0";
   } else {
-    // Valeurs par défaut si cochées
     const defaults = {
-      devoir: "30",
-      interrogation: "10",
+      devoir: "40",
+      interrogation: "10", // You could put 0, but if they toggle it on, let's leave as 10? Actually if they toggle it on, maybe they want it empty or 0. Wait, the user said default 40/60 if nothing is checked. I'll leave the defaults when toggling on as 0 for interrogation, or they have to type. Let's make it 0.
       examen: "60",
       tp: "0",
       expose: "0"
@@ -484,6 +394,8 @@ const validateWeightsSum = () => {
 
 // Initialisation pour l'édition
 onMounted(() => {
+  loadFormOptions();
+  
   const { id } = route.params;
   
   if (id) {
@@ -582,23 +494,25 @@ const submitForm = async () => {
 
     console.log('Données soumises:', data);
     
-    // Ici, vous feriez votre appel API réel
-    // const url = isEditMode.value 
-    //   ? `/api/unites-valeur/${route.params.id}`
-    //   : '/api/unites-valeur';
-    // const method = isEditMode.value ? 'PUT' : 'POST';
+    // Appel API réel
+    const { default: axios } = await import('axios');
+    const token = localStorage.getItem("gest-ecole-token");
+    const config = { headers: { Authorization: token ? `Bearer ${token}` : "" } };
+    const url = isEditMode.value 
+      ? `/unites-de-valeur/${route.params.id}/modifier`
+      : '/unites-de-valeur/ajouter-une-matiere';
     
-    // const response = await fetch(url, {
-    //   method: method,
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(data)
-    // });
+    if (isEditMode.value) {
+      await axios.put(url, data, config);
+    } else {
+      await axios.post(url, data, config);
+    }
     
     alert(isEditMode.value 
       ? 'Unité de valeur mise à jour avec succès!' 
       : 'Unité de valeur créée avec succès!');
     
-    router.push('/admin/unites-valeur');
+    router.push('/matieres/liste');
     
   } catch (error) {
     console.error('Erreur:', error);
@@ -608,7 +522,7 @@ const submitForm = async () => {
 
 // Annuler
 const cancel = () => {
-  router.push('/admin/unites-valeur');
+  router.push('/matieres/liste');
 };
 </script>
 

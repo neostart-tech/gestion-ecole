@@ -1,0 +1,768 @@
+<template>
+  <div class="page-wrapper">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <span class="breadcrumb-item">Administration</span>
+      <span class="breadcrumb-separator">/</span>
+      <span class="breadcrumb-item">Unité de valeur</span>
+      <span class="breadcrumb-separator">/</span>
+      <span class="breadcrumb-item active">{{ isEditMode ? 'Modifier' : 'Ajouter' }} une unité de valeur</span>
+    </div>
+
+    <!-- Titre -->
+    <h1 class="page-title">{{ isEditMode ? 'Modifier une unité de valeur' : 'Ajouter une unité de valeur' }}</h1>
+
+    <!-- Formulaire -->
+    <div class="form-card">
+      <form @submit.prevent="submitForm">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+
+          <!-- Unité d'enseignement -->
+          <div class="form-group">
+            <label for="ue_id" class="form-label">
+              Unité d'enseignement *
+            </label>
+            <select
+              id="ue_id"
+              v-model="formData.ue_id"
+              class="form-select"
+              required
+            >
+              <option value="">Attribuez une unité d'enseignement à la matière</option>
+              <option 
+                v-for="ue in ues" 
+                :key="ue.id" 
+                :value="ue.id"
+                :selected="isEditMode && formData.ue_id === ue.id"
+              >
+                {{ ue.nom }} ({{ ue.code }})
+              </option>
+            </select>
+            <div v-if="errors.ue_id" class="error-message">
+              {{ errors.ue_id }}
+            </div>
+          </div>
+
+          <!-- Nom de la matière -->
+          <div class="form-group">
+            <label for="nom" class="form-label">
+              Nom de la matière *
+            </label>
+            <input
+              type="text"
+              id="nom"
+              v-model="formData.nom"
+              class="form-input"
+              placeholder="Nom de la matière"
+              required
+            />
+            <div v-if="errors.nom" class="error-message">
+              {{ errors.nom }}
+            </div>
+          </div>
+
+          <!-- Code de la matière -->
+          <div class="form-group">
+            <label for="code" class="form-label">
+              Code de la matière *
+            </label>
+            <input
+              type="text"
+              id="code"
+              v-model="formData.code"
+              class="form-input"
+              placeholder="Code de l'UE"
+              required
+            />
+            <div v-if="errors.code" class="error-message">
+              {{ errors.code }}
+            </div>
+          </div>
+
+          <!-- Coefficient de la matière -->
+          <div class="form-group">
+            <label for="coefficient" class="form-label">
+              Coefficient de la matière *
+            </label>
+            <input
+              type="number"
+              id="coefficient"
+              v-model="formData.coefficient"
+              class="form-input"
+              placeholder="Coefficient de la matière"
+              min="1"
+              step="1"
+              required
+            />
+            <div v-if="errors.coefficient" class="error-message">
+              {{ errors.coefficient }}
+            </div>
+          </div>
+
+          <!-- CM de la matière -->
+          <div class="form-group">
+            <label for="cm" class="form-label">
+              CM de la matière *
+            </label>
+            <input
+              type="number"
+              id="cm"
+              v-model="formData.cm"
+              class="form-input"
+              placeholder="cm de la matière"
+              min="1"
+              step="1"
+              required
+            />
+            <div v-if="errors.cm" class="error-message">
+              {{ errors.cm }}
+            </div>
+          </div>
+
+          <!-- Volume horaire des Travaux Dirigés -->
+          <div class="form-group">
+            <label for="td" class="form-label">
+              Volume horaire des Travaux Dirigés de l'UE *
+            </label>
+            <input
+              type="number"
+              id="td"
+              v-model="formData.td"
+              class="form-input"
+              placeholder="td de la matière"
+              min="1"
+              step="1"
+              required
+            />
+            <div v-if="errors.td" class="error-message">
+              {{ errors.td }}
+            </div>
+          </div>
+
+          <!-- Volume horaire des Travaux Pratiques -->
+          <div class="form-group">
+            <label for="tp" class="form-label">
+              Volume horaire des Travaux Pratiques de l'UE *
+            </label>
+            <input
+              type="number"
+              id="tp"
+              v-model="formData.tp"
+              class="form-input"
+              placeholder="tp de la matière"
+              min="1"
+              step="1"
+              required
+            />
+            <div v-if="errors.tp" class="error-message">
+              {{ errors.tp }}
+            </div>
+          </div>
+
+          <!-- EC de l'UE -->
+          <div class="form-group">
+            <label for="ec" class="form-label">
+              EC de l'UE *
+            </label>
+            <input
+              type="number"
+              id="ec"
+              v-model="formData.ec"
+              class="form-input"
+              placeholder="ec de la matière"
+              min="1"
+              step="1"
+              required
+            />
+            <div v-if="errors.ec" class="error-message">
+              {{ errors.ec }}
+            </div>
+          </div>
+
+          <!-- Enseignant(s) de la matière -->
+          <div class="form-group">
+            <label for="enseignant_id" class="form-label">
+              Enseignant(s) de la matière *
+            </label>
+            <select
+              id="enseignant_id"
+              v-model="formData.enseignant_id"
+              class="form-select"
+              multiple
+              size="4"
+              required
+            >
+              <option 
+                v-for="enseignant in enseignants" 
+                :key="enseignant.id" 
+                :value="enseignant.id"
+              >
+                {{ enseignant.nom }} {{ enseignant.prenom }}
+              </option>
+            </select>
+            <div v-if="errors.enseignant_id" class="error-message">
+              {{ errors.enseignant_id }}
+            </div>
+            <small class="text-muted">Maintenez Ctrl/Cmd pour sélectionner plusieurs enseignants.</small>
+          </div>
+
+        </div>
+
+        <!-- Types d'évaluations et pourcentages -->
+        <div class="mb-6">
+          <h3 class="section-title mb-4">
+            Types d'évaluations et pourcentages (cochez les types utilisés, somme = 100)
+          </h3>
+
+          <!-- Cases à cocher en ligne -->
+          <div class="flex flex-wrap gap-4 mb-4">
+            <div class="checkbox-inline">
+              <input
+                type="checkbox"
+                id="enable_devoir"
+                v-model="evaluations.devoir.enabled"
+                @change="toggleWeight('devoir')"
+                class="checkbox-input"
+                checked
+              />
+              <label for="enable_devoir" class="checkbox-label">
+                Devoir
+              </label>
+            </div>
+            <div class="checkbox-inline">
+              <input
+                type="checkbox"
+                id="enable_examen"
+                v-model="evaluations.examen.enabled"
+                @change="toggleWeight('examen')"
+                class="checkbox-input"
+                checked
+              />
+              <label for="enable_examen" class="checkbox-label">
+                Examen
+              </label>
+            </div>
+          </div>
+
+          <!-- Pourcentages en grille -->
+          <div class="grid grid-cols-2 md:grid-cols-2 gap-4">
+            <!-- Devoir -->
+            <div class="form-group">
+              <label for="poids_devoir" class="form-label">
+                Devoir %
+              </label>
+              <input
+                type="number"
+                id="poids_devoir"
+                v-model="evaluations.devoir.pourcentage"
+                :disabled="!evaluations.devoir.enabled"
+                class="form-input"
+                min="0"
+                max="100"
+                placeholder="40"
+              />
+            </div>
+
+            <!-- Examen -->
+            <div class="form-group">
+              <label for="poids_examen" class="form-label">
+                Examen %
+              </label>
+              <input
+                type="number"
+                id="poids_examen"
+                v-model="evaluations.examen.pourcentage"
+                :disabled="!evaluations.examen.enabled"
+                class="form-input"
+                min="0"
+                max="100"
+                placeholder="60"
+              />
+            </div>
+          </div>
+
+          <!-- Message d'information -->
+          <div class="mt-3">
+            <small class="text-muted">
+              Si aucun pourcentage n'est indiqué, les valeurs par défaut seront utilisées (Devoir 40, Examen 60).
+            </small>
+          </div>
+
+          <!-- Validation de la somme -->
+          <div v-if="showSumError" class="validation-error">
+            La somme des pourcentages doit être égale à 100 (actuellement {{ totalPourcentage }}).
+          </div>
+        </div>
+
+        <!-- Bouton de soumission -->
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" @click="cancel">
+            Annuler
+          </button>
+          <button type="submit" class="btn-submit">
+            {{ isEditMode ? 'Mettre à jour' : 'Soumettre' }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from "vue";
+import { useRouter, useRoute } from "#imports";
+
+const router = useRouter();
+const route = useRoute();
+
+const isEditMode = ref(false);
+const showSumError = ref(false);
+
+// Données du formulaire
+const formData = ref({
+  ue_id: "",
+  nom: "",
+  code: "",
+  coefficient: "",
+  cm: "",
+  td: "",
+  tp: "",
+  ec: "",
+  enseignant_id: []
+});
+
+const evaluations = ref({
+  devoir: { enabled: true, pourcentage: "40" },
+  examen: { enabled: true, pourcentage: "60" }
+});
+
+// Erreurs
+const errors = ref({});
+
+// Données des listes déroulantes
+const ues = ref([]);
+const enseignants = ref([]);
+
+// Fetch options data
+const loadFormOptions = async () => {
+  try {
+    const { default: axios } = await import('axios');
+    const token = localStorage.getItem("gest-ecole-token");
+    const response = await axios.get('/unites-de-valeur/ajouter-une-matiere', { headers: { Authorization: token ? `Bearer ${token}` : "" }});
+    ues.value = response.data?.ues || [];
+    enseignants.value = response.data?.enseignants || [];
+  } catch (error) {
+    console.error('Erreur lors du chargement des options:', error);
+  }
+};
+
+// Calcul du total des pourcentages
+const totalPourcentage = computed(() => {
+  return Object.values(evaluations.value).reduce((total, evalItem) => {
+    return total + (evalItem.enabled ? parseInt(evalItem.pourcentage) || 0 : 0);
+  }, 0);
+});
+
+// Fonction pour activer/désactiver les champs de pourcentage
+const toggleWeight = (type) => {
+  if (!evaluations.value[type].enabled) {
+    evaluations.value[type].pourcentage = "0";
+  } else {
+    // Valeurs par défaut si cochées
+    const defaults = {
+      devoir: "40",
+      examen: "60"
+    };
+    evaluations.value[type].pourcentage = defaults[type];
+  }
+};
+
+// Validation de la somme des pourcentages
+const validateWeightsSum = () => {
+  const sum = totalPourcentage.value;
+  showSumError.value = sum !== 0 && sum !== 100;
+  return !showSumError.value;
+};
+
+// Initialisation pour l'édition
+onMounted(() => {
+  loadFormOptions();
+  
+  const { id } = route.params;
+  
+  if (id) {
+    isEditMode.value = true;
+    loadUvData(id);
+  }
+});
+
+// Charger les données de l'UV pour l'édition
+const loadUvData = async (id) => {
+  try {
+    const { default: axios } = await import('axios');
+    const token = localStorage.getItem("gest-ecole-token");
+    const response = await axios.get(`/unites-de-valeur/${id}/modifier`, { headers: { Authorization: token ? `Bearer ${token}` : "" }});
+    const uv = response.data?.uv;
+    if (!uv) throw new Error('UV non trouvée');
+    
+    // Assign fields
+    formData.value = {
+      ue_id: uv.ue_id,
+      nom: uv.nom,
+      code: uv.code,
+      coefficient: uv.coefficient,
+      cm: uv.cm,
+      td: uv.td,
+      tp: uv.tp,
+      ec: uv.ec,
+      enseignant_id: response.data?.enseignantsSelected || []
+    };
+    
+    // Default or fetched weightings (mocked since weightings aren't strictly returned in `uv` relation here unless configured)
+    evaluations.value = {
+      devoir: { enabled: true, pourcentage: "40" },
+      examen: { enabled: true, pourcentage: "60" }
+    };
+    
+  } catch (error) {
+    console.error('Erreur lors du chargement des données:', error);
+    alert('Impossible de charger les données de l\'unité de valeur');
+  }
+};
+
+// Validation du formulaire
+const validateForm = () => {
+  let isValid = true;
+  errors.value = {};
+
+  // Validation des champs obligatoires
+  const requiredFields = ['ue_id', 'nom', 'code', 'coefficient', 'cm', 'td', 'tp', 'ec'];
+  requiredFields.forEach(field => {
+    if (!formData.value[field]) {
+      errors.value[field] = "Ce champ est obligatoire";
+      isValid = false;
+    }
+  });
+
+  // Validation des enseignants
+  if (!formData.value.enseignant_id.length) {
+    errors.value.enseignant_id = "Sélectionnez au moins un enseignant";
+    isValid = false;
+  }
+
+  // Validation des nombres positifs
+  const numberFields = ['coefficient', 'cm', 'td', 'tp', 'ec'];
+  numberFields.forEach(field => {
+    if (formData.value[field] && parseFloat(formData.value[field]) < 1) {
+      errors.value[field] = "La valeur doit être au moins 1";
+      isValid = false;
+    }
+  });
+
+  // Validation des pourcentages
+  if (!validateWeightsSum()) {
+    isValid = false;
+  }
+
+  return isValid;
+};
+
+// Soumission du formulaire
+const submitForm = async () => {
+  if (!validateForm()) {
+    return;
+  }
+
+  try {
+    // Préparer les données
+    const data = {
+      ...formData.value,
+      poids_devoir: evaluations.value.devoir.enabled ? evaluations.value.devoir.pourcentage : "0",
+      poids_examen: evaluations.value.examen.enabled ? evaluations.value.examen.pourcentage : "0"
+    };
+
+    console.log('Données soumises:', data);
+    
+    // Appel API réel
+    const { default: axios } = await import('axios');
+    const token = localStorage.getItem("gest-ecole-token");
+    const config = { headers: { Authorization: token ? `Bearer ${token}` : "" } };
+    const url = isEditMode.value 
+      ? `/unites-de-valeur/${route.params.id}/modifier`
+      : '/unites-de-valeur/ajouter-une-matiere';
+    
+    if (isEditMode.value) {
+      await axios.put(url, data, config);
+    } else {
+      await axios.post(url, data, config);
+    }
+    
+    alert(isEditMode.value 
+      ? 'Unité de valeur mise à jour avec succès!' 
+      : 'Unité de valeur créée avec succès!');
+    
+    router.push('/matieres/liste');
+    
+  } catch (error) {
+    console.error('Erreur:', error);
+    alert('Une erreur est survenue lors de la soumission du formulaire');
+  }
+};
+
+// Annuler
+const cancel = () => {
+  router.push('/matieres/liste');
+};
+</script>
+
+<style scoped>
+.page-wrapper {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.breadcrumb-item {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.breadcrumb-item:hover {
+  color: #4f46e5;
+}
+
+.breadcrumb-item.active {
+  color: #111827;
+  font-weight: 500;
+  cursor: default;
+}
+
+.breadcrumb-separator {
+  color: #9ca3af;
+}
+
+/* Titre */
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 24px;
+}
+
+/* Carte du formulaire */
+.form-card {
+  background: white;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Groupes de formulaire */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Champs de formulaire */
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #374151;
+  background-color: white;
+  transition: all 0.2s;
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.form-input::placeholder {
+  color: #9ca3af;
+}
+
+.form-input:disabled {
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Styles spécifiques pour le select multiple */
+.form-select[multiple] {
+  min-height: 120px;
+  padding: 8px;
+}
+
+.form-select[multiple] option {
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 2px;
+  cursor: pointer;
+}
+
+.form-select[multiple] option:hover {
+  background-color: #f3f4f6;
+}
+
+.form-select[multiple] option:checked {
+  background-color: #10b981;
+  color: white;
+}
+
+/* Cases à cocher en ligne */
+.checkbox-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox-input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #10b981;
+}
+
+.checkbox-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Section titre */
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Message texte */
+.text-muted {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* Validation d'erreur */
+.validation-error {
+  margin-top: 10px;
+  padding: 10px 16px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.error-message {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #ef4444;
+  font-weight: 500;
+}
+
+/* Actions du formulaire */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn-cancel {
+  padding: 12px 24px;
+  background: white;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.btn-submit {
+  padding: 12px 24px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-submit:hover {
+  background-color: #2563eb;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page-wrapper {
+    padding: 15px;
+  }
+  
+  .form-card {
+    padding: 24px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .btn-cancel,
+  .btn-submit {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 24px;
+  }
+  
+  .form-card {
+    padding: 20px;
+  }
+  
+  .form-group {
+    margin-bottom: 16px;
+  }
+}
+</style>

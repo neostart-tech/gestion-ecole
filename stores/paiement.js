@@ -17,6 +17,9 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
     historiquePaiements: [],     // Historique des paiements
     recap: null,                 // Récapitulatif
     
+    // Données des moyens de paiement Semoa
+    semoaGateways: [],
+
     // États de chargement
     isLoading: false,
     isSearching: false,
@@ -388,6 +391,22 @@ export const usePaiementGlobalStore = defineStore("paiementGlobal", {
         throw error;
       } finally {
         this.isLoading = false;
+      }
+    },
+
+    /**
+     * Récupérer les moyens de paiement Semoa (gateways) disponibles
+     */
+    async fetchSemoaGateways() {
+      try {
+        const response = await axios.get('/semoa/gateways', this.authHeaders);
+        if (response.data.success) {
+          this.semoaGateways = response.data.data || [];
+        }
+        return response.data;
+      } catch (error) {
+        console.error("Erreur chargement Semoa gateways:", error);
+        return { success: false, data: [] };
       }
     },
 

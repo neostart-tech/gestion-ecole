@@ -328,6 +328,11 @@ const completionRate = computed(() =>
 onMounted(async () => {
   await syllabusStore.fetchSyllabusDetail(route.params.slug)
 
+  // Redirect to slug if accessed via ID and slug exists
+  if (data.value?.uv?.slug && String(route.params.slug) !== String(data.value.uv.slug)) {
+    router.replace(`/enseignant/syllabuses/${data.value.uv.slug}`)
+  }
+
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => {
       if (e.isIntersecting) activeTab.value = e.target.id
