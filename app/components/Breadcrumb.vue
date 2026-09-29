@@ -86,11 +86,11 @@
 								:key="index"
 								class="flex items-center"
 							>
-								<!-- Élément de navigation -->
-								<component
-									:is="item.to ? 'NuxtLink' : 'span'"
+								<!-- Élément de navigation avec lien -->
+								<NuxtLink
+									v-if="item.to"
 									:to="item.to"
-									class="inline-flex items-center px-2.5 py-1 text-sm font-medium rounded transition-colors"
+									class="inline-flex items-center px-2.5 py-1 text-sm font-medium rounded transition-colors cursor-pointer"
 									:class="[
 										index === items.length - 1
 											? [
@@ -103,43 +103,45 @@
 													'hover:text-gray-700 dark:hover:text-gray-300',
 													'hover:bg-gray-50 dark:hover:bg-gray-800/50',
 													linkColor,
-												],
-										item.to ? 'cursor-pointer' : 'cursor-default',
+												]
 									]"
 								>
-									<!-- Icône optionnelle -->
-									<svg
-										v-if="item.icon"
-										class="w-3.5 h-3.5 mr-1.5"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											:d="item.icon"
-										/>
+									<svg v-if="item.icon" class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon" />
 									</svg>
-
-									<!-- Label -->
-									<span class="whitespace-nowrap">
-										{{ item.label }}
-									</span>
-
-									<!-- Badge optionnel (discrètement) -->
-									<span
-										v-if="item.badge"
-										class="ml-1.5 px-1.5 py-0.5 text-xs font-medium rounded"
-										:class="
-											item.badgeClass ||
-											'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-										"
-									>
+									<span class="whitespace-nowrap">{{ item.label }}</span>
+									<span v-if="item.badge" class="ml-1.5 px-1.5 py-0.5 text-xs font-medium rounded" :class="item.badgeClass || 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'">
 										{{ item.badge }}
 									</span>
-								</component>
+								</NuxtLink>
+
+								<!-- Élément de navigation texte seul -->
+								<span
+									v-else
+									class="inline-flex items-center px-2.5 py-1 text-sm font-medium rounded transition-colors cursor-default"
+									:class="[
+										index === items.length - 1
+											? [
+													'text-gray-900 dark:text-white',
+													'bg-gray-100 dark:bg-gray-800',
+													activeColor,
+												]
+											: [
+													'text-gray-500 dark:text-gray-400',
+													'hover:text-gray-700 dark:hover:text-gray-300',
+													'hover:bg-gray-50 dark:hover:bg-gray-800/50',
+													linkColor,
+												]
+									]"
+								>
+									<svg v-if="item.icon" class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon" />
+									</svg>
+									<span class="whitespace-nowrap">{{ item.label }}</span>
+									<span v-if="item.badge" class="ml-1.5 px-1.5 py-0.5 text-xs font-medium rounded" :class="item.badgeClass || 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'">
+										{{ item.badge }}
+									</span>
+								</span>
 
 								<!-- Séparateur élégant -->
 								<span

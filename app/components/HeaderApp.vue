@@ -384,9 +384,9 @@
                           class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1"
                         >
                           <p
-                            class="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white line-clamp-1 pr-6"
+                            class="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white line-clamp-2 pr-6"
                           >
-                            {{ decodeHtmlEntities(notification.data.title) }}
+                            {{ decodeHtmlEntities(notification.data.title || notification.data.titre) }}
                           </p>
                           <span
                             class="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap"
@@ -398,7 +398,7 @@
                         <p
                           class="text-[11px] sm:text-xs text-gray-600 dark:text-gray-300 mt-1 line-clamp-2"
                         >
-                          {{ decodeHtmlEntities(notification.data.content) }}
+                          {{ decodeHtmlEntities(notification.data.content || notification.data.message || notification.data.contenu) }}
                         </p>
 
                         <!-- Badges et métadonnées -->

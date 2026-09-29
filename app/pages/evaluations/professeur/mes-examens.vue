@@ -14,84 +14,143 @@
     />
 
     <!-- Toolbar -->
-    <div
-      class="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between mb-5"
-    >
-      <!-- Recherche -->
-      <input
-        v-model="searchQuery"
-        type="search"
-        placeholder="Rechercher par matière, groupe, salle..."
-        class="w-full lg:w-64 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      />
+    <div class="flex flex-col gap-4 mb-5">
+      <!-- Ligne 1: Recherche et Actions -->
+      <div class="flex flex-col sm:flex-row justify-between gap-3">
+        <!-- Recherche -->
+        <div class="w-full sm:max-w-md">
+          <input
+            v-model="searchQuery"
+            type="search"
+            placeholder="Rechercher par matière, groupe, salle..."
+            class="w-full px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
 
-      <div class="flex flex-col sm:flex-row gap-3">
-        <!-- Colonnes -->
-        <client-only>
-          <VDropdown placement="bottom-end">
-            <button
-              class="flex items-center gap-2 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        <!-- Actions -->
+        <div class="flex flex-col sm:flex-row gap-3 shrink-0">
+          <!-- Colonnes -->
+          <client-only>
+            <VDropdown placement="bottom-end">
+              <button
+                class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                Colonnes
+                <svg
+                  class="w-4 h-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    d="M6 9l6 6 6-6"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </button>
+
+              <template #popper>
+                <div
+                  class="w-56 p-3 rounded-lg shadow-lg bg-white dark:bg-gray-800"
+                >
+                  <div
+                    v-for="col in columns"
+                    :key="col.field"
+                    class="flex items-center gap-2 py-1"
+                  >
+                    <input
+                      type="checkbox"
+                      v-model="col.visible"
+                      :disabled="col.field === 'action'"
+                      class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span class="text-sm text-gray-700 dark:text-gray-300">
+                      {{ col.title }}
+                    </span>
+                  </div>
+                </div>
+              </template>
+            </VDropdown>
+          </client-only>
+
+          <!-- Ajouter -->
+          <Can action="create-evaluation">
+            <NuxtLink
+              to="/evaluations/ajouter-une-evaluation"
+              class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
             >
-              Colonnes
               <svg
-                class="w-4 h-4"
+                class="w-5 h-5"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
               >
                 <path
-                  d="M6 9l6 6 6-6"
+                  d="M12 5v14M5 12h14"
                   stroke-width="2"
                   stroke-linecap="round"
                 />
               </svg>
-            </button>
+              Ajouter
+            </NuxtLink>
+          </Can>
+        </div>
+      </div>
 
-            <template #popper>
-              <div
-                class="w-56 p-3 rounded-lg shadow-lg bg-white dark:bg-gray-800"
-              >
-                <div
-                  v-for="col in columns"
-                  :key="col.field"
-                  class="flex items-center gap-2 py-1"
-                >
-                  <input
-                    type="checkbox"
-                    v-model="col.visible"
-                    :disabled="col.field === 'action'"
-                    class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  />
-                  <span class="text-sm text-gray-700 dark:text-gray-300">
-                    {{ col.title }}
-                  </span>
-                </div>
-              </div>
-            </template>
-          </VDropdown>
-        </client-only>
+      <!-- Ligne 2: Filtres -->
+      <div class="flex flex-wrap gap-3">
+        <!-- Filtre Niveau -->
+        <Dropdown
+          v-model="filterNiveau"
+          :options="niveauOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Niveau"
+          class="w-full sm:w-40 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
+          :showClear="true"
+        />
 
-        <!-- Ajouter -->
-        <Can action="create-evaluation">
-          <NuxtLink
-            to="/evaluations/ajouter-une-evaluation"
-            class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-          >
-            <svg
-              class="w-5 h-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-            >
-              <path
-                d="M12 5v14M5 12h14"
-                stroke-width="2"
-                stroke-linecap="round"
-              />
-            </svg>
-            Ajouter
-          </NuxtLink>
-        </Can>
+        <!-- Filtre Filière -->
+        <Dropdown
+          v-model="filterFiliere"
+          :options="filiereOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Filière"
+          class="w-full sm:w-40 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
+          :showClear="true"
+        />
+
+        <!-- Filtre Type -->
+        <select
+          v-model="filterType"
+          class="w-full sm:w-40 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          <option value="">Catégorie</option>
+          <option value="Examen">Examen</option>
+          <option value="Devoir">Devoir</option>
+        </select>
+
+        <!-- Filtre Session -->
+        <select
+          v-model="filterSessionType"
+          class="w-full sm:w-40 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          <option value="">Session (Toutes)</option>
+          <option value="normale">Normale</option>
+          <option value="rattrapage">Rattrapage</option>
+        </select>
+
+        <!-- Filtre Statut -->
+        <select
+          v-model="filterPublished"
+          class="w-full sm:w-40 px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          <option value="">Statut (Tous)</option>
+          <option value="true">Publié</option>
+          <option value="false">Non publié</option>
+        </select>
       </div>
     </div>
 
@@ -134,6 +193,16 @@
           <template #matiere="data">
             <span class="text-sm font-medium text-gray-900 dark:text-white">
               {{ data.value?.nom || "Non spécifiée" }}
+            </span>
+          </template>
+
+          <!-- Template pour la colonne Session -->
+          <template #session_type="data">
+            <span v-if="data.value.session_type === 'rattrapage'" class="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 px-2.5 py-1 rounded-full text-xs font-medium border border-amber-200 dark:border-amber-800">
+              Rattrapage
+            </span>
+            <span v-else class="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 px-2.5 py-1 rounded-full text-xs font-medium border border-blue-200 dark:border-blue-800">
+              Normale
             </span>
           </template>
 
@@ -354,11 +423,15 @@ import {
 import Breadcrumb from "~/components/Breadcrumb.vue";
 import { useEvaluationStore } from "~~/stores/evaluations";
 import { useUserStore } from "~~/stores/user";
+import { useNiveauStore } from "~~/stores/niveau";
+import { useFiliereStore } from "~~/stores/filiere";
 
 const { $toastr, $swal } = useNuxtApp();
 
 const userStore = useUserStore();
 const evaluationStore = useEvaluationStore();
+const niveauStore = useNiveauStore();
+const filiereStore = useFiliereStore();
 const router = useRouter();
 
 const currentUser = useState('user');
@@ -372,6 +445,26 @@ const showConfigModal = ref(false);
 const selectedEvaluation = ref(null);
 const isUpdating = ref(false);
 
+const filterType = ref("");
+const filterSessionType = ref("");
+const filterPublished = ref("");
+const filterNiveau = ref(null);
+const filterFiliere = ref(null);
+
+const niveauOptions = computed(() => {
+  return (niveauStore.niveaux || []).map((n) => ({
+    label: n.libelle || n.nom,
+    value: n.id,
+  }));
+});
+
+const filiereOptions = computed(() => {
+  return (filiereStore.filieres || []).map((f) => ({
+    label: f.nom,
+    value: f.id,
+  }));
+});
+
 const configForm = ref({
   surveillant_1_id: "",
   surveillant_2_id: "",
@@ -380,6 +473,7 @@ const configForm = ref({
 // Configuration des colonnes
 const columns = ref([
   { field: "matiere.nom", title: "Matière", visible: true },
+  { field: "session_type", title: "Session", visible: true },
   { field: "group.nom", title: "Groupe", visible: true },
   { field: "salle.nom", title: "Salle", visible: true },
   { field: "date", title: "Date", visible: true },
@@ -398,10 +492,43 @@ const rows = computed(() => {
 
 // Filtre de recherche personnalisé
 const filteredRows = computed(() => {
-  if (!searchQuery.value) return rows.value;
+  let list = rows.value;
+  
+  if (filterType.value) {
+    list = list.filter(item => item.type === filterType.value);
+  }
+  
+  if (filterSessionType.value) {
+    list = list.filter(item => item.session_type === filterSessionType.value);
+  }
+  
+  if (filterNiveau.value) {
+    list = list.filter(item => {
+      return (item.niveau_id == filterNiveau.value) || 
+             (item.niveau && item.niveau.id == filterNiveau.value) ||
+             (item.group && item.group.niveau_id == filterNiveau.value) ||
+             (item.group && item.group.niveau && item.group.niveau.id == filterNiveau.value);
+    });
+  }
+  
+  if (filterFiliere.value) {
+    list = list.filter(item => {
+      return item.group && item.group.filieres && item.group.filieres.some(f => f.id == filterFiliere.value);
+    });
+  }
+
+  if (filterPublished.value !== "") {
+    const isPublishedFilter = filterPublished.value === "true";
+    list = list.filter(item => {
+      const isItemPublished = item.published === 1 || item.published === true;
+      return isItemPublished === isPublishedFilter;
+    });
+  }
+
+  if (!searchQuery.value) return list;
 
   const query = searchQuery.value.toLowerCase();
-  return rows.value.filter(
+  return list.filter(
     (item) =>
       item.type?.toLowerCase().includes(query) ||
       item.matiere?.nom?.toLowerCase().includes(query) ||
@@ -499,6 +626,8 @@ onMounted(async () => {
     await Promise.all([
       evaluationStore.fetchEvaluationsForTeacher(),
       userStore.fetchUsersSurveillant(),
+      niveauStore.fetchNiveaux ? niveauStore.fetchNiveaux() : Promise.resolve(),
+      filiereStore.fetchFilieres ? filiereStore.fetchFilieres() : Promise.resolve(),
     ]);
   } catch (error) {
     console.error("Erreur lors du chargement:", error);

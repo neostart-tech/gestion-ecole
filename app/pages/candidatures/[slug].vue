@@ -99,7 +99,14 @@
             <!-- Action Panel - Bottom Bar -->
             <div class="mt-8 lg:mt-10 pt-6 lg:pt-8 border-t border-[#e8e8f0] dark:border-[#1a1a2a]">
               
-              <div v-if="!candidat.dossier_valide && !candidat.motif && !candidat.rectification_expected && !candidat.transmis_academie">
+              <div v-if="candidat.soumis_le === null">
+                <div class="flex items-center gap-3 py-3 px-6 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-xl w-fit">
+                  <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  <p class="text-slate-600 dark:text-slate-400 text-[11px] font-bold uppercase tracking-[0.15em]">Dossier incomplet — bloqué à l'étape : <span class="text-slate-800 dark:text-slate-200">{{ derniereEtape }}</span></p>
+                </div>
+              </div>
+
+              <div v-else-if="!candidat.dossier_valide && !candidat.motif && !candidat.rectification_expected && !candidat.transmis_academie">
                 <div v-if="peutAgirCommeChargeClientele" class="flex flex-wrap items-center gap-3">
                   <Can action="transmettre-candidature">
                     <button @click="handleAction('transmettre')" :disabled="isSubmitting" class="px-8 py-3.5 bg-[#7F45FD] hover:bg-[#6a35e8] text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl transition-all duration-300 hover:shadow-[0_8px_25px_rgba(127,69,253,0.3)] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
@@ -548,6 +555,7 @@ const formatDate = (date, withTime = true) => {
 
 const getStatutLabel = (c) => {
   if (c?.etudiant_id) return 'Déjà inscrit'
+  if (c?.soumis_le === null) return 'Incomplet'
   if (c?.dossier_valide) return 'Validé'
   if (c?.rectification_expected) return 'En Correction'
   if (c?.motif) return 'Refusé'
@@ -557,6 +565,7 @@ const getStatutLabel = (c) => {
 
 const getStatutStyle = (c) => {
   if (c?.etudiant_id) return 'border-emerald-600/30 text-emerald-600 bg-emerald-600/15 font-bold'
+  if (c?.soumis_le === null) return 'border-slate-500/30 text-slate-500 bg-slate-500/10'
   if (c?.dossier_valide) return 'border-emerald-600/30 text-emerald-600 bg-emerald-600/5'
   if (c?.rectification_expected) return 'border-amber-600/30 text-amber-600 bg-amber-600/5'
   if (c?.motif) return 'border-rose-600/30 text-rose-600 bg-rose-600/5'
@@ -599,6 +608,17 @@ const nextStep = computed(() => {
     return { tone: 'rose', text: 'Non admis au concours', linkText: null, to: null }
   }
   return { tone: 'purple', text: 'Admis au concours', linkText: "Finaliser l'inscription →", to: `/candidatures/inscription/${c.slug}` }
+})
+
+const derniereEtape = computed(() => {
+  const c = candidat.value
+  if (!c || c.soumis_le !== null) return ''
+  
+  let etape = 'Identité & Coordonnées'
+  if (c.type_diplome_id) etape = 'Choix du diplôme'
+  if (c.niveau_id) etape = 'Documents & Justificatifs'
+  
+  return etape
 })
 
 const parsedBulletins = computed(() => {

@@ -14,8 +14,6 @@
           { label: 'Évaluations', to: '/evaluations/liste' },
           { label: 'Ajouter une évaluation', to: null },
         ]"
-        title="Ajouter une évaluation"
-        :title-class="'text-xl md:text-2xl text-gray-800 dark:text-gray-100'"
         :spacing="'mb-2'"
         :link-color="'text-[#7F45FD] dark:text-[#a882ff] hover:text-[#6a35e8] dark:hover:text-[#c4a9ff]'"
         :active-color="'text-gray-900 dark:text-gray-100 font-medium'"
@@ -75,11 +73,11 @@
               />
             </div>
 
-            <!-- Type d'évaluation -->
+            <!-- Catégorie d'évaluation -->
             <div>
               <label
                 class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5"
-                >Catégorie</label
+                >Catégorie *</label
               >
               <Dropdown
                 v-model="form.type"
@@ -89,6 +87,25 @@
                 filter
                 showClear
                 placeholder="Sélectionner une catégorie"
+                class="w-full"
+              />
+            </div>
+
+            <!-- Type de session (Normale / Rattrapage) -->
+            <div>
+              <label
+                class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5"
+                >Type de session *</label
+              >
+              <Dropdown
+                v-model="form.session_type"
+                :options="[
+                  { label: 'Session normale', value: 'normale' },
+                  { label: 'Session de rattrapage', value: 'rattrapage' }
+                ]"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Normale ou rattrapage ?"
                 class="w-full"
               />
             </div>
@@ -108,6 +125,24 @@
                 filter
                 showClear
                 placeholder="Sélectionner une UE"
+                class="w-full"
+              />
+            </div>
+
+            <!-- Évaluation parente (Si rattrapage spécifique) -->
+            <div v-if="form.session_type === 'rattrapage'">
+              <label
+                class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5"
+                >Évaluation à rattraper (Optionnel)</label
+              >
+              <Dropdown
+                v-model="form.parent_id"
+                :options="parentEvaluationOptions"
+                optionLabel="label"
+                optionValue="value"
+                filter
+                showClear
+                placeholder="Ex: Devoir de mi-semestre"
                 class="w-full"
               />
             </div>
@@ -306,6 +341,8 @@ const isSaving = ref(false);
 const form = ref({
   id: null,
   type: "",
+  session_type: "normale",
+  parent_id: null,
   // niveau_id: null,
   group_id: null,
   unite_valeur_id: null,
@@ -342,6 +379,32 @@ const matieresOptions = computed(() =>
     value: m.slug,
   })),
 );
+
+// Pour les rattrapages : filtrer les évaluations existantes du même groupe/matière
+const parentEvaluationOptions = computed(() => {
+  if (!form.value.group_id || !form.value.unite_valeur_id) return [];
+  
+  // On cherche le vrai ID du groupe et de la matière depuis les slugs si form stocke les slugs
+  const groupId = groupStore.groupes.find(g => g.slug === form.value.group_id)?.id || form.value.group_id;
+  const matiereId = uvStore.uvs.find(u => u.slug === form.value.unite_valeur_id)?.id || form.value.unite_valeur_id;
+  
+  return evaluationStore.evaluations
+    .filter(ev => 
+      ev.session_type !== 'rattrapage' && 
+      (ev.group_id === groupId || ev.group?.id === groupId) && 
+      (ev.unite_valeur_id === matiereId || ev.matiere?.id === matiereId || ev.uniteValeur?.id === matiereId)
+    )
+    .map(ev => ({
+      label: `${ev.type} du ${formatDateToDisplay(ev.date)}`,
+      value: ev.id
+    }));
+});
+
+const formatDateToDisplay = (dateStr) => {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return isNaN(d) ? dateStr : d.toLocaleDateString('fr-FR');
+};
 
 const confirmPublish = async (event) => {
   if (event.target.checked) {
@@ -509,6 +572,8 @@ const saveEvaluation = async () => {
 
     const payload = {
       type: form.value.type,
+      session_type: form.value.session_type,
+      parent_id: form.value.session_type === 'rattrapage' ? form.value.parent_id : null,
       group_id: form.value.group_id,
       unite_valeur_id: form.value.unite_valeur_id,
       salle_id: form.value.salle_id,

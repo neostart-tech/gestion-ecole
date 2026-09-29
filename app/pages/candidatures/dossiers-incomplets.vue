@@ -41,82 +41,84 @@
       </div>
     </div>
 
-    <!-- Chargement -->
-    <div v-if="isLoading && !dossiers.length" class="flex justify-center py-20">
-      <div class="h-10 w-10 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
-    </div>
-
     <!-- Tableau -->
-    <div v-else class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead class="bg-gray-50 dark:bg-gray-900/50">
-            <tr>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Candidat</th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Contact</th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Étape atteinte</th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Dernière activité</th>
-              <th class="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-            <tr v-if="filteredDossiers.length === 0">
-              <td colspan="5" class="px-6 py-12 text-center">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Aucun dossier incomplet</h3>
-                <p class="text-gray-500 dark:text-gray-400">
-                  {{ searchQuery ? 'Aucun résultat pour votre recherche' : "Tous les candidats ayant commencé une inscription en ligne l'ont terminée." }}
-                </p>
-              </td>
-            </tr>
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-3 sm:p-4">
+      <div v-if="isLoading && !dossiers.length" class="flex justify-center py-20">
+        <div class="h-10 w-10 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
+      </div>
 
-            <tr v-for="dossier in filteredDossiers" :key="dossier.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
-              <td class="px-6 py-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 bg-amber-100 dark:bg-amber-900/40 rounded-full flex items-center justify-center shrink-0">
-                    <span class="text-amber-600 dark:text-amber-300 font-semibold">{{ getInitials(dossier.nom, dossier.prenom) }}</span>
-                  </div>
-                  <h4 class="text-sm font-medium text-gray-900 dark:text-white">{{ dossier.nom }} {{ dossier.prenom }}</h4>
-                </div>
-              </td>
-              <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                <div>{{ dossier.email || '—' }}</div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">{{ dossier.tel || '—' }}</div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300">
-                  {{ dossier.derniere_etape_atteinte }}
-                </span>
-              </td>
-              <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                {{ formatDate(dossier.derniere_activite_le) }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex justify-center">
-                  <Can action="delete-brouillon-candidature">
-                    <button
-                      @click="supprimer(dossier)"
-                      :disabled="isDeleting === dossier.id"
-                      title="Supprimer ce brouillon"
-                      class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 hover:bg-rose-600 hover:text-white dark:hover:bg-rose-600 dark:hover:text-white transition-colors disabled:opacity-50"
-                    >
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                      </svg>
-                    </button>
-                  </Can>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div v-else class="overflow-x-auto">
+        <Vue3Datatable
+          :columns="columns"
+          :rows="dossiers"
+          :search="searchQuery"
+          :per-page="10"
+          skin="bh-table-striped bh-table-hover"
+        >
+          <template #candidat="{ value }">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-amber-100 dark:bg-amber-900/40 rounded-full flex items-center justify-center shrink-0">
+                <span class="text-amber-600 dark:text-amber-300 font-semibold">{{ getInitials(value.nom, value.prenom) }}</span>
+              </div>
+              <h4 class="text-sm font-medium text-gray-900 dark:text-white">{{ value.nom }} {{ value.prenom }}</h4>
+            </div>
+          </template>
+
+          <template #contact="{ value }">
+            <div class="text-sm text-gray-700 dark:text-gray-300">{{ value.email || '—' }}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">{{ value.tel || '—' }}</div>
+          </template>
+
+          <template #derniere_etape_atteinte="{ value }">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300">
+              {{ value.derniere_etape_atteinte }}
+            </span>
+          </template>
+
+          <template #derniere_activite_le="{ value }">
+            <span class="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+              {{ formatDate(value.derniere_activite_le) }}
+            </span>
+          </template>
+
+          <template #actions="{ value }">
+            <div class="flex justify-center gap-2">
+              <nuxt-link
+                :to="`/candidatures/${value.slug}`"
+                title="Voir les détails"
+                class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 dark:hover:text-white transition-colors"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+              </nuxt-link>
+              
+              <Can action="delete-brouillon-candidature">
+                <button
+                  @click="supprimer(value)"
+                  :disabled="isDeleting === value.id"
+                  title="Supprimer ce brouillon"
+                  class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 hover:bg-rose-600 hover:text-white dark:hover:bg-rose-600 dark:hover:text-white transition-colors disabled:opacity-50"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                </button>
+              </Can>
+            </div>
+          </template>
+        </Vue3Datatable>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useCandidatureStore } from '~~/stores/candidature';
+import Vue3Datatable from '@bhplugin/vue3-datatable';
+import '@bhplugin/vue3-datatable/dist/style.css';
 
 const { $toastr, $swal } = useNuxtApp();
 const candidatureStore = useCandidatureStore();
@@ -126,22 +128,20 @@ const dossiers = ref([]);
 const isLoading = ref(true);
 const isDeleting = ref(null);
 
+const columns = [
+  { field: 'candidat', title: 'Candidat' },
+  { field: 'contact', title: 'Contact' },
+  { field: 'derniere_etape_atteinte', title: 'Étape atteinte' },
+  { field: 'derniere_activite_le', title: 'Dernière activité' },
+  { field: 'actions', title: 'Actions', sort: false, headerClass: 'justify-center' },
+];
+
 const getInitials = (nom, prenom) => `${nom?.[0] || ''}${prenom?.[0] || ''}`.toUpperCase();
 
 const formatDate = (value) => {
   if (!value) return '—';
   return new Date(value).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
-
-const filteredDossiers = computed(() => {
-  if (!searchQuery.value) return dossiers.value;
-  const query = searchQuery.value.toLowerCase();
-  return dossiers.value.filter(d =>
-    `${d.nom} ${d.prenom}`.toLowerCase().includes(query) ||
-    d.email?.toLowerCase().includes(query) ||
-    d.tel?.toLowerCase().includes(query)
-  );
-});
 
 const loadDossiers = async () => {
   isLoading.value = true;
