@@ -147,6 +147,101 @@
               />
             </div>
 
+            <!-- Filières ciblées (Si le groupe contient plusieurs filières) -->
+            <div
+              v-if="availableFilieresForGroup.length > 1"
+              class="md:col-span-2 p-4 sm:p-5 rounded-2xl border border-blue-200/80 dark:border-blue-900/50 bg-gradient-to-br from-blue-50/70 via-slate-50/40 to-blue-50/30 dark:from-blue-950/20 dark:via-gray-900/30 dark:to-blue-950/10 space-y-3.5 shadow-2xs"
+            >
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-blue-100/80 dark:border-blue-900/40">
+                <div class="space-y-0.5">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-blue-600 text-white shadow-xs shrink-0">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      </svg>
+                    </span>
+                    <label class="text-sm font-bold text-gray-900 dark:text-gray-100">
+                      Filières ciblées par cette évaluation <span class="text-red-500">*</span>
+                    </label>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">
+                      {{ form.filiere_ids.length }}/{{ availableFilieresForGroup.length }}
+                    </span>
+                  </div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    Ce groupe comprend plusieurs filières. Sélectionnez uniquement celles concernées.
+                  </p>
+                </div>
+
+                <!-- Boutons d'action modernes Tout cocher / Tout décocher -->
+                <div class="inline-flex items-center p-0.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shrink-0 self-start sm:self-center shadow-xs">
+                  <button
+                    type="button"
+                    @click="selectAllFilieres"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors whitespace-nowrap active:scale-95"
+                    title="Sélectionner toutes les filières"
+                  >
+                    <svg class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Tout cocher</span>
+                  </button>
+                  <span class="h-4 w-px bg-gray-200 dark:bg-gray-700 mx-0.5"></span>
+                  <button
+                    type="button"
+                    @click="deselectAllFilieres"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700/60 dark:hover:text-gray-200 transition-colors whitespace-nowrap active:scale-95"
+                    title="Désélectionner toutes les filières"
+                  >
+                    <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span>Tout décocher</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Cartes des filières -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 pt-1">
+                <label
+                  v-for="fil in availableFilieresForGroup"
+                  :key="fil.id"
+                  class="group relative flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none"
+                  :class="form.filiere_ids.includes(fil.id)
+                    ? 'border-blue-500 bg-white dark:bg-gray-800/90 shadow-xs ring-1 ring-blue-500/20 text-blue-950 dark:text-blue-100'
+                    : 'border-gray-200 dark:border-gray-700/80 bg-white/70 dark:bg-gray-800/30 text-gray-600 dark:text-gray-400 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-white dark:hover:bg-gray-800/60'"
+                >
+                  <input
+                    type="checkbox"
+                    :value="fil.id"
+                    v-model="form.filiere_ids"
+                    class="w-4 h-4 rounded text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500 cursor-pointer shrink-0"
+                  />
+                  <div class="min-w-0 flex-1">
+                    <p class="text-xs font-bold truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      {{ fil.nom }}
+                    </p>
+                    <p v-if="fil.code" class="text-[10px] text-gray-400 dark:text-gray-500 font-mono tracking-wide mt-0.5">
+                      {{ fil.code }}
+                    </p>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Message d'état -->
+              <div class="pt-0.5 flex items-center justify-between text-xs">
+                <p v-if="form.filiere_ids.length === 0" class="text-xs text-red-500 font-bold flex items-center gap-1.5">
+                  <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  Veuillez sélectionner au moins une filière pour cette évaluation.
+                </p>
+                <p v-else class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                  Seuls les étudiants de ces filières verront cette évaluation et recevront la notification.
+                </p>
+              </div>
+            </div>
+
             <!-- Salle -->
             <div>
               <label
@@ -345,6 +440,7 @@ const form = ref({
   parent_id: null,
   // niveau_id: null,
   group_id: null,
+  filiere_ids: [],
   unite_valeur_id: null,
   salle_id: null,
   date: null,
@@ -358,6 +454,23 @@ const form = ref({
 
 const matieres = ref([]);
 const loadingMatieres = ref(false);
+
+// Filières disponibles pour le groupe sélectionné
+const availableFilieresForGroup = computed(() => {
+  if (!form.value.group_id) return [];
+  const grp = groupStore.groupes.find(
+    (g) => g.id === form.value.group_id || g.slug === form.value.group_id
+  );
+  return grp?.filieres || [];
+});
+
+const selectAllFilieres = () => {
+  form.value.filiere_ids = availableFilieresForGroup.value.map((f) => f.id);
+};
+
+const deselectAllFilieres = () => {
+  form.value.filiere_ids = [];
+};
 
 // const niveauxOptions = computed(() => niveauStore.niveaux.map(n => ({ label: n.libelle, value: n.id })));
 const groupesOptions = computed(() =>
@@ -485,8 +598,39 @@ const getMatiere = async (groupId) => {
 watch(
   () => form.value.group_id,
   (newGroupId) => {
-    if (newGroupId) getMatiere(newGroupId);
-    else matieres.value = [];
+    if (newGroupId) {
+      getMatiere(newGroupId);
+      const grp = groupStore.groupes.find((g) => g.id === newGroupId || g.slug === newGroupId);
+      if (grp?.filieres && grp.filieres.length > 0) {
+        form.value.filiere_ids = grp.filieres.map((f) => f.id);
+      } else {
+        form.value.filiere_ids = [];
+      }
+    } else {
+      matieres.value = [];
+      form.value.filiere_ids = [];
+    }
+  },
+);
+
+// Auto-sélection intelligente de la filière selon la matière (Unité de Valeur)
+watch(
+  () => form.value.unite_valeur_id,
+  (newUvId) => {
+    if (!newUvId || availableFilieresForGroup.value.length <= 1) return;
+    const allMatieres = [...(groupStore.matieres || []), ...(uvStore.uvs || [])];
+    const selectedMatiere = allMatieres.find((m) => m.id === newUvId || m.slug === newUvId);
+    if (selectedMatiere) {
+      const filiereId = selectedMatiere.filiere_id ?? selectedMatiere.filiere?.id;
+      if (filiereId) {
+        const matchInGroup = availableFilieresForGroup.value.find((f) => f.id === Number(filiereId));
+        if (matchInGroup) {
+          form.value.filiere_ids = [matchInGroup.id];
+        }
+      } else {
+        selectAllFilieres();
+      }
+    }
   },
 );
 
@@ -514,6 +658,11 @@ const saveEvaluation = async () => {
     // Vérifier que l'heure de fin est après l'heure de début
     if (form.value.fin <= form.value.debut) {
       $toastr.error("L'heure de fin doit être après l'heure de début");
+      return;
+    }
+
+    if (availableFilieresForGroup.value.length > 1 && form.value.filiere_ids.length === 0) {
+      $toastr.error("Veuillez sélectionner au moins une filière pour cette évaluation");
       return;
     }
 
@@ -588,6 +737,7 @@ const saveEvaluation = async () => {
 
       is_online: form.value.is_online,
       published: form.value.published,
+      filiere_ids: availableFilieresForGroup.value.length > 1 ? form.value.filiere_ids : null,
     };
     if (form.value.id) {
       await evaluationStore.UpdateEvaluation(form.value.id, payload);

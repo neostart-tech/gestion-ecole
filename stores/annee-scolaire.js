@@ -9,6 +9,7 @@ export const useAnneScolaireStore = defineStore("annee-scolaire", {
 
   getters: {
     activeAnnee: (state) => state.annneescolaires.find((a) => a.active === true || a.active === 1),
+    annees: (state) => state.annneescolaires,
   },
 
   actions: {
@@ -107,5 +108,46 @@ export const useAnneScolaireStore = defineStore("annee-scolaire", {
         this.isLoading = false;
       }
     },
+
+    async fetchCalendrier(anneeId) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          `/annee-scolaire/${anneeId}/calendrier`,
+          this.authHeaders()
+        );
+        return response.data;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async saveCalendrier(anneeId, payload) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          `/annee-scolaire/${anneeId}/calendrier/save`,
+          payload,
+          this.authHeaders()
+        );
+        return response.data;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async deleteCalendrierEntry(anneeId, entryId) {
+      this.isLoading = true;
+      try {
+        const response = await axios.delete(
+          `/annee-scolaire/${anneeId}/calendrier/${entryId}`,
+          this.authHeaders()
+        );
+        return response.data;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
   },
 });

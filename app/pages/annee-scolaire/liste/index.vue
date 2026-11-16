@@ -172,6 +172,30 @@
                 </svg>
               </button>
               </Can>
+              <!-- Calendrier des rentrées -->
+              <Can action="update-annee-scolaire">
+                <button
+                  @click="openCalendrierModal(value)"
+                  class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors duration-200 text-xs font-semibold border border-indigo-200 dark:border-indigo-800"
+                  title="Gérer le calendrier des rentrées par promotion"
+                >
+                  <svg
+                    class="w-4 h-4 text-indigo-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <span>Calendrier</span>
+                </button>
+              </Can>
+
             </div>
           </template>
         </Vue3Datatable>
@@ -679,7 +703,270 @@
         </div>
       </Dialog>
     </TransitionRoot>
-  </div>
+  
+
+    <!-- Modale Calendrier des rentrées -->
+    <TransitionRoot appear :show="showCalendrierModal" as="template">
+      <Dialog as="div" class="relative z-50" @close="closeCalendrierModal">
+        <div class="fixed inset-0 bg-black/60" />
+
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+          <DialogPanel
+            class="w-full max-w-4xl rounded-2xl bg-white dark:bg-gray-800 p-6 sm:p-8 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+          >
+            <!-- Header -->
+            <div class="flex items-start justify-between pb-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+              <div class="flex items-center gap-3">
+                <div class="p-3 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <DialogTitle class="text-xl font-bold text-gray-900 dark:text-white">
+                    Calendrier académique des rentrées
+                  </DialogTitle>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    Année : <span class="font-semibold text-indigo-600 dark:text-indigo-400">{{ calendrierData?.annee?.nom }}</span>
+                    (Période générale : {{ calendrierData?.annee?.date_debut || 'Non définie' }} au {{ calendrierData?.annee?.date_fin || 'Non définie' }})
+                  </p>
+                </div>
+              </div>
+
+              <button
+                @click="closeCalendrierModal"
+                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Body -->
+            <div class="overflow-y-auto py-5 pr-1 flex-1 space-y-4">
+              <div v-if="loadingCalendrier" class="flex justify-center py-12">
+                <div class="h-10 w-10 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent"></div>
+              </div>
+
+              <div v-else class="space-y-4">
+                <div class="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 rounded-xl p-3.5 flex items-start gap-3">
+                  <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p class="text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
+                    Définissez ici la date de rentrée officielle de chaque niveau (L1, L2, etc.). Tous les modules (scolarité, plannings, présences, tranches de paiement) se basent sur ce calendrier unique. Si une filière a une rentrée spécifique au sein d'un niveau, vous pouvez ajouter une dérogation.
+                  </p>
+                </div>
+
+                <!-- Liste des niveaux -->
+                <div class="space-y-4">
+                  <div
+                    v-for="niveau in calendrierNiveaux"
+                    :key="niveau.niveau_id"
+                    class="p-4 sm:p-5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow transition-shadow space-y-4"
+                  >
+                    <!-- En-tête : Badge niveau, Statut et Bouton filière -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100 dark:border-gray-700/60">
+                      <div class="flex items-center gap-2.5 flex-wrap">
+                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white shadow-sm whitespace-nowrap flex-shrink-0 tracking-wide min-w-max">
+                          {{ niveau.niveau_libelle }}
+                        </span>
+                        
+                        <span
+                          v-if="niveau.is_custom"
+                          class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-full whitespace-nowrap flex-shrink-0 min-w-max"
+                        >
+                          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                          Date personnalisée
+                        </span>
+                        <span
+                          v-else
+                          class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 px-3 py-1 rounded-full whitespace-nowrap flex-shrink-0 min-w-max"
+                        >
+                          <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                          Date par défaut de l'année
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        @click="toggleAddException(niveau)"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 rounded-lg border border-indigo-200 dark:border-indigo-800 transition-colors font-semibold whitespace-nowrap self-start sm:self-auto"
+                        title="Ajouter une dérogation pour une filière particulière"
+                      >
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        <span>+ Filière spécifique</span>
+                      </button>
+                    </div>
+
+                    <!-- Ligne Date de rentrée et Bouton Rétablir rentrée générale -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gray-50/90 dark:bg-gray-900/50 p-3.5 sm:p-4 rounded-xl border border-gray-100 dark:border-gray-700/60">
+                      <div class="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-4">
+                        <div class="flex items-center gap-2">
+                          <svg class="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                            Date de rentrée officielle :
+                          </label>
+                        </div>
+                        <input
+                          v-model="niveau.date_rentree"
+                          type="date"
+                          @change="handleDateChange(niveau)"
+                          class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 shadow-sm w-full sm:w-auto"
+                        />
+                      </div>
+
+                      <div v-if="niveau.is_custom" class="flex items-center self-start sm:self-auto">
+                        <button
+                          type="button"
+                          @click="resetToGeneralDate(niveau)"
+                          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 rounded-lg border border-amber-200 dark:border-amber-800 transition-colors font-semibold whitespace-nowrap shadow-sm"
+                          title="Rétablir ce niveau sur la date générale de rentrée de l'année"
+                        >
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                          <span>Rétablir rentrée générale</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Bloc ajout dérogation pour filière -->
+                    <div v-if="niveau.showExceptionForm" class="p-3.5 sm:p-4 bg-indigo-50/50 dark:bg-indigo-950/20 rounded-xl border border-indigo-200 dark:border-indigo-800/60 space-y-3">
+                      <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                        <p class="text-xs font-bold text-indigo-950 dark:text-indigo-200">
+                          Dérogation pour une filière de {{ niveau.niveau_libelle }} :
+                        </p>
+                      </div>
+
+                      <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center">
+                        <div class="sm:col-span-6">
+                          <Dropdown
+                            v-model="niveau.newExceptionFiliereId"
+                            :options="filiereOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            filter
+                            placeholder="Sélectionner la filière..."
+                            class="w-full text-xs shadow-sm"
+                          />
+                        </div>
+                        <div class="sm:col-span-3">
+                          <input
+                            v-model="niveau.newExceptionDate"
+                            type="date"
+                            class="w-full px-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                          />
+                        </div>
+                        <div class="sm:col-span-3 flex items-center gap-2">
+                          <button
+                            type="button"
+                            @click="addExceptionToNiveau(niveau)"
+                            class="flex-1 px-3 py-2 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow-sm transition-colors text-center whitespace-nowrap"
+                          >
+                            Ajouter
+                          </button>
+                          <button
+                            type="button"
+                            @click="niveau.showExceptionForm = false"
+                            class="px-3 py-2 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors whitespace-nowrap"
+                          >
+                            Annuler
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Liste des dérogations filières existantes pour ce niveau -->
+                    <div v-if="niveau.filiere_exceptions && niveau.filiere_exceptions.length > 0" class="pl-3 sm:pl-4 space-y-2 border-l-2 border-indigo-400 dark:border-indigo-600 mt-2">
+                      <div
+                        v-for="(exc, excIdx) in niveau.filiere_exceptions"
+                        :key="exc.id || 'new-'+excIdx"
+                        class="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs shadow-sm gap-2.5"
+                      >
+                        <div class="flex items-center gap-2.5 flex-wrap min-w-0">
+                          <span class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0"></span>
+                          <span class="font-bold text-gray-900 dark:text-gray-100 truncate">
+                            {{ exc.filiere_nom }}
+                          </span>
+                          <span v-if="exc.filiere_code" class="text-xs px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-mono whitespace-nowrap flex-shrink-0">
+                            {{ exc.filiere_code }}
+                          </span>
+                        </div>
+                        <div class="flex items-center gap-2.5 self-end sm:self-auto flex-shrink-0">
+                          <span class="text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">Rentrée :</span>
+                          <input
+                            v-model="exc.date_rentree"
+                            type="date"
+                            class="px-3 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                          />
+                          <button
+                            type="button"
+                            @click="removeException(niveau, excIdx)"
+                            class="p-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors border border-transparent hover:border-red-200 dark:hover:border-red-900/50"
+                            title="Supprimer cette dérogation"
+                          >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Option de synchronisation automatique -->
+                <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <label class="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      v-model="syncEcheancesOption"
+                      type="checkbox"
+                      class="mt-1 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <div>
+                      <span class="text-xs font-bold text-gray-900 dark:text-white block">
+                        Synchroniser automatiquement les échéances financières des étudiants
+                      </span>
+                      <span class="text-[11px] text-gray-500 dark:text-gray-400 block">
+                        Recalcule et réaligne immédiatement les tranches de scolarité des contrats étudiants sans altérer les montants déjà payés.
+                      </span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+              <button
+                type="button"
+                @click="closeCalendrierModal"
+                class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors border border-gray-200 dark:border-gray-700"
+              >
+                Fermer
+              </button>
+              <button
+                type="button"
+                @click="saveCalendrier"
+                :disabled="savingCalendrier || loadingCalendrier"
+                class="px-6 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-md transition-all flex items-center gap-2"
+              >
+                <span v-if="savingCalendrier" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                Enregistrer le calendrier
+              </button>
+            </div>
+          </DialogPanel>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+</div>
 </template>
 
 <script setup>
@@ -829,6 +1116,176 @@ const togglePublish = async (value) => {
       console.log(error);
       $toastr.error(error.response?.data?.message || "Une erreur est survenue");
     }
+  }
+};
+
+
+const showCalendrierModal = ref(false);
+const loadingCalendrier = ref(false);
+const savingCalendrier = ref(false);
+const selectedAnneeForCalendrier = ref(null);
+const calendrierData = ref(null);
+const calendrierNiveaux = ref([]);
+const calendrierFilieres = ref([]);
+
+const filiereOptions = computed(() =>
+  (calendrierFilieres.value || []).map((f) => ({
+    label: `${f.nom} (${f.code})`,
+    value: f.id,
+  }))
+);
+const syncEcheancesOption = ref(true);
+
+const openCalendrierModal = async (annee) => {
+  selectedAnneeForCalendrier.value = annee;
+  showCalendrierModal.value = true;
+  loadingCalendrier.value = true;
+  try {
+    const data = await anneescolaireStore.fetchCalendrier(annee.id);
+    calendrierData.value = data;
+    calendrierNiveaux.value = (data.niveaux || []).map((n) => ({
+      ...n,
+      showExceptionForm: false,
+      newExceptionFiliereId: null,
+      newExceptionDate: n.date_rentree,
+    }));
+    calendrierFilieres.value = data.filieres || [];
+  } catch (error) {
+    console.error("Erreur chargement calendrier:", error);
+    $toastr.error("Impossible de charger le calendrier académique");
+    showCalendrierModal.value = false;
+  } finally {
+    loadingCalendrier.value = false;
+  }
+};
+
+const closeCalendrierModal = () => {
+  showCalendrierModal.value = false;
+  selectedAnneeForCalendrier.value = null;
+  calendrierData.value = null;
+  calendrierNiveaux.value = [];
+};
+
+const toggleAddException = (niveau) => {
+  niveau.showExceptionForm = !niveau.showExceptionForm;
+  if (niveau.showExceptionForm) {
+    niveau.newExceptionFiliereId = null;
+    niveau.newExceptionDate = niveau.date_rentree;
+  }
+};
+
+const addExceptionToNiveau = (niveau) => {
+  if (!niveau.newExceptionFiliereId) {
+    $toastr.error("Veuillez sélectionner une filière");
+    return;
+  }
+  if (!niveau.newExceptionDate) {
+    $toastr.error("Veuillez choisir une date de rentrée");
+    return;
+  }
+
+  const filiere = calendrierFilieres.value.find((f) => f.id === niveau.newExceptionFiliereId);
+  if (!niveau.filiere_exceptions) {
+    niveau.filiere_exceptions = [];
+  }
+
+  const exists = niveau.filiere_exceptions.find((e) => e.filiere_id === niveau.newExceptionFiliereId);
+  if (exists) {
+    exists.date_rentree = niveau.newExceptionDate;
+  } else {
+    niveau.filiere_exceptions.push({
+      filiere_id: niveau.newExceptionFiliereId,
+      filiere_nom: filiere?.nom || "Filière",
+      filiere_code: filiere?.code || "",
+      date_rentree: niveau.newExceptionDate,
+    });
+  }
+
+  niveau.showExceptionForm = false;
+};
+
+const removeException = async (niveau, index) => {
+  const exc = niveau.filiere_exceptions[index];
+  if (exc && exc.id) {
+    try {
+      await anneescolaireStore.deleteCalendrierEntry(selectedAnneeForCalendrier.value.id, exc.id);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  niveau.filiere_exceptions.splice(index, 1);
+};
+
+const handleDateChange = (niveau) => {
+  const generalDate = calendrierData.value?.annee?.date_debut;
+  if (generalDate && niveau.date_rentree === generalDate) {
+    niveau.is_custom = false;
+  } else {
+    niveau.is_custom = true;
+  }
+};
+
+const resetToGeneralDate = (niveau) => {
+  niveau.is_custom = false;
+  if (calendrierData.value?.annee?.date_debut) {
+    niveau.date_rentree = calendrierData.value.annee.date_debut;
+  }
+  $toastr.info(`${niveau.niveau_libelle} rétabli sur la rentrée générale`);
+};
+
+const saveCalendrier = async () => {
+  if (!selectedAnneeForCalendrier.value) return;
+
+  const entries = [];
+  const reset_niveaux = [];
+
+  calendrierNiveaux.value.forEach((niveau) => {
+    if (niveau.is_custom && niveau.date_rentree) {
+      entries.push({
+        niveau_id: niveau.niveau_id,
+        filiere_id: null,
+        date_rentree: niveau.date_rentree,
+        date_fin: niveau.date_fin || null,
+      });
+    } else if (!niveau.is_custom) {
+      reset_niveaux.push(niveau.niveau_id);
+    }
+
+    if (niveau.filiere_exceptions && niveau.filiere_exceptions.length > 0) {
+      niveau.filiere_exceptions.forEach((exc) => {
+        if (exc.date_rentree && exc.filiere_id) {
+          entries.push({
+            niveau_id: niveau.niveau_id,
+            filiere_id: exc.filiere_id,
+            date_rentree: exc.date_rentree,
+            date_fin: exc.date_fin || null,
+          });
+        }
+      });
+    }
+  });
+
+  savingCalendrier.value = true;
+  try {
+    const res = await anneescolaireStore.saveCalendrier(selectedAnneeForCalendrier.value.id, {
+      entries,
+      reset_niveaux,
+      sync_echeances: syncEcheancesOption.value,
+    });
+
+    await $swal.fire({
+      title: "Calendrier enregistré",
+      text: res.message || "Le calendrier académique a été mis à jour avec succès.",
+      icon: "success",
+      confirmButtonColor: "#4F46E5",
+    });
+
+    closeCalendrierModal();
+  } catch (error) {
+    console.error("Erreur enregistrement calendrier:", error);
+    $toastr.error(error.response?.data?.message || "Erreur lors de l'enregistrement du calendrier");
+  } finally {
+    savingCalendrier.value = false;
   }
 };
 

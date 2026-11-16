@@ -6,32 +6,30 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <Breadcrumb
-              :items="[
-                { label: 'Administration', to: '/' },
-                { label: 'Personnel', to: '/personnel' },
-                { label: 'Enseignants', to: '/personnel/enseignants' },
-                { label: 'Détails', to: null },
-              ]"
+              :items="breadcrumbItems"
               spacing="mb-2"
             />
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Détails du professeur</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Consultez les informations complètes du professeur</p>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+              {{ isTeacher ? 'Détails du professeur' : 'Détails du membre' }}
+            </h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              {{ isTeacher ? 'Consultez les informations complètes du professeur' : 'Consultez les informations complètes du membre du personnel' }}
+            </p>
           </div>
           <div class="flex gap-3">
-          
             <button
-              @click="navigateTo('/personnel/enseignants')"
+              @click="goBack"
               class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               Retour
             </button>
-            <Can :action="['update-enseignant']">
-            <NuxtLink
-              :to="`/personnel/${user?.slug}/modifier-un-enseignant`"
-              class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm hover:shadow-md"
-            >
-              Modifier
-            </NuxtLink>
+            <Can :action="isTeacher ? ['update-enseignant', 'update-user'] : ['update-user']">
+              <NuxtLink
+                :to="isTeacher ? `/personnel/${user?.slug}/modifier-un-enseignant` : `/personnel/${user?.slug}/modifier-un-utilisateur`"
+                class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm hover:shadow-md"
+              >
+                Modifier
+              </NuxtLink>
             </Can>
           </div>
         </div>
@@ -189,13 +187,11 @@
                 <DocumentItem
                   title="Pièce d'identité"
                   :url="user.identity_document_url"
-                  required
                 />
                 <DocumentItem
                   v-if="user.nationalite === 'Togo'"
                   title="Justificatif NIF"
                   :url="user.nif_document_url"
-                  required
                 />
                 <DocumentItem
                   title="Diplômes"
@@ -239,24 +235,57 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <p class="text-gray-500 dark:text-gray-400">Professeur non trouvé</p>
+        <p class="text-gray-500 dark:text-gray-400">{{ isTeacher ? 'Professeur non trouvé' : 'Utilisateur non trouvé' }}</p>
       </div>
     </div>
   </div>
 </template>
 <script setup>
-import { ref, onMounted } from "vue"
-import { useRoute } from "vue-router"
+import { ref, computed, onMounted } from "vue"
+import { useRoute, useRouter } from "vue-router"
 import Breadcrumb from "~/components/Breadcrumb.vue"
 import DocumentItem from "~/components/DocumentItem.vue"
 import { useUserStore } from "~~/stores/user"
 
 const route = useRoute()
+const router = useRouter()
 const userStore = useUserStore()
 const { $toastr } = useNuxtApp()
 
 const loading = ref(true)
 const user = ref(null)
+
+const isTeacher = computed(() => {
+  if (!user.value || !user.value.roles) return false
+  return user.value.roles.some(r =>
+    r.id === 2 ||
+    (r.slug || '').toLowerCase().includes('enseignant') ||
+    (r.slug || '').toLowerCase().includes('professeur') ||
+    (r.nom || '').toLowerCase().includes('enseignant') ||
+    (r.nom || '').toLowerCase().includes('professeur')
+  )
+})
+
+const breadcrumbItems = computed(() => [
+  { label: 'Administration', to: '/' },
+  {
+    label: 'Personnel',
+    to: isTeacher.value ? '/personnel/enseignants' : '/personnel/utilisateurs',
+  },
+  {
+    label: isTeacher.value ? 'Enseignants' : 'Membres',
+    to: isTeacher.value ? '/personnel/enseignants' : '/personnel/utilisateurs',
+  },
+  { label: 'Détails', to: null },
+])
+
+const goBack = () => {
+  if (typeof window !== 'undefined' && window.history.length > 1) {
+    router.back()
+  } else {
+    navigateTo(isTeacher.value ? '/personnel/enseignants' : '/personnel/utilisateurs')
+  }
+}
 
 onMounted(async () => {
   try {
@@ -270,7 +299,7 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error("Erreur chargement:", error)
-    $toastr.error(error.message || "Impossible de charger les détails du professeur")
+    $toastr.error(error.message || "Impossible de charger les détails de l'utilisateur")
   } finally {
     loading.value = false
   }

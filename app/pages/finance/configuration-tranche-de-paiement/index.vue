@@ -668,8 +668,9 @@ const niveauOptions = computed(() => {
 });
 
 const anneeOptions = computed(() => {
-  return (anneeStore.annees || []).map((a) => ({
-    label: a.nom,
+  const list = anneeStore.annneescolaires || anneeStore.annees || [];
+  return list.map((a) => ({
+    label: a.nom || a.libelle || a.annee_scolaire || (a.annee_debut && a.annee_fin ? (a.annee_debut + '-' + a.annee_fin) : ('Année ' + a.id)),
     value: a.id,
   }));
 });
@@ -694,11 +695,11 @@ const filteredFrais = computed(() => {
   }
 
   if (filtreAnnee.value) {
-    liste = liste.filter((f) => f.annee_scolaire?.id == filtreAnnee.value);
+    liste = liste.filter((f) => (f.annee_scolaire_id ?? f.annee_scolaire?.id) == filtreAnnee.value);
   }
 
   if (filtreNiveau.value) {
-    liste = liste.filter((f) => f.niveau?.id == filtreNiveau.value);
+    liste = liste.filter((f) => (f.niveau_id ?? f.niveau?.id) == filtreNiveau.value);
   }
 
   return liste;

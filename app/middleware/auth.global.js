@@ -38,6 +38,17 @@ export default defineNuxtRouteMiddleware((to) => {
             // Empêcher la navigation et forcer la page de changement de mot de passe
             return navigateTo('/profile/info');
           }
+
+          // Inciter l'étudiant à vérifier son profil à sa connexion sans jamais le bloquer
+          const roles = user?.roles || [];
+          const isEtudiant = roles.some((r) => (typeof r === 'string' ? r : r?.slug) === 'etudiant');
+          if (isEtudiant && !user?.profil_verifie_at) {
+            const hasBeenPrompted = sessionStorage.getItem('etudiant_verification_prompted');
+            if (!hasBeenPrompted && to.path !== '/etudiant/completer-profil') {
+              sessionStorage.setItem('etudiant_verification_prompted', 'true');
+              return navigateTo('/etudiant/completer-profil');
+            }
+          }
         } catch (e) {
           console.error("Error parsing user from localStorage", e);
         }

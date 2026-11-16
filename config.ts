@@ -1,15 +1,17 @@
 const isLocal = true; 
 export default {
   app_local: isLocal,
-  app_dev_url: "http://localhost:8000/api",
+  app_dev_url: "http://127.0.0.1:8000/api",
   // app_dev_url: "http://192.168.10.105:8000/api",
   app_prod_url: "https://escen.neostart.tech/api",
+  // app_prod_url: "https://formatec-backend.neoedumanager.tech/api",
   // app_prod_url: "https://new.iai-togo.tg/api",
 
 
   
   
-  app_dev_storage_url: "http://localhost:8000",
+  app_dev_storage_url: "http://127.0.0.1:8000",
+  // app_prod_storage_url: "https://formatec-backend.neoedumanager.tech",
   app_prod_storage_url: "https://escen.neostart.tech",
   //  app_prod_storage_url: "https://new.iai-togo.tg",
 
@@ -21,6 +23,7 @@ export default {
     app_id: "196113",
     host: isLocal ? "127.0.0.1" : "escen.neostart.tech",
         // host: isLocal ? "127.0.0.1" : "https://new.iai-togo.tg",
+    // host: isLocal ? "127.0.0.1" : "https://formatec-backend.neoedumanager.tech",
 
     port: isLocal ? 8080 : 443,
     scheme: isLocal ? "http" : "https"

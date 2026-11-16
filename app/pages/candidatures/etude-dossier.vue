@@ -20,15 +20,28 @@
           <p class="text-xs sm:text-sm text-[#8a8a9a] font-medium ml-4">Gestion centralisée et validation des candidatures entrantes</p>
         </div>
 
-        <button
-          @click="exportExcel"
-          :disabled="candidatureStore.exportEnCours"
-          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#7F45FD] hover:bg-[#6a35e8] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-300 hover:shadow-[0_8px_25px_rgba(127,69,253,0.3)] disabled:opacity-60 shrink-0"
-        >
-          <svg v-if="!candidatureStore.exportEnCours" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2-8H8a2 2 0 00-2 2v14a2 2 0 002 2h8a2 2 0 002-2V8a2 2 0 00-2-2z" /></svg>
-          <span v-else class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-          {{ candidatureStore.exportEnCours ? 'Export...' : 'Exporter en Excel' }}
-        </button>
+        <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+          <NuxtLink
+            v-if="can('delete-candidature') || can('restore-candidature')"
+            to="/candidatures/corbeille"
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-[#151525] hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-300 shadow-sm shrink-0"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Corbeille
+          </NuxtLink>
+
+          <button
+            @click="exportExcel"
+            :disabled="candidatureStore.exportEnCours"
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#7F45FD] hover:bg-[#6a35e8] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-300 hover:shadow-[0_8px_25px_rgba(127,69,253,0.3)] disabled:opacity-60 shrink-0"
+          >
+            <svg v-if="!candidatureStore.exportEnCours" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2-8H8a2 2 0 00-2 2v14a2 2 0 002 2h8a2 2 0 002-2V8a2 2 0 00-2-2z" /></svg>
+            <span v-else class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            {{ candidatureStore.exportEnCours ? 'Export...' : 'Exporter en Excel' }}
+          </button>
+        </div>
       </div>
 
       <!-- Onglets Filtres (Segmented Control Horizontal Scroll Responsive) -->
@@ -188,6 +201,60 @@
       <!-- LISTE DES DOSSIERS (Responsive : Vue Cartes sur Mobile/Tablette < lg, Vue Table sur Desktop >= lg) -->
       <template v-else-if="filteredCandidatures.length > 0">
         
+        <!-- Barre d'actions groupées (Bulk Actions) -->
+        <Transition
+          enter-active-class="transition duration-300 ease-out"
+          enter-from-class="opacity-0 -translate-y-2"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-active-class="transition duration-200 ease-in"
+          leave-from-class="opacity-100 translate-y-0"
+          leave-to-class="opacity-0 -translate-y-2"
+        >
+          <div
+            v-if="selectedCandidatures.length > 0 && can('delete-candidature')"
+            class="px-5 py-3.5 rounded-2xl bg-white dark:bg-[#11111e] border-2 border-[#7F45FD]/40 shadow-[0_8px_30px_rgba(127,69,253,0.12)] flex flex-wrap items-center justify-between gap-3"
+          >
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-[#7F45FD] text-white font-black text-xs flex items-center justify-center shadow-md shadow-[#7F45FD]/30">
+                {{ selectedCandidatures.length }}
+              </div>
+              <div>
+                <p class="text-xs sm:text-sm font-bold text-[#1a1a2a] dark:text-[#fafafe]">
+                  {{ selectedCandidatures.length }} dossier(s) sélectionné(s)
+                </p>
+                <p class="text-[11px] text-[#8a8a9a] font-medium">
+                  Prêt pour la suppression groupée (soft delete avec traçabilité)
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2.5">
+              <button
+                type="button"
+                @click="annulerSelection"
+                class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-gray-900 dark:hover:text-white rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                @click="supprimerSelectionGroupee"
+                :disabled="isDeletingBulk"
+                class="inline-flex items-center gap-2 px-5 py-2.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md shadow-rose-600/30 disabled:opacity-50"
+              >
+                <svg v-if="!isDeletingBulk" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <svg v-else class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Mettre en corbeille ({{ selectedCandidatures.length }})</span>
+              </button>
+            </div>
+          </div>
+        </Transition>
+        
         <!-- VUE CARTES (Mobile et Tablette < lg) -->
         <div class="block lg:hidden space-y-3 sm:space-y-4">
           <div 
@@ -198,6 +265,13 @@
             <!-- En-tête de la carte : Photo + Nom + Statut -->
             <div class="flex items-start justify-between gap-3 pb-3 border-b border-[#e8e8f0]/60 dark:border-[#1a1a2a]/60">
               <div class="flex items-center gap-3 min-w-0">
+                <input
+                  v-if="can('delete-candidature')"
+                  type="checkbox"
+                  :checked="isCardSelected(c)"
+                  @change="toggleCardSelection(c)"
+                  class="rounded border-gray-300 text-[#7F45FD] focus:ring-[#7F45FD] cursor-pointer w-4 h-4 shrink-0"
+                />
                 <div class="w-10 h-10 rounded-xl bg-[#7F45FD]/10 flex items-center justify-center text-[#7F45FD] font-black text-xs shrink-0 relative overflow-hidden">
                   {{ c.nom?.charAt(0) }}{{ c.prenom?.charAt(0) }}
                   <img v-if="c.album?.photo" :src="getFullUrl(c.album.photo)" class="absolute inset-0 w-full h-full object-cover" />
@@ -236,6 +310,16 @@
 
             <!-- Actions de la carte -->
             <div class="flex items-center justify-end gap-2 pt-2 border-t border-[#e8e8f0]/60 dark:border-[#1a1a2a]/60">
+              <button
+                v-if="can('delete-candidature')"
+                @click="supprimerCandidature(c)"
+                title="Supprimer la candidature"
+                class="p-2.5 text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-600 hover:text-white rounded-xl transition-all border border-rose-200 dark:border-rose-900/40 flex items-center justify-center shrink-0"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
               <NuxtLink 
                 :to="`/candidatures/modifier-${c.slug || c.id}`"
                 class="flex-1 sm:flex-none text-center px-4 py-2.5 bg-[#fafafe] dark:bg-[#0a0a12] text-[#1a1a2a] dark:text-[#fafafe] text-[10px] font-bold rounded-xl hover:bg-[#e8e8f0] dark:hover:bg-[#1a1a2a] transition-all uppercase tracking-widest border border-[#e8e8f0] dark:border-[#1a1a2a]"
@@ -274,10 +358,12 @@
         <!-- VUE DATATABLE (Desktop >= lg) -->
         <div class="hidden lg:block bg-white dark:bg-[#11111e] rounded-2xl border border-[#e8e8f0] dark:border-[#1a1a2a] shadow-[0_8px_30px_rgba(127,69,253,0.04)] overflow-hidden p-4 lg:p-6">
           <vue3-datatable
+            ref="datatableRef"
             :rows="filteredCandidatures"
             :columns="visibleColumns"
             :loading="isLoading"
-            :hasCheckbox="false"
+            :hasCheckbox="can('delete-candidature')"
+            @rowSelect="onRowSelect"
             skin="bh-table-hover"
             class="elite-table-v2"
             :pageSize="10"
@@ -326,7 +412,7 @@
 
             <!-- Slot Actions -->
             <template #actions="data">
-                <div class="flex items-center justify-end gap-2">
+                <div class="flex items-center justify-end gap-1.5">
                   <NuxtLink 
                     :to="`/candidatures/modifier-${data.value.slug || data.value.id}`"
                     class="px-3 py-2 bg-[#fafafe] dark:bg-[#0a0a12] text-[#1a1a2a] dark:text-[#fafafe] text-[10px] font-bold rounded-lg hover:bg-[#e8e8f0] dark:hover:bg-[#1a1a2a] transition-all uppercase tracking-widest border border-[#e8e8f0] dark:border-[#1a1a2a]"
@@ -339,6 +425,16 @@
                   >
                     Ouvrir
                   </NuxtLink>
+                  <button
+                    v-if="can('delete-candidature')"
+                    @click="supprimerCandidature(data.value)"
+                    title="Mettre en corbeille"
+                    class="p-2 text-rose-500 hover:text-white bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-600 dark:hover:bg-rose-600 rounded-lg transition-colors border border-rose-200 dark:border-rose-900/40"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
                 </div>
             </template>
           </vue3-datatable>
@@ -366,10 +462,14 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useCandidatureStore } from '~~/stores/candidature'
 import { useFiliereStore } from '~~/stores/filiere'
 import { useNiveauStore } from '~~/stores/niveau'
+import { useAccess } from '~/composables/useAccess'
 import { getStorageBaseUrl } from '~/utils/storageUrl'
 import Vue3Datatable from '@bhplugin/vue3-datatable'
 import '@bhplugin/vue3-datatable/dist/style.css'
 import { Menu, MenuButton, MenuItems } from '@headlessui/vue'
+import Swal from 'sweetalert2'
+
+const { can } = useAccess()
 
 const candidatureStore = useCandidatureStore()
 const filiereStore = useFiliereStore()
@@ -438,6 +538,7 @@ const paginatedCandidatures = computed(() => {
 
 watch([searchQuery, filterFiliere, filterNiveau, filterStatut], () => {
   currentPage.value = 1
+  annulerSelection()
 })
 
 // Config des colonnes pour Vue3Datatable
@@ -500,6 +601,129 @@ const refreshData = async () => {
   isRefreshing.value = true
   try { await candidatureStore.fetchCandidatures() } 
   finally { isRefreshing.value = false }
+}
+
+const supprimerCandidature = async (candidat) => {
+  const nom = `${candidat.nom || ''} ${candidat.prenom || ''}`.trim()
+  const result = await Swal.fire({
+    title: 'Mettre en corbeille ?',
+    text: `Le dossier de candidature de ${nom} sera déplacé dans la corbeille. Vous pourrez le restaurer à tout moment.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Oui, supprimer',
+    cancelButtonText: 'Annuler',
+    customClass: {
+      popup: 'rounded-2xl dark:bg-[#11111e] dark:text-white',
+    },
+  })
+
+  if (result.isConfirmed) {
+    try {
+      await candidatureStore.deleteCandidature(candidat.slug || candidat.id)
+      Swal.fire({
+        title: 'Candidature mise en corbeille',
+        text: `Le dossier de ${nom} a été supprimé (soft delete) et consigné dans le journal d'activité.`,
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false,
+        customClass: {
+          popup: 'rounded-2xl dark:bg-[#11111e] dark:text-white',
+        },
+      })
+      await refreshData()
+    } catch (err) {
+      Swal.fire({
+        title: 'Erreur',
+        text: err?.response?.data?.message || 'Impossible de supprimer cette candidature.',
+        icon: 'error',
+        customClass: {
+          popup: 'rounded-2xl dark:bg-[#11111e] dark:text-white',
+        },
+      })
+    }
+  }
+}
+
+const datatableRef = ref(null)
+const selectedCandidatures = ref([])
+const isDeletingBulk = ref(false)
+
+const onRowSelect = (rows) => {
+  selectedCandidatures.value = rows || []
+}
+
+const isCardSelected = (candidat) => {
+  return selectedCandidatures.value.some(
+    (c) => (c.id && c.id === candidat.id) || (c.slug && c.slug === candidat.slug)
+  )
+}
+
+const toggleCardSelection = (candidat) => {
+  if (isCardSelected(candidat)) {
+    selectedCandidatures.value = selectedCandidatures.value.filter(
+      (c) => !((c.id && c.id === candidat.id) || (c.slug && c.slug === candidat.slug))
+    )
+  } else {
+    selectedCandidatures.value.push(candidat)
+  }
+}
+
+const annulerSelection = () => {
+  selectedCandidatures.value = []
+  if (datatableRef.value && typeof datatableRef.value.clearSelectedRows === 'function') {
+    datatableRef.value.clearSelectedRows()
+  }
+}
+
+const supprimerSelectionGroupee = async () => {
+  if (selectedCandidatures.value.length === 0) return
+  const count = selectedCandidatures.value.length
+  const result = await Swal.fire({
+    title: `Mettre en corbeille ${count} dossier(s) ?`,
+    text: `Les ${count} dossiers de candidature sélectionnés seront déplacés dans la corbeille. Vous pourrez les restaurer ultérieurement.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: `Oui, supprimer (${count})`,
+    cancelButtonText: 'Annuler',
+    customClass: {
+      popup: 'rounded-2xl dark:bg-[#11111e] dark:text-white',
+    },
+  })
+
+  if (result.isConfirmed) {
+    isDeletingBulk.value = true
+    try {
+      const ids = selectedCandidatures.value.map((c) => c.slug || c.id)
+      const res = await candidatureStore.bulkDeleteCandidatures(ids)
+      Swal.fire({
+        title: 'Candidatures mises en corbeille',
+        text: res?.message || `${count} candidature(s) ont été supprimées et consignées dans le journal d'activité.`,
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false,
+        customClass: {
+          popup: 'rounded-2xl dark:bg-[#11111e] dark:text-white',
+        },
+      })
+      annulerSelection()
+      await refreshData()
+    } catch (err) {
+      Swal.fire({
+        title: 'Erreur',
+        text: err?.response?.data?.message || 'Impossible d\'effectuer la suppression groupée.',
+        icon: 'error',
+        customClass: {
+          popup: 'rounded-2xl dark:bg-[#11111e] dark:text-white',
+        },
+      })
+    } finally {
+      isDeletingBulk.value = false
+    }
+  }
 }
 
 onMounted(async () => {

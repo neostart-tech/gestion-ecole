@@ -13,6 +13,51 @@
       spacing="mb-4"
     />
 
+    <!-- Onglets Groupes Actifs / Groupes Masqués -->
+    <div class="flex items-center gap-2 mb-4 border-b border-gray-200 dark:border-gray-700">
+      <button
+        type="button"
+        @click="activeTabHidden = false"
+        class="pb-3 px-4 text-sm font-semibold border-b-2 transition-colors flex items-center gap-2"
+        :class="[
+          !activeTabHidden
+            ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
+            : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+        ]"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <span>Groupes actifs</span>
+        <span
+          class="ml-1.5 px-2 py-0.5 text-xs rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 font-medium"
+        >
+          {{ activeGroups.length }}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        @click="activeTabHidden = true"
+        class="pb-3 px-4 text-sm font-semibold border-b-2 transition-colors flex items-center gap-2"
+        :class="[
+          activeTabHidden
+            ? 'border-amber-600 text-amber-600 dark:border-amber-400 dark:text-amber-400'
+            : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+        ]"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+        </svg>
+        <span>Groupes masqués</span>
+        <span
+          class="ml-1.5 px-2 py-0.5 text-xs rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 font-medium"
+        >
+          {{ hiddenGroups.length }}
+        </span>
+      </button>
+    </div>
+
     <!-- Toolbar -->
     <div
       class="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between mb-5"
@@ -214,6 +259,31 @@
                   />
                 </svg>
               </NuxtLink>
+
+              <!-- Masquer / Afficher pour l'année en cours -->
+              <Can action="update-groupe">
+                <button
+                  v-if="!value.is_hidden"
+                  @click="toggleVisibility(value)"
+                  class="p-2 rounded-lg text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors duration-200"
+                  title="Masquer ce groupe pour l'année scolaire en cours"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                  </svg>
+                </button>
+                <button
+                  v-else
+                  @click="toggleVisibility(value)"
+                  class="p-2 rounded-lg text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors duration-200"
+                  title="Afficher ce groupe pour l'année scolaire en cours"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </button>
+              </Can>
 
               <!-- Delete -->
               <Can action="delete-groupe">
@@ -774,6 +844,7 @@ const niveauStore = useNiveauStore();
 
 const searchQuery = ref("");
 const loading = ref(true);
+const activeTabHidden = ref(false);
 const showModal = ref(false);
 const modalTitle = ref("");
 const itemsPerPage = ref(5);
@@ -797,19 +868,65 @@ const columns = ref([
 
 const visibleColumns = computed(() => columns.value.filter((c) => c.visible));
 
-const rows = computed(() =>
+const allGroupRows = computed(() =>
   groupeStore.groupes.map((g) => ({
     id: g.id,
     slug: g.slug,
     nom: g.nom,
     niveau: g.niveau?.libelle ?? "--",
-    niveau_id: g.niveau.id,
+    niveau_id: g.niveau?.id,
     filieres: g.filieres || [],
     niveau_obj: g.niveau,
     filieres_obj: g.filieres || [],
     inscrit: g.inscrits,
+    is_hidden: Boolean(g.is_hidden),
   })),
 );
+
+const activeGroups = computed(() =>
+  allGroupRows.value.filter((g) => !g.is_hidden)
+);
+
+const hiddenGroups = computed(() =>
+  allGroupRows.value.filter((g) => g.is_hidden)
+);
+
+const rows = computed(() =>
+  activeTabHidden.value ? hiddenGroups.value : activeGroups.value
+);
+
+const toggleVisibility = async (groupe) => {
+  const actionText = groupe.is_hidden ? "Afficher" : "Masquer";
+  const confirmText = groupe.is_hidden
+    ? `Voulez-vous rendre le groupe "${groupe.nom}" visible pour l'année scolaire en cours ?`
+    : `Voulez-vous masquer le groupe "${groupe.nom}" pour l'année scolaire en cours ? Il ne sera plus visible dans les sélecteurs de l'année.`;
+
+  const res = await $swal.fire({
+    title: `${actionText} ce groupe ?`,
+    text: confirmText,
+    icon: groupe.is_hidden ? "question" : "warning",
+    showCancelButton: true,
+    confirmButtonText: actionText,
+    cancelButtonText: "Annuler",
+    confirmButtonColor: groupe.is_hidden ? "#10b981" : "#f59e0b",
+  });
+
+  if (res.isConfirmed) {
+    try {
+      const response = await groupeStore.toggleGroupVisibility(groupe.id);
+      $toastr.success(response?.message || `Groupe ${actionText.toLowerCase()} avec succès`);
+      
+      // Mise à jour instantanée en local
+      const found = groupeStore.groupes.find((g) => g.id === groupe.id);
+      if (found) {
+        found.is_hidden = !groupe.is_hidden;
+      }
+    } catch (error) {
+      console.error(error);
+      $toastr.error(error.response?.data?.message || "Une erreur est survenue");
+    }
+  }
+};
 
 const filieresOptions = computed(() => {
   return filiereStore.filieres.map((f) => ({
@@ -880,7 +997,7 @@ const saveGroupe = async () => {
       $toastr.success("Groupe créé avec succès");
     }
 
-    await groupeStore.fetchGroupes();
+    await groupeStore.fetchGroupes({ with_hidden: true });
     closeModal();
   } catch (error) {
     console.log(error);
@@ -901,7 +1018,7 @@ const deleteItem = async (groupe) => {
   if (res.isConfirmed) {
     try {
       await groupeStore.deleteGroupe(groupe.slug);
-      await groupeStore.fetchGroupes();
+      await groupeStore.fetchGroupes({ with_hidden: true });
       $toastr.success("Groupe supprimé avec succès");
     } catch (error) {
       console.log(error);
@@ -915,7 +1032,7 @@ onMounted(async () => {
     await Promise.all([
       filiereStore.fetchFilieres(),
       niveauStore.fetchNiveaux(),
-      groupeStore.fetchGroupes(),
+      groupeStore.fetchGroupes({ with_hidden: true }),
     ]);
   } catch (error) {
     console.error("Erreur lors du chargement des données:", error);

@@ -149,20 +149,39 @@ export const useUserStore = defineStore("user", {
       }
     },
 
-    // Méthode alternative pour ajouter un utilisateur sans fichiers
+    // Méthode pour ajouter un utilisateur (supporte objet JSON ou FormData pour les fichiers)
     async addUser(payload) {
       this.isLoading = true;
       this.error = null;
 
       try {
-        const response = await axios.post(
-          "/users/create",
-          payload,
-          this.authHeaders(),
-        );
+        let response;
+        if (payload instanceof FormData) {
+          const token = localStorage.getItem("gest-ecole-token");
+          const headers = {
+            Authorization: token ? `Bearer ${token}` : "",
+            "Content-Type": "multipart/form-data",
+          };
+          response = await axios.post("/users/create", payload, { headers });
+        } else {
+          response = await axios.post(
+            "/users/create",
+            payload,
+            this.authHeaders(),
+          );
+        }
 
         if (response.data?.data) {
           this.users.unshift(response.data.data);
+          const hasTeacherRole = response.data.data.roles?.some(
+            (r) =>
+              r.id === 2 ||
+              (r.slug || "").includes("enseignant") ||
+              (r.nom || "").includes("enseignant"),
+          );
+          if (hasTeacherRole) {
+            this.enseignants.unshift(response.data.data);
+          }
         }
 
         return response.data;

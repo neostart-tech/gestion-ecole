@@ -241,13 +241,35 @@
           <!-- Template pour la colonne Actions -->
           <template #action="data">
             <div class="flex justify-center gap-2">
-              <!-- LIEN UNIQUE POUR TOUS LES EXAMENS - VERSION TEST -->
+              <!-- LIEN VERS L'EXAMEN : Composer si en cours / en attente, Consulter si terminé -->
               <NuxtLink
                 :to="`/evaluations/examen-en-ligne/${data.value?.slug}/passer-un-examen`"
-                class="p-2 rounded-lg text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors duration-200"
-                title="Composer l'examen (mode test)"
+                :class="[
+                  'p-2 rounded-lg transition-colors duration-200',
+                  data.value?.status === 'Terminée'
+                    ? 'text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30'
+                    : 'text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30'
+                ]"
+                :title="data.value?.status === 'Terminée' ? 'Consulter ma copie' : 'Composer l\'examen'"
               >
+                <!-- Si terminé : icône document/copie -->
                 <svg
+                  v-if="data.value?.status === 'Terminée'"
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                <!-- Sinon : icône lecture/composer -->
+                <svg
+                  v-else
                   class="w-5 h-5"
                   fill="none"
                   stroke="currentColor"

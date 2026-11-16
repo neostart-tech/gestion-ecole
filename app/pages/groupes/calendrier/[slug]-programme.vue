@@ -331,6 +331,101 @@
                     </FloatLabel>
                   </div>
 
+                  <!-- Filières ciblées (Si le groupe contient plusieurs filières) -->
+                  <div
+                    v-if="availableFilieresForGroup.length > 1"
+                    class="p-4 sm:p-5 rounded-2xl border border-indigo-200/80 dark:border-indigo-900/50 bg-gradient-to-br from-indigo-50/70 via-slate-50/40 to-indigo-50/30 dark:from-indigo-950/20 dark:via-gray-900/30 dark:to-indigo-950/10 space-y-3.5 shadow-2xs"
+                  >
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-indigo-100/80 dark:border-indigo-900/40">
+                      <div class="space-y-0.5">
+                        <div class="flex items-center gap-2 flex-wrap">
+                          <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-indigo-600 text-white shadow-xs shrink-0">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                          </span>
+                          <label class="text-sm font-bold text-gray-900 dark:text-gray-100">
+                            Filières ciblées par ce cours <span class="text-red-500">*</span>
+                          </label>
+                          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300">
+                            {{ form.filiere_ids.length }}/{{ availableFilieresForGroup.length }}
+                          </span>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                          Ce groupe comprend plusieurs filières. Sélectionnez uniquement celles concernées par ce cours.
+                        </p>
+                      </div>
+
+                      <!-- Boutons d'action modernes Tout cocher / Tout décocher -->
+                      <div class="inline-flex items-center p-0.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shrink-0 self-start sm:self-center shadow-xs">
+                        <button
+                          type="button"
+                          @click="selectAllFilieres"
+                          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 transition-colors whitespace-nowrap active:scale-95"
+                          title="Sélectionner toutes les filières"
+                        >
+                          <svg class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Tout cocher</span>
+                        </button>
+                        <span class="h-4 w-px bg-gray-200 dark:bg-gray-700 mx-0.5"></span>
+                        <button
+                          type="button"
+                          @click="deselectAllFilieres"
+                          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700/60 dark:hover:text-gray-200 transition-colors whitespace-nowrap active:scale-95"
+                          title="Désélectionner toutes les filières"
+                        >
+                          <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                          <span>Tout décocher</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Cartes des filières -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 pt-1">
+                      <label
+                        v-for="fil in availableFilieresForGroup"
+                        :key="fil.id"
+                        class="group relative flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none"
+                        :class="form.filiere_ids.includes(fil.id)
+                          ? 'border-indigo-500 bg-white dark:bg-gray-800/90 shadow-xs ring-1 ring-indigo-500/20 text-indigo-950 dark:text-indigo-100'
+                          : 'border-gray-200 dark:border-gray-700/80 bg-white/70 dark:bg-gray-800/30 text-gray-600 dark:text-gray-400 hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-white dark:hover:bg-gray-800/60'"
+                      >
+                        <input
+                          type="checkbox"
+                          :value="fil.id"
+                          v-model="form.filiere_ids"
+                          class="w-4 h-4 rounded text-indigo-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500 cursor-pointer shrink-0"
+                        />
+                        <div class="min-w-0 flex-1">
+                          <p class="text-xs font-bold truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                            {{ fil.nom }}
+                          </p>
+                          <p v-if="fil.code" class="text-[10px] text-gray-400 dark:text-gray-500 font-mono tracking-wide mt-0.5">
+                            {{ fil.code }}
+                          </p>
+                        </div>
+                      </label>
+                    </div>
+
+                    <!-- Message d'état -->
+                    <div class="pt-0.5 flex items-center justify-between text-xs">
+                      <p v-if="form.filiere_ids.length === 0" class="text-xs text-red-500 font-bold flex items-center gap-1.5">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        Veuillez sélectionner au moins une filière pour ce cours.
+                      </p>
+                      <p v-else class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                        Seuls les étudiants de ces filières verront ce cours et figureront sur la fiche d'émargement.
+                      </p>
+                    </div>
+                  </div>
+
                   <!-- Récurrence -->
                   <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
                     <div class="flex items-center gap-2 mb-4">
@@ -497,6 +592,20 @@
                   </div>
                 </div>
 
+                <div v-if="selectedEvent?.extendedProps?.filiere_ids && selectedEvent.extendedProps.filiere_ids.length > 0 && availableFilieresForGroup.length > 1" class="flex items-start gap-3">
+                  <svg class="w-5 h-5 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                  <div>
+                    <p class="text-sm text-gray-500">Filières concernées</p>
+                    <div class="flex flex-wrap gap-1.5 mt-1">
+                      <span v-for="filId in selectedEvent.extendedProps.filiere_ids" :key="filId" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300">
+                        {{ getFiliereNom(filId) }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
                 <div v-if="selectedEvent?.extendedProps?.recurrence_type !== 'aucune'" class="flex items-start gap-3">
                   <svg class="w-5 h-5 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -573,6 +682,7 @@ import { useGroupeStore } from "~~/stores/group";
 import { useUserStore } from "~~/stores/user";
 import { useCalendarStore } from "~~/stores/calendar";
 import { useNiveauStore } from "~~/stores/niveau";
+import { useFiliereStore } from "~~/stores/filiere";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
@@ -582,6 +692,7 @@ const UvStore = useUvStore();
 const userStore = useUserStore();
 const calendarStore = useCalendarStore();
 const niveauStore = useNiveauStore();
+const filiereStore = useFiliereStore();
 const { $toastr, $swal } = useNuxtApp();
 
 // Références
@@ -596,8 +707,30 @@ const isPageLoading = ref(true);
 
 const slug = computed(() => route.params.slug as string);
 
+const currentGroup = computed(() => {
+  return groupStore.groupes.find((g: any) => g.slug === slug.value || g.id == slug.value);
+});
+
+const availableFilieresForGroup = computed(() => {
+  return currentGroup.value?.filieres || [];
+});
+
+const selectAllFilieres = () => {
+  form.value.filiere_ids = availableFilieresForGroup.value.map((f: any) => f.id);
+};
+
+const deselectAllFilieres = () => {
+  form.value.filiere_ids = [];
+};
+
+const getFiliereNom = (id: any) => {
+  const f = (availableFilieresForGroup.value || []).find((x: any) => x.id === Number(id))
+    || (filiereStore.filieres || []).find((x: any) => x.id === Number(id));
+  return f ? (f.code || f.nom) : id;
+};
+
 const groupTitle = computed(() => {
-  const g = groupStore.groupes.find(g => g.slug === slug.value || g.id == slug.value);
+  const g = currentGroup.value;
   return g ? `${g.niveau?.libelle || ''} ${g.nom || ''}`.trim() : "Groupe";
 });
 
@@ -620,6 +753,7 @@ const form = ref({
   recurrence_type: "aucune",
   recurrence_days: [] as string[],
   recurrence_end_date: "",
+  filiere_ids: [] as number[],
 });
 
 const daysOfWeek = [
@@ -689,16 +823,24 @@ const formatEventForCalendar = (evt: any) => {
   const type = evt.type || evt.type_programme || "Cours";
   const color = type === "Évaluation" ? "#f97316" : "#3b82f6";
   const uvName = evt.uv?.nom || evt.uv || "";
+
+  const filiereIds = evt.filiere_ids || [];
+  let filierePrefix = "";
+  if (Array.isArray(filiereIds) && filiereIds.length > 0 && availableFilieresForGroup.value.length > 1 && filiereIds.length < availableFilieresForGroup.value.length) {
+    const codes = filiereIds.map((id: any) => getFiliereNom(id)).join(", ");
+    if (codes) filierePrefix = `[${codes}] `;
+  }
   
   return {
     id: evt.slug || evt.id,
-    title: uvName || evt.titre || type,
+    title: filierePrefix + (uvName || evt.titre || type),
     start: evt.debut || evt.start,
     end: evt.fin || evt.end,
     backgroundColor: color,
     borderColor: "transparent",
     extendedProps: {
       ...evt,
+      filiere_ids: filiereIds,
       displayType: type,
       displaySalle: evt.salle?.nom || evt.salle || "",
       displayTeacher: evt.teacher?.nom || evt.teacher || "",
@@ -987,6 +1129,7 @@ const openCreateModal = () => {
   }
 
   isEditing.value = false;
+  selectAllFilieres();
   showFormModal.value = true;
 };
 
@@ -1017,6 +1160,9 @@ const openEditModal = async (event: any) => {
     recurrence_type: p.recurrence_type || "aucune",
     recurrence_days: p.recurrence_days ? (Array.isArray(p.recurrence_days) ? p.recurrence_days : p.recurrence_days.split(",")) : [],
     recurrence_end_date: p.recurrence_end_date ? new Date(p.recurrence_end_date) : (p.date_fin ? new Date(p.date_fin) : null),
+    filiere_ids: (p.filiere_ids && Array.isArray(p.filiere_ids) && p.filiere_ids.length > 0)
+      ? [...p.filiere_ids]
+      : availableFilieresForGroup.value.map((f: any) => f.id),
   };
 
   enableRecurrence.value = form.value.recurrence_type !== "aucune";
@@ -1047,6 +1193,7 @@ const resetForm = () => {
     recurrence_type: "aucune",
     recurrence_days: [],
     recurrence_end_date: "",
+    filiere_ids: availableFilieresForGroup.value.map((f: any) => f.id),
   };
   enableRecurrence.value = false;
 };
@@ -1062,6 +1209,13 @@ const submitForm = async () => {
       formLoading.value = false;
       return;
     }
+
+    if (availableFilieresForGroup.value.length > 1 && form.value.filiere_ids.length === 0) {
+      $toastr.error("Veuillez sélectionner au moins une filière pour ce cours.");
+      formLoading.value = false;
+      return;
+    }
+
     const payload = {
       ...form.value,
       date: formattedDate,
@@ -1070,7 +1224,10 @@ const submitForm = async () => {
       recurrence_days: form.value.recurrence_days,
       recurrence_end_date: form.value.recurrence_end_date 
         ? format(new Date(form.value.recurrence_end_date), "yyyy-MM-dd")
-        : ""
+        : "",
+      filiere_ids: availableFilieresForGroup.value.length > 1 && form.value.filiere_ids.length < availableFilieresForGroup.value.length
+        ? form.value.filiere_ids
+        : null
     };
 
     // === VÉRIFICATION API (Vérifie si la Salle ou le Prof est occupé ailleurs) ===
@@ -1083,6 +1240,7 @@ const submitForm = async () => {
         enseignant_id: payload.teacher,
         groupe_id: payload.grade,
         id: isEditing.value ? payload.id : null,
+        filiere_ids: payload.filiere_ids,
       };
       
       const checkRes = await salleStore.checkAvailability(checkPayload);
@@ -1131,6 +1289,17 @@ const submitForm = async () => {
         const eEnd = new Date(existingEvent.end).getTime();
         
         if (nStart < eEnd && eStart < nEnd) {
+          // Si les deux cours ciblent des filières différentes sans intersection, ce n'est pas un conflit
+          const existingFilieres = existingEvent.extendedProps?.filiere_ids;
+          const currentFilieres = payload.filiere_ids;
+          
+          if (Array.isArray(existingFilieres) && existingFilieres.length > 0 && Array.isArray(currentFilieres) && currentFilieres.length > 0) {
+            const hasCommon = currentFilieres.some((id: any) => existingFilieres.map(Number).includes(Number(id)));
+            if (!hasCommon) {
+              continue; // Filières distinctes : autorisé simultanément
+            }
+          }
+
           hasConflict = true;
           break;
         }
@@ -1258,7 +1427,7 @@ const EnseignantsOptions = computed(() => {
   return [];
 });
 
-// Watch pour réinitialiser l'enseignant si l'UV change et que l'enseignant n'est plus valide
+// Watch pour réinitialiser l'enseignant si l'UV change et auto-sélectionner la filière
 watch(() => form.value.uv_id, (newUvId) => {
   if (newUvId) {
     const selectedUv = UvStore.uvs.find((u: any) => (u.id === newUvId || u.slug === newUvId));
@@ -1267,6 +1436,19 @@ watch(() => form.value.uv_id, (newUvId) => {
       const isValid = teachers.some((e: any) => (e.id === form.value.teacher || e.slug === form.value.teacher));
       if (!isValid) {
         form.value.teacher = "";
+      }
+
+      // Auto-sélection intelligente de la filière selon la matière (UV)
+      if (availableFilieresForGroup.value.length > 1) {
+        const filiereId = selectedUv.filiere_id ?? selectedUv.filiere?.id;
+        if (filiereId) {
+          const matchInGroup = availableFilieresForGroup.value.find((f: any) => f.id === Number(filiereId));
+          if (matchInGroup) {
+            form.value.filiere_ids = [matchInGroup.id];
+          }
+        } else {
+          selectAllFilieres();
+        }
       }
     }
   }
@@ -1280,6 +1462,7 @@ onMounted(async () => {
   try {
     await Promise.all([
       groupStore.fetchGroupes(),
+      filiereStore.fetchFilieres(),
       groupStore.GroupDisplayCalendar(slug.value),
       UvStore.fetchUv(),
       userStore.fetchUsersEnseignant(),

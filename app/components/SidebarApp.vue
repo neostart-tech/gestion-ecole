@@ -2303,6 +2303,46 @@
 
             <li
               v-if="
+                can('valider-profil-etudiant') ||
+                hasAnyRole([
+                  'informaticien',
+                  'directeur-general',
+                  'directeur-general-adjoint',
+                  'admin',
+                  'responsable-du-site'
+                ])
+              "
+            >
+              <NuxtLink
+                to="/admin/etudiants/demandes-profil"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group"
+                :class="[
+                  $route.path === '/admin/etudiants/demandes-profil'
+                    ? 'bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 text-indigo-700 dark:text-indigo-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+                ]"
+                @click="toggleMobileMenu"
+              >
+                <div
+                  :class="[
+                    'p-1 rounded-lg',
+                    $route.path === '/admin/etudiants/demandes-profil'
+                      ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-500 group-hover:bg-gray-200 dark:group-hover:bg-gray-700',
+                  ]"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <span v-if="themeStore.isSidebarOpen" class="ml-3 font-medium"
+                  >Demandes de profil</span
+                >
+              </NuxtLink>
+            </li>
+
+            <li
+              v-if="
                 hasAnyRole([
                   'responsable-administratif-et-financier',
                   'directeur-general-adjoint',
@@ -2785,6 +2825,28 @@
                       @click="toggleMobileMenu"
                     >
                       Réinscription
+                    </NuxtLink>
+                  </li>
+
+                  <li
+                    v-if="
+                      can('delete-candidature') || can('restore-candidature')
+                    "
+                  >
+                    <NuxtLink
+                      to="/candidatures/corbeille"
+                      class="flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors"
+                      :class="[
+                        $route.path === '/candidatures/corbeille'
+                          ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 font-medium'
+                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
+                      ]"
+                      @click="toggleMobileMenu"
+                    >
+                      <span>Corbeille</span>
+                      <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/40">
+                        Supprimées
+                      </span>
                     </NuxtLink>
                   </li>
                 </ul>
@@ -4801,6 +4863,7 @@ const hasAnyRole = (roleSlugs: string[]): boolean => {
   return roleSlugs.some((slug) => hasRole(slug));
 };
 
+
 // Computed pour les sections
 const showMonEspaceSection = computed(() => {
   return (
@@ -4983,7 +5046,7 @@ const showMessage = (msg = "", type = "success") => {
     customClass: { container: "toast" },
   });
   toast.fire({
-    icon: type,
+    icon: type as any,
     title: msg,
     padding: "10px 20px",
   });
@@ -5008,7 +5071,7 @@ onMounted(() => {
   candidatureStore.fetchCountATraiter();
   diagnosticStore.fetchDiagnostic().catch(() => {});
 
-  messageCount.value = messageStore.totalUnread.count;
+  messageCount.value = (messageStore.totalUnread as any)?.count ?? messageStore.totalUnread;
   reclamationStore.fetchReclamations();
   parametreStore.fetchParametres();
 

@@ -288,207 +288,209 @@
 
           <template #action="{ value }">
             <!-- Mode Liste Active -->
-            <div v-if="activeTab === 'active'" class="flex justify-center gap-3">
-              <NuxtLink
-                :to="`/evaluations/${value.slug}/details`"
-                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
-                title="Voir les détails"
-              >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
-              </NuxtLink>
-
-              <!-- Edit -->
-              <Can action="update-evaluation">
-                <button
-                  @click="openEditModal(value)"
-                  class="p-2 rounded-lg text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors duration-200"
-                  title="Modifier"
-                >
-                  <svg
-                    class="w-5 h-5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
+            <div v-if="activeTab === 'active'" class="flex justify-center">
+              <client-only>
+                <VDropdown placement="bottom-end" :distance="6">
+                  <button
+                    type="button"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/60 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                   >
-                    <path
-                      d="M4 20h4l10-10-4-4L4 16v4z"
-                      stroke-width="2"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </button>
-              </Can>
-              <NuxtLink
-                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
-                title="Fiche d'anonymat"
-                :to="`/evaluations/fiche-de-note/${value.slug}`"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="w-4 h-4"
-                >
-                  <path
-                    d="M6 2h8l4 4v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"
-                  />
-                  <path d="M14 2v6h6" />
-                  <line x1="8" y1="12" x2="16" y2="12" />
-                  <line x1="8" y1="16" x2="16" y2="16" />
-                </svg>
-              </NuxtLink>
+                    <span>Actions</span>
+                    <svg class="w-3.5 h-3.5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
 
-              <!-- Sujet & Questions de l'examen en ligne -->
-              <Can action="update-question-examen">
-                <NuxtLink
-                  class="p-2 rounded-lg text-indigo-600 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors duration-200"
-                  title="Éditer le sujet & questions d'examen"
-                  :to="`/evaluations/examen-en-ligne/${value.slug}/questions`"
-                >
-                  <svg
-                    class="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </NuxtLink>
-              </Can>
+                  <template #popper="{ hide }">
+                    <div class="w-60 p-1.5 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 text-xs divide-y divide-gray-100 dark:divide-gray-700/60">
+                      <!-- Groupe 1: Consultation & Modification -->
+                      <div class="py-1">
+                        <NuxtLink
+                          :to="`/evaluations/${value.slug}/details`"
+                          @click="hide"
+                          class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                        >
+                          <svg class="w-4 h-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <div class="flex flex-col">
+                            <span class="font-medium text-xs">Détails de l'évaluation</span>
+                            <span class="text-[10px] text-gray-400">Consulter les informations</span>
+                          </div>
+                        </NuxtLink>
 
-              <!-- Validation des copies / Corrections -->
-              <Can action="grade-examen">
-                <NuxtLink
-                  class="p-2 rounded-lg text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors duration-200"
-                  title="Corrections & Validation"
-                  :to="`/evaluations/examen-en-ligne/${value.slug}/soumission-des-etudiants`"
-                >
-                  <svg
-                    class="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </NuxtLink>
-              </Can>
+                        <Can action="update-evaluation">
+                          <button
+                            type="button"
+                            @click="openEditModal(value); hide()"
+                            class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors text-left"
+                          >
+                            <svg class="w-4 h-4 text-emerald-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                              <path d="M4 20h4l10-10-4-4L4 16v4z" stroke-width="2" stroke-linejoin="round" />
+                            </svg>
+                            <div class="flex flex-col">
+                              <span class="font-medium text-xs">Modifier</span>
+                              <span class="text-[10px] text-gray-400">Date, horaire, salle</span>
+                            </div>
+                          </button>
+                        </Can>
+                      </div>
 
-              <Can action="update-evaluation">
-                <button
-                  @click="openConfigModal(value)"
-                  class="p-2 rounded-lg text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors duration-200"
-                  title="Configurer"
-                >
-                  <svg
-                    class="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                </button>
-              </Can>
+                      <!-- Groupe 2: Pédagogie & Notes -->
+                      <div class="py-1">
+                        <NuxtLink
+                          :to="`/evaluations/fiche-de-note/${value.slug}`"
+                          @click="hide"
+                          class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        >
+                          <svg class="w-4 h-4 text-blue-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M6 2h8l4 4v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" />
+                            <path d="M14 2v6h6" />
+                            <line x1="8" y1="12" x2="16" y2="12" />
+                            <line x1="8" y1="16" x2="16" y2="16" />
+                          </svg>
+                          <div class="flex flex-col">
+                            <span class="font-medium text-xs">Fiche d'anonymat / Notes</span>
+                            <span class="text-[10px] text-gray-400">Saisie et impression PV</span>
+                          </div>
+                        </NuxtLink>
 
-              <!-- Mettre en corbeille -->
-              <Can action="delete-evaluation">
-                <button
-                  @click="deleteItem(value)"
-                  class="p-2 rounded-lg text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors duration-200"
-                  title="Mettre en corbeille"
-                >
-                  <ButtonDelete />
-                </button>
-              </Can>
+                        <Can action="update-question-examen">
+                          <NuxtLink
+                            :to="`/evaluations/examen-en-ligne/${value.slug}/questions`"
+                            @click="hide"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                          >
+                            <svg class="w-4 h-4 text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div class="flex flex-col">
+                              <span class="font-medium text-xs">Sujet & Questions</span>
+                              <span class="text-[10px] text-gray-400">Examen en ligne / QCM</span>
+                            </div>
+                          </NuxtLink>
+                        </Can>
+
+                        <Can action="grade-examen">
+                          <NuxtLink
+                            :to="`/evaluations/examen-en-ligne/${value.slug}/soumission-des-etudiants`"
+                            @click="hide"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                          >
+                            <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div class="flex flex-col">
+                              <span class="font-medium text-xs">Copies & Corrections</span>
+                              <span class="text-[10px] text-gray-400">Soumissions des étudiants</span>
+                            </div>
+                          </NuxtLink>
+                        </Can>
+                      </div>
+
+                      <!-- Groupe 3: Paramètres & Danger -->
+                      <div class="py-1">
+                        <Can action="update-evaluation">
+                          <button
+                            type="button"
+                            @click="openConfigModal(value); hide()"
+                            class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:text-purple-600 dark:hover:text-purple-400 transition-colors text-left"
+                          >
+                            <svg class="w-4 h-4 text-purple-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <div class="flex flex-col">
+                              <span class="font-medium text-xs">Configurer</span>
+                              <span class="text-[10px] text-gray-400">Coefficients & paramètres</span>
+                            </div>
+                          </button>
+                        </Can>
+
+                        <Can action="delete-evaluation">
+                          <button
+                            type="button"
+                            @click="deleteItem(value); hide()"
+                            class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors text-left"
+                          >
+                            <svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <div class="flex flex-col">
+                              <span class="font-medium text-xs">Mettre en corbeille</span>
+                              <span class="text-[10px] text-rose-400/80">Archiver l'évaluation</span>
+                            </div>
+                          </button>
+                        </Can>
+                      </div>
+                    </div>
+                  </template>
+                </VDropdown>
+              </client-only>
             </div>
 
             <!-- Mode Corbeille -->
-            <div v-else class="flex justify-center gap-3">
-              <NuxtLink
-                :to="`/evaluations/${value.slug}/details`"
-                class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
-                title="Voir les détails"
-              >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
-              </NuxtLink>
+            <div v-else class="flex justify-center">
+              <client-only>
+                <VDropdown placement="bottom-end" :distance="6">
+                  <button
+                    type="button"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-red-200 dark:border-red-800 bg-white dark:bg-gray-800 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30 shadow-sm transition-all focus:outline-none"
+                  >
+                    <span>Actions</span>
+                    <svg class="w-3.5 h-3.5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
 
-              <!-- Restaurer -->
-              <Can action="restore-evaluation">
-                <button
-                  @click="restoreItem(value)"
-                  class="p-2 rounded-lg text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors duration-200"
-                  title="Restaurer l'évaluation"
-                >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                </button>
-              </Can>
+                  <template #popper="{ hide }">
+                    <div class="w-56 p-1.5 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 text-xs divide-y divide-gray-100 dark:divide-gray-700/60">
+                      <div class="py-1">
+                        <NuxtLink
+                          :to="`/evaluations/${value.slug}/details`"
+                          @click="hide"
+                          class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/60 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                        >
+                          <svg class="w-4 h-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span class="font-medium text-xs">Voir les détails</span>
+                        </NuxtLink>
 
-              <!-- Supprimer définitivement -->
-              <Can action="force-delete-evaluation">
-                <button
-                  @click="forceDeleteItem(value)"
-                  class="p-2 rounded-lg text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
-                  title="Supprimer définitivement"
-                >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-              </Can>
+                        <Can action="restore-evaluation">
+                          <button
+                            type="button"
+                            @click="restoreItem(value); hide()"
+                            class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors text-left"
+                          >
+                            <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            <span class="font-medium text-xs">Restaurer l'évaluation</span>
+                          </button>
+                        </Can>
+                      </div>
+
+                      <div class="py-1">
+                        <Can action="force-delete-evaluation">
+                          <button
+                            type="button"
+                            @click="forceDeleteItem(value); hide()"
+                            class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors text-left font-semibold"
+                          >
+                            <svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span class="text-xs">Supprimer définitivement</span>
+                          </button>
+                        </Can>
+                      </div>
+                    </div>
+                  </template>
+                </VDropdown>
+              </client-only>
             </div>
           </template>
         </Vue3Datatable>
@@ -690,6 +692,11 @@ const columns = ref([
 ]);
 
 const visibleColumns = computed(() => columns.value.filter((c) => c.visible));
+
+const getFiliereName = (id) => {
+  const f = (filiereStore.filieres || []).find((fil) => fil.id === Number(id));
+  return f ? (f.code || f.nom) : `Filière #${id}`;
+};
 
 const existingSurveillants = computed(() => {
   if (!selectedEvaluation.value?.fiche?.surveillants) return [];

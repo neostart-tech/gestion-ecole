@@ -14,7 +14,10 @@ export const useAccess = () => {
       return false;
     }
 
-    const permissions = user.value.permissions || [];
+    const rawPerms = user.value.permissions || [];
+    const permissions = (Array.isArray(rawPerms) ? rawPerms : []).map((p) =>
+      typeof p === "string" ? p : p?.slug
+    );
     return permissions.includes(permission);
   };
 

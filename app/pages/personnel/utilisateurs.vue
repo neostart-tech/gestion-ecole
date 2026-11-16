@@ -198,25 +198,27 @@
             <div class="flex justify-center gap-3">
               <!-- View -->
               <button
-                class="p-2 rounded-lg text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors duration-200"
-                @click="openViewModal(data.value)"
-                title="Voir détails"
+                class="p-2 rounded-lg text-cyan-600 hover:bg-cyan-100 dark:hover:bg-cyan-900/30 transition-colors duration-200"
+                @click="navigateTo(`/personnel/${data.value.slug}/details`)"
+                title="Voir détails complets"
               >
                 <svg
                   class="w-5 h-5"
-                  viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
                   <path
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    stroke-width="2"
                     stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                   <path
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    stroke-width="2"
                     stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                   />
                 </svg>
               </button>
@@ -436,232 +438,7 @@
       </div>
     </div>
 
-    <!-- VIEW USER DETAILS MODAL (Headless UI) -->
-    <!-- USER DETAILS MODAL (SIMPLE) -->
-    <TransitionRoot appear :show="showViewModal" as="template">
-      <Dialog
-        as="div"
-        class="relative z-50"
-        @close="() => (showViewModal = false)"
-      >
-        <TransitionChild
-          as="template"
-          enter="ease-out duration-300"
-          enter-from="opacity-0"
-          enter-to="opacity-100"
-          leave="ease-in duration-200"
-          leave-from="opacity-100"
-          leave-to="opacity-0"
-        >
-          <div class="fixed inset-0 bg-black/50" />
-        </TransitionChild>
 
-        <div class="fixed inset-0 overflow-y-auto">
-          <div class="flex min-h-full items-center justify-center p-4">
-            <TransitionChild
-              as="template"
-              enter="ease-out duration-300"
-              enter-from="opacity-0 scale-95"
-              enter-to="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leave-from="opacity-100 scale-100"
-              leave-to="opacity-0 scale-95"
-            >
-              <DialogPanel
-                class="w-full max-w-2xl transform overflow-hidden rounded-xl bg-white dark:bg-gray-800 shadow-2xl transition-all"
-              >
-                <!-- Header avec couleur personnalisée -->
-                <div
-                  class="px-6 py-6 flex items-center justify-between"
-                  style="background-color: #4f39f6"
-                >
-                  <div class="flex items-center gap-4">
-                    <!-- Avatar -->
-                    <div
-                      class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0"
-                    >
-                      <svg
-                        class="w-6 h-6 text-white"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                      >
-                        <path
-                          d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
-                        />
-                      </svg>
-                    </div>
-                    <!-- Info utilisateur -->
-                    <div>
-                      <h2 class="text-xl font-bold text-white">
-                        {{ selectedUser.nom }} {{ selectedUser.prenom }}
-                      </h2>
-                      <p class="text-slate-200 text-sm">
-                        {{ selectedUser.email }}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    @click="showViewModal = false"
-                    class="text-white hover:text-slate-200 transition-colors p-1 rounded-lg hover:bg-white/10"
-                  >
-                    <svg
-                      class="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                </div>
-
-                <!-- Content -->
-                <div
-                  class="overflow-y-auto p-6"
-                  style="max-height: calc(90vh - 180px)"
-                >
-                  <!-- Infos générales -->
-                  <div class="mb-6">
-                    <h3
-                      class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-4"
-                    >
-                      Informations personnelles
-                    </h3>
-                    <div class="grid grid-cols-2 gap-4">
-                      <div
-                        class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50"
-                      >
-                        <p
-                          class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1"
-                        >
-                          Téléphone
-                        </p>
-                        <p
-                          class="text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          {{ selectedUser.tel || "—" }}
-                        </p>
-                      </div>
-                      <div
-                        class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50"
-                      >
-                        <p
-                          class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1"
-                        >
-                          Genre
-                        </p>
-                        <p
-                          class="text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          {{ selectedUser.genre || "—" }}
-                        </p>
-                      </div>
-                      <div
-                        class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50"
-                      >
-                        <p
-                          class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1"
-                        >
-                          Matricule
-                        </p>
-                        <p
-                          class="text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          {{ selectedUser.matricule || "—" }}
-                        </p>
-                      </div>
-                      <div
-                        class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50"
-                      >
-                        <p
-                          class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1"
-                        >
-                          Type surveillant
-                        </p>
-                        <p
-                          class="text-sm font-medium text-gray-900 dark:text-white capitalize"
-                        >
-                          {{ selectedUser.supervisor_type_value || "—" }}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Biographie -->
-                  <div v-if="selectedUser.biographie" class="mb-6">
-                    <h3
-                      class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3"
-                    >
-                      Biographie
-                    </h3>
-                    <div
-                      class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4 border border-gray-200 dark:border-gray-600/50 text-sm prose dark:prose-invert prose-sm max-w-none"
-                      v-html="selectedUser.biographie"
-                    ></div>
-                  </div>
-
-                  <!-- Rôles -->
-                  <div>
-                    <h3
-                      class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3"
-                    >
-                      Rôles
-                    </h3>
-                    <div
-                      v-if="selectedUser.roles && selectedUser.roles.length > 0"
-                      class="space-y-2"
-                    >
-                      <div
-                        v-for="role in selectedUser.roles"
-                        :key="role.id"
-                        class="bg-slate-50 dark:bg-slate-700/30 rounded-lg px-4 py-3 border border-slate-200 dark:border-slate-600/50 flex items-center gap-2"
-                      >
-                        <svg
-                          class="w-4 h-4 text-slate-600 dark:text-slate-400 flex-shrink-0"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                        >
-                          <path
-                            d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"
-                          />
-                        </svg>
-                        <span
-                          class="text-sm font-semibold text-gray-900 dark:text-white"
-                          >{{ role.nom }}</span
-                        >
-                      </div>
-                    </div>
-                    <div
-                      v-else
-                      class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 text-sm text-gray-600 dark:text-gray-400 text-center border border-gray-200 dark:border-gray-600/50"
-                    >
-                      Aucun rôle assigné
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Footer -->
-                <div
-                  class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 flex justify-end gap-3"
-                >
-                  <button
-                    @click="showViewModal = false"
-                    class="px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    Fermer
-                  </button>
-                </div>
-              </DialogPanel>
-            </TransitionChild>
-          </div>
-        </div>
-      </Dialog>
-    </TransitionRoot>
 
     <!-- Modal d'importation -->
     <TransitionRoot appear :show="showImportModal" as="template">

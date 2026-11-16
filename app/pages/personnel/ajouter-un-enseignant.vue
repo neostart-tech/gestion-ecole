@@ -5,7 +5,7 @@
       <Breadcrumb
         :items="[
           { label: 'Administration', to: '/' },
-          { label: 'Personnel', to: '/personnel' },
+          { label: 'Personnel', to: '/personnel/enseignants' },
           { label: 'Enseignants', to: '/personnel/enseignants' },
           { label: 'Ajouter', to: null },
         ]"
@@ -184,7 +184,7 @@
               
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Numéro d'identification fiscale (NIF) <span class="text-red-500">*</span>
+                  Numéro d'identification fiscale (NIF) <span class="text-xs text-gray-500 font-normal">(Optionnel)</span>
                 </label>
                 <input
                   v-model="form.nif"
@@ -193,7 +193,7 @@
                   class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
                 />
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Le numéro d'identification fiscale est obligatoire pour les professeurs de nationalité togolaise
+                  Le numéro d'identification fiscale est optionnel pour les professeurs de nationalité togolaise
                 </p>
               </div>
             </div>
@@ -238,17 +238,13 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Biographie
             </label>
-            <Editor
-              api-key="2i64hds9y2pudvppatub5l7yvbpfncjva29myumeyneiqnzl"
-              v-model="form.biographie"
-              :init="{
-                height: 250,
-                menubar: false,
-                plugins: 'lists link image media table wordcount',
-                toolbar: 'undo redo | bold italic underline | bullist numlist | link image media | removeformat',
-                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-              }"
-            />
+            <ClientOnly>
+              <EditorTinyMCE
+                v-model="form.biographie"
+                :height="250"
+                :menubar="false"
+              />
+            </ClientOnly>
           </div>
         </div>
       </div>
@@ -262,7 +258,7 @@
             </svg>
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Documents justificatifs</h2>
           </div>
-          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400 ml-7">Téléchargez les pièces justificatives requises</p>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400 ml-7">Téléchargez les pièces justificatives (toutes optionnelles)</p>
         </div>
         
         <div class="p-6">
@@ -270,13 +266,13 @@
             <!-- Pièce d'identité -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Pièce d'identité ou passeport <span class="text-red-500">*</span>
+                Pièce d'identité ou passeport <span class="text-xs text-gray-500 font-normal">(Optionnel)</span>
               </label>
               <FileUpload
                 id="identity-document"
                 v-model="form.identity_document"
                 accept=".pdf,.jpg,.jpeg,.png"
-                :required="true"
+                :required="false"
                 :max-size="5"
                 @error="handleUploadError"
               />
@@ -285,13 +281,13 @@
             <!-- Document NIF -->
             <div v-if="form.nationalite === 'Togo'">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Justificatif du NIF <span class="text-red-500">*</span>
+                Justificatif du NIF <span class="text-xs text-gray-500 font-normal">(Optionnel)</span>
               </label>
               <FileUpload
                 id="nif-document"
                 v-model="form.nif_document"
                 accept=".pdf,.jpg,.jpeg,.png"
-                :required="true"
+                :required="false"
                 :max-size="5"
                 @error="handleUploadError"
               />
@@ -346,11 +342,11 @@
                   </li>
                   <li class="flex items-start space-x-2">
                     <span class="text-blue-500 mt-1">•</span>
-                    <span><strong>NIF :</strong> Apparaît et devient obligatoire uniquement si la nationalité est "Togo"</span>
+                    <span><strong>NIF :</strong> Apparaît si la nationalité est "Togo" (optionnel)</span>
                   </li>
                   <li class="flex items-start space-x-2">
                     <span class="text-blue-500 mt-1">•</span>
-                    <span><strong>Pièce d'identité :</strong> Document obligatoire pour tous les professeurs</span>
+                    <span><strong>Pièce d'identité :</strong> Document optionnel</span>
                   </li>
                   <li class="flex items-start space-x-2">
                     <span class="text-blue-500 mt-1">•</span>
@@ -369,7 +365,7 @@
 <script setup>
 import { ref, watch, onMounted } from "vue"
 import Breadcrumb from "~/components/Breadcrumb.vue"
-import Editor from "@tinymce/tinymce-vue"
+import EditorTinyMCE from "~/components/EditorTinyMCE.vue"
 import FileUpload from "~/components/FileUpload.vue"
 import NationaliteSelector from "~/components/NationaliteSelector.vue"
 import { useUserStore } from "~~/stores/user"
@@ -425,22 +421,6 @@ const validateForm = () => {
   if (!form.value.nationalite) {
     $swal.fire({ icon: "error", title: "Champ requis", text: "La nationalité est obligatoire.", confirmButtonColor: "#6366f1" })
     return false
-  }
-  
-  if (!form.value.identity_document) {
-    $swal.fire({ icon: "error", title: "Document manquant", text: "La pièce d'identité est obligatoire.", confirmButtonColor: "#6366f1" })
-    return false
-  }
-  
-  if (form.value.nationalite === 'Togo') {
-    if (!form.value.nif?.trim()) {
-      $swal.fire({ icon: "error", title: "Champ requis", text: "Le numéro NIF est obligatoire pour les professeurs togolais.", confirmButtonColor: "#6366f1" })
-      return false
-    }
-    if (!form.value.nif_document) {
-      $swal.fire({ icon: "error", title: "Document manquant", text: "Le justificatif du NIF est obligatoire pour les professeurs togolais.", confirmButtonColor: "#6366f1" })
-      return false
-    }
   }
   
   return true

@@ -12,14 +12,45 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import Editor from '@tinymce/tinymce-vue'
 import { useThemeStore } from '~~/stores/theme'
 
 const themeStore = useThemeStore()
-// TinyMCE ne peut pas changer de skin à chaud : le composant est remonté
-// (via :key ci-dessus) à chaque bascule clair/sombre pour ré-appliquer le bon skin.
-const isDark = computed(() => themeStore.shouldBeDark())
+
+const isDarkClass = ref(false)
+const checkDark = () => {
+  if (typeof document !== 'undefined') {
+    isDarkClass.value = document.documentElement.classList.contains('dark') || themeStore.shouldBeDark()
+  } else {
+    isDarkClass.value = themeStore.shouldBeDark()
+  }
+}
+
+let observer = null
+onMounted(() => {
+  checkDark()
+  if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined') {
+    observer = new MutationObserver(() => {
+      checkDark()
+    })
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    })
+  }
+})
+
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect()
+  }
+})
+
+const isDark = computed(() => {
+  const _ = themeStore.themeSettings?.mode
+  return isDarkClass.value || themeStore.shouldBeDark()
+})
 
 const props = defineProps({
   modelValue: {
@@ -33,6 +64,14 @@ const props = defineProps({
   placeholder: {
     type: String,
     default: 'Saisissez votre texte ici...'
+  },
+  height: {
+    type: [Number, String],
+    default: 300
+  },
+  menubar: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -53,8 +92,8 @@ watch(content, (newValue) => {
 
 const initOptions = computed(() => ({
   apiKey: TINYMCE_API_KEY,
-  height: 300,
-  menubar: true,
+  height: props.height || 300,
+  menubar: props.menubar,
   plugins: [
     'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
     'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',

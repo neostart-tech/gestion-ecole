@@ -125,6 +125,7 @@ export const routePermissionFallback = [
     anySlugOf: ["create-bourse", "update-bourse", "delete-bourse", "affecter-bourse"],
   },
   { prefix: "/admin/etudiants/situation", anySlugOf: ["update-situation-etudiant"] },
+  { prefix: "/admin/etudiants/demandes-profil", anySlugOf: ["valider-profil-etudiant"] },
   {
     prefix: "/parametre/concours-sessions",
     anySlugOf: ["create-concours-session", "update-concours-session", "publish-concours-session"],

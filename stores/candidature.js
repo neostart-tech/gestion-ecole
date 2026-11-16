@@ -5,6 +5,7 @@ import axios from "axios";
 export const useCandidatureStore = defineStore("candidature", {
   state: () => ({
     candidatures: [],
+    corbeilleCandidatures: [],
     candidature: null,
     mesCandidatures: [],
     groupes: [],
@@ -25,6 +26,131 @@ export const useCandidatureStore = defineStore("candidature", {
           Authorization: token ? `Bearer ${token}` : "",
         },
       };
+    },
+
+    // DELETE  api/candidature/{id} (Soft Delete)
+    async deleteCandidature(idOrSlug) {
+      this.isLoading = true;
+      try {
+        const response = await axios.delete(
+          `/candidature/${idOrSlug}`,
+          this.authHeaders(),
+        );
+        this.candidatures = this.candidatures.filter(
+          (c) => c.id !== idOrSlug && c.slug !== idOrSlug,
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Erreur suppression candidature:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    // POST  api/candidature/bulk-delete (Suppression groupée - Soft Delete)
+    async bulkDeleteCandidatures(ids) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          "/candidature/bulk-delete",
+          { ids },
+          this.authHeaders(),
+        );
+        this.candidatures = this.candidatures.filter(
+          (c) => !ids.includes(c.id) && !ids.includes(c.slug),
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Erreur suppression groupée candidatures:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    // POST  api/candidature/bulk-restore (Restauration groupée)
+    async bulkRestoreCandidatures(ids) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          "/candidature/bulk-restore",
+          { ids },
+          this.authHeaders(),
+        );
+        this.corbeilleCandidatures = this.corbeilleCandidatures.filter(
+          (c) => !ids.includes(c.id) && !ids.includes(c.slug),
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Erreur restauration groupée candidatures:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    // GET  api/candidature/corbeille
+    async fetchCorbeille() {
+      this.isLoading = true;
+      this.error = null;
+      try {
+        const response = await axios.get(
+          "/candidature/corbeille",
+          this.authHeaders(),
+        );
+        this.corbeilleCandidatures = response.data.data || response.data;
+        return this.corbeilleCandidatures;
+      } catch (error) {
+        console.error("Erreur chargement corbeille:", error);
+        this.error =
+          error.response?.data?.message ||
+          "Erreur lors du chargement des candidatures supprimées";
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    // POST  api/candidature/{id}/restaurer
+    async restoreCandidature(idOrSlug) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          `/candidature/${idOrSlug}/restaurer`,
+          {},
+          this.authHeaders(),
+        );
+        this.corbeilleCandidatures = this.corbeilleCandidatures.filter(
+          (c) => c.id !== idOrSlug && c.slug !== idOrSlug,
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Erreur restauration candidature:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    // DELETE  api/candidature/{id}/force-delete
+    async forceDeleteCandidature(idOrSlug) {
+      this.isLoading = true;
+      try {
+        const response = await axios.delete(
+          `/candidature/${idOrSlug}/force-delete`,
+          this.authHeaders(),
+        );
+        this.corbeilleCandidatures = this.corbeilleCandidatures.filter(
+          (c) => c.id !== idOrSlug && c.slug !== idOrSlug,
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Erreur suppression définitive candidature:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
     },
 
     // GET  api/candidature/count-a-traiter

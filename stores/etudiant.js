@@ -28,15 +28,24 @@ export const useEtudiantStore = defineStore("etudiant", {
       };
     },
 
-    async fetchEtudiants(annee_scolaire_id = null) {
+    async fetchEtudiants(params = null) {
       this.isLoading = true;
       try {
-        const url = annee_scolaire_id 
-          ? `/etudiants/liste?annee_scolaire_id=${annee_scolaire_id}` 
-          : `/etudiants/liste`;
+        let queryParams = {};
+        if (params) {
+          if (typeof params === 'object') {
+            queryParams = { ...params };
+          } else {
+            queryParams.annee_scolaire_id = params;
+          }
+        }
+
         const response = await axios.get(
-          url,
-          this.authHeaders(),
+          "/etudiants/liste",
+          {
+            ...this.authHeaders(),
+            params: Object.keys(queryParams).length > 0 ? queryParams : undefined
+          }
         );
         const resData = response.data?.data ?? response.data;
         this.etudiants = Array.isArray(resData) ? resData : [];
@@ -248,6 +257,112 @@ export const useEtudiantStore = defineStore("etudiant", {
         return response.data;
       } catch (error) {
         console.error("Erreur lors de la suppression de l'étudiant:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async fetchProfilCompletion() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          "/espace-etudiant/profil-completion",
+          this.authHeaders(),
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Erreur chargement statut profil étudiant:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async updateMonProfil(formData) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          "/espace-etudiant/profil-completion",
+          formData,
+          {
+            ...this.authHeaders(),
+            headers: {
+              ...this.authHeaders().headers,
+              "Content-Type": "multipart/form-data",
+            },
+          },
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Erreur enregistrement profil étudiant:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async confirmerProfilCorrect() {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          "/espace-etudiant/confirmer-profil-correct",
+          {},
+          this.authHeaders()
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Erreur confirmation profil étudiant:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async fetchDemandesProfil(params = {}) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get("/demandes-profil-etudiant", {
+          ...this.authHeaders(),
+          params,
+        });
+        return response.data;
+      } catch (error) {
+        console.error("Erreur chargement demandes profil:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async validerDemandeProfil(id) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          `/demandes-profil-etudiant/${id}/valider`,
+          {},
+          this.authHeaders()
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Erreur validation demande profil:", error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async rejeterDemandeProfil(id, motifRefus) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          `/demandes-profil-etudiant/${id}/rejeter`,
+          { motif_refus: motifRefus },
+          this.authHeaders()
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Erreur rejet demande profil:", error);
         throw error;
       } finally {
         this.isLoading = false;

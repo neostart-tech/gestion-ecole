@@ -67,6 +67,21 @@
                   </div>
                   <span v-else>{{ slotProps.placeholder }}</span>
                 </template>
+                <template #option="slotProps">
+                  <div class="flex items-center py-1">
+                    <div class="w-7 h-7 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-full flex items-center justify-center text-xs font-semibold mr-2.5 flex-shrink-0">
+                      {{ getInitialsFromValue(slotProps.option.value) }}
+                    </div>
+                    <div>
+                      <div class="text-gray-900 dark:text-white font-medium text-sm">{{ slotProps.option.value.nom }} {{ slotProps.option.value.prenom }}</div>
+                      <div class="text-xs text-gray-500 dark:text-gray-400">
+                        {{ slotProps.option.value.matricule }}
+                        <span v-if="slotProps.option.value.niveau"> • {{ slotProps.option.value.niveau }}</span>
+                        <span v-if="slotProps.option.value.filiere"> ({{ slotProps.option.value.filiere }})</span>
+                      </div>
+                    </div>
+                  </div>
+                </template>
               </Dropdown>
               
               <div v-if="loadingEtudiants" class="flex items-center mt-2 text-gray-500 dark:text-gray-400">
@@ -1013,27 +1028,11 @@ watch([() => selectedFrais.value, () => form.type_paiement, () => selectedBourse
   }
 }, { deep: true })
 
-// Initialisation
-onMounted(async () => {
+async function loadEtudiants(anneeId = null) {
+  loadingEtudiants.value = true
   try {
-    loadingEtudiants.value = true
-    await Promise.all([
-      anneeStore.fetchAnneeScolaire(),
-      etudiantStore.fetchEtudiants({ limit: 1000 }),
-      fraisStore.fetchFrais() 
-    ])
-    
-    // Sélectionner automatiquement l'année scolaire active
-    if (anneeStore.activeAnnee) {
-      form.annee_scolaire_id = anneeStore.activeAnnee.id
-    } else if (anneeStore.annneescolaires && anneeStore.annneescolaires.length > 0) {
-      const active = anneeStore.annneescolaires.find(a => a.active === true || a.active === 1)
-      if (active) {
-        form.annee_scolaire_id = active.id
-      } else {
-        form.annee_scolaire_id = anneeStore.annneescolaires[0].id
-      }
-    }
+    const targetAnnee = anneeId || form.annee_scolaire_id || null
+    await etudiantStore.fetchEtudiants(targetAnnee)
     
     // Formater la liste des étudiants
     etudiantsList.value = (etudiantStore.etudiants || []).map(etudiant => ({
@@ -1061,6 +1060,34 @@ onMounted(async () => {
         selectedStudent.value = match.value;
       }
     }
+  } catch (error) {
+    console.error('Erreur chargement étudiants:', error)
+  } finally {
+    loadingEtudiants.value = false
+  }
+}
+
+// Initialisation
+onMounted(async () => {
+  try {
+    await Promise.all([
+      anneeStore.fetchAnneeScolaire(),
+      fraisStore.fetchFrais() 
+    ])
+    
+    // Sélectionner automatiquement l'année scolaire active
+    if (anneeStore.activeAnnee) {
+      form.annee_scolaire_id = anneeStore.activeAnnee.id
+    } else if (anneeStore.annneescolaires && anneeStore.annneescolaires.length > 0) {
+      const active = anneeStore.annneescolaires.find(a => a.active === true || a.active === 1)
+      if (active) {
+        form.annee_scolaire_id = active.id
+      } else {
+        form.annee_scolaire_id = anneeStore.annneescolaires[0].id
+      }
+    }
+    
+    await loadEtudiants(form.annee_scolaire_id)
 
     $swal.fire({
       title: 'Chargement réussi',
@@ -1079,8 +1106,6 @@ onMounted(async () => {
       icon: 'error',
       confirmButtonColor: '#6366f1'
     })
-  } finally {
-    loadingEtudiants.value = false
   }
 })
 
@@ -1103,8 +1128,20 @@ async function checkExistingNegociation(etudiantId) {
       existingNegociation.value = result.data
       const data = result.data
       
+      // Sélectionner les frais correspondants
+      if (data.frais_scolarite_id) {
+          const match = fraisDisponibles.value.find(f => f.id === data.frais_scolarite_id)
+          if (match) selectedFrais.value = match
+      } else if (fraisDisponibles.value.length === 1 && !selectedFrais.value) {
+          selectedFrais.value = fraisDisponibles.value[0]
+      }
+
       // Mettre à jour les montants globaux
-      if (data.frais_scolarite) {
+      if (selectedFrais.value && (!data.type_paiement || data.type_paiement === 'tranches_globales')) {
+          form.frais_scolarite_id = selectedFrais.value.id
+          montantApresBourse.value = parseFloat(selectedFrais.value.montant || 0)
+          autoGenMontant.value = montantApresBourse.value
+      } else if (data.frais_scolarite) {
           form.frais_scolarite_id = data.frais_scolarite_id
           // Forcer le montant après bourse si disponible
           montantApresBourse.value = parseFloat(data.montant_apres_bourse || 0)
@@ -1118,12 +1155,6 @@ async function checkExistingNegociation(etudiantId) {
       form.type_paiement = data.type_paiement || 'negociation'
       form.frequence_paiement = data.frequence_paiement || 'trimestriel'
       form.commentaire = data.commentaire || ''
-      
-      // Sélectionner les frais correspondants
-      if (data.frais_scolarite_id) {
-          const match = fraisDisponibles.value.find(f => f.id === data.frais_scolarite_id)
-          if (match) selectedFrais.value = match
-      }
       
       // Sélectionner la bourse correspondante
       if (data.bourse_etudiant_id) {
@@ -1209,6 +1240,13 @@ async function loadFraisDisponibles(etudiant) {
     // Récupérer tous les frais du store
     const tousFrais = fraisStore.frais || []
     
+    const normalizeMode = (m) => {
+      if (!m) return ''
+      if (typeof m === 'object' && m.value) m = m.value
+      return String(m).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim()
+    }
+    const etudiantModeNorm = normalizeMode(etudiant.mode_formation)
+
     // Filtrer selon l'étudiant
     let filtered = tousFrais.filter(f => {
       // Même année scolaire (par défaut ou sélectionnée)
@@ -1224,7 +1262,8 @@ async function loadFraisDisponibles(etudiant) {
       const memeGenre = !f.genre || f.genre === 'Tous' || !etudiant.genre || f.genre === etudiant.genre
 
       // Même mode de formation ou mode non spécifié
-      const memeModeFormation = !f.mode_formation || f.mode_formation === 'Tous' || !etudiant.mode_formation || f.mode_formation === etudiant.mode_formation
+      const fModeNorm = normalizeMode(f.mode_formation)
+      const memeModeFormation = !fModeNorm || fModeNorm === 'tous' || !etudiantModeNorm || fModeNorm === etudiantModeNorm
       
       return memeAnnee && memeNiveau && memeFiliere && memeGenre && memeModeFormation
     })
@@ -1235,14 +1274,32 @@ async function loadFraisDisponibles(etudiant) {
       filtered = filtered.filter(f => f.filiere && f.filiere.id === etudiant.filiere_id)
     }
 
-    const hasSpecificModeFormation = filtered.some(f => f.mode_formation && f.mode_formation !== 'Tous' && etudiant.mode_formation && f.mode_formation === etudiant.mode_formation)
+    const hasSpecificModeFormation = filtered.some(f => {
+      const fModeNorm = normalizeMode(f.mode_formation)
+      return fModeNorm && fModeNorm !== 'tous' && etudiantModeNorm && fModeNorm === etudiantModeNorm
+    })
     if (hasSpecificModeFormation) {
-      filtered = filtered.filter(f => f.mode_formation === etudiant.mode_formation)
+      filtered = filtered.filter(f => normalizeMode(f.mode_formation) === etudiantModeNorm)
     }
     
     const hasSpecificGenre = filtered.some(f => f.genre && f.genre !== 'Tous' && etudiant.genre && f.genre === etudiant.genre)
     if (hasSpecificGenre) {
       filtered = filtered.filter(f => f.genre === etudiant.genre)
+    }
+
+    // Fallback: si aucun frais trouvé pour l'année, chercher toutes années confondues
+    if (filtered.length === 0) {
+      filtered = tousFrais.filter(f => {
+        const memeNiveau = !f.niveau || !etudiant.niveau_id || f.niveau.id === etudiant.niveau_id
+        const memeFiliere = !f.filiere || !etudiant.filiere_id || f.filiere.id === etudiant.filiere_id
+        const fModeNorm = normalizeMode(f.mode_formation)
+        const memeModeFormation = !fModeNorm || fModeNorm === 'tous' || !etudiantModeNorm || fModeNorm === etudiantModeNorm
+        return memeNiveau && memeFiliere && memeModeFormation
+      })
+      const hasSpecF = filtered.some(f => f.filiere && etudiant.filiere_id && f.filiere.id === etudiant.filiere_id)
+      if (hasSpecF) {
+        filtered = filtered.filter(f => f.filiere && f.filiere.id === etudiant.filiere_id)
+      }
     }
 
     fraisDisponibles.value = filtered

@@ -45,7 +45,16 @@ export default defineNuxtRouteMiddleware((to) => {
 	}
 
 	const userData = JSON.parse(localStorage.getItem("user") || "{}");
-	const userRoles = userData?.roles || [];
+	const rawRoles = userData?.roles || [];
+	const userRoles = Array.isArray(rawRoles) ? rawRoles : (userData?.role ? [userData.role] : []);
+
+	const getRoleSlug = (r) => {
+		if (!r) return "";
+		if (typeof r === "string") return r.trim().toLowerCase();
+		return (r.slug || r.name || r.nom || "").toString().trim().toLowerCase();
+	};
+
+	const userRoleSlugs = userRoles.map(getRoleSlug).filter(Boolean);
 
 	// Routes réservées strictement à certains rôles, même pour les comptes
 	// ayant par ailleurs un accès total ("*"), comme l'admin.
@@ -57,7 +66,7 @@ export default defineNuxtRouteMiddleware((to) => {
 	);
 	if (strictPrefix) {
 		const allowedRoles = strictRoleOnlyRoutes[strictPrefix];
-		const isAllowed = userRoles.some((role) => allowedRoles.includes(role.slug));
+		const isAllowed = userRoleSlugs.some((slug) => allowedRoles.includes(slug));
 		if (!isAllowed) {
 			const { $toastr } = useNuxtApp();
 			$toastr.error(
@@ -72,6 +81,9 @@ export default defineNuxtRouteMiddleware((to) => {
 	const rolesWithHomeAccess = [
 		"responsable-du-site",
 		"admin",
+		"superadmin",
+		"super-admin",
+		"super_admin",
 		"directeur-general-adjoint",
 		"directeur-general",
 		"informaticien",
@@ -82,13 +94,13 @@ export default defineNuxtRouteMiddleware((to) => {
 		"collaborateur-commercial",
 		"stagiaire",
 		"logiticien-academique",
-		'directeur-academique'
+		"directeur-academique",
 	];
 
 	// REDIRECTION SPÉCIALE POUR LA PAGE D'ACCUEIL (/)
 	if (to.path === "/") {
-		const hasHomeAccess = userRoles.some((role) =>
-			rolesWithHomeAccess.includes(role.slug)
+		const hasHomeAccess = userRoleSlugs.some((slug) =>
+			rolesWithHomeAccess.includes(slug)
 		);
 		// Si l'utilisateur n'a pas accès à l'accueil, rediriger vers sa page par défaut
 		if (!hasHomeAccess) {
@@ -99,10 +111,22 @@ export default defineNuxtRouteMiddleware((to) => {
 		return;
 	}
 
-	// Accès total réel : uniquement les rôles ayant la permission "*"
-	// (ne pas confondre avec rolesWithHomeAccess, qui ne concerne que la page d'accueil)
-	const hasFullAccess = userRoles.some((role) => {
-		const permissions = rolePermissions[role.slug];
+	// Rôles administratifs avec accès universel
+	const adminFullAccessSlugs = [
+		"admin",
+		"superadmin",
+		"super-admin",
+		"super_admin",
+		"directeur-general",
+		"directeur-general-adjoint",
+		"responsable-du-site",
+		"informaticien",
+	];
+
+	// Accès total réel : rôles administratifs de base OU ceux ayant la permission "*"
+	const hasFullAccess = userRoleSlugs.some((slug) => {
+		if (adminFullAccessSlugs.includes(slug)) return true;
+		const permissions = rolePermissions[slug];
 		return permissions && permissions.includes("*");
 	});
 
@@ -110,18 +134,21 @@ export default defineNuxtRouteMiddleware((to) => {
 		return; // Accès autorisé à tout
 	}
 
+	const normalizedPath = to.path.replace(/\/+$/, "") || "/";
+
 	// Vérifier les permissions pour chaque rôle
-	const hasAccess = userRoles.some((role) => {
-		const permissions = rolePermissions[role.slug];
+	const hasAccess = userRoleSlugs.some((slug) => {
+		const permissions = rolePermissions[slug];
 		if (!permissions) return false;
 
 		return permissions.some((pattern) => {
 			if (pattern === "*") return true;
-			if (pattern === to.path) return true;
+			const cleanPattern = pattern.replace(/\/+$/, "") || "/";
+			if (cleanPattern === normalizedPath) return true;
 
 			if (pattern.endsWith("/*")) {
 				const basePath = pattern.slice(0, -2);
-				return to.path.startsWith(basePath);
+				return normalizedPath.startsWith(basePath);
 			}
 
 			return false;
@@ -134,13 +161,16 @@ export default defineNuxtRouteMiddleware((to) => {
 		// la page "Rôles". Si le chemin correspond à un domaine de permissions
 		// dynamiques et que l'utilisateur a au moins une des permissions requises,
 		// on autorise quand même — voir configuration/permissionFallback.js.
-		const userPermissions = userData?.permissions || [];
+		const rawPerms = userData?.permissions || [];
+		const userPermissions = (Array.isArray(rawPerms) ? rawPerms : []).map((p) =>
+			(typeof p === "string" ? p : (p?.slug || p?.name || "")).toString().trim().toLowerCase()
+		);
 		const fallbackMatch = routePermissionFallback.find((entry) =>
-			to.path.startsWith(entry.prefix),
+			normalizedPath.startsWith(entry.prefix.replace(/\/+$/, ""))
 		);
 		if (
 			fallbackMatch &&
-			fallbackMatch.anySlugOf.some((slug) => userPermissions.includes(slug))
+			fallbackMatch.anySlugOf.some((slug) => userPermissions.includes(slug.toLowerCase()))
 		) {
 			return;
 		}
@@ -158,4 +188,4 @@ export default defineNuxtRouteMiddleware((to) => {
 		// Rediriger vers la page par défaut
 		return navigateTo("/emploi-du-temps");
 	}
-});
+});

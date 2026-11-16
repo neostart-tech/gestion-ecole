@@ -2,9 +2,13 @@
 export const rolePermissions = {
   // Rôles administratifs
   admin: ["*"], // Accès à tout
+  superadmin: ["*"],
+  "super-admin": ["*"],
+  super_admin: ["*"],
   "directeur-general-adjoint": ["*"], // Accès à tout
   "directeur-general": ["*"], // Accès à tout
   informaticien: ["*"],
+  "responsable-du-site": ["*"],
 
   // Rôles académiques
   "directeur-academique": [
@@ -25,6 +29,7 @@ export const rolePermissions = {
     "/admin/releves-globaux/*",
     "/admin/liste-des-releves/*",
     "/admin/etudiants/cartes",
+    "/admin/etudiants/demandes-profil",
     "/annee-scolaire/*",
     "/notifications/*",
     "/candidatures/etude-dossier",
@@ -51,6 +56,7 @@ export const rolePermissions = {
     "/admin/releves-globaux/*",
     "/admin/liste-des-releves/*",
     "/admin/etudiants/cartes",
+    "/admin/etudiants/demandes-profil",
     "/candidatures/etude-dossier",
     "/candidatures/*",
     "/personnel/*",

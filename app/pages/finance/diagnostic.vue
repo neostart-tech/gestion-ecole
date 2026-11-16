@@ -19,9 +19,24 @@
 
       <div class="flex items-center gap-3 bg-white/60 dark:bg-gray-800/60 backdrop-blur-md p-2 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-gray-700/50">
         <button 
+          v-if="result && result.nb_differences > 0"
+          @click="confirmerRegularisationTous" 
+          class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-500/20 dark:shadow-none transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
+          :disabled="regularizing || loading"
+        >
+          <svg v-if="regularizing" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+          </svg>
+          <span>Régulariser toutes les anomalies ({{ result.nb_differences }})</span>
+        </button>
+
+        <button 
           @click="loadDiagnostic" 
           class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-500/20 dark:shadow-none transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
-          :disabled="loading"
+          :disabled="loading || regularizing"
         >
           <svg class="w-4 h-4" :class="{'animate-spin': loading}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
@@ -143,16 +158,27 @@
         <div class="flex items-center gap-3">
           <button 
             v-if="selectedEtudiantIds.length > 0"
+            @click="confirmerRegularisationSelection"
+            class="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-black shadow-md shadow-emerald-500/20 transition-all flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
+            :disabled="regularizing || loading"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Régulariser la sélection ({{ selectedEtudiantIds.length }})
+          </button>
+          <button 
+            v-if="selectedEtudiantIds.length > 0"
             @click="openBulkModeModal"
             class="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-xs font-black shadow-md shadow-amber-500/20 transition-all flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
             </svg>
-            Changer le mode pour la sélection ({{ selectedEtudiantIds.length }})
+            Changer le mode ({{ selectedEtudiantIds.length }})
           </button>
           <span v-else class="text-xs text-slate-400 font-medium hidden sm:inline-block">
-            Sélectionnez des étudiants pour modifier leur mode de formation en masse.
+            Sélectionnez des étudiants pour les régulariser ou modifier leur mode en masse.
           </span>
         </div>
       </div>
@@ -206,7 +232,15 @@
                 </div>
                 <div class="flex flex-col">
                   <span class="font-bold text-slate-800 dark:text-gray-200 leading-tight">{{ data.value.nom }}</span>
-                  <span v-if="data.value.niveau" class="text-xs text-slate-400 font-medium mt-0.5">{{ data.value.niveau }}</span>
+                  <span v-if="data.value.niveau && data.value.niveau !== 'Non assigné'" class="text-xs text-slate-400 font-medium mt-0.5">
+                    {{ data.value.niveau }}
+                  </span>
+                  <span v-else class="text-xs text-amber-600 dark:text-amber-400 font-semibold mt-0.5 inline-flex items-center gap-1">
+                    <svg class="w-3 h-3 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    Niveau non assigné
+                  </span>
                 </div>
               </div>
             </template>
@@ -265,6 +299,19 @@
             <!-- Custom Slot: Actions -->
             <template #actions="data">
               <div class="text-center flex justify-center items-center gap-2 py-1">
+                <!-- Bouton Régularisation 1-clic (Icon-only) -->
+                <button 
+                  v-if="data.value.tarif_existant !== false"
+                  @click="confirmerRegularisationIndividuelle(data.value)" 
+                  title="Régulariser automatiquement ce contrat selon la grille officielle"
+                  class="w-8 h-8 flex-shrink-0 inline-flex items-center justify-center bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:text-emerald-300 rounded-xl transition-all border border-emerald-200/80 dark:border-emerald-500/30 shadow-sm transform hover:scale-105 active:scale-95 disabled:opacity-50"
+                  :disabled="regularizing || loading"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </button>
+
                 <!-- Bouton Changer Mode (Icon-only) -->
                 <button 
                   @click="openChangeModeModal(data.value)" 
@@ -288,11 +335,11 @@
                   </svg>
                 </NuxtLink>
 
-                <!-- Bouton Régulariser (Icon-only) -->
+                <!-- Bouton Consulter Dossier / Recouvrement (Icon-only) -->
                 <NuxtLink 
                   v-else
                   :to="`/finance/recouvrement/${data.value.slug}`" 
-                  title="Régulariser le dossier"
+                  title="Consulter le dossier de recouvrement"
                   class="w-8 h-8 flex-shrink-0 inline-flex items-center justify-center bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl shadow-md shadow-indigo-500/20 transition-all transform hover:scale-105 active:scale-95"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -445,6 +492,7 @@ const selectedEtudiants = ref([]);
 const showBulkModeModal = ref(false);
 const selectedBulkMode = ref('Présentiel');
 const savingBulkMode = ref(false);
+const regularizing = ref(false);
 
 const selectedEtudiantIds = computed(() => {
   return (selectedEtudiants.value || []).map(e => e.id);
@@ -547,6 +595,58 @@ const submitBulkChangeMode = async () => {
   }
 };
 
+const execRegularisation = async (etudiantIds = null, confirmText = '') => {
+  const count = etudiantIds ? (Array.isArray(etudiantIds) ? etudiantIds.length : 1) : (result.value?.nb_differences || 0);
+  const swalInstance = nuxtApp.$swal;
+
+  let confirmed = true;
+  if (swalInstance) {
+    const confirmRes = await swalInstance.fire({
+      title: count === 1 ? 'Régulariser ce dossier ?' : `Régulariser ${count} dossier(s) ?`,
+      text: confirmText || "Les contrats financiers seront synchronisés avec la grille tarifaire officielle en vigueur.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#059669',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Oui, régulariser',
+      cancelButtonText: 'Annuler',
+    });
+    confirmed = confirmRes.isConfirmed;
+  } else {
+    confirmed = confirm(confirmText || `Voulez-vous régulariser ${count} dossier(s) ?`);
+  }
+
+  if (!confirmed) return;
+
+  regularizing.value = true;
+  try {
+    const res = await diagnosticStore.corrigerAnomalies(etudiantIds);
+    notifySuccess(res?.message || "Régularisation effectuée avec succès !");
+    selectedEtudiants.value = [];
+    await loadDiagnostic();
+  } catch (error) {
+    console.error("Erreur lors de la régularisation :", error);
+    const msg = error.response?.data?.message || "Échec de la régularisation des dossiers.";
+    notifyError(msg);
+  } finally {
+    regularizing.value = false;
+  }
+};
+
+const confirmerRegularisationTous = () => {
+  execRegularisation(null, "Tous les étudiants listés dans ce diagnostic verront leur contrat mis en conformité avec la grille officielle.");
+};
+
+const confirmerRegularisationSelection = () => {
+  if (selectedEtudiantIds.value.length === 0) return;
+  execRegularisation(selectedEtudiantIds.value, `Les ${selectedEtudiantIds.value.length} étudiants sélectionnés seront mis en conformité avec la grille officielle.`);
+};
+
+const confirmerRegularisationIndividuelle = (etudiant) => {
+  if (!etudiant) return;
+  execRegularisation([etudiant.id], `Le contrat de ${etudiant.nom} sera mis à jour avec le tarif officiel attendu (${formatMontant(etudiant.sit)}).`);
+};
+
 const formatMontant = (m) =>
   new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF', minimumFractionDigits: 0 })
     .format(m).replace('XOF', 'FCFA');
@@ -582,7 +682,7 @@ onActivated(() => {
   text-transform: uppercase;
   font-size: 0.65rem !important;
   letter-spacing: 0.05em;
-  padding: 1rem !important;
+  padding: 1rem 1.25rem !important;
   border-bottom: 1px solid #e2e8f0 !important;
 }
 .dark .premium-table :deep(.bh-datatable thead th) {
@@ -590,6 +690,52 @@ onActivated(() => {
   border-bottom-color: #374151 !important;
 }
 .premium-table :deep(.bh-datatable table td) {
-  padding: 0.8rem 1rem;
+  padding: 0.875rem 1.25rem;
+}
+/* Marges latérales gauche et droite pour aligner parfaitement avec le header de la carte */
+.premium-table :deep(.bh-datatable table th:first-child),
+.premium-table :deep(.bh-datatable table td:first-child) {
+  padding-left: 1.5rem !important;
+}
+.premium-table :deep(.bh-datatable table th:last-child),
+.premium-table :deep(.bh-datatable table td:last-child) {
+  padding-right: 1.5rem !important;
+}
+/* Marges et mise en page de la pagination */
+.premium-table :deep(.bh-pagination) {
+  padding: 1rem 1.5rem !important;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.dark .premium-table :deep(.bh-pagination) {
+  border-top-color: #1f2937;
+}
+.premium-table :deep(.bh-pagination .bh-pagination-info) {
+  color: #64748b;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+.dark .premium-table :deep(.bh-pagination .bh-pagination-info) {
+  color: #94a3b8;
+}
+.premium-table :deep(.bh-pagination select) {
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #334155;
+  font-size: 0.8125rem;
+}
+.dark .premium-table :deep(.bh-pagination select) {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+.premium-table :deep(.bh-pagination .bh-page-item) {
+  border-radius: 0.5rem;
 }
 </style>

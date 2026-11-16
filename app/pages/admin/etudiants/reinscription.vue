@@ -1023,6 +1023,30 @@ const configuredFraisInscription = computed(() => {
     found = list.find(f => matchLevel(f) && matchAnnee(f))
   }
 
+  // Fallback toutes années
+  if (!found) {
+    found = list.find(f => matchLevel(f) && matchFiliere(f))
+  }
+
+  if (!found) {
+    found = list.find(f => matchLevel(f))
+  }
+
+  // Fallback 1 : Frais général de l'établissement pour l'année ciblée (sans niveau spécifique)
+  if (!found) {
+    found = list.find(f => (!f.niveau_id && !f.niveau) && matchAnnee(f) && (f.active || f.active === 1))
+  }
+
+  // Fallback 2 : Frais général actif de l'établissement (toutes années)
+  if (!found) {
+    found = list.find(f => (!f.niveau_id && !f.niveau) && (f.active || f.active === 1))
+  }
+
+  // Fallback 3 : Premier frais actif ou premier frais disponible par défaut
+  if (!found) {
+    found = list.find(f => f.active || f.active === 1) || list[0]
+  }
+
   return found ? (Number(found.montant) || 0) : null
 })
 
@@ -1058,7 +1082,13 @@ const matchedFraisRecord = computed(() => {
 
   const matchFiliereExact = (f) => {
     const fid = f.filiere_id ?? f.filiere?.id
-    return fid && targetFiliereId && Number(fid) === targetFiliereId
+    if (fid && targetFiliereId && Number(fid) === targetFiliereId) return true
+    const fNom = f.filiere?.nom || f.filiere?.code || (typeof f.filiere === 'string' ? f.filiere : null)
+    if (fNom && targetFiliereObj.value) {
+      const targetNom = targetFiliereObj.value.nom || targetFiliereObj.value.code
+      if (targetNom && normalizeStr(fNom) === normalizeStr(targetNom)) return true
+    }
+    return false
   }
 
   const matchFiliereGeneral = (f) => {
@@ -1112,6 +1142,26 @@ const matchedFraisRecord = computed(() => {
   // 4. Level exact + Année exacte (Mode quelconque)
   if (!found) {
     found = list.find(f => matchLevel(f) && matchAnneeExact(f))
+  }
+
+  // 5. Fallback: Level exact + Filière exacte + Mode exact (toutes années confondues)
+  if (!found) {
+    found = list.find(f => matchLevel(f) && matchFiliereExact(f) && matchModeExact(f))
+  }
+
+  // 6. Fallback: Level exact + Filière générale + Mode exact (toutes années confondues)
+  if (!found) {
+    found = list.find(f => matchLevel(f) && matchFiliereGeneral(f) && matchModeExact(f))
+  }
+
+  // 7. Fallback: Level exact + Mode exact (toutes années confondues)
+  if (!found) {
+    found = list.find(f => matchLevel(f) && matchModeExact(f))
+  }
+
+  // 8. Fallback: Level exact seul (toutes années confondues)
+  if (!found) {
+    found = list.find(f => matchLevel(f))
   }
 
   return found || null
@@ -1375,10 +1425,16 @@ const onEtudiantSelected = () => {
   selectedFiliereId.value = selectedEtudiantToPromote.value?.dernier_groupe?.filiere_id || 
                             selectedEtudiantToPromote.value?.dernier_groupe?.filiere?.id || null
 
-  // Année scolaire par défaut (auto-sélection N+1 si déjà inscrit l'année en cours)
+  // Année scolaire par défaut (auto-sélection N+1 si déjà inscrit l'année en cours ET que N+1 a des frais configurés)
   const dgAnneeId = selectedEtudiantToPromote.value?.dernier_groupe?.annee_scolaire_id ?? selectedEtudiantToPromote.value?.dernier_groupe?.annee_scolaire?.id
+  const hasFeesForYear = (yId) => {
+    return (fraisStore.frais || []).some(f => {
+      const aid = f.annee_scolaire_id ?? f.annee_scolaire?.id
+      return aid && Number(aid) === Number(yId)
+    })
+  }
   if (dgAnneeId && anneesList.value.length > 1) {
-    const nextAnnee = anneesList.value.find(a => Number(a.id) > Number(dgAnneeId))
+    const nextAnnee = anneesList.value.find(a => Number(a.id) > Number(dgAnneeId) && hasFeesForYear(a.id))
     if (nextAnnee) {
       selectedAnneeScolaireId.value = nextAnnee.id
     } else if (activeAnneeObj.value) {

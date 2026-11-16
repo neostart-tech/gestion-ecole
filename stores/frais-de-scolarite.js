@@ -109,5 +109,33 @@ export const useFraisStore = defineStore("frais de scolarité", {
         this.isLoading = false;
       }
     },
+
+    async synchroniserEcheances(fraisId) {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          `/frais/${fraisId}/synchroniser-echeances`,
+          {},
+          this.authHeaders()
+        );
+        return response.data;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async synchroniserToutesEcheances() {
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          "/frais/synchroniser-toutes-echeances",
+          {},
+          this.authHeaders()
+        );
+        return response.data;
+      } finally {
+        this.isLoading = false;
+      }
+    },
   },
 });

@@ -74,16 +74,23 @@
 
       <div v-else-if="examStatus === 'en_attente'" class="mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
         <div class="flex items-center gap-3">
-          <div class="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-full">
+          <div class="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-full flex-shrink-0">
             <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <div>
-            <h3 class="font-semibold text-amber-800 dark:text-amber-300">Examen à venir</h3>
-            <p class="text-sm text-amber-600 dark:text-amber-400">
-              L'examen commencera dans <span class="font-bold text-lg">{{ formatCountdown(timeUntilStart) }}</span>
-            </p>
+          <div class="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <h3 class="font-semibold text-amber-800 dark:text-amber-300">
+                Évaluation à venir : {{ examStore.examTitle }}
+              </h3>
+              <p class="text-sm text-amber-600 dark:text-amber-400">
+                Prévue le {{ formatDateFull(examStore.currentEvaluation?.debut) || formatDate(examStore.currentEvaluation?.debut) }} à {{ formatTimeFromDate(examStore.currentEvaluation?.debut) }}
+              </p>
+            </div>
+            <div class="text-sm text-amber-800 dark:text-amber-300 font-medium whitespace-nowrap">
+              L'examen commencera dans <span class="font-bold text-base sm:text-lg">{{ formatCountdown(timeUntilStart) }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -120,9 +127,9 @@
         </div>
 
         <div v-else-if="examStatus === 'en_attente'" class="flex items-center gap-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-3 border border-gray-100 dark:border-gray-700">
-          <div class="text-center">
+          <div class="text-center px-1">
             <p class="text-xs text-gray-500 dark:text-gray-400">Début dans</p>
-            <p class="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400">
+            <p class="text-base sm:text-xl font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap">
               {{ formatCountdown(timeUntilStart) }}
             </p>
           </div>
@@ -189,24 +196,82 @@
       </div>
 
       <!-- ========== MESSAGE D'INFORMATION SI EXAMEN EN ATTENTE ========== -->
+      <div v-if="examStatus === 'en_attente'" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 sm:p-10 md:p-12 text-center max-w-3xl mx-auto">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-500 mb-5">
+          <svg class="w-9 h-9 sm:w-11 sm:h-11" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
 
-      <div v-if="examStatus === 'en_attente'" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-12 text-center">
-        <svg class="w-20 h-20 mx-auto text-amber-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
+        <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 uppercase tracking-wider mb-2">
+          {{ examStore.currentEvaluation?.type || 'Évaluation' }} à venir
+        </span>
+
+        <!-- Nom de la matière mis en valeur -->
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mb-2">
+          {{ examStore.examTitle }}
+        </h2>
         
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Examen à venir</h2>
-        
-        <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-          L'examen débutera automatiquement le {{ formatDate(examStore.currentEvaluation && examStore.currentEvaluation.debut) }} à {{ formatTimeFromDate(examStore.currentEvaluation && examStore.currentEvaluation.debut) }}. 
+        <p v-if="examStore.currentEvaluation?.matiere?.code" class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-6">
+          Code matière : {{ examStore.currentEvaluation.matiere.code }}
+        </p>
+        <div v-else class="mb-6"></div>
+
+        <!-- Récapitulatif Date & Heure -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700/60 rounded-xl text-left mb-6">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex-shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide font-medium">Date</p>
+              <p class="text-sm font-bold text-gray-900 dark:text-white">
+                {{ formatDate(examStore.currentEvaluation?.debut) }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex-shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide font-medium">Horaire</p>
+              <p class="text-sm font-bold text-gray-900 dark:text-white">
+                {{ formatTimeFromDate(examStore.currentEvaluation?.debut) }} - {{ formatTimeFromDate(examStore.currentEvaluation?.fin) }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex-shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide font-medium">Durée</p>
+              <p class="text-sm font-bold text-gray-900 dark:text-white">
+                {{ examStore.examDuration }} min
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base mb-6 max-w-lg mx-auto">
+          L'examen débutera automatiquement le <strong class="text-gray-900 dark:text-white">{{ formatDateFull(examStore.currentEvaluation?.debut) || formatDate(examStore.currentEvaluation?.debut) }}</strong> à <strong class="text-gray-900 dark:text-white">{{ formatTimeFromDate(examStore.currentEvaluation?.debut) }}</strong>. 
           La page se rafraîchira automatiquement à ce moment.
         </p>
 
-        <div class="inline-flex items-center gap-2 px-6 py-3 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+        <div class="inline-flex items-center gap-2.5 px-6 py-3 bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800/50 rounded-xl shadow-sm">
           <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span class="text-amber-800 dark:text-amber-300 font-medium text-lg">
+          <span class="text-amber-900 dark:text-amber-200 font-semibold text-base sm:text-lg">
             Début dans {{ formatCountdown(timeUntilStart) }}
           </span>
         </div>
@@ -1148,7 +1213,9 @@ const examStatus = computed(() => {
 })
 
 const hasSubmitted = computed(() => {
-  return examStore.currentSession?.status === 'termine'
+  if (examStore.currentSession?.status === 'termine') return true
+  if (examStore.submissions && examStore.submissions.length > 0 && examStore.submissions.some(s => !!s.submitted_at)) return true
+  return false
 })
 
 const canSeeCorrection = computed(() => {
@@ -1232,11 +1299,34 @@ const formatTimeFromDate = (dateString) => {
 }
 
 const formatCountdown = (seconds) => {
-  if (seconds <= 0) return '00:00:00'
-  const h = Math.floor(seconds / 3600)
+  if (seconds <= 0) return '0s'
+  
+  const d = Math.floor(seconds / 86400)
+  const h = Math.floor((seconds % 86400) / 3600)
   const m = Math.floor((seconds % 3600) / 60)
   const s = seconds % 60
-  return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+
+  // 1. Si ça dépasse 24 heures : afficher le nombre de jours
+  if (d > 0) {
+    const joursStr = d === 1 ? '1 jour' : `${d} jours`
+    if (h > 0) {
+      return `${joursStr} ${h}h ${m.toString().padStart(2, '0')}m`
+    }
+    return `${joursStr} ${m.toString().padStart(2, '0')}m`
+  }
+
+  // 2. Si ça dépasse 60 minutes : afficher les heures, minutes et secondes
+  if (h > 0) {
+    return `${h}h ${m.toString().padStart(2, '0')}m ${s.toString().padStart(2, '0')}s`
+  }
+
+  // 3. Moins de 60 minutes : afficher les minutes et secondes
+  if (m > 0) {
+    return `${m}m ${s.toString().padStart(2, '0')}s`
+  }
+
+  // 4. Moins de 60 secondes : afficher uniquement les secondes
+  return `${s}s`
 }
 
 const formatDate = (dateString) => {
@@ -1247,6 +1337,19 @@ const formatDate = (dateString) => {
     month: '2-digit',
     year: 'numeric'
   })
+}
+
+const formatDateFull = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  if (isNaN(date.getTime())) return ''
+  const formatted = date.toLocaleDateString('fr-FR', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  })
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1)
 }
 
 const formatDateTime = (dateString) => {
@@ -1479,6 +1582,7 @@ const toggleTableOption = async (question, rowIdx, colIdx, optionText) => {
  * 🔴 IMPORTANT: Sauvegarde d'une cellule de tableau
  */
 const saveTableResponse = async (question, rowIdx, colIdx) => {
+  if (isSubmitting.value || examStatus.value !== 'en_cours' || hasSubmitted.value) return
   const key = `${question.id}_${rowIdx}_${colIdx}`
   isSaving.value[key] = true
   
@@ -1524,6 +1628,7 @@ const getStructuredResponse = (questionId, itemIdx) => {
 }
 
 const setStructuredResponse = async (question, itemIdx, value) => {
+  if (isSubmitting.value || examStatus.value !== 'en_cours' || hasSubmitted.value) return
   const key = `${question.id}_${itemIdx}`
   structuredResponses.value[key] = value
   
@@ -1564,6 +1669,7 @@ const setStructuredResponse = async (question, itemIdx, value) => {
  * 🔴 IMPORTANT: Sauvegarde d'une partie de question multi-parties
  */
 const saveMultiPartResponse = async (question, partIdx) => {
+  if (isSubmitting.value || examStatus.value !== 'en_cours' || hasSubmitted.value) return
   const key = `${question.id}_${partIdx}`
   
   isSaving.value[key] = true
@@ -1600,14 +1706,14 @@ const saveMultiPartResponse = async (question, partIdx) => {
 
 // ========== MÉTHODES D'INTERACTION DE BASE ==========
 const selectOption = async (questionId, optionId) => {
-  if (isSubmitting.value || examStatus.value !== 'en_cours') return
+  if (isSubmitting.value || examStatus.value !== 'en_cours' || hasSubmitted.value) return
   responses.value[questionId] = optionId
   const question = examStore.questions.find(q => q.id === questionId)
   if (question) await saveCurrentQuestion(question)
 }
 
 const toggleOption = async (questionId, optionId) => {
-  if (isSubmitting.value || examStatus.value !== 'en_cours') return
+  if (isSubmitting.value || examStatus.value !== 'en_cours' || hasSubmitted.value) return
   if (!responses.value[questionId]) {
     responses.value[questionId] = []
   }
@@ -1624,7 +1730,7 @@ const toggleOption = async (questionId, optionId) => {
 }
 
 const setResponse = async (questionId, value) => {
-  if (isSubmitting.value || examStatus.value !== 'en_cours') return
+  if (isSubmitting.value || examStatus.value !== 'en_cours' || hasSubmitted.value) return
   responses.value[questionId] = value
   const question = examStore.questions.find(q => q.id === questionId)
   if (question) await saveCurrentQuestion(question)
@@ -1638,7 +1744,7 @@ const getResponse = (questionId) => {
  * 🔴 IMPORTANT: Sauvegarde d'une réponse simple
  */
 const saveCurrentQuestion = async (question) => {
-  if (!question || isSubmitting.value || examStatus.value !== 'en_cours') return
+  if (!question || isSubmitting.value || examStatus.value !== 'en_cours' || hasSubmitted.value) return
   
   isSaving.value[question.id] = true
   
@@ -1939,7 +2045,6 @@ watch(examStatus, async (newStatus, oldStatus) => {
   
   if (newStatus === 'en_cours' && (oldStatus === 'en_attente' || oldStatus === 'chargement' || oldStatus === undefined)) {
     console.log('[ExamDebug] Déclenchement automatique du démarrage de l\'examen')
-    showToastMessage('L\'examen commence maintenant ! Bonne chance.', 'success')
     
     // Charger les données si nécessaire
     if (examStore.parts.length === 0) {
@@ -1947,14 +2052,19 @@ watch(examStatus, async (newStatus, oldStatus) => {
     }
     
     // Initialiser le passage d'examen
-    await examStore.startExam(evaluationId, currentUser.value.id)
+    const session = await examStore.startExam(evaluationId, currentUser.value.id)
     
     if (examStore.parts.length > 0 && expandedParts.value.length === 0) {
       expandedParts.value.push(examStore.parts[0].id)
     }
     
-    startAutoSave()
-    setupSecurityListeners()
+    if (session?.status !== 'termine' && !hasSubmitted.value) {
+      showToastMessage('L\'examen commence maintenant ! Bonne chance.', 'success')
+      startAutoSave()
+      setupSecurityListeners()
+    } else {
+      console.log('[ExamDebug] Copie déjà soumise ou session terminée, mode consultation actif')
+    }
   }
 }, { immediate: true })
 
@@ -2054,7 +2164,7 @@ onMounted(async () => {
     
     // ========== SÉCURITÉ : EMPÊCHER DE QUITTER ==========
     window.addEventListener('beforeunload', (e) => {
-      if (examStatus.value === 'en_cours' && !isSubmitting.value) {
+      if (examStatus.value === 'en_cours' && !hasSubmitted.value && !isSubmitting.value) {
         e.preventDefault()
         e.returnValue = 'Attention : votre examen est en cours. Vos réponses pourraient être perdues.'
       }
@@ -2067,7 +2177,9 @@ onMounted(async () => {
     // car il est configuré avec immediate: true et capte le premier état après chargement.
     
     // ========== SÉCURITÉ & ANTI-TRICHE ==========
-    setupSecurityListeners()
+    if (!hasSubmitted.value) {
+      setupSecurityListeners()
+    }
     
     // Bloquer les raccourcis clavier nuisibles (toujours actif si en cours)
     document.addEventListener('keydown', (e) => {

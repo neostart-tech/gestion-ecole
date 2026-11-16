@@ -74,6 +74,23 @@ export const useDiagnosticFinancierStore = defineStore('diagnosticFinancier', {
       } finally {
         this.loading = false;
       }
+    },
+
+    async corrigerAnomalies(etudiantIds = null) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const payload = etudiantIds ? { etudiant_ids: Array.isArray(etudiantIds) ? etudiantIds : [etudiantIds] } : {};
+        const response = await axios.post('/finance/diagnostic/corriger-anomalies', payload, this.authHeaders);
+        await this.fetchDiagnostic();
+        return response.data;
+      } catch (error) {
+        this.error = error.response?.data?.message || 'Erreur lors de la régularisation des anomalies';
+        console.error('Error corrigerAnomalies:', error);
+        throw error;
+      } finally {
+        this.loading = false;
+      }
     }
   }
 });
